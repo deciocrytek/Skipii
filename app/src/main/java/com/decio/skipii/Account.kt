@@ -1,6 +1,8 @@
 package com.decio.skipii
 
 import android.content.Context
+import android.util.Base64
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -224,7 +226,11 @@ object InnerTube {
             if (auth != null) Account.absorbSetCookies(r.headers("Set-Cookie"))
             val text = r.body?.string().orEmpty()
             if (r.code == 401 || r.code == 403) throw IOException("YouTube rejected the session (${r.code}). Try signing in again.")
-            if (!r.isSuccessful) throw IOException("YouTube returned ${r.code}")
+            if (!r.isSuccessful) {
+                val detail = text.take(300).replace("\n", " ")
+                Log.w("Skipii", "InnerTube $endpoint HTTP ${r.code}: $detail")
+                throw IOException("YouTube returned ${r.code}: $detail")
+            }
             return JSONObject(text)
         }
     }
@@ -250,6 +256,98 @@ object InnerTube {
     suspend fun subscriptionsFeed(next: String? = null) = browse("FEsubscriptions", next)
     suspend fun history(next: String? = null) = browse("FEhistory", next)
     suspend fun playlist(id: String, next: String? = null) = browse("VL$id", next)
+
+    /**
+     * One page of the Shorts feed. YouTube's web Shorts feed isn't a browse page: it is the
+     * "reel sequence" around a seed short, served by reel/reel_watch_sequence. [token] null
+     * seeds from the home feed's shorts shelf; otherwise it is the sequence continuation.
+     */
+    suspend fun shortsSequence(token: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val sequenceParams = token ?: shortsSeed()?.let(::reelSequenceParams)
+        if (sequenceParams == null) {
+            Log.w("Skipii", "shorts: no seed short found in home feed")
+            return@withContext FeedPage(emptyList(), null)
+        }
+        val json = post("reel/reel_watch_sequence", JSONObject().put("sequenceParams", sequenceParams))
+        val page = parseShortsSequence(json)
+        Log.i("Skipii", "shorts: seed=${token == null} -> ${page.videos.size} videos, next=${page.next != null}")
+        page
+    }
+
+    /**
+     * The reel_watch_sequence response is NOT a browse page (no videoRenderer family): each
+     * short is an `entries[]` item whose `command` carries a `reelWatchEndpoint` (videoId, and
+     * for the prefetched one a full playerResponse with title/author). Parse it directly so the
+     * shared [parseFeed] never picks Shorts up out of other feeds.
+     */
+    internal fun parseShortsSequence(root: JSONObject): FeedPage {
+        val videos = LinkedHashMap<String, VideoItem>()
+        var next: String? = null
+        root.walk { key, obj ->
+            when (key) {
+                "reelWatchEndpoint" -> {
+                    val id = obj.optString("videoId").ifBlank { null } ?: return@walk
+                    if (isMembersOnly(obj) || isMovie(obj)) return@walk
+                    if (next == null) next = obj.optString("continuation").ifBlank { null }
+                    val details = obj.optJSONObject("unserializedPrefetchData")
+                        ?.optJSONObject("playerResponse")
+                        ?.optJSONObject("videoDetails")
+                    videos.putIfAbsent(
+                        id,
+                        VideoItem(
+                            id = id,
+                            title = details?.optString("title").orEmpty(),
+                            channel = details?.optString("author").orEmpty(),
+                            channelUrl = null,
+                            thumbnail = "https://i.ytimg.com/vi/$id/oar2.jpg",
+                            avatar = null,
+                            durationSec = 0L,
+                            views = 0L,
+                            uploaded = null,
+                        ),
+                    )
+                }
+                "continuationItemRenderer", "continuationItemViewModel" ->
+                    obj.collectStrings("token").firstOrNull()?.let { next = it }
+            }
+        }
+        return FeedPage(videos.values.toList(), next)
+    }
+
+    /** The first short on the home feed — the seed for the Shorts sequence. */
+    private suspend fun shortsSeed(): String? = withContext(Dispatchers.IO) {
+        var seed: String? = null
+        post("browse", JSONObject().put("browseId", "FEwhat_to_watch")).walk { key, obj ->
+            if (seed != null) return@walk
+            when (key) {
+                // Home's shorts shelf: the video id lives in the nested reelWatchEndpoint,
+                // there is no top-level contentId on a shortsLockupViewModel.
+                "shortsLockupViewModel", "reelWatchEndpoint", "reelShelfRenderer" ->
+                    obj.collectStrings("videoId").firstOrNull { it.isNotBlank() }?.let { seed = it }
+            }
+        }
+        seed
+    }
+
+    /**
+     * The protobuf youtube.com sends as sequenceParams (ReelSequence from YouTube.js):
+     * short_id = 1, params { int32 number = 3 } = 5, feature_2 = 10 (=25), feature_3 = 13.
+     * Encoded by hand so no protobuf dependency is needed.
+     */
+    private fun reelSequenceParams(shortId: String): String {
+        val out = java.io.ByteArrayOutputStream()
+        fun varint(value: Int) {
+            var v = value
+            while (true) {
+                if (v and 0x7F.inv() == 0) { out.write(v); return }
+                out.write((v and 0x7F) or 0x80); v = v ushr 7
+            }
+        }
+        out.write(0x0A); varint(shortId.length); out.write(shortId.toByteArray()) // field 1: short_id
+        out.write(0x2A); out.write(0x02); out.write(0x18); out.write(0x05)        // field 5: params{number=5}
+        out.write(0x50); varint(25)                                               // field 10: feature_2
+        return Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+    }
 
     suspend fun channels(): List<ChannelRef> = withContext(Dispatchers.IO) {
         val out = LinkedHashMap<String, ChannelRef>()

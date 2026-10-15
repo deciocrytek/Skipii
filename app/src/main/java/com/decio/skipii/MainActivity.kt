@@ -68,6 +68,7 @@ import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Subscriptions
+import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -123,6 +124,7 @@ class MainActivity : ComponentActivity() {
 enum class Tab(val label: String, val icon: ImageVector, val selectedIcon: ImageVector) {
     Home("Home", Icons.Outlined.Home, Icons.Rounded.Home),
     Subscriptions("Subscriptions", Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions),
+    Shorts("Shorts", Icons.Rounded.SlowMotionVideo, Icons.Rounded.SlowMotionVideo),
     Search("Search", Icons.Rounded.Search, Icons.Rounded.Search),
     Library("Library", Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary),
 }
@@ -130,8 +132,9 @@ enum class Tab(val label: String, val icon: ImageVector, val selectedIcon: Image
 // Castii's floating stack: a 56 dp nav pill capped at 328 dp, the mini-player 8 dp above
 // it capped at 368 dp, both centered.
 // 62 dp (Derek, 2026-10-05): between Castii's 56 and Ledgii's 78. Tabs keep 50 dp targets.
+// With 5 tabs (added Shorts), widen the cap slightly so labels remain readable.
 private val NavHeight = 62.dp
-private val NavWidth = 328.dp
+private val NavWidth = 380.dp
 private val MiniWidth = 368.dp
 private val MiniGap = 8.dp
 private const val SELECTED_TAB_WEIGHT = 2.2f
@@ -143,6 +146,7 @@ fun SkipiiApp() {
     val scope = rememberCoroutineScope()
     val search = remember { SearchState(scope) }
     val lib = remember { LibraryData(scope) }
+    val shortsFeed = remember { FeedState(scope, prefetchTop = 2) { InnerTube.shortsSequence(it) } }
     var signingIn by remember { mutableStateOf(false) }
     var accountSheet by remember { mutableStateOf(false) }
     var openPlaylist by remember { mutableStateOf<PlaylistRef?>(null) }
@@ -191,7 +195,7 @@ fun SkipiiApp() {
     val stackBottom = navBottom.coerceAtLeast(8.dp) +
         if (WindowInsets.tappableElement.asPaddingValues().calculateBottomPadding() > 0.dp) 10.dp else 0.dp
     var optionsFor by remember { mutableStateOf<VideoItem?>(null) }
-    val hasMini = player.current != null
+    val hasMini = player.current != null && tab != Tab.Shorts
     // Lists scroll fully clear of the floating nav (and mini-player when present).
     val contentPadding = PaddingValues(
         bottom = stackBottom + NavHeight + (if (hasMini) MiniHeight + MiniGap else 0.dp) + 16.dp,
@@ -216,6 +220,7 @@ fun SkipiiApp() {
     fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen()
 
     BackHandler(enabled = player.expanded) { player.expanded = false }
+    BackHandler(enabled = !player.expanded && tab == Tab.Shorts) { tab = Tab.Home }
     BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { tab = Tab.Home }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
     BackHandler(enabled = signingIn) { signingIn = false }
@@ -230,6 +235,14 @@ fun SkipiiApp() {
     // Gesture releases settle themselves and are left alone (see PlayerMorph.animateTo).
     LaunchedEffect(player.expanded, player.current?.id) {
         if (player.current == null) morph.progress.snapTo(0f) else morph.animateTo(player.expanded, reduced)
+    }
+    // When leaving the Shorts tab, restore normal repeat mode (queue auto-advance).
+    var wasInShorts by remember { mutableStateOf(false) }
+    LaunchedEffect(tab) {
+        if (wasInShorts && tab != Tab.Shorts) {
+            player.leaveShorts()
+        }
+        wasInShorts = (tab == Tab.Shorts)
     }
     val showPlayer by remember {
         // Held until the morph has completely finished, so the video changes hands once.
@@ -304,6 +317,10 @@ fun SkipiiApp() {
                     lib, contentPadding, onOpen = player::open,
                     onSignIn = { signingIn = true }, onAccount = { accountSheet = true },
                     scrollToTop = scrollToTop[Tab.Subscriptions] ?: 0,
+                )
+                Tab.Shorts -> ShortsScreen(
+                    shortsFeed, player, contentPadding,
+                    scrollToTop = scrollToTop[Tab.Shorts] ?: 0,
                 )
                 Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
                 Tab.Library -> LibraryScreen(

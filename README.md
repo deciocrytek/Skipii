@@ -34,6 +34,8 @@ run `scripts/publish-apk.sh`.
   scrubber, or Off. Settings are in the account sheet.
 - **Comments** with replies, a **quality picker** (Auto or any height YouTube offers, remembered),
   and **landscape fullscreen** by rotating the phone or tapping the fullscreen button.
+- **Shorts:** a full-screen vertical feed. Swipe up/down to move between shorts, tap to pause;
+  like (synced), comments, share and the video options sheet sit on the video.
 - **Google sign-in (optional):** Home recommendations, subscriptions feed, history, Watch later,
   liked videos and playlists. Likes, subscribes, Save and watch history sync to your account.
   The session is stored encrypted with an Android Keystore key. Note: Google can suspend
@@ -47,7 +49,8 @@ run `scripts/publish-apk.sh`.
 3. ✅ Comments, quality picker, landscape fullscreen
 4. ✅ Google sign-in with full sync
 5. ✅ Queue, comment posting, SponsorBlock, Castii-style tab bar
-6. Downloads, audio-only mode, captions
+6. ✅ Shorts tab: vertical feed, swipe paging, on-video actions
+7. Downloads, audio-only mode, captions
 
 ## Building
 
@@ -71,6 +74,7 @@ app/src/main/java/com/decio/skipii/
   PlayerUi.kt         watch screen, overlay controls, scrubber, mini-player
   MainActivity.kt     app shell: tabs, floating nav capsule, player sheet
   Screens.kt          Home, Subscriptions, Search, Library
+  Shorts.kt           Shorts tab: vertical feed, swipe paging, on-video actions
   UiKit.kt            shared components and expressive shapes
   Theme.kt, Motion.kt, Net.kt
 docs/
