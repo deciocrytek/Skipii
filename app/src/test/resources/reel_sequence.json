@@ -1,0 +1,77 @@
+{
+  "responseContext": {
+    "visitorData": "CgtWSVNJVE9SREFUQSU%3D",
+    "serviceTrackingParams": [
+      { "service": "GFEEDBACK", "params": [ { "key": "is_alc_surface", "value": "false" } ] }
+    ]
+  },
+  "entries": [
+    {
+      "command": {
+        "clickTrackingParams": "CBQQl98HGAMiEwjHr-",
+        "commandMetadata": {
+          "webCommandMetadata": {
+            "url": "/shorts/aaaaaaaaaaa",
+            "webPageType": "WEB_PAGE_TYPE_SHORTS",
+            "rootVe": 37414
+          }
+        },
+        "reelWatchEndpoint": {
+          "videoId": "aaaaaaaaaaa",
+          "params": "CgthYWFhYWFhYWFhYQ%3D%3D",
+          "playerParams": "CgthYWFhYWFhYWFhYQ%3D%3D",
+          "overlay": {
+            "reelPlayerOverlayRenderer": {
+              "reelPlayerHeaderSupportedRenderers": {
+                "reelPlayerHeaderRenderer": {
+                  "reelTitleText": { "runs": [ { "text": "First short" } ] },
+                  "channelNavigationEndpoint": {
+                    "browseEndpoint": { "browseId": "UCxxxxxxxxxxxxxxxxxxxxxx" }
+                  }
+                }
+              }
+            }
+          },
+          "unserializedPrefetchData": {
+            "playerResponse": {
+              "videoDetails": {
+                "videoId": "aaaaaaaaaaa",
+                "title": "First short",
+                "author": "Channel One",
+                "channelId": "UCxxxxxxxxxxxxxxxxxxxxxx",
+                "lengthSeconds": "31"
+              },
+              "streamingData": { "expiresInSeconds": "21540" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "commandMetadata": {
+          "webCommandMetadata": { "url": "/shorts/bbbbbbbbbbb", "webPageType": "WEB_PAGE_TYPE_SHORTS" }
+        },
+        "reelWatchEndpoint": { "videoId": "bbbbbbbbbbb" }
+      }
+    },
+    {
+      "command": {
+        "reelWatchEndpoint": {
+          "videoId": "ccccccccccc",
+          "continuation": "SEQUENCE_CONTINUATION_TOKEN",
+          "unserializedPrefetchData": {
+            "playerResponse": {
+              "videoDetails": {
+                "videoId": "ccccccccccc",
+                "title": "Third short",
+                "author": "Channel Three",
+                "channelId": "UCyyyyyyyyyyyyyyyyyyyyyy"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

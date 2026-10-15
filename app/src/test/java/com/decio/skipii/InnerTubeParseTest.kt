@@ -61,6 +61,22 @@ class InnerTubeParseTest {
         assertEquals("ordinary videos kept", 4, page.videos.size)
     }
 
+    /**
+     * The Shorts feed (reel/reel_watch_sequence). Each item is an entries[] entry whose command
+     * carries a reelWatchEndpoint; the prefetched one also carries the playerResponse's
+     * videoDetails (title/author). Captured 2026-10-15; the feed is re-seeded from Home when it
+     * ever comes back empty.
+     */
+    @Test fun shortsSequenceParses() {
+        val page = InnerTube.parseShortsSequence(fixture("reel_sequence"))
+        assertEquals("short ids", listOf("aaaaaaaaaaa", "bbbbbbbbbbb", "ccccccccccc"), page.videos.map { it.id })
+        assertEquals("title from videoDetails", "First short", page.videos[0].title)
+        assertEquals("channel from videoDetails", "Channel One", page.videos[0].channel)
+        assertEquals("un-prefetched entry has no title yet", "", page.videos[1].title)
+        assertEquals("third title", "Third short", page.videos[2].title)
+        assertEquals("continuation", "SEQUENCE_CONTINUATION_TOKEN", page.next)
+    }
+
     @Test fun viewCounts() {
         assertEquals(1_234_567L, InnerTube.parseViews("1,234,567 views"))
         assertEquals(1_200_000L, InnerTube.parseViews("1.2M views"))

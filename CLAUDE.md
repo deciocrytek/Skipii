@@ -6,7 +6,7 @@ Design source of truth: `~/decio/castii/docs/DESIGN_LANGUAGE.md` (Material 3 Exp
 motion standard) and the approved mockup `docs/design/mockup.html` (open in a browser; earlier rounds in `docs/design/`).
 
 ## Binding product decisions
-- Pure player: no upload/Create button. Tabs: Home / Subscriptions / Search / Library.
+- Pure player: no upload/Create button. Tabs: Home / Subscriptions / Shorts / Search / Library.
 - Google sign-in (decided 2026-10-04, superseding "no account"): WebView on Google's own page,
   youtube.com cookies kept AES-GCM encrypted (Keystore). **Full sync** chosen by Derek: reads
   home/subscriptions/history/playlists AND writes likes, subscribes, Watch later, watch history.
@@ -142,6 +142,18 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   skips, thick scrubber, SponsorBlock pill between the times) at `AudioStageAspect` 2.5; thumbnail under its
   centred 16:9 window shows through as it shrinks; mini-player shows the thumbnail; no fullscreen (orientation
   held portrait, no swipe-up).
+- Shorts tab (2026-10-15, 5th tab — supersedes the 4-tab line above): a full-screen vertical feed, not a browse
+  page. YouTube's web Shorts feed is the "reel sequence" around a seed short: `InnerTube.shortsSequence` seeds
+  from Home's shorts shelf (`shortsSeed`) and calls `reel/reel_watch_sequence` with a hand-encoded ReelSequence
+  protobuf (`reelSequenceParams`, base64 — no protobuf dep). `parseShortsSequence` reads each `entries[]` item's
+  `reelWatchEndpoint` (videoId + the prefetched `playerResponse.videoDetails` title/author), NOT `parseFeed` —
+  scoped so Shorts never leak into Home/Search/Subscriptions. `ShortsScreen` (Shorts.kt): swipe up = next / down
+  = previous (a `draggable` on `dy`; only the CURRENT page hosts the one shared `LocalVideoSurface`, neighbours
+  are thumbnail-only `PagePreview`s), tap = play/pause; on-video like (synced), comments panel, share, and the
+  long-press options sheet; the overlay takes real title/channel/avatar from `player.details` once loaded.
+  Shorts always play video, so `PlayerState.setShortsVideo` (a `wantShortsVideo` flag) ignores the app-wide
+  audio-only setting while the tab is open; `playShort` loops (`REPEAT_MODE_ONE`) and `leaveShorts` restores.
+  No mini-player on the tab (`hasMini` excludes it); Back leaves for Home.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Palettes in Theme.kt are copied verbatim from
@@ -232,6 +244,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.
 - `Screens.kt` — Home / Subscriptions / Search / Library.
+- `Shorts.kt` — `ShortsScreen` (vertical feed, swipe paging), `ShortPage`/`ShortsOverlay` (on-video actions), `playShort`/`leaveShorts`.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.
 - `Theme.kt` (wallpaper color, seed fallback), `Motion.kt` (curves, `pressable`), `Net.kt`.

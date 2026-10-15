@@ -468,6 +468,15 @@ class PlayerState(private val scope: CoroutineScope) {
     }
 
     /**
+     * Shorts are always video, so the app-wide audio-only preference is ignored while the
+     * Shorts tab is open (set true on entry, false on leave). Background still wins.
+     */
+    fun setShortsVideo(on: Boolean) {
+        wantShortsVideo = on
+        applyVideoTrack()
+    }
+
+    /**
      * App left the screen: stop fetching video and keep only audio (saves data and battery);
      * back on screen, video resumes. Done through the player's track selection, so the
      * video stream simply stops loading.
@@ -484,10 +493,11 @@ class PlayerState(private val scope: CoroutineScope) {
      * now applied on every connect too.
      */
     private var wantBackground = false
+    private var wantShortsVideo = false
 
-    /** Video is off in the background and whenever audio only is on. */
+    /** Video is off in the background and whenever audio only is on (unless Shorts wants it). */
     private fun applyVideoTrack() {
-        val off = wantBackground || AudioOnly.enabled
+        val off = wantBackground || (AudioOnly.enabled && !wantShortsVideo)
         val player = controller ?: return
         if (player.trackSelectionParameters.disabledTrackTypes.contains(androidx.media3.common.C.TRACK_TYPE_VIDEO) == off) return
         Log.i(TAG, if (off) "video off (${if (AudioOnly.enabled) "audio only" else "background"})" else "video on")
