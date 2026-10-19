@@ -1,5 +1,6 @@
 package com.decio.skipii
 
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.PlaybackException
+import androidx.media3.common.Timeline
 import androidx.media3.common.Player
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
@@ -28,6 +30,11 @@ import androidx.media3.exoplayer.dash.manifest.DashManifest
 import androidx.media3.exoplayer.dash.manifest.DashManifestParser
 import androidx.media3.exoplayer.dash.manifest.Period
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.analytics.PlayerId
+import androidx.media3.exoplayer.source.TrackGroupArray
+import androidx.media3.exoplayer.trackselection.ExoTrackSelection
+import androidx.media3.exoplayer.upstream.Allocator
 import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider
@@ -83,13 +90,7 @@ class PlaybackService : MediaSessionService() {
                     )
                 },
             )
-            // Start after 1 s of media instead of 2.5 s (2 s after a stall): at 1080p60 that
-            // halves what must download before the first frame.
-            .setLoadControl(
-                DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(15_000, 50_000, 1_000, 2_000)
-                    .build(),
-            )
+            .setLoadControl(MemoryBudgetLoadControl(this))
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -122,6 +123,7 @@ class PlaybackService : MediaSessionService() {
         // Before the session's own listener: the UI must see the recovery when the error reaches it.
         player.addListener(StreamRecoverer(player, sources, resolver))
         resumeSaver = ResumeSaver(player).also(player::addListener)
+        player.addListener(SessionSaver())
         watchTime = WatchTimeReporter(player).also(player::addListener)
         session = MediaSession.Builder(this, player)
             .setSessionActivity(openApp)
@@ -171,6 +173,8 @@ class PlaybackService : MediaSessionService() {
                         item.mediaMetadata.buildUpon()
                             .setTitle(item.mediaMetadata.title ?: info.name)
                             .setArtist(item.mediaMetadata.artist ?: info.uploaderName)
+                            // Kept with the saved session, so a restored queue shows lengths.
+                            .setDurationMs(item.mediaMetadata.durationMs ?: info.duration.takeIf { it > 0 }?.times(1000))
                             .setMediaType(MediaMetadata.MEDIA_TYPE_VIDEO)
                             .build(),
                     )
@@ -368,6 +372,65 @@ private class WatchTimeReporter(private val player: ExoPlayer) : Player.Listener
 
     private companion object {
         val PING_DELAYS_MS = longArrayOf(10_000, 10_000, 10_000, 40_000).toList()
+    }
+}
+
+/**
+ * Keeps the last 3 minutes of the video in memory (rewinds and replays within them are
+ * instant) and loads ahead as far as a memory budget allows, topping up continuously.
+ *
+ * The budget covers the back buffer too (the allocator counts both), so it is 60% of the
+ * app's large heap (largeHeap is on): ~300 MB on a Pixel. At 1080p (~7 Mbps) that is 3 min
+ * behind + ~2 min ahead; far more ahead at lower qualities, the whole video in audio only.
+ * However full the budget, the player always loads [MIN_AHEAD_MS] ahead, so a full back
+ * buffer can never starve playback.
+ * Starting needs 1 s of media (2 s after a stall): at 1080p60 that halves what must download
+ * before the first frame.
+ */
+@OptIn(UnstableApi::class)
+private class MemoryBudgetLoadControl(
+    context: Context,
+    private val budgetBytes: Long = context.getSystemService(ActivityManager::class.java)
+        .largeMemoryClass * 1024L * 1024L * 60 / 100,
+    private val inner: DefaultLoadControl = DefaultLoadControl.Builder()
+        .setBufferDurationsMs(MIN_AHEAD_MS, Int.MAX_VALUE, 1_000, 2_000)
+        .setBackBuffer(BACK_BUFFER_MS, /* retainBackBufferFromKeyframe = */ true)
+        .setTargetBufferBytes(budgetBytes.toInt())
+        .build(),
+) : LoadControl {
+    // Forwarded one by one: Kotlin's `by` delegation skips Java default methods, and every
+    // method the player calls is one (the old defaults throw "not implemented").
+    override fun onPrepared(playerId: PlayerId) = inner.onPrepared(playerId)
+    override fun onTracksSelected(
+        parameters: LoadControl.Parameters,
+        trackGroups: TrackGroupArray,
+        trackSelections: Array<out ExoTrackSelection?>,
+    ) = inner.onTracksSelected(parameters, trackGroups, trackSelections)
+    override fun onStopped(playerId: PlayerId) = inner.onStopped(playerId)
+    override fun onReleased(playerId: PlayerId) = inner.onReleased(playerId)
+    override fun getAllocator(playerId: PlayerId): Allocator = inner.getAllocator(playerId)
+    override fun getBackBufferDurationUs(playerId: PlayerId) = inner.getBackBufferDurationUs(playerId)
+    override fun retainBackBufferFromKeyframe(playerId: PlayerId) =
+        inner.retainBackBufferFromKeyframe(playerId)
+    override fun shouldStartPlayback(parameters: LoadControl.Parameters) =
+        inner.shouldStartPlayback(parameters)
+    override fun shouldContinuePreloading(
+        playerId: PlayerId,
+        timeline: Timeline,
+        mediaPeriodId: MediaSource.MediaPeriodId,
+        bufferedDurationUs: Long,
+    ) = inner.shouldContinuePreloading(playerId, timeline, mediaPeriodId, bufferedDurationUs)
+
+    override fun shouldContinueLoading(parameters: LoadControl.Parameters): Boolean {
+        // Media time drains faster at higher speeds; keep the same wall-clock cushion.
+        val minAheadUs = (MIN_AHEAD_MS * 1_000L * maxOf(1f, parameters.playbackSpeed)).toLong()
+        if (parameters.bufferedDurationUs < minAheadUs) return true
+        return inner.getAllocator(parameters.playerId).totalBytesAllocated < budgetBytes
+    }
+
+    companion object {
+        const val MIN_AHEAD_MS = 15_000
+        const val BACK_BUFFER_MS = 3 * 60_000
     }
 }
 

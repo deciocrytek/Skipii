@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.exp
 import androidx.compose.ui.graphics.lerp as lerpColor
@@ -104,8 +105,6 @@ internal val MiniThumbRadius = 17.dp
  */
 internal const val StageMinAspect = 0.8f
 internal const val StageMaxAspect = 2.4f
-/** Audio only: the stage is a short strip holding just the controls (~164 dp on a Pixel). */
-internal const val AudioStageAspect = 2.5f
 /** Morph progress after which the details and tint start fading in (tuning dial). */
 private const val DetailsFadeStart = 0.55f
 
@@ -118,6 +117,8 @@ fun PlayerScreen(
     onOpen: (VideoItem) -> Unit,
     onCollapse: () -> Unit,
     onFullscreen: () -> Unit,
+    /** Room the floating player bar (the nav pill over the player) takes at the bottom. */
+    bottomClearance: androidx.compose.ui.unit.Dp,
 ) {
     val c = MaterialTheme.colorScheme
     val item = state.current ?: return
@@ -165,7 +166,7 @@ fun PlayerScreen(
                 .graphicsLayer { alpha = ramp(morph.progress.value, DetailsFadeStart) }
                 .background(Brush.verticalGradient(listOf(c.primaryContainer.copy(alpha = 0.75f), c.surface))),
         )
-        ActionMessage(state, Modifier.align(Alignment.BottomCenter).zIndex(1f).padding(bottom = bottom + 24.dp))
+        ActionMessage(state, Modifier.align(Alignment.BottomCenter).zIndex(1f).padding(bottom = bottomClearance + 8.dp))
         Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(top + StageTopGap))
             // Pinned: the video stays put while the details scroll beneath it.
@@ -185,7 +186,7 @@ fun PlayerScreen(
                         val g = morph.geometry
                         translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                     },
-                contentPadding = PaddingValues(bottom = bottom + 32.dp),
+                contentPadding = PaddingValues(bottom = bottomClearance + 16.dp),
             ) {
                 item(key = "info") {
                     Column(Modifier.padding(horizontal = 20.dp)) {
@@ -271,6 +272,17 @@ fun PlayerScreen(
                 }
             }
         }
+        // The page's bottom vignette, as on the tabs: the details dissolve behind the player
+        // bar instead of running hard into it. Drawn only, never touchable.
+        val vignette = remember(pageColor) { vignetteBrush(pageColor, opaqueAtTop = false) }
+        Box(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(bottom + 130.dp)
+                .graphicsLayer { alpha = ramp(morph.progress.value, DetailsFadeStart) }
+                .drawBehind { drawRect(vignette) },
+        )
         // Swiping home from the bottom edge never scrolls the details (open player only: while
         // collapsing, touches must still fall through to the mini-player).
         if (interactive) BottomGestureGuard(Modifier.align(Alignment.BottomCenter))
@@ -369,29 +381,58 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, onCollapse: () ->
         )
     // Controls appear only once the video has nearly landed, so they never ride the morph.
     val controlsAlpha = { ramp(morph.progress.value, 0.7f) }
-    if (AudioOnly.enabled) {
-        AudioOnlyStage(
-            state = state,
-            interactive = interactive,
-            onInactiveTap = { state.expanded = true },
-            progress = { morph.progress.value },
-            controlsAlpha = controlsAlpha,
-            modifier = stage,
-        )
-    } else {
-        VideoContent(
-            state = state,
-            fullscreen = false,
-            interactive = interactive,
-            // A tap on the shrinking video brings the player straight back.
-            onInactiveTap = { state.expanded = true },
-            onCollapse = onCollapse,
-            onToggleFullscreen = onFullscreen,
-            controlsAlpha = controlsAlpha,
-            modifier = stage,
-        )
+    // Audio only ↔ video in place (Derek, 2026-10-14): [cover] is how much of the audio stage
+    // lies over the video, [gather] its controls coming together.
+    val audio = AudioOnly.enabled
+    val cover = remember { Animatable(if (audio) 1f else 0f) }
+    val gather = remember { Animatable(if (audio) 1f else 0f) }
+    LaunchedEffect(audio) {
+        if (reduced) { cover.snapTo(if (audio) 1f else 0f); gather.snapTo(if (audio) 1f else 0f); return@LaunchedEffect }
+        if (audio) {
+            launch { cover.animateTo(1f, tween(AudioSwitchMs, easing = Motion.Emphasized)) }
+            delay(AudioSwitchMs / 3L)
+            gather.animateTo(1f, spring(dampingRatio = 0.72f, stiffness = 420f))
+        } else {
+            // Straight away (Derek: waiting for the video felt like the tap hadn't registered).
+            // Underneath, the video shows its thumbnail and a spinner until a fresh frame
+            // arrives ([PlayerState.videoStale]).
+            launch { gather.animateTo(0f, tween(AudioSwitchMs / 2, easing = Motion.Emphasized)) }
+            cover.animateTo(0f, tween(AudioSwitchMs, easing = Motion.Emphasized))
+        }
+    }
+    val showVideo by remember { derivedStateOf { !AudioOnly.enabled || cover.value < 1f } }
+    val showAudio by remember { derivedStateOf { AudioOnly.enabled || cover.value > 0f } }
+    Box(stage) {
+        if (showVideo) {
+            VideoContent(
+                state = state,
+                fullscreen = false,
+                interactive = interactive,
+                // A tap on the shrinking video brings the player straight back.
+                onInactiveTap = { state.expanded = true },
+                onCollapse = onCollapse,
+                onToggleFullscreen = onFullscreen,
+                controlsAlpha = controlsAlpha,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        if (showAudio) {
+            AudioOnlyStage(
+                state = state,
+                interactive = interactive && audio,
+                onInactiveTap = { state.expanded = true },
+                progress = { morph.progress.value },
+                controlsAlpha = controlsAlpha,
+                cover = { cover.value },
+                gather = { gather.value },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
+
+/** Audio only ↔ video: how long the audio stage takes to cover (or uncover) the picture. */
+private const val AudioSwitchMs = 360
 
 /** How far a swipe up on the open video travels before it goes fullscreen on release. */
 private val FullscreenPull = 64.dp
@@ -575,7 +616,7 @@ fun MiniPlayer(state: PlayerState, onExpand: () -> Unit, modifier: Modifier = Mo
                     // Audio only: there is no picture, the thumbnail stands in.
                     if (!AudioOnly.enabled) {
                         Box(Modifier.fillMaxSize().aspectFit(state.stageAspect, cover = true)) {
-                            LocalVideoSurface.current(Modifier.fillMaxSize().aspectFit(state.videoAspect))
+                            LocalVideoSurface.current(Modifier.fillMaxSize().aspectFit(state.videoAspect).hideStaleVideo(state))
                         }
                     }
                 }

@@ -1,6 +1,23 @@
 package com.decio.skipii
 
 import android.content.Intent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.PlaylistPlay
@@ -102,27 +119,56 @@ private fun OptionRow(icon: ImageVector, label: String, onClick: () -> Unit) {
 @Composable
 fun QueueCard(player: PlayerState, onOpen: () -> Unit) {
     val c = MaterialTheme.colorScheme
-    val next = player.queue.firstOrNull() ?: return
-    Row(
-        Modifier
-            .padding(top = 16.dp)
-            .fillMaxWidth()
-            .pressable(pressedScale = 0.98f, onClick = onOpen)
-            .clip(RoundedCornerShape(24.dp))
-            .background(c.secondaryContainer)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Thumbnail(next.thumbnail, Modifier.width(88.dp).aspectRatio(16f / 9f), radius = 12)
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                "Queue · ${player.queue.size}",
-                color = c.onSecondaryContainer, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp,
-            )
-            Text(next.title, color = c.onSecondaryContainer, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    val queue = player.queue
+    // Once the queue empties (Clear, or its last video started), the card keeps what it
+    // showed while it slides away and its space closes.
+    var shown by remember { mutableStateOf(queue.firstOrNull()?.let { it to queue.size }) }
+    LaunchedEffect(queue) { if (queue.isNotEmpty()) shown = queue.first() to queue.size }
+    val leaving = queue.isEmpty()
+    val (next, count) = queue.firstOrNull()?.let { it to queue.size } ?: shown ?: return
+    val slide = remember { Animatable(0f) }
+    val size = remember { Animatable(1f, visibilityThreshold = 0.0005f) }
+    LaunchedEffect(leaving) {
+        if (!leaving) { slide.snapTo(0f); size.snapTo(1f); return@LaunchedEffect }
+        slide.animateTo(1f, tween(SlideAwayMs, easing = Motion.Exit))
+        size.animateTo(0f, QueueCloseSpec)
+        if (player.queue.isEmpty()) shown = null
+    }
+    SlideAway(slide = { slide.value }, size = { size.value }) {
+        Row(
+            Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+                .pressable(enabled = !leaving, pressedScale = 0.98f, onClick = onOpen)
+                .clip(RoundedCornerShape(24.dp))
+                .background(c.secondaryContainer)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Thumbnail(next.thumbnail, Modifier.width(88.dp).aspectRatio(16f / 9f), radius = 12)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "Queue · $count",
+                    color = c.onSecondaryContainer, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp,
+                )
+                Text(next.title, color = c.onSecondaryContainer, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            Spacer(Modifier.width(8.dp))
+            // Its own tap: clearing doesn't open the sheet.
+            Row(
+                Modifier
+                    .pressable(enabled = !leaving) { player.clearQueue() }
+                    .clip(CircleShape)
+                    .background(c.secondary)
+                    .padding(start = 10.dp, end = 14.dp, top = 8.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Rounded.ClearAll, null, tint = c.onSecondary, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Clear", color = c.onSecondary, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+            }
         }
-        Icon(Icons.AutoMirrored.Rounded.QueueMusic, null, tint = c.onSecondaryContainer)
     }
 }
 
@@ -130,36 +176,96 @@ fun QueueCard(player: PlayerState, onOpen: () -> Unit) {
 @Composable
 fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
     val c = MaterialTheme.colorScheme
+    val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    // Clear empties the queue at once; the rows it had stay on screen to slide away.
+    var leavingRows by remember { mutableStateOf<List<VideoItem>?>(null) }
+    /** Ms into the rows' staggered slide; on the animation clock so the close never starts early. */
+    val sweep = remember { Animatable(0f) }
+    val rows = leavingRows ?: player.queue
+    /** 0 = the list, 1 = the empty state; between, the space closes from one height to the other. */
+    val emptied = remember { Animatable(if (player.queue.isEmpty()) 1f else 0f, visibilityThreshold = 0.0005f) }
+    LaunchedEffect(player.queue.isEmpty()) {
+        if (leavingRows == null) emptied.animateTo(if (player.queue.isEmpty()) 1f else 0f, QueueCloseSpec)
+    }
+    val clearAlpha by animateFloatAsState(if (leavingRows == null && player.queue.isNotEmpty()) 1f else 0f, label = "clearAlpha")
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = c.surfaceContainerLow) {
         Row(Modifier.padding(horizontal = 20.dp).padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Queue", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
-            if (player.queue.isNotEmpty()) {
-                Text(
-                    "Clear", color = c.primary, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
-                    modifier = Modifier.pressable { player.clearQueue() }.padding(8.dp),
-                )
-            }
-        }
-        if (player.queue.isEmpty()) {
             Text(
-                "Nothing queued. Press and hold a video to add it.",
-                color = c.onSurfaceVariant, fontSize = 14.sp,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                "Clear", color = c.primary, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
+                modifier = Modifier
+                    .graphicsLayer { alpha = clearAlpha }
+                    .pressable(enabled = leavingRows == null && player.queue.isNotEmpty()) {
+                        val visible = listState.layoutInfo.visibleItemsInfo.size.coerceAtLeast(1)
+                        leavingRows = player.queue
+                        player.clearQueue()
+                        scope.launch {
+                            val total = SlideAwayMs + SlideAwayStaggerMs * (visible - 1)
+                            sweep.snapTo(0f)
+                            sweep.animateTo(total.toFloat(), tween(total, easing = LinearEasing))
+                            emptied.animateTo(1f, QueueCloseSpec)
+                            leavingRows = null
+                            sweep.snapTo(0f)
+                        }
+                    }
+                    .padding(8.dp),
             )
-        } else {
-            LazyColumn(Modifier.fillMaxHeight(0.7f)) {
-                itemsIndexed(player.queue, key = { i, v -> "$i-${v.id}" }) { index, video ->
-                    Box(Modifier.padding(horizontal = 20.dp)) {
-                        VideoRow(video, onClick = { player.playFromQueue(index); onDismiss() }) {
-                            Box(Modifier.size(40.dp).pressable { player.removeFromQueue(index) }, contentAlignment = Alignment.Center) {
-                                Icon(Icons.Rounded.Close, "Remove from queue", tint = c.onSurfaceVariant)
+        }
+        Layout(
+            content = {
+                LazyColumn(Modifier.fillMaxHeight(0.7f), state = listState) {
+                    itemsIndexed(rows, key = { i, v -> "$i-${v.id}" }) { index, video ->
+                        // Top to bottom, one after another, counted from the first row on screen.
+                        val order = (index - listState.firstVisibleItemIndex).coerceAtLeast(0)
+                        SlideAway(slide = { Motion.Exit.transform(((sweep.value - SlideAwayStaggerMs * order) / SlideAwayMs).coerceIn(0f, 1f)) }) {
+                            Box(Modifier.padding(horizontal = 20.dp)) {
+                                VideoRow(video, onClick = { player.playFromQueue(index); onDismiss() }) {
+                                    Box(Modifier.size(40.dp).pressable { player.removeFromQueue(index) }, contentAlignment = Alignment.Center) {
+                                        Icon(Icons.Rounded.Close, "Remove from queue", tint = c.onSurfaceVariant)
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                Text(
+                    "Nothing queued. Press and hold a video to add it.",
+                    color = c.onSurfaceVariant, fontSize = 14.sp,
+                    modifier = Modifier.graphicsLayer { alpha = emptied.value }.padding(horizontal = 20.dp, vertical = 24.dp),
+                )
+            },
+        ) { measurables, constraints ->
+            val list = measurables[0].measure(constraints)
+            val empty = measurables[1].measure(constraints.copy(minHeight = 0))
+            val t = emptied.value
+            val height = (list.height + (empty.height - list.height) * t).roundToInt()
+            layout(constraints.maxWidth, height.coerceAtLeast(0)) {
+                if (t < 1f) list.placeRelative(0, 0)
+                empty.placeRelative(0, 0)
             }
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+private const val SlideAwayMs = 300
+private const val SlideAwayStaggerMs = 40
+private val QueueCloseSpec = spring(dampingRatio = 1f, stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.0005f)
+
+/**
+ * Clearing the queue: [content] slides right by [slide] (0..1, fully past the edge at 1)
+ * and keeps [size] of its height, so the space it leaves can close smoothly. Both are read
+ * per frame in layout only.
+ */
+@Composable
+private fun SlideAway(slide: () -> Float, size: () -> Float = { 1f }, content: @Composable () -> Unit) {
+    Layout(content) { measurables, constraints ->
+        val placeable = measurables.single().measure(constraints)
+        layout(placeable.width, (placeable.height * size()).roundToInt()) {
+            // Past the right edge entirely, padding and shadow included.
+            placeable.placeRelativeWithLayer(0, 0) { translationX = slide() * (placeable.width + 24.dp.toPx()) }
+        }
     }
 }
 
@@ -222,7 +328,7 @@ private fun CategoryRow(category: SponsorBlock.Category) {
 
 // ── Appearance (inside the account sheet) ──────────────────────────────────────
 
-/** Light/dark mode plus every Ledgii theme (and wallpaper colors on Android 12+). */
+/** Light/dark/AMOLED mode plus every Ledgii theme (and wallpaper colors on Android 12+). */
 @Composable
 fun AppearanceSettings() {
     val c = MaterialTheme.colorScheme
@@ -232,7 +338,7 @@ fun AppearanceSettings() {
         Text("Appearance", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
         Spacer(Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { (key, label) ->
+            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "amoled" to "AMOLED").forEach { (key, label) ->
                 val on = ThemeSettings.mode == key
                 Box(
                     Modifier
@@ -251,7 +357,7 @@ fun AppearanceSettings() {
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             choices.forEach { (hex, name) ->
                 val selected = ThemeSettings.seed?.lowercase() == hex?.lowercase()
-                val scheme = schemeFor(context, hex, dark)
+                val scheme = themedScheme(context, hex, dark)
                 Column(
                     Modifier.width(78.dp).pressable { ThemeSettings.choose(hex) },
                     horizontalAlignment = Alignment.CenterHorizontally,

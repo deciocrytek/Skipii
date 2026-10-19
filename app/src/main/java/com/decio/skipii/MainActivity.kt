@@ -127,14 +127,9 @@ enum class Tab(val label: String, val icon: ImageVector, val selectedIcon: Image
     Library("Library", Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary),
 }
 
-// Castii's floating stack: a 56 dp nav pill capped at 328 dp, the mini-player 8 dp above
-// it capped at 368 dp, both centered.
-// 62 dp (Derek, 2026-10-05): between Castii's 56 and Ledgii's 78. Tabs keep 50 dp targets.
-private val NavHeight = 62.dp
-private val NavWidth = 328.dp
+// The mini-player floats 8 dp above the nav pill (NavBar.kt), capped at 368 dp, centered.
 private val MiniWidth = 368.dp
 private val MiniGap = 8.dp
-private const val SELECTED_TAB_WEIGHT = 2.2f
 
 @Composable
 fun SkipiiApp() {
@@ -401,6 +396,23 @@ fun SkipiiApp() {
             )
         }
 
+        // The player morphs out of (and back into) the mini-player; see PlayerMorph.
+        if (showPlayer && !showFullscreen) {
+            PlayerScreen(
+                player, morph,
+                onOpen = player::open,
+                onCollapse = { player.expanded = false },
+                onFullscreen = { toggleFullscreen() },
+                bottomClearance = stackBottom + NavHeight + 16.dp,
+            )
+        }
+
+        // Over the player: while it's open the nav pill is the player's own bar (NavBar.kt).
+        // It steps down out of the way of the comments panel (its composer sits there).
+        val barAside by animateFloatAsState(
+            if (player.sheet == PlayerSheet.Comments && playerOpen) 1f else 0f,
+            if (reduced) snap() else tween(280, easing = Motion.Emphasized), label = "barAside",
+        )
         NavPill(
             selected = tab,
             onSelect = { selected ->
@@ -412,20 +424,20 @@ fun SkipiiApp() {
                     else -> { openPlaylist = null; openChannel = null; tab = selected }
                 }
             },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = stackBottom),
+            player = player,
+            morph = morph,
+            controlsActive = player.current != null && (player.expanded || morph.dragging),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
+                .graphicsLayer {
+                    // Moved fully off screen, so it can't catch touches meant for the composer.
+                    translationY = barAside * (NavHeight + stackBottom + 24.dp).toPx()
+                    alpha = 1f - barAside
+                },
         )
 
-        // The player morphs out of (and back into) the mini-player; see PlayerMorph.
-        if (showFullscreen) {
-            FullscreenPlayer(player, onExit = { orientation.exitFullscreen() })
-        } else if (showPlayer) {
-            PlayerScreen(
-                player, morph,
-                onOpen = player::open,
-                onCollapse = { player.expanded = false },
-                onFullscreen = { toggleFullscreen() },
-            )
-        }
+        if (showFullscreen) FullscreenPlayer(player, onExit = { orientation.exitFullscreen() })
 
         if (accountSheet) {
             AccountSheet(
@@ -473,71 +485,5 @@ private fun QueueMessage(player: PlayerState, modifier: Modifier) {
     val c = MaterialTheme.colorScheme
     Box(modifier.clip(RoundedCornerShape(50)).background(c.inverseSurface).padding(horizontal = 18.dp, vertical = 11.dp)) {
         Text(message, color = c.inverseOnSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-    }
-}
-
-/**
- * Castii's floating nav pill: tonal surfaceVariant with a wide, very soft shadow. The
- * active tab grows (weight 2.2) and reveals its label on a primaryContainer pill; the
- * others show their icon only. No ripple, no outline.
- */
-@Composable
-private fun NavPill(selected: Tab, onSelect: (Tab) -> Unit, modifier: Modifier = Modifier) {
-    val c = MaterialTheme.colorScheme
-    val view = LocalView.current
-    val reduced = rememberReducedMotion()
-    val shape = RoundedCornerShape(50)
-    Surface(
-        modifier = modifier
-            .widthIn(max = NavWidth)
-            .height(NavHeight)
-            .fillMaxWidth()
-            .shadow(20.dp, shape, clip = false, ambientColor = Color.Black.copy(alpha = 0.10f), spotColor = Color.Black.copy(alpha = 0.12f)),
-        shape = shape,
-        color = c.surfaceVariant,
-        tonalElevation = 10.dp,
-        shadowElevation = 0.dp,
-    ) {
-        Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Tab.entries.forEach { t ->
-                val active = t == selected
-                val spec = if (reduced) snap<Float>() else tween(260, easing = Motion.Emphasized)
-                val labelColor by animateColorAsState(
-                    if (active) c.onPrimary else c.onSurfaceVariant,
-                    if (reduced) snap() else tween(220, easing = Motion.Emphasized), label = "tabContent",
-                )
-                // Fade the pill by alpha of the same color (never toward Color.Transparent).
-                val pillColor by animateColorAsState(
-                    // Full primary (not the pale container tone) so the selected tab stands
-                    // out clearly against the bar in light and dark (Derek, 2026-10-05).
-                    if (active) c.primary else c.primary.copy(alpha = 0f),
-                    if (reduced) snap() else tween(220, easing = Motion.Emphasized), label = "tabPill",
-                )
-                val weight by animateFloatAsState(if (active) SELECTED_TAB_WEIGHT else 1f, spec, label = "tabWeight")
-                val interaction = remember(t) { MutableInteractionSource() }
-                Surface(
-                    modifier = Modifier
-                        .weight(weight.coerceAtLeast(0.75f))
-                        .clickable(interactionSource = interaction, indication = null) {
-                            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                            onSelect(t)
-                        },
-                    shape = RoundedCornerShape(25.dp),
-                    color = pillColor,
-                    contentColor = labelColor,
-                ) {
-                    Row(Modifier.height(50.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        Icon(if (active) t.selectedIcon else t.icon, contentDescription = t.label, modifier = Modifier.size(22.dp))
-                        AnimatedVisibility(
-                            visible = active,
-                            enter = if (reduced) fadeIn(snap()) else fadeIn(tween(160, easing = Motion.Emphasized)) + expandHorizontally(tween(200, easing = Motion.Emphasized)),
-                            exit = if (reduced) fadeOut(snap()) else fadeOut(tween(90)) + shrinkHorizontally(tween(160, easing = Motion.Emphasized)),
-                        ) {
-                            Text(t.label, modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, softWrap = false)
-                        }
-                    }
-                }
-            }
-        }
     }
 }

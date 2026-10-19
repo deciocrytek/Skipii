@@ -18,6 +18,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         PlaybackSpeed.init(this)
         AudioOnly.init(this)
         ResumeStore.init(this)
+        SavedSession.init(this)
         Account.init(this)
         SponsorBlock.init(this)
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.

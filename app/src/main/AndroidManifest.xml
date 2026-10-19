@@ -13,6 +13,7 @@
     <application
         android:name=".SkipiiApplication"
         android:allowBackup="false"
+        android:largeHeap="true"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"

@@ -440,9 +440,10 @@ object ThemeSettings {
 
     var seed by mutableStateOf<String?>(null)
         private set
-    /** "system", "light" or "dark". */
+    /** "system", "light", "dark" or "amoled" (dark on pure black, Derek 2026-10-14). */
     var mode by mutableStateOf("system")
         private set
+    val amoled: Boolean get() = mode == "amoled"
 
     fun init(context: Context) {
         val p = context.getSharedPreferences("appearance", Context.MODE_PRIVATE).also { prefs = it }
@@ -506,9 +507,30 @@ fun schemeFor(context: Context, seedHex: String?, dark: Boolean): ColorScheme =
         completeLedgiiScheme(seedValue, seedScheme(seedValue, dark))
     }
 
+/**
+ * AMOLED: the page is pure black (pixels off) and every container is pulled toward black,
+ * the higher ones less, so tone still separates cards, sheets and the nav from the page.
+ */
+fun ColorScheme.amoled(): ColorScheme = copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceDim = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = androidx.compose.ui.graphics.lerp(surfaceContainerLow, Color.Black, 0.55f),
+    surfaceContainer = androidx.compose.ui.graphics.lerp(surfaceContainer, Color.Black, 0.45f),
+    surfaceContainerHigh = androidx.compose.ui.graphics.lerp(surfaceContainerHigh, Color.Black, 0.35f),
+    surfaceContainerHighest = androidx.compose.ui.graphics.lerp(surfaceContainerHighest, Color.Black, 0.25f),
+    surfaceVariant = androidx.compose.ui.graphics.lerp(surfaceVariant, Color.Black, 0.25f),
+    surfaceBright = androidx.compose.ui.graphics.lerp(surfaceBright, Color.Black, 0.25f),
+)
+
+/** [schemeFor] in the chosen mode, AMOLED included. */
+fun themedScheme(context: Context, seedHex: String?, dark: Boolean): ColorScheme =
+    schemeFor(context, seedHex, dark).let { if (dark && ThemeSettings.amoled) it.amoled() else it }
+
 @Composable
 fun isDarkTheme(): Boolean = when (ThemeSettings.mode) {
-    "dark" -> true
+    "dark", "amoled" -> true
     "light" -> false
     else -> isSystemInDarkTheme()
 }
@@ -518,7 +540,7 @@ fun isDarkTheme(): Boolean = when (ThemeSettings.mode) {
 fun SkipiiTheme(content: @Composable () -> Unit) {
     val dark = isDarkTheme()
     val context = LocalContext.current
-    val scheme = schemeFor(context, ThemeSettings.seed, dark)
+    val scheme = themedScheme(context, ThemeSettings.seed, dark)
     SystemBars(dark, scheme.surface)
     MaterialTheme(colorScheme = scheme, shapes = ExpressiveShapes, typography = Typography()) {
         CompositionLocalProvider(

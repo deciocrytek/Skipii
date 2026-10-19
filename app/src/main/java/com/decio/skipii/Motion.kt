@@ -26,6 +26,10 @@ import androidx.compose.ui.platform.LocalContext
 object Motion {
     val Emphasized = CubicBezierEasing(0.2f, 0.9f, 0.2f, 1f)
     val Morph = CubicBezierEasing(0.35f, 0f, 0.15f, 1.12f)
+    /** Emphasized accelerate: things leaving (cleared queue cards sliding away). */
+    val Exit = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+    /** A spring-like pop with one overshoot, for things driven by a progress (no time of their own). */
+    val Pop = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
     const val PageEnterMs = 220
     const val PageRiseMs = 280
     const val PageExitMs = 90

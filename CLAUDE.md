@@ -139,12 +139,49 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   ends; view feedback fallback. Verified on the emulator via `dumpsys vibrator_manager` only — the feel needs
   Derek's Pixel. Audio only (`AudioOnly`, app-wide, persisted): video track disabled (with the background flag,
   `applyVideoTrack`; service applies it at start too), stage = `AudioOnlyStage` (no picture: 78 dp play, 58 dp
-  skips, thick scrubber, SponsorBlock pill between the times) at `AudioStageAspect` 2.5; thumbnail under its
+  skips, thick scrubber, SponsorBlock pill between the times) at the video's own `stageAspect` (2026-10-14:
+  same area as the picture, so toggling never moves the page; every control sits exactly where the video
+  overlay puts it — 48/66 dp skips/play centred, "pos / dur" row + scrubber at the bottom, skipped note on top —
+  only the look differs). Switching animates in place (`VideoStage`: `cover` fades the audio stage over the
+  picture, then `gather` springs the skips out from behind the play button). Back to video is immediate (Derek:
+  waiting felt like the tap hadn't registered): `PlayerState.videoStale` (set on audio only, cleared by the next
+  rendered first frame; `hidesStaleVideo` only once video is wanted again) hides the surface (`hideStaleVideo`) so the thumbnail + spinner show instead of the frozen
+  pre-audio frame, and the fresh frame fades in. Thumbnail under its
   centred 16:9 window shows through as it shrinks; mini-player shows the thumbnail; no fullscreen (orientation
   held portrait, no swipe-up).
+- 0.5.24 buffering (2026-10-18, Derek: "back buffer of 3 mins, cache ahead the max amount"):
+  `MemoryBudgetLoadControl` (PlaybackService.kt) keeps 3 min behind (from a keyframe) and tops up ahead until
+  ONE byte budget covering both is used: 60% of the large heap (`largeHeap` on; ~300 MB on a Pixel, 259 MB on
+  the QA emulator). Below 15 s ahead (× speed) it always loads, so a full back buffer can't stall. Measured on
+  the emulator: 1080p ≈ 7 Mbps, a 60 s rewind played from memory (no re-download); audio only buffers a
+  1-hour video whole (~48 MB). Forward each LoadControl method explicitly — Kotlin `by` skips Java default
+  methods and Media3's old defaults throw "not implemented" (crashed the service on start).
+- 0.5.25 (2026-10-18): crash / force stop / swipe from Recents restores what was open. `SavedSession` +
+  `SessionSaver` (Resume.kt; service listener) persist [current, ...queue] (id, title, channel, thumbnail,
+  duration) on every playlist change; closing the mini-player empties the playlist and so clears it. On a
+  fresh service `PlayerState.restoreSession` sets the items paused at the `ResumeStore` position and does NOT
+  prepare (nothing downloads until play; `togglePlay`/`playFromQueue` prepare an idle player). The queue
+  card has its own Clear pill (the sheet's Clear stays). Verified on the release build on skipii_qa.
+- 0.5.26: clearing the queue animates (Sheets.kt `SlideAway`, `Motion.Exit` = emphasized accelerate). The card
+  slides off to the right (300 ms) then its height closes (`QueueCloseSpec`, critically damped); the sheet's
+  rows slide out staggered 40 ms top-down, then the list's height lerps to the empty state's. The queue is
+  cleared at once; the UI animates a snapshot. Timing runs on the animation clock (`sweep`), never `delay()` —
+  a delay isn't scaled with animator speed and the close started early in slow-motion checks.
+- 0.5.27 player bar (2026-10-19, Derek picked mockup A in `docs/design/player-bar.html` minus its next button and
+  time label): while the player is open the tab bar IS the player's bar (`NavPill`, NavBar.kt, drawn over
+  `PlayerScreen`): −10 · play · +10, compact (0.5.28: play pill 96 dp ≈ 60% of the first 161, ±10 slots 50 dp,
+  bar narrows 328 → 216 dp around its centre; tabs keep full width under it while fading). Driven by `morph.progress` in layer/draw lambdas only (a swipe down scrubs it
+  back into tabs): tabs drop out staggered, the selected tab's pill glides + stretches into the middle slot and
+  becomes Play, buttons spring up (`Motion.Pop`). The play pill is a progress bar: pale primary track (30% over
+  surfaceVariant), full-primary fill = played fraction (snaps on 250 ms ticks, springs on jumps), glyph two-toned
+  across the fill edge. ±10 taps show a rolling total bubble above the button (700 ms window). Touches go to the
+  controls while `expanded || dragging`, else to the tabs. Steps down off screen for the comments panel; covered
+  by fullscreen/PiP/sheets. Player details pad by `bottomClearance` and get the bottom vignette.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
-  card (`ThemeSettings`, persisted). Palettes in Theme.kt are copied verbatim from
+  card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
+  `ColorScheme.amoled()` (page pure black, containers pulled toward black but kept a step apart); use
+  `themedScheme`, not `schemeFor`, wherever a scheme is shown. Palettes in Theme.kt are copied verbatim from
   ~/decio/ledgii/android/.../Theme.kt — re-copy on change; `completeLedgiiScheme` fills roles
   Ledgii leaves unset. Tab bar is 62 dp (Derek; tabs keep 50 dp targets); the page has Ledgii's bottom vignette
   (130 dp + system bar, page color 0 → 76% on a smoothstep ramp so its top edge is invisible; `vignetteBrush`, shared with the top vignette) under the mini-player and tab bar.
@@ -232,6 +269,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.
 - `Screens.kt` — Home / Subscriptions / Search / Library.
+- `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 bar.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.
 - `Theme.kt` (wallpaper color, seed fallback), `Motion.kt` (curves, `pressable`), `Net.kt`.

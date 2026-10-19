@@ -82,12 +82,22 @@ class PlayerState(private val scope: CoroutineScope) {
     private var aspectFromFrames = false
 
     /**
-     * The portrait player's shape: the video's own, within [StageMinAspect]..[StageMaxAspect];
-     * in audio only, the short strip that holds just the controls.
+     * The portrait player's shape: the video's own, within [StageMinAspect]..[StageMaxAspect].
+     * Audio only keeps it too (Derek, 2026-10-14), so switching never moves the page.
      */
-    val stageAspect: Float get() = if (AudioOnly.enabled) AudioStageAspect else videoAspect.coerceIn(StageMinAspect, StageMaxAspect)
+    val stageAspect: Float get() = videoAspect.coerceIn(StageMinAspect, StageMaxAspect)
     var firstFrameRendered by mutableStateOf(false)
         private set
+    /**
+     * The shared video surface still holds the frame from when audio only began. Turning video
+     * back on switches straight away, so the picture stays hidden (thumbnail + spinner) until
+     * the renderer draws a fresh frame, instead of showing that frozen one. Starting in audio
+     * only, the surface has no frame of this video yet either.
+     */
+    var videoStale by mutableStateOf(AudioOnly.enabled)
+        private set
+    /** Only once video is wanted again: going into audio only, the last frame stays as the audio stage fades over it. */
+    val hidesStaleVideo: Boolean get() = videoStale && !AudioOnly.enabled
     /** What the decoder is really producing, e.g. "1920×1080 · H.264 · itag 299". */
     var playingFormat by mutableStateOf<String?>(null)
         private set
@@ -263,6 +273,7 @@ class PlayerState(private val scope: CoroutineScope) {
     fun playFromQueue(index: Int) {
         val player = controller ?: return
         player.seekTo(player.currentMediaItemIndex + 1 + index, 0L)
+        if (player.playbackState == Player.STATE_IDLE) player.prepare()
         player.play()
     }
 
@@ -464,6 +475,7 @@ class PlayerState(private val scope: CoroutineScope) {
     /** Audio only for the whole app: the video track goes off (or back on) right away. */
     fun setAudioOnly(on: Boolean) {
         AudioOnly.set(on)
+        if (on) videoStale = true
         applyVideoTrack()
     }
 
@@ -520,6 +532,7 @@ class PlayerState(private val scope: CoroutineScope) {
         controller?.videoSize?.let(::takeVideoSize)
         pendingStart?.let { pendingStart = null; startPlayback(it); return }
         val player = controller ?: return
+        if (player.mediaItemCount == 0 && current == null) { restoreSession(player); return }
         rebuildQueue()
         val playing = player.currentMediaItem ?: return
         if (current != null || playing.mediaId.isBlank()) return
@@ -539,6 +552,24 @@ class PlayerState(private val scope: CoroutineScope) {
         loadJob = scope.launch {
             runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item }
         }
+    }
+
+    /**
+     * Fresh service after a crash, force stop or swipe from Recents: put back what was open
+     * ([SavedSession]) as the mini-player, paused where it was left. Not prepared, so nothing
+     * downloads until play (togglePlay / playFromQueue prepare an idle player).
+     */
+    private fun restoreSession(player: MediaController) {
+        val saved = SavedSession.load().takeIf { it.isNotEmpty() } ?: return
+        val items = saved.map {
+            VideoItem(
+                id = it.id, title = it.title, channel = it.channel, channelUrl = null, thumbnail = it.thumbnail,
+                avatar = null, durationSec = it.durationSec, views = -1, uploaded = null,
+            ).also { item -> known[item.id] = item }
+        }
+        Log.i(TAG, "restoring ${items.first().id} + ${items.size - 1} queued")
+        player.setMediaItems(items.map(::mediaItemFor), 0, ResumeStore.startPosition(items.first().id))
+        show(items.first(), startPlayback = false)
     }
 
     internal fun syncFromPlayer() {
@@ -571,6 +602,7 @@ class PlayerState(private val scope: CoroutineScope) {
         override fun onRenderedFirstFrame() {
             Log.i("SkipiiTime", "first frame +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
             firstFrameRendered = true
+            videoStale = false
         }
 
         override fun onPlayerError(e: PlaybackException) {

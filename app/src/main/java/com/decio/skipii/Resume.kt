@@ -4,9 +4,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * Where each video was left off. Written by the playback service (so it keeps saving in
@@ -59,6 +65,75 @@ object ResumeStore {
         val edit = prefs?.edit()
         extra.forEach { positions.remove(it); edit?.remove(it) }
         edit?.apply()
+    }
+}
+
+/**
+ * What was loaded when the app last went away: the current video and the queue behind it.
+ * Written by the service on every playlist change, so a crash, force stop or swipe from
+ * Recents leaves it in place; closing the mini-player empties the playlist and so clears it.
+ * On the next launch the UI puts it back, paused, at the video's [ResumeStore] position.
+ */
+object SavedSession {
+    class Entry(val id: String, val title: String, val channel: String, val thumbnail: String?, val durationSec: Long)
+
+    private var prefs: SharedPreferences? = null
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("session", Context.MODE_PRIVATE)
+    }
+
+    /** Current video first, then the queue; empty when nothing was left open. */
+    fun load(): List<Entry> {
+        val raw = prefs?.getString("items", null) ?: return emptyList()
+        return try {
+            val array = JSONArray(raw)
+            (0 until array.length()).map { i ->
+                val o = array.getJSONObject(i)
+                Entry(o.getString("id"), o.optString("title"), o.optString("channel"), o.optString("thumbnail").ifBlank { null }, o.optLong("duration"))
+            }
+        } catch (e: JSONException) {
+            // Unreadable (older format, partial write): start clean rather than fail every launch.
+            Log.w("Skipii", "saved session unreadable, dropped", e)
+            prefs?.edit()?.remove("items")?.apply()
+            emptyList()
+        }
+    }
+
+    fun save(items: List<Entry>) {
+        val edit = prefs?.edit() ?: return
+        if (items.isEmpty()) { edit.remove("items").apply(); return }
+        val array = JSONArray()
+        items.forEach {
+            array.put(
+                JSONObject().put("id", it.id).put("title", it.title).put("channel", it.channel)
+                    .put("thumbnail", it.thumbnail.orEmpty()).put("duration", it.durationSec),
+            )
+        }
+        edit.putString("items", array.toString()).apply()
+    }
+}
+
+/** Service-side: keeps [SavedSession] equal to the player's [current, ...queue]. */
+@OptIn(UnstableApi::class)
+class SessionSaver : Player.Listener {
+    override fun onEvents(player: Player, events: Player.Events) {
+        if (!events.containsAny(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION, Player.EVENT_MEDIA_METADATA_CHANGED)) return
+        // Without the UI connected nothing trims finished items off the front: start at the current one.
+        val from = player.currentMediaItemIndex.takeIf { player.mediaItemCount > 0 } ?: 0
+        SavedSession.save(
+            (from until player.mediaItemCount).map { i ->
+                val media = player.getMediaItemAt(i)
+                val meta = media.mediaMetadata
+                SavedSession.Entry(
+                    id = media.mediaId,
+                    title = meta.title?.toString().orEmpty(),
+                    channel = meta.artist?.toString().orEmpty(),
+                    thumbnail = meta.artworkUri?.toString(),
+                    durationSec = (meta.durationMs ?: 0L) / 1000,
+                )
+            }.filter { it.id.isNotBlank() },
+        )
     }
 }
 
