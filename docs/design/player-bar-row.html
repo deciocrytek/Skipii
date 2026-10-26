@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — the open bar: tools in a row, time under the line, three directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --primary:#6A4FD0;--on-primary:#ffffff;
+  --surface:#F7F1FB;--on:#2A2140;--on-var:#76689A;
+  --sv:#EEE5F6;--scl:#F1EAF8;
+  --tile:#F7F2FB;
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --track:color-mix(in srgb,var(--primary) 28%,var(--sv));
+  --sponsor:#1FA34A;
+  --shadow:drop-shadow(0 6px 12px rgba(40,20,80,.20)) drop-shadow(0 1px 3px rgba(40,20,80,.10));
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;
+  --surface:#141218;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#2B2633;--scl:#1E1B24;
+  --tile:#3A3444;
+  --page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:drop-shadow(0 6px 14px rgba(0,0,0,.6)) drop-shadow(0 1px 3px rgba(0,0,0,.4));
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+.wrap{max-width:1600px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:780px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;max-width:640px}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;width:calc(436px * var(--z))}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;color:var(--on);transition:background .4s}
+.cap{width:100%}
+.cap .t{display:flex;align-items:baseline;gap:10px}
+.cap .t i{font-style:normal;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:15px;font-weight:850;flex:none;transform:translateY(5px)}
+.cap .t b{font-size:21px;font-weight:850;letter-spacing:-.4px}
+.cap p{margin-top:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);line-height:1.45}
+.cap ul{margin-top:8px;padding-left:16px}
+.cap li{font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.cap li b{color:var(--ink)}
+.notes{margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:#6A4FB8;text-transform:uppercase}
+html.dark .note h3{color:var(--primary)}
+.note li{margin-top:8px;font-size:14px;font-weight:550;line-height:1.5;color:var(--ink-2)}
+.note ul{padding-left:18px}
+.note b{color:var(--ink)}
+
+/* phone contents (the page from Derek's screenshot) */
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 30px;font-size:15px;font-weight:700;z-index:90;pointer-events:none}
+.status .r{display:flex;gap:6px;align-items:center;font-size:13px}
+.batt{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:15px;border-radius:5px;background:var(--on);color:var(--surface);font-size:10.5px;font-weight:850}
+.gest{position:absolute;bottom:8px;left:50%;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--on);opacity:.55;z-index:96;pointer-events:none}
+.vid{position:absolute;left:0;top:61px;width:412px;height:232px;background:#000;overflow:hidden}
+.vid canvas{width:100%;height:100%;display:block}
+.det{position:absolute;left:0;right:0;top:293px;bottom:0;overflow:hidden;padding:20px 20px}
+.ptitle{font-size:22px;font-weight:850;letter-spacing:-.6px;line-height:1.18;font-stretch:88%}
+.pmeta{font-size:14px;font-weight:600;color:var(--on-var);margin-top:12px}
+.pmeta b{color:var(--on);font-weight:750;margin-left:6px}
+.chan{display:flex;align-items:center;gap:12px;margin-top:20px}
+.chan .av{width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.chan .av i{width:26px;height:26px;border-radius:50%;border:4px solid #4F7FA8}
+.chan .nm{flex:1}
+.chan .nm b{display:block;font-size:15px;font-weight:750}
+.chan .nm small{font-size:12.5px;font-weight:600;color:var(--on-var)}
+.chan .sub{height:40px;padding:0 14px;border-radius:20px;background:var(--scl);font-size:14px;font-weight:750;display:flex;align-items:center;gap:6px}
+.acts{display:flex;gap:6px;margin-top:16px}
+.acts span{height:44px;padding:0 16px;border-radius:16px;background:var(--sv);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:750}
+.acts span svg{width:18px;height:18px}
+.ccard{margin-top:16px;background:var(--scl);border-radius:22px;padding:15px 17px}
+.ccard .h{display:flex;justify-content:space-between;font-size:15px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:14px;font-weight:550;color:var(--on-var)}
+.ccard p i{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ddd,#555);flex:none}
+.more{margin-top:22px;font-size:22px;font-weight:850;letter-spacing:-.5px}
+.card{margin-top:14px;display:flex;gap:12px}
+.thumb{width:140px;flex:none;aspect-ratio:16/9;border-radius:16px;position:relative;overflow:hidden}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.62);color:#fff;border-radius:7px;padding:2px 6px;font-size:11px;font-weight:800}
+.card .vt{font-size:14.5px;font-weight:750;line-height:1.25}
+.card .vm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:5px}
+.pvig{position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none;z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 12%,transparent) 25%,color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 64%,transparent) 75%,color-mix(in srgb,var(--surface) 76%,transparent))}
+.scrim{position:absolute;inset:0;z-index:50}
+
+/* the bar: everything is placed from the resting bar's bottom centre (y up) */
+.pw{position:absolute;left:50%;bottom:76px;width:0;height:0;z-index:60}
+.ab{position:absolute;transform:translateX(-50%)}
+.shape{position:absolute;left:-206px;bottom:-60px;width:412px;height:360px;filter:var(--shadow);pointer-events:none;overflow:visible}
+.shape *{fill:var(--sv);transition:fill .4s}
+.btn{display:grid;place-items:center;color:var(--on);transition:transform .42s var(--pop)}
+.btn:active{transform:translateX(-50%) scale(.94);transition-duration:.09s}
+.side{width:41px;height:41px;border-radius:50%;background:var(--tile)}
+.side svg{width:20px;height:20px}
+.seek{width:52px;height:52px;border-radius:50%}
+.seek .ic{position:relative;width:27px;height:27px}
+.seek .ic svg{width:27px;height:27px}
+.seek .ic small{position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:850;padding-top:3px}
+.seek.fwd .ic svg{transform:scaleX(-1)}
+.play{width:102px;height:54px;border-radius:27px;background:var(--primary);color:var(--on-primary)}
+.play svg{width:26px;height:26px}
+
+.key svg{position:absolute;left:50%;top:50%;margin:-10px 0 0 -10px}
+.line{height:2.7px;width:248px;bottom:5px;pointer-events:none}
+.line .seg{position:absolute;top:0;bottom:0;border-radius:2px;overflow:hidden;background:var(--track)}
+.line .seg b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.line .mk{position:absolute;top:0;bottom:0;background:var(--sponsor);border-radius:2px}
+
+/* tools */
+.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--tile);color:var(--on);transition:background .25s,color .25s}
+.tool .g{height:22px;display:grid;place-items:center;font-size:14px;font-weight:850;font-variant-numeric:tabular-nums}
+.tool .g svg{width:22px;height:22px}
+.tool .l{font-size:9.5px;font-weight:750;color:var(--on-var);white-space:nowrap;transition:color .25s}
+.tool.hot{background:var(--primary);color:var(--on-primary)}
+.tool.hot .l{color:var(--on-primary)}
+.t-circle{width:58px;height:58px;border-radius:50%}
+.t-tile{height:60px;border-radius:18px}
+.t-tile .l{font-size:10.5px}
+.t-seg{height:56px}
+.t-seg .l{font-size:10.5px}
+
+/* time */
+.time{white-space:nowrap;font-size:12.5px;font-weight:750;color:var(--on-var);font-variant-numeric:tabular-nums;pointer-events:none}
+.time b{color:var(--on);font-weight:850}
+.time.l{transform:none}
+.time.r{transform:translateX(-100%)}
+.finger{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1.5px rgba(0,0,0,.2);pointer-events:none;z-index:99;opacity:0}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+  <symbol id="i-rew" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.2 9.2A7.6 7.6 0 1 1 4.5 13M5 4.6v4.8h4.8"/></symbol>
+  <symbol id="i-head" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 17v-4a8 8 0 0 1 16 0v4M4 14h3v6H5a1 1 0 0 1-1-1zm16 0h-3v6h2a1 1 0 0 0 1-1z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="18.5" r="2" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pip" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="11.5" y="11" width="7" height="5.5" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path fill="currentColor" d="M6 6.6v10.8a1.1 1.1 0 0 0 1.7.9l8-5.4a1.1 1.1 0 0 0 0-1.8l-8-5.4A1.1 1.1 0 0 0 6 6.6z"/><rect x="16.5" y="5.5" width="2.6" height="13" rx="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-like" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 10v10H4V10zm0 0 4-7c1.5 0 2.5 1 2.2 2.6L12.6 9H19a2 2 0 0 1 2 2.3l-1.2 6.8A2.3 2.3 0 0 1 17.5 20H7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a6 6 0 0 0-6 6v4l-2 3v1h16v-1l-2-3V9a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0z"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>The open bar, in a row</h1>
+      <p>From your marked-up screenshot: <b>the tools leave the dome's arc and sit in one straight row</b> just above −10 · play · +10, and <b>the chapter and time leave the middle of the dome and go under the progress line</b>. With the arc gone the dome has nothing to be tall for, so <b>the open bar becomes a short card</b> (about 380×160 instead of 380×270) and covers far less of the page. Tap <b>⋮</b> to open and <b>✕</b> or anywhere outside to close; the tools work (Speed and Quality cycle).</p>
+    </div>
+    <div class="tools">
+      <button class="chip" id="queueT">Queue has a video (adds Next)</button>
+      <button class="chip" id="slow">Slow-mo 5×</button>
+      <button class="chip" id="toggleAll">Close all</button>
+      <button class="chip" id="darkT">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.8"></label>
+    </div>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="notes">
+    <div class="note"><h3>Shared</h3><ul>
+      <li>The resting bar doesn't change (316×83, audio only · −10 · play · +10 · ⋮, progress line under the row). Opening never moves the row under your thumb.</li>
+      <li>The card grows <b>up</b> for the tools and a little <b>down</b> for the time, so the time lands where you circled green.</li>
+      <li>Tools pop in left to right once the card has grown past them. Next only shows while the queue has something (chip above).</li>
+      <li>Hold-and-slide still works: hold play, slide up onto a tool, let go — a row is easier to slide along than an arc.</li>
+    </ul></div>
+    <div class="note"><h3>Sizes</h3><ul>
+      <li><b>A Card</b> — 380×184 (160 up, 24 down), 32 dp corners; 58 dp circles; chapter · time centred under the line.</li>
+      <li><b>B Chin</b> — 380×158 card, 78×60 tiles; the time sits in a 28 dp chin under the card's middle, with curved inner corners.</li>
+      <li><b>C Step</b> — 380 base (84 up, 22 down) + 340 shelf on top (to 158), curved where they meet; one connected button group; chapter left, time right.</li>
+    </ul></div>
+  </div>
+</div>
+
+<template id="phoneT">
+  <div class="shot">
+    <div class="frame"><div class="phone"><div class="screen">
+      <div class="status"><span>5:01</span><span class="r">✱ ▂▄▆█ <span class="batt">66</span></span></div>
+      <div class="vid"><canvas width="412" height="232"></canvas></div>
+      <div class="det">
+        <div class="ptitle">The iPhone Duo Has Problems!</div>
+        <div class="pmeta">317 likes <b>...more</b></div>
+        <div class="chan"><div class="av"><i></i></div><div class="nm"><b>TechOdyssey</b><small>217K subscribers</small></div><div class="sub"><svg width="18" height="18"><use href="#i-bell"/></svg>Subscribed</div></div>
+        <div class="acts"><span><svg><use href="#i-like"/></svg>317</span><span><svg style="transform:scaleY(-1)"><use href="#i-like"/></svg></span><span><svg><use href="#i-clock"/></svg>Save</span></div>
+        <div class="ccard"><div class="h">Comments <span>132</span></div><p><i></i>Yip apple reinvented a square wheel.</p></div>
+        <div class="more">More videos</div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#8a8f99,#4b3c33)"><span class="dur">28:59</span></div><div><div class="vt">New Car Owners Are Finding Out What These 'Features' REALLY ...</div><div class="vm">Lemon Lane · 28K views</div></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#2d4a7a,#c9a227)"><span class="dur">16:40</span></div><div><div class="vt">I Used The Thinnest Phone For A Week</div><div class="vm">TechOdyssey · 91K views</div></div></div>
+      </div>
+      <div class="pvig"></div>
+      <div class="scrim"></div>
+      <div class="pw"></div>
+      <div class="finger"></div>
+      <div class="gest"></div>
+    </div></div></div>
+    <div class="cap"><div class="t"><i></i><b></b></div><p></p><ul></ul></div>
+  </div>
+</template>
+
+<script>
+const DUR = 781;
+const CH = [[0, "Intro"], [64, "Unboxing"], [190, "The fold"], [352, "Cameras"], [540, "Battery"], [688, "Verdict"]];
+const SPONSOR = [{ s: 30, e: 62 }];
+const REST = { w: 316, h: 83 };
+let SLOW = 1, QUEUE = false;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ramp = (t, a, b) => clamp((t - a) / (b - a));
+const popE = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const fmt = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const chapterAt = s => { let c = CH[0][1]; for (const x of CH) if (s >= x[0]) c = x[1]; return c; };
+const SPEEDS = ['1', '1.25', '1.5', '2', '0.75'];
+const QUALS = ['Auto', '1080p', '720p', '480p'];
+
+// Each direction: the open shape, how the tools look and where the time goes.
+const V = [
+  {
+    letter: 'A', name: 'Card',
+    blurb: 'The dome becomes a plain rounded card, only as tall as one row of tools. The tools keep today\'s 58 dp circles, now in a straight line over the controls. The card also grows a little down, so the chapter and time sit centred under the progress line.',
+    how: ['<b>380×184</b> open (160 up, 24 below the resting bar), 32 dp corners.', 'Tools spread evenly across 348 dp.', 'Chapter · time: one centred line, 12.5 sp.'],
+    shape: { kind: 'card', w: 380, top: 160, below: 24, r: 32 },
+    tools: 'circle', toolY: 113, time: 'center', timeY: -21,
+  },
+  {
+    letter: 'B', name: 'Chin',
+    blurb: 'Same short card, with the tools as rounded tiles. The time doesn\'t make the whole card taller — it gets a little chin of its own under the middle, joined by curved inner corners, right where you circled green.',
+    how: ['<b>380×158</b> card + a <b>28 dp</b> chin as wide as its text.', 'Tiles 78×60 (64 wide with Next), 18 dp corners, 8 dp apart.', 'Chapter · time inside the chin.'],
+    shape: { kind: 'chin', w: 380, top: 158, r: 32, chin: 28 },
+    tools: 'tile', toolY: 113, time: 'chin',
+  },
+  {
+    letter: 'C', name: 'Step',
+    blurb: 'The card steps: the tools ride a narrower shelf on top, joined to the base by curved inner corners, as one connected button group. The chapter sits under the line\'s left end and the time under its right end.',
+    how: ['Base <b>380</b> wide (84 up, 22 down), shelf <b>340</b> wide up to 158.', 'Connected group 308×56: round outer ends, 8 dp inner corners, 3 dp gaps.', 'Chapter left, time right, aligned to the line\'s ends.'],
+    shape: { kind: 'step', w: 380, base: 84, shelfW: 340, top: 158, below: 22, r: 28, r2: 22, f: 14 },
+    tools: 'seg', toolY: 120, time: 'split', timeY: -19,
+  },
+];
+
+function paintVideo(cv, t) {
+  const g = cv.getContext('2d'), w = cv.width, h = cv.height;
+  g.fillStyle = '#cfcac4'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#e4e0db'; g.fillRect(300, 0, 112, h);
+  g.fillStyle = '#b9b4ad'; g.fillRect(296, 0, 4, h);
+  const tv = g.createLinearGradient(0, 30, 180, 200); tv.addColorStop(0, '#2b2a8a'); tv.addColorStop(1, '#0a2e57');
+  g.fillStyle = tv; g.beginPath(); g.moveTo(0, 30); g.lineTo(180, 52); g.lineTo(170, 220); g.lineTo(0, 232); g.fill();
+  g.fillStyle = '#4b6fe0'; for (let i = 0; i < 9; i++) g.fillRect(70 + i * 9, 120 - (i % 4) * 14, 5, 80);
+  const x = Math.sin(t / 1600) * 4;
+  g.fillStyle = '#9b9c9e'; g.beginPath(); g.ellipse(232 + x, 240, 120, 70, 0, Math.PI, 0); g.fill();
+  g.fillStyle = '#d7a88a'; g.beginPath(); g.ellipse(232 + x, 122, 50, 62, 0, 0, 7); g.fill();
+  g.fillStyle = '#4a3a2c'; g.beginPath(); g.ellipse(232 + x, 160, 46, 34, 0, 0, Math.PI); g.fill();
+  g.beginPath(); g.ellipse(232 + x, 74, 46, 20, 0, Math.PI, 0); g.fill();
+}
+
+const NS = 'http://www.w3.org/2000/svg';
+class Phone {
+  constructor(v) {
+    this.v = v;
+    const node = document.getElementById('phoneT').content.firstElementChild.cloneNode(true);
+    document.getElementById('stage').appendChild(node);
+    const q = s => node.querySelector(s);
+    this.node = node; this.scr = q('.screen'); this.pw = q('.pw'); this.cv = q('canvas'); this.scrim = q('.scrim');
+    q('.cap .t i').textContent = v.letter; q('.cap .t b').textContent = v.name; q('.cap p').textContent = v.blurb;
+    q('.cap ul').innerHTML = v.how.map(s => `<li>${s}</li>`).join('');
+    this.s = { pos: 635, playing: true, speed: 0, qual: 0 };
+    this.t = 1; this.vel = 0; this.target = 1;
+    this.scrim.onclick = () => this.setOpen(false);
+    this.build();
+    paintVideo(this.cv, 0);
+  }
+  el(cls, html = '') { const d = document.createElement('div'); d.className = 'ab ' + cls; d.innerHTML = html; this.pw.appendChild(d); return d; }
+  at(el, x, y) { el.style.left = x + 'px'; el.style.bottom = y + 'px'; }
+  build() {
+    // The shape: rounded rects in one filled group (the union is the outline), plus concave fillets.
+    this.svg = document.createElementNS(NS, 'svg');
+    this.svg.setAttribute('class', 'shape'); this.svg.setAttribute('viewBox', '-206 -300 412 360');
+    this.pw.appendChild(this.svg);
+    this.parts = {};
+    const mk = (name, tag) => { const e = document.createElementNS(NS, tag); this.svg.appendChild(e); this.parts[name] = e; return e; };
+    mk('base', 'rect');
+    if (this.v.shape.kind === 'step') { mk('shelf', 'rect'); mk('fl', 'path'); mk('fr', 'path'); }
+    if (this.v.shape.kind === 'chin') { mk('chin', 'rect'); mk('fl', 'path'); mk('fr', 'path'); }
+
+    // Progress line.
+    const segs = CH.map((c, i) => { const e = (CH[i + 1] || [DUR])[0]; return `<div class="seg" style="left:${c[0] / DUR * 100}%;width:calc(${(e - c[0]) / DUR * 100}% - 2px)"><b></b></div>`; }).join('');
+    const marks = SPONSOR.map(m => `<i class="mk" style="left:${m.s / DUR * 100}%;width:${(m.e - m.s) / DUR * 100}%"></i>`).join('');
+    this.line = this.el('line', segs + marks);
+    this.at(this.line, 0, 5);
+    this.segFills = [...this.line.querySelectorAll('.seg b')].map((b, i) => ({ b, s: CH[i][0], e: (CH[i + 1] || [DUR])[0] }));
+
+    // Transport row (doesn't move).
+    const cy = 42;
+    this.audio = this.el('btn side', '<svg><use href="#i-head"/></svg>'); this.at(this.audio, -134, cy - 20.5);
+    this.rew = this.el('btn seek', '<div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div>'); this.at(this.rew, -82, cy - 26);
+    this.play = this.el('btn play', '<svg><use href="#i-pause"/></svg>'); this.at(this.play, 0, cy - 27);
+    this.fwd = this.el('btn seek fwd', '<div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div>'); this.at(this.fwd, 82, cy - 26);
+    this.key = this.el('btn side key', '<svg class="k1"><use href="#i-more"/></svg><svg class="k2"><use href="#i-x"/></svg>'); this.at(this.key, 134, cy - 20.5);
+    [this.audio, this.rew, this.play, this.fwd, this.key].forEach(b => b.style.zIndex = 2);
+    this.rew.onclick = () => { this.s.pos = clamp(this.s.pos - 10, 0, DUR); };
+    this.fwd.onclick = () => { this.s.pos = clamp(this.s.pos + 10, 0, DUR); };
+    this.play.onclick = () => { this.s.playing = !this.s.playing; this.play.innerHTML = `<svg><use href="#i-${this.s.playing ? 'pause' : 'play'}"/></svg>`; };
+    this.audio.onclick = () => this.audio.classList.toggle('hot');
+    this.key.onclick = () => this.setOpen(this.target < .5);
+
+    // Time.
+    const v = this.v;
+    if (v.time === 'split') {
+      this.tl = this.el('time l'); this.tr = this.el('time r');
+      this.at(this.tl, -124, v.timeY); this.at(this.tr, 124, v.timeY);
+    } else {
+      this.tm = this.el('time');
+    }
+    this.buildTools();
+  }
+  buildTools() {
+    (this.toolEls || []).forEach(e => e.remove());
+    const v = this.v, list = ['speed', 'quality', 'pip', 'full'].concat(QUEUE ? ['next'] : []);
+    const n = list.length;
+    this.toolEls = list.map((k, i) => {
+      const cls = { circle: 't-circle', tile: 't-tile', seg: 't-seg' }[v.tools];
+      const e = this.el('tool ' + cls, `<div class="g"></div><div class="l">${{ speed: 'Speed', quality: 'Quality', pip: 'PiP', full: 'Fullscreen', next: 'Next' }[k]}</div>`);
+      e.dataset.k = k;
+      const g = e.querySelector('.g');
+      if (k === 'pip') g.innerHTML = '<svg><use href="#i-pip"/></svg>';
+      if (k === 'full') g.innerHTML = '<svg><use href="#i-full"/></svg>';
+      if (k === 'next') g.innerHTML = '<svg><use href="#i-next"/></svg>';
+      let x, h = 58;
+      if (v.tools === 'circle') { const sp = 348 / n; x = -174 + sp * (i + .5); }
+      if (v.tools === 'tile') { const w = n > 4 ? 64 : 78, gap = 8, tot = n * w + (n - 1) * gap; x = -tot / 2 + w / 2 + i * (w + gap); e.style.width = w + 'px'; h = 60; }
+      if (v.tools === 'seg') {
+        const tot = 308, gap = 3, w = (tot - gap * (n - 1)) / n; x = -tot / 2 + w / 2 + i * (w + gap); e.style.width = w + 'px'; h = 56;
+        e.style.borderRadius = i === 0 ? '28px 8px 8px 28px' : i === n - 1 ? '8px 28px 28px 8px' : '8px';
+      }
+      this.at(e, x, v.toolY - h / 2);
+      e._order = i;
+      e.onclick = () => this.pick(k, e);
+      return e;
+    });
+    this.labelTools();
+  }
+  labelTools() {
+    for (const e of this.toolEls) {
+      const g = e.querySelector('.g');
+      if (e.dataset.k === 'speed') { g.textContent = SPEEDS[this.s.speed] + '×'; e.classList.toggle('hot', this.s.speed !== 0); }
+      if (e.dataset.k === 'quality') g.textContent = QUALS[this.s.qual];
+    }
+  }
+  pick(k, e) {
+    if (this.t < .7) return;
+    if (k === 'speed') this.s.speed = (this.s.speed + 1) % SPEEDS.length;
+    else if (k === 'quality') this.s.qual = (this.s.qual + 1) % QUALS.length;
+    else { e.classList.add('hot'); setTimeout(() => { e.classList.remove('hot'); this.setOpen(false); }, 260 * SLOW); return; }
+    this.labelTools();
+  }
+  setOpen(on) { this.target = on ? 1 : 0; }
+
+  // One spring drives the whole open amount (slight overshoot, like the app's bar spring).
+  step(dt) {
+    const s = this.s, sdt = dt / SLOW;
+    if (s.playing) { s.pos += sdt; if (s.pos >= DUR) s.pos = 0; this.vt = (this.vt || 0) + sdt * 1000; paintVideo(this.cv, this.vt); }
+    const k = 320, c = 2 * 0.74 * Math.sqrt(k);
+    for (let i = 0, n = Math.ceil(sdt / (1 / 240)); i < n; i++) {
+      const h = sdt / n, a = -k * (this.t - this.target) - c * this.vel;
+      this.vel += a * h; this.t += this.vel * h;
+    }
+    if (Math.abs(this.t - this.target) < 1e-4 && Math.abs(this.vel) < 1e-3) { this.t = this.target; this.vel = 0; }
+    this.draw();
+  }
+  rect(e, cx, yBottom, w, h, r) {
+    e.setAttribute('x', cx - w / 2); e.setAttribute('y', -(yBottom + h)); e.setAttribute('width', Math.max(0, w)); e.setAttribute('height', Math.max(0, h));
+    r = Math.max(0, Math.min(r, w / 2, h / 2)); e.setAttribute('rx', r); e.setAttribute('ry', r);
+  }
+  draw() {
+    const v = this.v, sh = v.shape, t = this.t, tc = clamp(t), P = this.parts;
+    const w = lerp(REST.w, sh.w, t);
+    if (sh.kind === 'card') {
+      const below = sh.below * t, top = lerp(REST.h, sh.top, t);
+      this.rect(P.base, 0, -below, w, top + below, lerp(REST.h / 2, sh.r, tc));
+    }
+    if (sh.kind === 'chin') {
+      const top = lerp(REST.h, sh.top, t);
+      this.rect(P.base, 0, 0, w, top, lerp(REST.h / 2, sh.r, tc));
+      const d = sh.chin * tc, cw = this.chinW || 160, f = Math.min(10, d * .5);
+      this.rect(P.chin, 0, -d, cw, d + 20, Math.min(14, d * .55));
+      const x = cw / 2;
+      P.fr.setAttribute('d', `M ${x} 0 L ${x + f} 0 A ${f} ${f} 0 0 0 ${x} ${f} Z`);
+      P.fl.setAttribute('d', `M ${-x} 0 L ${-x - f} 0 A ${f} ${f} 0 0 1 ${-x} ${f} Z`);
+    }
+    if (sh.kind === 'step') {
+      const below = sh.below * t, base = lerp(REST.h, sh.base, t), top = lerp(REST.h, sh.top, t);
+      const sw = lerp(REST.w, sh.shelfW, t);
+      this.rect(P.base, 0, -below, w, base + below, lerp(REST.h / 2, sh.r2, tc));
+      this.rect(P.shelf, 0, -below, sw, top + below, lerp(REST.h / 2, sh.r, tc));
+      const f = Math.max(0, Math.min(sh.f * tc, (w - sw) / 2 - lerp(0, sh.r2, tc) * .6, top - base)), x = sw / 2;
+      P.fr.setAttribute('d', `M ${x} ${-base} L ${x + f} ${-base} A ${f} ${f} 0 0 1 ${x} ${-base - f} Z`);
+      P.fl.setAttribute('d', `M ${-x} ${-base} L ${-x - f} ${-base} A ${f} ${f} 0 0 0 ${-x} ${-base - f} Z`);
+    }
+    // Tools pop in left to right once the card has grown past them.
+    for (const e of this.toolEls) {
+      const a = ramp(tc, .42 + e._order * .07, .64 + e._order * .07);
+      e.style.opacity = a;
+      e.style.transform = `translateX(-50%) translateY(${(1 - a) * 10}px) scale(${.6 + .4 * popE(a)})`;
+      e.style.pointerEvents = a > .9 ? 'auto' : 'none';
+    }
+    // ⋮ turns into ✕.
+    const k1 = this.key.querySelector('.k1'), k2 = this.key.querySelector('.k2');
+    k1.style.opacity = 1 - tc; k1.style.transform = `rotate(${tc * 90}deg) scale(${1 - .4 * tc})`;
+    k2.style.opacity = tc; k2.style.transform = `rotate(${(tc - 1) * 90}deg) scale(${.6 + .4 * tc})`;
+    this.key.style.background = tc > .5 ? 'var(--sv)' : '';
+    this.scrim.style.pointerEvents = this.target > .5 ? 'auto' : 'none';
+    // Progress + time.
+    const pos = this.s.pos, ta = ramp(tc, .55, .95);
+    for (const sf of this.segFills) sf.b.style.width = (clamp((pos - sf.s) / (sf.e - sf.s)) * 100) + '%';
+    const ch = chapterAt(pos), tm = `${fmt(pos)} / ${fmt(DUR)}`;
+    if (v.time === 'split') {
+      this.tl.innerHTML = `<b>${ch}</b>`; this.tr.textContent = tm;
+      this.tl.style.opacity = this.tr.style.opacity = ta;
+    } else {
+      const html = `<b>${ch}</b> · ${tm}`;
+      if (this.tm._h !== html) { this.tm.innerHTML = html; this.tm._h = html; if (v.time === 'chin') this.chinW = this.tm.offsetWidth + 32; }
+      this.tm.style.opacity = ta;
+      this.at(this.tm, 0, v.time === 'chin' ? -sh.chin * tc + 6 : v.timeY);
+      if (v.time === 'chin') this.tm.style.transform = `translateX(-50%) translateY(${(1 - ta) * -6}px)`;
+    }
+  }
+}
+
+const phones = V.map(v => new Phone(v));
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; phones.forEach(p => p.step(dt)); requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+
+const zoom = document.getElementById('zoom');
+const setZoom = () => document.documentElement.style.setProperty('--z', zoom.value);
+zoom.oninput = setZoom; setZoom();
+document.getElementById('darkT').onclick = e => { document.documentElement.classList.toggle('dark'); e.currentTarget.classList.toggle('on'); };
+document.getElementById('slow').onclick = e => { SLOW = SLOW === 1 ? 5 : 1; e.currentTarget.classList.toggle('on', SLOW > 1); };
+document.getElementById('queueT').onclick = e => { QUEUE = !QUEUE; e.currentTarget.classList.toggle('on', QUEUE); phones.forEach(p => p.buildTools()); };
+document.getElementById('toggleAll').onclick = e => {
+  const open = phones.every(p => p.target < .5);
+  phones.forEach(p => p.setOpen(open));
+  e.currentTarget.textContent = open ? 'Close all' : 'Open all';
+};
+</script>
+</body>
+</html>

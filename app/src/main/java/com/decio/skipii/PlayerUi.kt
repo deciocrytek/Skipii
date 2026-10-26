@@ -52,7 +52,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +63,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -91,6 +94,10 @@ import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 
 // The video runs edge to edge as a plain rectangle, right under the status bar (Derek).
 internal val StageTopGap = 0.dp
+/** How far up the screen (share of its height) the video's top edge gets before the status bar starts turning black. */
+private const val StatusBlackFromUp = 0.25f
+/** Morph progress by which the status bar over the video is fully black. */
+private const val StatusBlackEnd = 0.9f
 internal val StageSideGap = 0.dp
 internal val StageRadius = 0.dp
 internal val MiniHeight = 70.dp
@@ -105,6 +112,12 @@ internal val MiniThumbRadius = 17.dp
  */
 internal const val StageMinAspect = 0.8f
 internal const val StageMaxAspect = 2.4f
+/**
+ * The stage never takes more than this share of the window's height: in a short split-screen
+ * pane a tall video would otherwise push the details (and half the video) off the bottom.
+ * On a full phone screen 4:5 stays under it, so nothing changes there.
+ */
+internal const val StageMaxHeightShare = 0.6f
 /** Morph progress after which the details and tint start fading in (tuning dial). */
 private const val DetailsFadeStart = 0.55f
 
@@ -125,11 +138,36 @@ fun PlayerScreen(
     // Collapsing (or collapsed): the player gives up the screen immediately, so the
     // mini-player underneath answers taps and swipes even while the animation finishes.
     val interactive = state.expanded || morph.dragging
+    // A drag on the video or details whose page goes away mid-gesture (turning to fullscreen)
+    // never gets its release: settle it here, or the morph stays "dragging" for good.
+    DisposableEffect(morph) { onDispose { morph.settle(0f, reducedMotion = false) } }
     val showDetails by remember { derivedStateOf { state.expanded || morph.dragging || morph.progress.value > DetailsFadeStart } }
     val details = state.details
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     var descriptionOpen by remember(item.id) { mutableStateOf(false) }
+    // Audio only (Derek, 2026-10-25): the open player has no video space at all — the stage
+    // folds away (the picture fading and lifting as its height closes) and unfolds for video.
+    // Only on the fully open player: swiping it down unfolds it again, so the thumbnail still
+    // lands in the mini-player.
+    val reduced = rememberReducedMotion()
+    val fold = remember { Animatable(if (AudioOnly.enabled) 1f else 0f) }
+    LaunchedEffect(AudioOnly.enabled) {
+        val target = if (AudioOnly.enabled) 1f else 0f
+        if (reduced) fold.snapTo(target) else fold.animateTo(target, spring(dampingRatio = 1f, stiffness = 260f, visibilityThreshold = 0.0005f))
+    }
+    // Derek, 2026-10-26: over a video the status bar is pitch black (white icons); audio only
+    // and the pages keep the page look. It fades from the page's own color once the video's top
+    // edge is a quarter of the way up the screen (black before the growing frame reaches the
+    // top), and out with the fold.
+    val blackStatus = {
+        val g = morph.geometry
+        // The video's top edge travels from the mini-player's thumbnail to the stage's top.
+        val start = if (g == null) StatusBlackFromUp else ((g.miniThumb.top - g.screen.height * (1f - StatusBlackFromUp)) / (g.miniThumb.top - g.stage.top))
+        ramp(morph.progress.value, start.coerceIn(0f, StatusBlackEnd - 0.1f), StatusBlackEnd) * (1f - fold.value)
+    }
+    LaunchedEffect(Unit) { snapshotFlow { blackStatus() > 0.5f }.collect { StatusBarOverVideo.on = it } }
+    DisposableEffect(Unit) { onDispose { StatusBarOverVideo.on = false } }
 
     val pageColor = c.surface
     val miniColor = c.surfaceContainerHighest
@@ -170,7 +208,7 @@ fun PlayerScreen(
         Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(top + StageTopGap))
             // Pinned: the video stays put while the details scroll beneath it.
-            VideoStage(state, morph, onCollapse, onFullscreen, interactive)
+            VideoStage(state, morph, fold, onCollapse, onFullscreen, interactive)
             // While collapsing the details are invisible anyway; leaving them out keeps them
             // from catching touches meant for the mini-player.
             if (!showDetails) Spacer(Modifier.weight(1f)) else
@@ -251,8 +289,8 @@ fun PlayerScreen(
                                 SubscribeButton(subscribed, onClick = state::toggleSubscribe)
                             }
                         }
-                        PlayerActions(state)
-                        SpeedPanel(state)
+                        // Speed and audio only live in the player's bar now (PlayerBar.kt).
+                        if (state.accountState != null) PlayerActions(state)
                         QueueCard(state, onOpen = { state.sheet = PlayerSheet.Queue })
                         CommentsCard(state.comments, onOpen = { state.sheet = PlayerSheet.Comments })
                     }
@@ -297,6 +335,13 @@ fun PlayerScreen(
             CommentsPanel(state.comments, partialTop = videoBottom + 10.dp, onClose = { state.sheet = null })
         }
     }
+    // Outside the morph's frame, so it never slides in with the card: it just fades over
+    // whatever the status bar shows.
+    Box(
+        Modifier.fillMaxWidth().height(top)
+            .graphicsLayer { alpha = blackStatus() }
+            .background(Color.Black),
+    )
 }
 
 /**
@@ -306,7 +351,7 @@ fun PlayerScreen(
  * [FullscreenPull] or with a flick it turns to landscape; short of that it eases back.
  */
 @Composable
-private fun VideoStage(state: PlayerState, morph: PlayerMorph, onCollapse: () -> Unit, onFullscreen: () -> Unit, interactive: Boolean) {
+private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<Float, *>, onCollapse: () -> Unit, onFullscreen: () -> Unit, interactive: Boolean) {
     val reduced = rememberReducedMotion()
     val scope = rememberCoroutineScope()
     // The height follows the video; when its real shape arrives the change eases in.
@@ -321,7 +366,19 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, onCollapse: () ->
     // anything else drives the morph.
     var decided by remember { mutableStateOf(false) }
     var pulling by remember { mutableStateOf(false) }
+    val folded = { fold.value * ramp(morph.progress.value, 0.8f) }
     val stage = Modifier
+        .graphicsLayer { clip = folded() > 0.001f }
+        .layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val k = 1f - folded()
+            layout(placeable.width, (placeable.height * k).roundToInt()) {
+                placeable.placeWithLayer(0, 0) {
+                    alpha = ramp(k, 0.1f, 0.85f)
+                    translationY = -placeable.height * 0.3f * (1f - k)
+                }
+            }
+        }
         .padding(horizontal = StageSideGap)
         .fillMaxWidth()
         .aspectRatio(aspect)
@@ -470,7 +527,7 @@ private fun SubscribeButton(subscribed: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * The action row: like | dislike and Save when signed in, then speed and audio only (always).
+ * The action row (signed in): like | dislike and Save.
  * It runs edge to edge inside so a long like count scrolls it sideways instead of squeezing
  * the buttons, and the like sparks still have room to fly.
  */
@@ -485,9 +542,7 @@ private fun PlayerActions(state: PlayerState) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (state.accountState != null) AccountActions(state)
-        SpeedButton(state)
-        AudioOnlyButton(state)
+        AccountActions(state)
     }
 }
 

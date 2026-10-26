@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — player bar within thumb reach, five directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --ease-rise:cubic-bezier(.05,.7,.1,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  /* Skipii, Wallpaper theme (light) as in Derek's screenshot */
+  --primary:#2F2558;--on-primary:#ffffff;
+  --surface:#F8F0FA;--on:#1F1A2E;--on-var:#6B5C7B;
+  --sv:#ECDDEF;--sch:#F0E5F3;--scl:#F4EBF7;--sclow:#F1E7F4;
+  --page:#E9E2EC;--chrome:#ffffff;--chrome-2:#F4EFF6;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --track:color-mix(in srgb,var(--primary) 30%,var(--sv));
+  --shadow:rgba(40,20,60,.16);
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;
+  --surface:#141218;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#2E2838;--sch:#26212D;--scl:#1E1A24;--sclow:#1C1822;
+  --page:#0B0A0D;--chrome:#17151B;--chrome-2:#211E26;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:rgba(0,0,0,.55);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+
+/* ---------- page chrome ---------- */
+.wrap{max-width:1880px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:780px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;max-width:760px}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s var(--ease-rise),color .3s,transform .42s var(--ease-spring)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip.go{background:var(--ink);color:var(--page)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.chip svg{width:18px;height:18px}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;align-self:stretch;width:calc(436px * var(--z))}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;font-family:var(--font);color:var(--on)}
+.cap{width:100%;text-align:left}
+.cap .t{display:flex;align-items:baseline;gap:10px}
+.cap .t i{font-style:normal;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:15px;font-weight:850;flex:none;transform:translateY(5px)}
+.cap .t b{font-size:21px;font-weight:850;letter-spacing:-.4px}
+.cap p{margin-top:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);line-height:1.45}
+.cap .spec{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.cap .spec span{font-size:12px;font-weight:750;padding:4px 9px;border-radius:999px;background:var(--chrome);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.cap .spec span b{color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;width:100%;align-items:center;margin-top:auto}
+.row .scrubp{flex-basis:100%}
+.mini-btn{height:36px;padding:0 14px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--ink);transition:transform .42s var(--ease-spring),opacity .3s}
+.mini-btn:active{transform:scale(.94);transition-duration:.09s}
+.mini-btn svg{width:16px;height:16px}
+.mini-btn[disabled]{opacity:.45;cursor:default}
+.scrubp{flex:1;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:750;color:var(--ink-2)}
+.scrubp input{flex:1;accent-color:var(--primary)}
+
+.notes{margin-top:60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:var(--primary);text-transform:uppercase}
+html:not(.dark) .note h3{color:#6A4FB8}
+.note p,.note li{margin-top:8px;font-size:14px;font-weight:550;line-height:1.5;color:var(--ink-2)}
+.note ul{padding-left:18px}
+.note b{color:var(--ink)}
+.note code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink)}
+
+/* ---------- inside the phone ---------- */
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 34px;font-size:15px;font-weight:700;z-index:90;pointer-events:none}
+.status .r{display:flex;gap:6px;align-items:center;font-size:13px}
+.batt{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:15px;border-radius:5px;background:var(--on);color:var(--surface);font-size:10.5px;font-weight:850}
+.screen:before{content:"";position:absolute;top:12px;left:50%;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:#050505;z-index:95}
+.gest{position:absolute;bottom:8px;left:50%;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--on);opacity:.55;z-index:96;pointer-events:none}
+
+/* Home (behind the mini-player) */
+.home{position:absolute;inset:0;padding-top:40px;overflow:hidden}
+.hhead{display:flex;align-items:center;gap:10px;padding:14px 20px 14px}
+.brand{width:32px;height:24px;border-radius:8px;background:#FF0033;display:grid;place-items:center}
+.brand svg{width:16px;height:16px;color:#fff}
+.hhead h2{flex:1;font-size:26px;font-weight:850;letter-spacing:-.6px}
+.me{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#8a6fe0,#e07aa8);display:grid;place-items:center;font-weight:850;font-size:14px;color:#fff}
+.hcard{margin:0 16px 22px}
+.hthumb{aspect-ratio:16/9;border-radius:22px;position:relative;overflow:hidden}
+.dur{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.62);color:#fff;border-radius:8px;padding:3px 7px;font-size:11.5px;font-weight:800}
+.hrow{display:flex;gap:11px;margin-top:11px;padding:0 4px}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:850;font-size:12px;color:#fff;flex:none}
+.ht{font-size:15.5px;font-weight:750;line-height:1.25}
+.hm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:3px}
+.vig{position:absolute;left:0;right:0;bottom:0;height:170px;pointer-events:none;z-index:2;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 12%,transparent) 25%,color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 64%,transparent) 75%,color-mix(in srgb,var(--surface) 76%,transparent))}
+
+/* the player page — at p = 0 it IS the mini-player (0.5.9) */
+.pl{position:absolute;inset:0;z-index:40;will-change:clip-path}
+.pl .bgS{position:absolute;inset:0;background:var(--surface)}
+.pl .bgM{position:absolute;inset:0;background:var(--sch)}
+.vid{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;background:#000;touch-action:none;cursor:grab}
+.vid canvas{width:100%;height:100%;display:block}
+.det{position:absolute;left:0;right:0;top:272px;bottom:0;padding:18px 20px 0;overflow:hidden}
+.ptitle{font-size:24px;font-weight:850;letter-spacing:-.6px;line-height:1.18;font-stretch:88%}
+.pmeta{font-size:14px;font-weight:600;color:var(--on-var);margin-top:10px}
+.pmeta b{color:var(--on);font-weight:750;margin-left:6px}
+.chan{display:flex;align-items:center;gap:12px;margin-top:18px}
+.chan .av{width:46px;height:46px;background:#111;font-size:10px}
+.chan .cx{flex:1}
+.chan .cx b{display:block;font-size:16px;font-weight:750}
+.chan .cx small{font-size:13px;font-weight:600;color:var(--on-var)}
+.subbtn{height:44px;padding:0 20px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-weight:750;font-size:15px;display:flex;align-items:center}
+.acts{display:flex;gap:6px;margin-top:16px}
+.act{height:44px;padding:0 15px;border-radius:999px;background:var(--sv);display:flex;align-items:center;gap:7px;font-size:14px;font-weight:750;flex:none}
+.act svg{width:20px;height:20px}
+.act.sq{border-radius:16px;padding:0 15px}
+.ccard{margin-top:18px;background:var(--scl);border-radius:22px;padding:15px 17px}
+.ccard .h{display:flex;justify-content:space-between;font-size:15px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:14px;font-weight:550;color:var(--on-var)}
+.ccard p i{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d9a273,#7b5a3f);flex:none}
+.more{margin-top:22px;font-size:22px;font-weight:850;letter-spacing:-.5px}
+.card{margin-top:14px;display:flex;gap:12px}
+.thumb{width:140px;flex:none;aspect-ratio:16/9;border-radius:16px;position:relative;overflow:hidden}
+.card .vt{font-size:14.5px;font-weight:750;line-height:1.25}
+.card .vm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:5px}
+.pvig{position:absolute;left:0;right:0;bottom:0;height:190px;pointer-events:none;z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 12%,transparent) 25%,color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 64%,transparent) 75%,color-mix(in srgb,var(--surface) 76%,transparent))}
+
+.minic{position:absolute;left:132px;top:746px;width:264px;height:64px;display:flex;align-items:center;gap:8px;padding:0 8px 0 4px;z-index:45}
+.minic .mx{flex:1;min-width:0}
+.minic .mt{font-size:14px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minic .mc{font-size:12px;font-weight:600;color:var(--on-var);margin-top:2px}
+.mpp{width:44px;height:44px;border-radius:15px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;flex:none;transition:border-radius .42s var(--ease-spring)}
+.mpp.paused{border-radius:22px}
+.mpp svg{width:22px;height:22px}
+.mcl{width:38px;height:38px;display:grid;place-items:center;color:var(--on-var);flex:none}
+.mcl svg{width:22px;height:22px}
+
+/* ---------- the bar ---------- */
+.barz{position:absolute;inset:0;z-index:60;pointer-events:none}
+.shadowed{position:absolute;inset:0;filter:drop-shadow(0 10px 14px var(--shadow))}
+.gooL{position:absolute;inset:0}
+.screen[data-v=trio] .gooL{filter:url(#goo)}
+.bgp{position:absolute;left:0;top:0;background:var(--sv);transform-origin:0 0}
+.tabs{position:absolute;left:42px;top:818px;width:328px;height:62px;display:flex;padding:6px;gap:4px;pointer-events:auto}
+.tab{flex:1 1 0;min-width:0;height:50px;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--on-var);font-weight:750;font-size:14px;white-space:nowrap;transition:flex-grow .26s var(--ease-rise),color .22s}
+.tab.on{flex-grow:2.2;color:var(--on-primary)}
+.tab .tpill{position:absolute;inset:0;border-radius:25px;background:var(--primary);opacity:0;transition:opacity .22s var(--ease-rise)}
+.tab.on .tpill{opacity:1}
+.tab svg,.tab span{position:relative}
+.tab svg{width:22px;height:22px;flex:none}
+.tab span{display:none}
+.tab.on span{display:inline}
+.screen.moving .tab.on .tpill{opacity:0;transition:none}
+
+.btn{position:absolute;left:0;top:0;display:grid;place-items:center;color:var(--on);transform-origin:50% 50%;cursor:pointer}
+.btn .in{display:grid;place-items:center;width:100%;height:100%;border-radius:inherit;position:relative}
+.btn.sq .in{animation:squish .38s var(--ease-spring)}
+@keyframes squish{0%{transform:scale(1)}30%{transform:scale(.86,.9)}100%{transform:scale(1)}}
+.seek .ic{position:relative;width:30px;height:30px}
+.seek .ic svg{width:30px;height:30px}
+.seek .ic small{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:850;padding-top:3px}
+.seek.fwd .ic svg{transform:scaleX(-1)}
+.seek.dash .ic{animation:dashL .34s var(--ease-rise)}
+.seek.fwd.dash .ic{animation:dashR .34s var(--ease-rise)}
+@keyframes dashL{0%{transform:none}35%{transform:translateX(-5px) rotate(-22deg)}100%{transform:none}}
+@keyframes dashR{0%{transform:none}35%{transform:translateX(5px) rotate(22deg)}100%{transform:none}}
+
+.play{overflow:hidden}
+.play .trk{position:absolute;inset:0;background:var(--track)}
+.play .fill{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.play .base{position:absolute;inset:0;background:var(--primary)}
+.gl{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px}
+.gl svg{position:absolute;inset:0;width:28px;height:28px;transition:opacity .2s,transform .42s var(--ease-spring)}
+.gl .pa{opacity:1;transform:none}
+.gl .pl1{opacity:0;transform:scale(.4) rotate(-90deg)}
+.play.paused .gl .pa{opacity:0;transform:scale(.4) rotate(90deg)}
+.play.paused .gl .pl1{opacity:1;transform:none}
+.gl.a{color:var(--primary)}
+.gl.b{color:var(--on-primary)}
+.ring{position:absolute;inset:0;pointer-events:none}
+.ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.ring .rt{stroke:color-mix(in srgb,var(--on-primary) 28%,transparent)}
+.ring .rf{stroke:var(--on-primary)}
+
+.bub{position:absolute;left:0;top:0;z-index:70;pointer-events:none;opacity:0;transform-origin:50% 100%}
+.bi{height:38px;padding:0 15px;border-radius:19px;background:var(--sv);box-shadow:0 10px 22px -8px var(--shadow);display:flex;align-items:center;gap:4px;font-size:16px;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
+.roll{display:inline-grid;overflow:hidden;height:20px;line-height:20px}
+.roll span{grid-area:1/1;text-align:center}
+.roll span.in{animation:rin .28s var(--ease-rise)}
+.roll span.out{animation:rout .28s var(--ease-rise) forwards}
+@keyframes rin{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
+@keyframes rout{to{transform:translateY(-100%);opacity:0}}
+
+/* D · dock scrub row */
+.dscrub{position:absolute;left:0;top:0;width:412px;height:44px;display:flex;align-items:center;gap:12px;padding:0 22px;font-size:12.5px;font-weight:750;color:var(--on-var);font-variant-numeric:tabular-nums;pointer-events:auto;touch-action:none}
+.dscrub .tr{flex:1;height:22px;position:relative;cursor:pointer}
+.dscrub .tr i{position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:var(--track)}
+.dscrub .tr b{position:absolute;left:0;top:9px;height:4px;border-radius:2px;background:var(--primary)}
+.dscrub .tr u{position:absolute;top:4px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--primary)}
+.dscrub .tr s{position:absolute;top:8px;width:3px;height:6px;margin-left:-1.5px;background:var(--sv);border-radius:1px}
+
+/* overlays */
+.zone{position:absolute;inset:0;z-index:55;pointer-events:none;opacity:0;transition:opacity .4s var(--ease-rise)}
+html.z-on .zone{opacity:1}
+.ghost{position:absolute;left:98px;top:818px;width:216px;height:62px;border-radius:31px;border:2px dashed color-mix(in srgb,var(--on) 55%,transparent);z-index:84;pointer-events:none;opacity:0}
+.ghost span{position:absolute;left:50%;top:100%;margin-top:3px;transform:translateX(-50%);font-size:10.5px;font-weight:850;letter-spacing:.4px;color:var(--on-var);white-space:nowrap}
+.finger{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1.5px rgba(0,0,0,.18);pointer-events:none;z-index:99;opacity:0;transition:opacity .15s,transform .15s}
+.finger.down{transform:scale(.82)}
+.hint{position:absolute;left:0;right:0;top:0;text-align:center;z-index:72;pointer-events:none;font-size:12px;font-weight:750;color:var(--on-var);opacity:0}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="goo" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"/>
+      <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/>
+      <feComposite in="SourceGraphic" in2="g" operator="atop"/>
+    </filter>
+    <symbol id="i-home" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3.3 3.6 9.6a1.5 1.5 0 0 0-.6 1.2V20a1.5 1.5 0 0 0 1.5 1.5H9v-6.2h6v6.2h4.5A1.5 1.5 0 0 0 21 20v-9.2a1.5 1.5 0 0 0-.6-1.2z"/></symbol>
+    <symbol id="i-subs" viewBox="0 0 24 24"><path fill="currentColor" d="M5 2.5h14v2H5zm-1.5 4h17v2h-17zM4 10h16a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2zm6 2.8v6l5.2-3z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.4 15.4l5 5"/></symbol>
+    <symbol id="i-lib" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6.5h1.8V20H19.5v1.8H5.5A1.5 1.5 0 0 1 4 20.3zM9 2.5h10.5A1.5 1.5 0 0 1 21 4v12a1.5 1.5 0 0 1-1.5 1.5H9A1.5 1.5 0 0 1 7.5 16V4A1.5 1.5 0 0 1 9 2.5zm2.5 3.8v7.4L17.6 10z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+    <symbol id="i-rew" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.2 9.2A7.6 7.6 0 1 1 4.5 13M5 4.6v4.8h4.8"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6.5 6.5l11 11m0-11-11 11"/></symbol>
+    <symbol id="i-like" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7.5 10.5V20H4.5a1 1 0 0 1-1-1v-7.5a1 1 0 0 1 1-1zm0 0 4-7.2c1.5 0 2.5 1.2 2.2 2.7l-.7 3.5h5.4a2 2 0 0 1 2 2.4l-1.3 6.4A2 2 0 0 1 17.1 20H7.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-speed" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4.2 16a8.5 8.5 0 1 1 15.6 0M12 14l4-4.5"/></symbol>
+    <symbol id="i-head" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 17v-4a8 8 0 0 1 16 0v4M4 14h3v6H5a1 1 0 0 1-1-1zm16 0h-3v6h2a1 1 0 0 0 1-1z"/></symbol>
+    <symbol id="i-ff" viewBox="0 0 24 24"><path fill="currentColor" d="M4 7.2v9.6a1 1 0 0 0 1.6.8l6.2-4.8a1 1 0 0 0 0-1.6L5.6 6.4A1 1 0 0 0 4 7.2zm8 0v9.6a1 1 0 0 0 1.6.8l6.2-4.8a1 1 0 0 0 0-1.6l-6.2-4.8a1 1 0 0 0-1.6.8z"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 8l-3 3 3 3M17 8l3 3-3 3M4 11h16"/></symbol>
+    <symbol id="i-demo" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>The player's bar, within thumb reach</h1>
+      <p>Five ways to make the open player's <b>−10 · play · +10</b> bar <b>a bit bigger and a bit higher</b> (today: 216×62 dp, play 96×50, bottom ≈35 dp above the screen edge). The tab bar itself never moves — only the player's bar rises, so each direction also has its own <b>tabs → player bar</b> morph. Tap the mini-player to open, drag the video down to close (the bar scrubs with your finger), or drag the slider under a phone to scrub the morph frame by frame.</p>
+    </div>
+    <div class="tools">
+      <button class="chip go" id="playAll"><svg><use href="#i-demo"/></svg>Play all demos</button>
+      <button class="chip" id="slow">Slow-mo 5×</button>
+      <button class="chip" id="zoneT">Thumb zone</button>
+      <button class="chip" id="ghostT">Show 0.5.28 bar</button>
+      <button class="chip" id="darkT">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.72"></label>
+    </div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="notes">
+    <div class="note"><h3>What stays the same</h3><ul>
+      <li>The tab bar (328×62, same spot) and the mini-player don't move. Signed out or in, nothing about Home changes.</li>
+      <li>The play pill is still the progress bar (pale track, full-primary fill, glyph two-toned across the edge) — except <b>C</b>, where it becomes a ring.</li>
+      <li>Everything is still driven by <code>morph.progress</code> in layer/draw lambdas only, so a swipe down scrubs it back into tabs under the finger.</li>
+      <li>±10 bursts, comments-panel step-down, fullscreen/PiP/sheets covering it — unchanged.</li>
+    </ul></div>
+    <div class="note"><h3>Sizes at a glance</h3><ul>
+      <li><b>0.5.28</b> — bar 216×62, play 96×50, ±10 50, bottom 35.</li>
+      <li><b>A Lift</b> — bar 264×72, play 120×60, ±10 60, bottom 71 (+36).</li>
+      <li><b>B Float</b> — play 136×68, ±10 circles 64, centres 114 apart, bottom 80 (+45).</li>
+      <li><b>C Arc</b> — play circle 84, ±10 circles 62 dipping 26 dp, play bottom 76.</li>
+      <li><b>D Dock</b> — full-width 156 dp dock, play 140×64, ±10 64, row 104 dp up; scrubber + times below.</li>
+      <li><b>E Handed</b> — bar 252×70, play 112×58, bottom 88, shifted 64 dp toward the thumb.</li>
+    </ul></div>
+    <div class="note"><h3>Code impact</h3><ul>
+      <li><b>A</b> is the smallest change: new <code>PlaySlotWidth</code>/<code>SeekSlotWidth</code>/height and a lift <code>translationY</code> ramp in <code>NavPill</code>.</li>
+      <li><b>B</b> and <b>C</b> draw the bar as separate shapes; B's merge/split needs a metaball path (or a stretched connector) instead of an SVG filter.</li>
+      <li><b>D</b> grows the bar into a surface; <code>bottomClearance</code> rises to ~160 dp, and the scrubber row is new.</li>
+      <li><b>E</b> needs a Left/Right setting (account sheet) plus the long-press flip.</li>
+      <li>All five raise the player's <code>bottomClearance</code> so the last "More videos" card clears the bar.</li>
+    </ul></div>
+    <div class="note"><h3>Thumb zone overlay</h3><p>A rough guide only: a right thumb on a Pixel held one-handed pivots near the right edge about three-quarters down; green = easy, amber = stretch. It's there to compare heights between directions, not as measured data.</p></div>
+  </div>
+</div>
+
+<template id="phoneT">
+  <div class="shot">
+    <div class="frame"><div class="phone"><div class="screen">
+      <div class="status"><span>9:48</span><span class="r">5G ▂▄▆█ <span class="batt">85</span></span></div>
+      <div class="home">
+        <div class="hhead"><div class="brand"><svg><use href="#i-ff"/></svg></div><h2>Home</h2><div class="me">D</div></div>
+        <div class="hcard"><div class="hthumb" style="background:linear-gradient(135deg,#5a7bd6,#b06ad8 60%,#f08aa0)"><span class="dur">18:22</span></div>
+          <div class="hrow"><div class="av" style="background:#4a6fd0">MK</div><div><div class="ht">The Pixel camera trick nobody uses</div><div class="hm">MKBHD · 1.4M views · 2 days ago</div></div></div></div>
+        <div class="hcard"><div class="hthumb" style="background:linear-gradient(135deg,#2c8c7a,#89c97b 55%,#f2d27a)"><span class="dur">9:04</span></div>
+          <div class="hrow"><div class="av" style="background:#2c8c7a">TL</div><div><div class="ht">I lived on 5G only for a month</div><div class="hm">Linus Tech Tips · 802K views · 5 days ago</div></div></div></div>
+        <div class="hcard"><div class="hthumb" style="background:linear-gradient(135deg,#d0603f,#f0a050)"></div></div>
+      </div>
+      <div class="vig"></div>
+
+      <div class="pl">
+        <div class="bgS"></div><div class="bgM"></div>
+        <div class="det">
+          <div class="ptitle">Z Fold 8 vs iPhone Duo - BETTER LUCK NEXT TIME!</div>
+          <div class="pmeta">1.2K views · 55 minutes ago · 99 likes <b>...more</b></div>
+          <div class="chan"><div class="av">TECH</div><div class="cx"><b>Tech with Benefits</b><small>117K subscribers</small></div><div class="subbtn">Subscribe</div></div>
+          <div class="acts"><div class="act"><svg><use href="#i-like"/></svg>99</div><div class="act"><svg style="transform:rotate(180deg)"><use href="#i-like"/></svg></div><div class="act"><svg><use href="#i-clock"/></svg>Save</div><div class="act sq"><svg><use href="#i-speed"/></svg></div><div class="act sq"><svg><use href="#i-head"/></svg></div></div>
+          <div class="ccard"><div class="h">Comments <span>29</span></div><p><i></i>I need to mention Duos cracking like crazy now.</p></div>
+          <div class="more">More videos</div>
+          <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#d9a35a,#6b4a8a)"><span class="dur">1:13:28</span></div><div><div class="vt">iPhone Duo...Duo Review - Is It Worth The Wait?</div><div class="vm">Brian Tong · 3K views</div></div></div>
+          <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#7a5040,#c9a27a)"></div><div><div class="vt">iPhone Duo vs Z Fold8 vs X: Real-World Test</div><div class="vm">Mrwhosetheboss · 41K views</div></div></div>
+          <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#e2b5c8,#8aa0d8)"></div><div><div class="vt">This $650 Phone Fixed Everything I Hate About Phones</div><div class="vm">Mrwhosetheboss · 2M views</div></div></div>
+        </div>
+        <div class="pvig"></div>
+        <div class="vid"><canvas width="412" height="232"></canvas></div>
+      </div>
+      <div class="minic">
+        <div class="mx"><div class="mt">Z Fold 8 vs iPhone Duo - BETTER LUCK NEXT TIME!</div><div class="mc">Tech with Benefits</div></div>
+        <button class="mpp"><svg class="g"><use href="#i-pause"/></svg></button>
+        <button class="mcl"><svg><use href="#i-close"/></svg></button>
+      </div>
+
+      <div class="barz">
+        <div class="shadowed"><div class="gooL"></div></div>
+        <div class="tabs">
+          <button class="tab on" data-i="0"><i class="tpill"></i><svg><use href="#i-home"/></svg><span>Home</span></button>
+          <button class="tab" data-i="1"><i class="tpill"></i><svg><use href="#i-subs"/></svg><span>Subscriptions</span></button>
+          <button class="tab" data-i="2"><i class="tpill"></i><svg><use href="#i-search"/></svg><span>Search</span></button>
+          <button class="tab" data-i="3"><i class="tpill"></i><svg><use href="#i-lib"/></svg><span>Library</span></button>
+        </div>
+      </div>
+      <div class="ghost"><span>0.5.28</span></div>
+      <svg class="zone" viewBox="0 0 412 915"></svg>
+      <div class="finger"></div>
+      <div class="gest"></div>
+    </div></div></div>
+    <div class="cap"><div class="t"><i></i><b></b></div><p></p><div class="spec"></div></div>
+    <div class="row">
+      <button class="mini-btn demo"><svg><use href="#i-demo"/></svg>Demo</button>
+      <button class="mini-btn tog">Open</button>
+      <button class="mini-btn flip" hidden><svg><use href="#i-hand"/></svg>Flip hand</button>
+      <label class="scrubp">morph <input type="range" min="0" max="1" step="0.001" value="0"></label>
+    </div>
+  </div>
+</template>
+
+<script>
+const W = 412, H = 915, DUR = 761;
+let SLOW = 1;
+
+// ---------- maths ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ramp = (p, a, b) => clamp((p - a) / (b - a));
+function bez(x1, y1, x2, y2) {
+  return t => {
+    if (t <= 0) return 0; if (t >= 1) return 1;
+    let u = t;
+    for (let i = 0; i < 8; i++) {
+      const x = 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u - t;
+      const dx = 3 * (1 - u) * (1 - u) * x1 + 6 * (1 - u) * u * (x2 - x1) + 3 * u * u * (1 - x2);
+      if (Math.abs(x) < 1e-5 || dx === 0) break;
+      u -= x / dx;
+    }
+    u = clamp(u);
+    return 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u;
+  };
+}
+const FOSI = bez(.4, 0, .2, 1);           // FastOutSlowIn
+const EMPH = bez(.05, .7, .1, 1);         // emphasized decelerate
+const back = (t, s = 1.4) => { if (t <= 0) return 0; if (t >= 1) return 1; const u = t - 1; return 1 + u * u * ((s + 1) * u + s); };
+const lr = (a, b, t) => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) });
+const qb = (a, c, b, t) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * c + t * t * b;
+
+// ---------- tabs at rest (shared) ----------
+const BAR0 = { x: 42, y: 818, w: 328, h: 62 };
+function tabRect(sel) {
+  const unit = (328 - 12 - 12) / 5.2;
+  let x = 48;
+  for (let i = 0; i < 4; i++) {
+    const w = i === sel ? unit * 2.2 : unit;
+    if (i === sel) return { x, y: 824, w, h: 50 };
+    x += w + 4;
+  }
+}
+// The selected tab's pill travelling into the play slot, with a little stretch mid-way.
+function pillTravel(p, sel, slot, r) {
+  const t = FOSI(ramp(p, .06, .7));
+  const a = tabRect(sel);
+  const rect = lr(a, slot, t);
+  const st = Math.sin(Math.PI * t) * 16;
+  rect.x -= st / 2; rect.w += st;
+  rect.r = r !== undefined ? lerp(25, r, t) : rect.h / 2;
+  return rect;
+}
+const seekEnter = p => { const k = ramp(p, .34, .79); return { a: clamp(k * 1.6), dy: 16 * (1 - EMPH(k)), s: .7 + .3 * back(k, 1.6) }; };
+const playEnter = p => { const k = ramp(p, .28, .73); return { a: clamp(k * 1.6), s: .6 + .4 * back(k, 1.8) }; };
+
+// ---------- the five directions ----------
+const VARIANTS = [
+  {
+    id: 'lift', letter: 'A', name: 'Lift',
+    blurb: "Today's bar, a size up, that lifts off the tab bar as it narrows. The rise lags the narrowing a little and lands with a small overshoot, so it reads as the bar stepping up to meet the thumb.",
+    spec: ['bar <b>264×72</b>', 'play <b>120×60</b>', '±10 <b>60</b>', 'bottom <b>71</b> (+36)'],
+    geom(p) {
+      const nt = FOSI(ramp(p, .1, .75)), ht = FOSI(ramp(p, .2, .85)), lt = back(ramp(p, .22, .92), 1.1);
+      const w = lerp(328, 264, nt), h = lerp(62, 72, ht), bottom = lerp(35, 71, lt);
+      const bar = { x: (W - w) / 2, y: H - bottom - h, w, h, r: h / 2 };
+      const s = h - 12, pw = 120 * s / 60;
+      const slot = { x: W / 2 - pw / 2, y: bar.y + 6, w: pw, h: s };
+      return {
+        bg: [bar], dy: bar.y + h / 2 - 849,
+        play: pillTravel(p, this.sel, slot),
+        minus: { x: bar.x + 6, y: bar.y + 6, w: s, h: s, r: s / 2 },
+        plus: { x: bar.x + w - 6 - s, y: bar.y + 6, w: s, h: s, r: s / 2 },
+      };
+    },
+  },
+  {
+    id: 'trio', letter: 'B', name: 'Float',
+    blurb: 'The capsule melts apart: −10 and +10 bead off its ends as two circles while the middle tightens into a bigger play pill, all three floating up to thumb height. Swiping down pulls them back together into the tab bar.',
+    spec: ['play <b>136×68</b>', '±10 circles <b>64</b>', 'bottom <b>80</b> (+45)', 'no bar behind'],
+    geom(p) {
+      const nt = FOSI(ramp(p, .08, .62)), lt = back(ramp(p, .2, .9), 1.2), lt2 = back(ramp(p, .28, .98), 1.5);
+      const cy = lerp(849, 801, lt), cy2 = lerp(849, 801, lt2);
+      const mw = lerp(328, 136, nt), mh = lerp(62, 68, nt);
+      const main = { x: W / 2 - mw / 2, y: cy - mh / 2, w: mw, h: mh, r: mh / 2 };
+      const k = FOSI(ramp(p, .12, .8)), sz = lerp(50, 64, k);
+      const lx = lerp(73, 92, k), rx = lerp(339, 320, k);
+      const L = { x: lx - sz / 2, y: cy2 - sz / 2, w: sz, h: sz, r: sz / 2 };
+      const R = { x: rx - sz / 2, y: cy2 - sz / 2, w: sz, h: sz, r: sz / 2 };
+      const slot = { x: W / 2 - 68, y: cy - 34, w: 136, h: 68 };
+      return { bg: [main, L, R], dy: cy - 849, play: pillTravel(p, this.sel, slot), minus: L, plus: R };
+    },
+  },
+  {
+    id: 'arc', letter: 'C', name: 'Arc',
+    blurb: 'A big round play button with a progress ring, and ±10 on a gentle arc that follows the sweep of the thumb. The selected tab rolls up into the circle; −10 and +10 fan out from behind it.',
+    spec: ['play <b>84</b> circle + ring', '±10 <b>62</b>', 'play bottom <b>76</b>', 'arc dip <b>26</b>'],
+    geom(p) {
+      const nt = FOSI(ramp(p, .08, .66)), lt = back(ramp(p, .2, .9), 1.3);
+      const cy = lerp(849, 797, lt);
+      const bw = lerp(328, 84, nt), bh = lerp(62, 84, nt);
+      const bg = { x: W / 2 - bw / 2, y: cy - bh / 2, w: bw, h: bh, r: bh / 2, a: 1 - ramp(p, .55, .8) };
+      const slot = { x: W / 2 - 42, y: cy - 42, w: 84, h: 84 };
+      const k = ramp(p, .34, .86), e = back(k, 1.25);
+      const R = lerp(18, 99.5, EMPH(k)), th = lerp(78, 15.2, e) * Math.PI / 180, sz = lerp(36, 62, EMPH(k));
+      const mk = sgn => { const cx = W / 2 + sgn * R * Math.cos(th), cyy = cy + R * Math.sin(th); return { x: cx - sz / 2, y: cyy - sz / 2, w: sz, h: sz, r: sz / 2 }; };
+      return { bg: [bg], dy: cy - 849, play: pillTravel(p, this.sel, slot), minus: mk(-1), plus: mk(1), seekBg: true, swing: true };
+    },
+  },
+  {
+    id: 'dock', letter: 'D', name: 'Dock',
+    blurb: 'The capsule grows into a full-width dock: the buttons ride up to the top of it and the hard-to-reach strip underneath gets the less-used scrubber and times. Swiping down shrinks the dock back into the floating tab bar.',
+    spec: ['dock <b>full × 156</b>', 'play <b>140×64</b>', '±10 <b>64</b>', 'row centre <b>104</b> up', '+ scrubber'],
+    geom(p) {
+      const nt = FOSI(ramp(p, .08, .6)), ht = EMPH(ramp(p, .18, .85)), lt = back(ramp(p, .22, .92), 1.1);
+      const x = lerp(42, 0, nt), w = lerp(328, W, nt);
+      const top = lerp(818, H - 156, ht), bottomGap = lerp(35, -40, FOSI(ramp(p, .1, .7)));
+      const bg = { x, y: top, w, h: H - bottomGap - top, rt: lerp(31, 30, nt), rb: lerp(31, 0, nt) };
+      const cy = lerp(849, 811, lt);
+      const s = lerp(50, 64, ht), pw = lerp(96, 140, ht);
+      const slot = { x: W / 2 - pw / 2, y: cy - s / 2, w: pw, h: s };
+      const gap = lerp(56, 118, ht);
+      const mk = sgn => ({ x: W / 2 + sgn * gap - s / 2, y: cy - s / 2, w: s, h: s, r: s / 2 });
+      return { bg: [bg], dy: cy - 849, play: pillTravel(p, this.sel, slot), minus: mk(-1), plus: mk(1), scrub: { a: ramp(p, .62, 1), dy: 14 * (1 - EMPH(ramp(p, .62, 1))) } };
+    },
+  },
+  {
+    id: 'hand', letter: 'E', name: 'Handed',
+    blurb: 'Bigger and higher, and also shifted toward the thumb that holds the phone. It travels on a curve (up first, then across). Long-press the bar, or set Left / Right in the account sheet, to send it to the other side.',
+    spec: ['bar <b>252×70</b>', 'play <b>112×58</b>', '±10 <b>58</b>', 'bottom <b>88</b>', '<b>64</b> dp toward the thumb'],
+    geom(p) {
+      const nt = FOSI(ramp(p, .1, .75)), tt = EMPH(ramp(p, .15, .92)), ov = back(ramp(p, .15, .92), 1.1);
+      const w = lerp(328, 252, nt), h = lerp(62, 70, nt);
+      const cx1 = W / 2 + 64 * this.side;
+      const cx = qb(W / 2, W / 2, cx1, tt), cy = lerp(849, 792, ov);
+      const sq = Math.min(Math.abs(this.sideV) * 7, 26);
+      const bw = w + sq, bh = h - sq * .22;
+      const bar = { x: cx - bw / 2, y: cy - bh / 2, w: bw, h: bh, r: bh / 2 };
+      const s = bh - 12, pw = 112 * s / 58;
+      const slot = { x: cx - pw / 2, y: bar.y + 6, w: pw, h: s };
+      return {
+        bg: [bar], dy: cy - 849,
+        play: pillTravel(p, this.sel, slot),
+        minus: { x: bar.x + 6, y: bar.y + 6, w: s, h: s, r: s / 2 },
+        plus: { x: bar.x + bw - 6 - s, y: bar.y + 6, w: s, h: s, r: s / 2 },
+      };
+    },
+  },
+];
+
+// ---------- video + thumbnail art ----------
+function paintVideo(cv, t) {
+  const g = cv.getContext('2d'), w = cv.width, h = cv.height;
+  const grd = g.createLinearGradient(0, 0, w, h);
+  grd.addColorStop(0, '#8e9590'); grd.addColorStop(1, '#5d6461');
+  g.fillStyle = grd; g.fillRect(0, 0, w, h);
+  const sway = Math.sin(t / 900) * 4;
+  // hands
+  g.fillStyle = '#c99a7a';
+  g.beginPath(); g.ellipse(120 + sway, 160, 60, 70, -.3, 0, 7); g.fill();
+  g.beginPath(); g.ellipse(300 + sway, 150, 58, 70, .3, 0, 7); g.fill();
+  // two phones
+  const rr = (x, y, ww, hh, r, c) => { g.fillStyle = c; g.beginPath(); g.roundRect(x, y, ww, hh, r); g.fill(); };
+  rr(108 + sway, 38, 100, 146, 14, '#24394a');
+  rr(210 + sway, 38, 92, 146, 10, '#b9bfd9');
+  rr(118 + sway, 46, 52, 30, 12, '#18283a');
+  g.fillStyle = '#0b1218'; g.beginPath(); g.arc(132 + sway, 61, 10, 0, 7); g.arc(156 + sway, 61, 10, 0, 7); g.fill();
+  g.fillStyle = '#9ea4c4'; g.beginPath(); g.roundRect(224 + sway, 46, 20, 44, 10); g.fill();
+  g.fillStyle = '#20232c'; g.beginPath(); g.arc(234 + sway, 58, 7, 0, 7); g.arc(234 + sway, 77, 7, 0, 7); g.fill();
+}
+
+// ---------- a phone ----------
+class Phone {
+  constructor(v) {
+    this.v = v; this.sel = 0; this.side = 1; this.sideX = 1; this.sideV = 0;
+    this.p = 0; this.pv = 0; this.target = 0; this.drag = null;
+    this.playing = true; this.played = .33; this.burst = null; this.dirty = true;
+    const node = document.getElementById('phoneT').content.firstElementChild.cloneNode(true);
+    document.getElementById('stage').appendChild(node);
+    this.node = node;
+    const q = s => node.querySelector(s);
+    this.scr = q('.screen'); this.scr.dataset.v = v.id;
+    this.pl = q('.pl'); this.bgM = q('.bgM'); this.vid = q('.vid'); this.cv = q('canvas'); this.det = q('.det'); this.pvig = q('.pvig');
+    this.minic = q('.minic'); this.mpp = q('.mpp');
+    this.goo = q('.gooL'); this.tabs = q('.tabs'); this.tabEls = [...node.querySelectorAll('.tab')];
+    this.ghost = q('.ghost'); this.finger = q('.finger'); this.zone = q('.zone');
+    this.range = q('.scrubp input'); this.tog = q('.tog');
+    q('.cap .t i').textContent = v.letter; q('.cap .t b').textContent = v.name; q('.cap p').textContent = v.blurb;
+    q('.cap .spec').innerHTML = v.spec.map(s => `<span>${s}</span>`).join('');
+    this.build();
+    this.wire();
+    this.drawZone();
+    paintVideo(this.cv, 0);
+  }
+
+  build() {
+    const barz = this.scr.querySelector('.barz');
+    const mkBg = () => { const d = document.createElement('div'); d.className = 'bgp'; this.goo.appendChild(d); return d; };
+    this.bgEls = [mkBg(), mkBg(), mkBg()];
+    const seek = (fwd) => {
+      const b = document.createElement('div');
+      b.className = 'btn seek' + (fwd ? ' fwd' : '');
+      b.innerHTML = `<div class="in"><div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div></div>`;
+      barz.appendChild(b); return b;
+    };
+    this.minus = seek(false); this.plus = seek(true);
+    const pp = document.createElement('div');
+    pp.className = 'btn play';
+    pp.innerHTML = `<div class="in"><i class="base"></i><i class="trk"></i><i class="fill"></i>
+      <div class="gl a"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div>
+      <div class="gl b"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div>
+      <svg class="ring" viewBox="0 0 84 84"><circle class="rt" cx="42" cy="42" r="36"/><circle class="rf" cx="42" cy="42" r="36" transform="rotate(-90 42 42)"/></svg></div>`;
+    barz.appendChild(pp); this.play = pp;
+    this.trk = pp.querySelector('.trk'); this.fill = pp.querySelector('.fill'); this.base = pp.querySelector('.base');
+    this.glA = pp.querySelector('.gl.a'); this.glB = pp.querySelector('.gl.b');
+    this.ring = pp.querySelector('.ring'); this.rf = pp.querySelector('.rf');
+    this.ring.style.display = this.v.id === 'arc' ? '' : 'none';
+    const bub = document.createElement('div'); bub.className = 'bub';
+    bub.innerHTML = `<div class="bi"><span class="roll"><span>+10</span></span></div>`;
+    barz.appendChild(bub); this.bub = bub; this.roll = bub.querySelector('.roll');
+    if (this.v.id === 'dock') {
+      const d = document.createElement('div'); d.className = 'dscrub';
+      d.innerHTML = `<span class="t1">4:12</span><div class="tr"><i></i><b></b><s style="left:22%"></s><s style="left:51%"></s><s style="left:78%"></s><u></u></div><span>12:41</span>`;
+      barz.appendChild(d); this.dscrub = d;
+      this.dfill = d.querySelector('.tr b'); this.dknob = d.querySelector('.tr u'); this.dt = d.querySelector('.t1');
+    }
+    if (this.v.id === 'hand') {
+      this.node.querySelector('.flip').hidden = false;
+      const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'long-press the bar to switch hands';
+      barz.appendChild(h); this.hint = h;
+    }
+  }
+
+  // ---- input ----
+  local(e) { const r = this.scr.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+  wire() {
+    const n = this.node;
+    n.querySelector('.demo').onclick = () => this.demo();
+    this.tog.onclick = () => this.animateTo(this.target > .5 ? 0 : 1);
+    n.querySelector('.flip').onclick = () => this.flip();
+    this.range.oninput = () => { this.stopDemo(); this.p = +this.range.value; this.pv = 0; this.target = this.p; this.scrubbing = true; this.dirty = true; };
+    this.range.onchange = () => { this.scrubbing = false; };
+
+    // drag the video down (open) / the mini-player up (closed)
+    const down = e => {
+      if (this.demoRun && !e.synthetic) return;
+      if (e.target.closest('.mpp,.mcl')) return;
+      const pt = this.local(e);
+      const open = this.p > .5;
+      if (!open && !(pt.y > 742 && pt.y < 812)) return;
+      this.drag = { y0: pt.y, p0: this.p, last: pt.y, t: performance.now(), v: 0, moved: false, open };
+      if (!e.synthetic) this.pl.setPointerCapture(e.pointerId);
+    };
+    const move = e => {
+      if (!this.drag) return;
+      const pt = this.local(e), d = this.drag;
+      if (Math.abs(pt.y - d.y0) > 6) d.moved = true;
+      if (!d.moved) return;
+      const now = performance.now(), dt = Math.max(1, now - d.t);
+      d.v = lerp(d.v, -(pt.y - d.last) / 620 / (dt / 1000) * SLOW, .5);
+      d.last = pt.y; d.t = now;
+      this.p = clamp(d.p0 - (pt.y - d.y0) / 620); this.pv = 0; this.target = this.p; this.dirty = true;
+    };
+    const up = () => {
+      const d = this.drag; if (!d) return; this.drag = null;
+      if (!d.moved) { if (!d.open) this.animateTo(1); return; }
+      const goOpen = d.v > 1.2 ? true : d.v < -1.2 ? false : this.p > .5;
+      this.pv = d.v; this.animateTo(goOpen ? 1 : 0, true);
+    };
+    this.pl.addEventListener('pointerdown', down);
+    this.pl.addEventListener('pointermove', move);
+    this.pl.addEventListener('pointerup', up);
+    this.pl.addEventListener('pointercancel', up);
+    this.minic.addEventListener('pointerdown', e => { if (!e.target.closest('button')) down(e); });
+    this.minic.addEventListener('pointerup', up);
+    this.minic.addEventListener('pointermove', move);
+    this._drag = { down, move, up };
+
+    this.mpp.onclick = () => this.togglePlay();
+    this.tabEls.forEach(t => t.onclick = () => { if (this.p > .01) return; this.select(+t.dataset.i); });
+
+    // bar buttons (only while the player owns the bar)
+    const press = (el, fn) => {
+      let timer = null, long = false;
+      el.addEventListener('pointerdown', e => {
+        if (this.p < .98 || (this.demoRun && !e.synthetic)) return;
+        long = false;
+        if (this.v.id === 'hand') timer = setTimeout(() => { long = true; this.flip(); }, 450);
+      });
+      el.addEventListener('pointerup', e => {
+        clearTimeout(timer);
+        if (this.p < .98 || long || (this.demoRun && !e.synthetic)) return;
+        fn(); this.squish(el);
+      });
+      el.addEventListener('pointerleave', () => clearTimeout(timer));
+    };
+    press(this.play, () => this.togglePlay());
+    press(this.minus, () => this.seek(-1));
+    press(this.plus, () => this.seek(1));
+    [this.play, this.minus, this.plus].forEach(el => el.style.pointerEvents = 'auto');
+
+    if (this.dscrub) {
+      const tr = this.dscrub.querySelector('.tr');
+      const set = e => { const r = tr.getBoundingClientRect(); this.played = clamp((e.clientX - r.left) / r.width); this.dirty = true; };
+      tr.addEventListener('pointerdown', e => { if (this.p < .98) return; tr.setPointerCapture(e.pointerId); this.scrubD = true; set(e); });
+      tr.addEventListener('pointermove', e => { if (this.scrubD) set(e); });
+      tr.addEventListener('pointerup', () => this.scrubD = false);
+    }
+  }
+
+  select(i) {
+    this.sel = i;
+    this.tabEls.forEach((t, k) => t.classList.toggle('on', k === i));
+    this.squish(this.tabEls[i]);
+  }
+  squish(el) { el.classList.remove('sq'); void el.offsetWidth; el.classList.add('sq'); }
+  togglePlay() {
+    this.playing = !this.playing;
+    this.play.classList.toggle('paused', !this.playing);
+    this.mpp.classList.toggle('paused', !this.playing);
+    this.mpp.querySelector('use').setAttribute('href', this.playing ? '#i-pause' : '#i-play');
+    this.squish(this.mpp);
+  }
+  seek(sgn) {
+    const now = performance.now();
+    const b = this.burst;
+    if (b && b.sgn === sgn && now < b.until) b.total += 10; else this.burst = { sgn, total: 10 };
+    this.burst.until = now + 700 * SLOW;
+    this.played = clamp(this.played + sgn * 10 / DUR);
+    const el = sgn > 0 ? this.plus : this.minus;
+    el.classList.remove('dash'); void el.offsetWidth; el.classList.add('dash');
+    const txt = (sgn > 0 ? '+' : '−') + this.burst.total;
+    const old = this.roll.querySelector('span:last-child');
+    if (old && old.textContent !== txt) {
+      old.className = 'out'; setTimeout(() => old.remove(), 300);
+      const s = document.createElement('span'); s.className = 'in'; s.textContent = txt; this.roll.appendChild(s);
+    }
+    this.dirty = true;
+  }
+  flip() {
+    if (this.v.id !== 'hand') return;
+    this.side = -this.side; this.dirty = true;
+    this.squish(this.play);
+  }
+  animateTo(t, keepV) { this.target = t; if (!keepV) this.pv = this.pv || 0; this.dirty = true; }
+
+  // ---- simulation ----
+  step(dt) {
+    const sdt = dt / SLOW;
+    if (!this.drag && !this.scrubbing && (Math.abs(this.p - this.target) > 1e-4 || Math.abs(this.pv) > 1e-3)) {
+      // critically damped spring (0.5.5 settle), small visibility threshold (0.5.7)
+      const k = 170, c = 2 * Math.sqrt(k) * .92;
+      const n = Math.ceil(sdt / .004);
+      for (let i = 0; i < n; i++) {
+        const h = sdt / n, a = -k * (this.p - this.target) - c * this.pv;
+        this.pv += a * h; this.p += this.pv * h;
+      }
+      if (Math.abs(this.p - this.target) < 5e-4 && Math.abs(this.pv) < 5e-3) { this.p = this.target; this.pv = 0; }
+      this.dirty = true;
+    }
+    if (this.v.id === 'hand') {
+      const k = 260, c = 2 * Math.sqrt(k) * .62;
+      const a = -k * (this.sideX - this.side) - c * this.sideV;
+      this.sideV += a * sdt; this.sideX += this.sideV * sdt;
+      if (Math.abs(this.sideX - this.side) > 1e-4 || Math.abs(this.sideV) > 1e-3) this.dirty = true;
+      else { this.sideX = this.side; this.sideV = 0; }
+    }
+    if (this.playing && this.p > 0) {
+      this.played += sdt / DUR; if (this.played > 1) this.played = 0;
+      this.dirty = true;
+    }
+    if (this.burst && performance.now() > this.burst.until + 400) { this.burst = null; this.dirty = true; }
+    this.vt = (this.vt || 0) + sdt * 1000;
+    if (this.p > 0.02 && this.playing) paintVideo(this.cv, this.vt);
+  }
+
+  render() {
+    if (!this.dirty) return; this.dirty = false;
+    const p = clamp(this.p, 0, 1.08), pc = clamp(p);
+    this.scr.classList.toggle('moving', pc > 0);
+    this.tog.textContent = this.target > .5 ? 'Minimize' : 'Open';
+    if (!this.scrubbing) this.range.value = pc;
+
+    // the page morph: mini rect -> full screen; video: mini thumb -> top
+    const mini = { x: 16, y: 746, w: 380, h: 64 };
+    const ins = (a, b) => lerp(a, b, pc);
+    const top = ins(mini.y, 0), bot = ins(H - mini.y - mini.h, 0), side = ins(16, 0), rad = ins(22, 0);
+    this.pl.style.clipPath = `inset(${top}px ${side}px ${bot}px ${side}px round ${rad}px)`;
+    this.bgM.style.opacity = 1 - ramp(pc, 0, .5);
+    const vs = { x: 24, y: 750, w: 100, h: 56.25 }, vf = { x: 0, y: 40, w: 412, h: 231.75 };
+    const vr = lr(vs, vf, pc);
+    Object.assign(this.vid.style, { width: '412px', height: '231.75px', transform: `translate(${vr.x}px,${vr.y}px) scale(${vr.w / 412})`, borderRadius: `${ins(14, 0) / (vr.w / 412)}px` });
+    const dk = ramp(pc, .55, 1);
+    this.det.style.opacity = dk; this.det.style.transform = `translateY(${(1 - EMPH(dk)) * 40}px)`;
+    this.pvig.style.opacity = ramp(pc, .5, 1);
+    this.minic.style.opacity = 1 - ramp(pc, 0, .22);
+    this.minic.style.pointerEvents = pc < .05 ? 'auto' : 'none';
+
+    // the bar
+    const v = this.v;
+    const ctx = Object.assign(Object.create(v), { sel: this.sel, side: this.sideX, sideV: this.sideV });
+    const g = v.geom.call(ctx, pc);
+    this.bgEls.forEach((el, i) => {
+      const r = g.bg[i];
+      if (!r) { el.style.display = 'none'; return; }
+      el.style.display = '';
+      const rt = r.rt ?? r.r ?? r.h / 2, rb = r.rb ?? r.r ?? r.h / 2;
+      Object.assign(el.style, { width: r.w + 'px', height: r.h + 'px', transform: `translate(${r.x}px,${r.y}px)`,
+        borderRadius: `${rt}px ${rt}px ${rb}px ${rb}px`, opacity: r.a ?? 1 });
+    });
+    if (v.id === 'trio' || v.id === 'arc') {
+      // B and C draw the ±10 on their own tonal circles (B: the goo beads themselves)
+      if (v.id === 'arc') {
+        [this.minus, this.plus].forEach(el => el.querySelector('.in').style.background = 'var(--sv)');
+        [this.minus, this.plus].forEach(el => el.style.filter = `drop-shadow(0 8px 12px var(--shadow))`);
+      }
+    }
+
+    // tabs drop out left to right and ride along with the bar
+    this.tabs.style.transform = `translateY(${g.dy * ramp(pc, 0, .3)}px)`;
+    this.tabEls.forEach((t, i) => {
+      const k = ramp(pc, i * .04, .25 + i * .04);
+      t.style.opacity = 1 - k;
+      t.style.transform = `translateY(${14 * k}px) scale(${1 - .4 * k})`;
+    });
+    this.tabs.style.pointerEvents = pc < .01 ? 'auto' : 'none';
+
+    // play pill: the selected tab's pill on its way, then the progress bar
+    const pr = g.play, trackT = ramp(pc, .5, .95);
+    const isArc = v.id === 'arc';
+    Object.assign(this.play.style, { display: pc > 0 ? '' : 'none', width: pr.w + 'px', height: pr.h + 'px',
+      transform: `translate(${pr.x}px,${pr.y}px)`, borderRadius: (pr.r ?? pr.h / 2) + 'px', pointerEvents: pc > .98 ? 'auto' : 'none' });
+    this.play.querySelector('.in').style.borderRadius = (pr.r ?? pr.h / 2) + 'px';
+    const pe = playEnter(pc);
+    if (isArc) {
+      this.trk.style.opacity = 0; this.fill.style.opacity = 0;
+      this.glA.style.opacity = 0;
+      this.glB.style.opacity = pe.a; this.glB.style.transform = `scale(${pe.s * 1.15})`; this.glB.style.clipPath = 'none';
+      this.ring.style.opacity = trackT;
+      const C = 2 * Math.PI * 36;
+      this.rf.style.strokeDasharray = `${C * this.played} ${C}`;
+      this.ring.style.transform = `scale(${pr.w / 84})`; this.ring.style.transformOrigin = '0 0';
+      this.ring.style.width = '84px'; this.ring.style.height = '84px';
+    } else {
+      this.trk.style.opacity = trackT; this.fill.style.opacity = trackT;
+      this.fill.style.width = (this.played * 100) + '%';
+      // two-toned glyph across the fill edge
+      const edge = this.played * pr.w, gl = pr.w / 2 - 14, gr = gl + 28;
+      const cut = clamp(gr - edge, 0, 28) * trackT;
+      const sc = pr.h > 60 ? 1.12 : 1;
+      this.glA.style.opacity = pe.a * trackT; this.glA.style.transform = `scale(${pe.s * sc})`;
+      this.glB.style.opacity = pe.a; this.glB.style.transform = `scale(${pe.s * sc})`;
+      this.glB.style.clipPath = `inset(0 ${cut}px 0 0)`;
+    }
+
+    // ±10
+    const se = seekEnter(pc);
+    [[this.minus, g.minus], [this.plus, g.plus]].forEach(([el, r]) => {
+      const trio = v.id === 'trio';
+      Object.assign(el.style, { width: r.w + 'px', height: r.h + 'px', borderRadius: (r.r ?? r.h / 2) + 'px',
+        transform: `translate(${r.x}px,${r.y + (trio || g.swing ? 0 : se.dy)}px) scale(${trio ? 1 : (g.swing ? Math.min(1, se.s + .2) : se.s)})`,
+        opacity: trio ? 1 : se.a, display: pc > .3 ? '' : 'none', pointerEvents: pc > .98 ? 'auto' : 'none' });
+      el.querySelector('.ic').style.opacity = trio ? se.a : 1;
+      el.querySelector('.ic').style.transform = trio ? `translateY(${se.dy * .6}px) scale(${se.s * (r.w > 60 ? 1.12 : 1)})` : (r.w > 56 ? 'scale(1.12)' : '');
+    });
+    this.minus.style.zIndex = this.plus.style.zIndex = isArc ? 1 : 3;
+    this.play.style.zIndex = 2;
+
+    // burst bubble above its button
+    const b = this.burst, live = b && performance.now() < b.until;
+    if (b) {
+      const r = b.sgn > 0 ? g.plus : g.minus;
+      const bw = 64;
+      this.bub.style.transform = `translate(${r.x + r.w / 2 - bw / 2}px,${r.y - 48}px) scale(${live ? 1 : .85})`;
+      this.bub.style.opacity = live ? 1 : 0;
+      this.bub.style.transition = 'opacity .25s, transform .42s var(--ease-spring)';
+      this.bub.querySelector('.bi').style.width = bw + 'px';
+      this.bub.querySelector('.bi').style.justifyContent = 'center';
+    } else this.bub.style.opacity = 0;
+
+    if (this.dscrub) {
+      const s = g.scrub;
+      this.dscrub.style.opacity = s.a;
+      this.dscrub.style.transform = `translateY(${H - 24 - 44 + s.dy}px)`;
+      this.dscrub.style.pointerEvents = pc > .98 ? 'auto' : 'none';
+      this.dfill.style.width = (this.played * 100) + '%';
+      this.dknob.style.left = (this.played * 100) + '%';
+      const t = Math.round(this.played * DUR);
+      this.dt.textContent = `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+    }
+    if (this.hint) {
+      this.hint.style.opacity = ramp(pc, .85, 1) * .9;
+      this.hint.style.transform = `translateY(${g.bg[0].y + g.bg[0].h + 8}px)`;
+    }
+
+    this.ghost.style.opacity = document.documentElement.classList.contains('g-on') ? ramp(pc, .7, 1) : 0;
+  }
+
+  drawZone() {
+    const cx = 440, cy = 700;
+    const ring = (r1, r2) => `M${cx - r2} ${cy}a${r2} ${r2} 0 1 0 ${2 * r2} 0a${r2} ${r2} 0 1 0 ${-2 * r2} 0zM${cx - r1} ${cy}a${r1} ${r1} 0 1 1 ${2 * r1} 0a${r1} ${r1} 0 1 1 ${-2 * r1} 0z`;
+    this.zone.innerHTML = `
+      <path d="${ring(265, 330)}" fill="rgba(245,170,40,.13)" fill-rule="evenodd"/>
+      <path d="${ring(70, 265)}" fill="rgba(40,190,110,.14)" fill-rule="evenodd"/>
+      <text x="300" y="470" font-size="13" font-weight="800" fill="rgba(20,130,70,.95)" font-family="system-ui">easy reach</text><text x="122" y="445" font-size="13" font-weight="800" fill="rgba(180,110,0,.95)" font-family="system-ui">stretch</text>`;
+  }
+
+  // ---- scripted demo with a visible finger ----
+  stopDemo() { this.demoToken = (this.demoToken || 0) + 1; this.demoRun = false; this.finger.style.opacity = 0; this.node.querySelector('.demo').disabled = false; }
+  async demo() {
+    this.stopDemo();
+    const tok = this.demoToken; this.demoRun = true;
+    this.node.querySelector('.demo').disabled = true;
+    const alive = () => tok === this.demoToken;
+    const wait = ms => new Promise(r => setTimeout(r, ms * SLOW));
+    const f = this.finger;
+    const at = (x, y) => { f.style.left = x + 'px'; f.style.top = y + 'px'; };
+    const tap = async (x, y, fn, hold = 110) => {
+      at(x, y); f.style.opacity = 1; f.classList.add('down');
+      await wait(hold); if (!alive()) return;
+      f.classList.remove('down'); fn && fn();
+      await wait(160); f.style.opacity = 0;
+    };
+    const center = r => [r.x + r.w / 2, r.y + r.h / 2];
+    const geomNow = () => this.v.geom.call(Object.assign(Object.create(this.v), { sel: this.sel, side: this.sideX, sideV: 0 }), 1);
+
+    // reset to the mini-player on Home
+    if (!this.playing) this.togglePlay();
+    if (this.v.id === 'hand' && this.side !== 1) { this.side = 1; }
+    this.p = 0; this.pv = 0; this.target = 0; this.played = .33; this.dirty = true;
+    await wait(500); if (!alive()) return;
+    await tap(250, 778, () => this.animateTo(1)); if (!alive()) return;
+    await wait(1300); if (!alive()) return;
+    let g = geomNow();
+    const [px, py] = center(g.plus);
+    await tap(px, py, () => { this.seek(1); this.squish(this.plus); }, 70); if (!alive()) return;
+    await tap(px, py, () => { this.seek(1); this.squish(this.plus); }, 70); if (!alive()) return;
+    await wait(900); if (!alive()) return;
+    const [mx, my] = center(g.minus);
+    await tap(mx, my, () => { this.seek(-1); this.squish(this.minus); }, 70); if (!alive()) return;
+    await wait(900); if (!alive()) return;
+    const [qx, qy] = center(g.play);
+    await tap(qx, qy, () => { this.togglePlay(); this.squish(this.play); }); if (!alive()) return;
+    await wait(700); if (!alive()) return;
+    await tap(qx, qy, () => { this.togglePlay(); this.squish(this.play); }); if (!alive()) return;
+    await wait(800); if (!alive()) return;
+    if (this.v.id === 'hand') {
+      await tap(qx, qy, () => this.flip(), 480); if (!alive()) return;
+      await wait(1300); if (!alive()) return;
+      g = geomNow(); const [hx, hy] = center(g.play);
+      await tap(hx, hy, () => this.flip(), 480); if (!alive()) return;
+      await wait(1100); if (!alive()) return;
+    }
+    if (this.v.id === 'dock') {
+      const tr = this.dscrub.querySelector('.tr');
+      at(70, 869); f.style.opacity = 1; f.classList.add('down');
+      const p0 = this.played;
+      for (let i = 0; i <= 30; i++) { this.played = lerp(p0, .62, FOSI(i / 30)); this.dirty = true; at(lerp(70 + 272 * p0, 70 + 272 * .62, FOSI(i / 30)), 869); await wait(16); if (!alive()) return; }
+      f.classList.remove('down'); await wait(160); f.style.opacity = 0;
+      await wait(800); if (!alive()) return;
+    }
+    // swipe the video down: the bar scrubs back into tabs under the finger
+    const fake = (x, y) => ({ clientX: 0, clientY: 0, synthetic: true, target: this.pl, _x: x, _y: y });
+    const origLocal = this.local.bind(this);
+    this.local = e => e.synthetic ? { x: e._x, y: e._y } : origLocal(e);
+    at(206, 140); f.style.opacity = 1; f.classList.add('down');
+    this._drag.down(fake(206, 140));
+    await wait(120);
+    const steps = 42;
+    for (let i = 1; i <= steps; i++) {
+      const y = lerp(140, 600, bez(.3, 0, .6, 1)(i / steps));
+      at(206, y); this._drag.move(fake(206, y));
+      await wait(16); if (!alive()) { this.drag = null; return; }
+    }
+    f.classList.remove('down'); this._drag.up(); this.local = origLocal;
+    await wait(160); f.style.opacity = 0;
+    await wait(1200);
+    if (alive()) { this.demoRun = false; this.node.querySelector('.demo').disabled = false; }
+  }
+}
+
+// ---------- boot ----------
+const phones = VARIANTS.map(v => new Phone(v));
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const ph of phones) { ph.step(dt); ph.render(); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+const root = document.documentElement;
+const zoom = document.getElementById('zoom');
+const setZoom = () => root.style.setProperty('--z', zoom.value);
+zoom.oninput = setZoom;
+setZoom();
+const toggle = (id, cls, after) => {
+  const b = document.getElementById(id);
+  b.onclick = () => { const on = root.classList.toggle(cls); b.classList.toggle('on', on); after && after(on); phones.forEach(p => p.dirty = true); };
+};
+toggle('zoneT', 'z-on');
+toggle('ghostT', 'g-on');
+toggle('darkT', 'dark');
+toggle('slow', 's-on', on => SLOW = on ? 5 : 1);
+document.getElementById('playAll').onclick = () => phones.forEach(p => p.demo());
+const fixed = new URLSearchParams(location.search).get('p');
+if (fixed !== null) phones.forEach(ph => { ph.p = ph.target = +fixed; ph.dirty = true; });
+else setTimeout(() => phones.forEach(p => p.demo()), 600);
+</script>
+</body>
+</html>

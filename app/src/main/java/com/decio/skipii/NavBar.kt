@@ -26,8 +26,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,12 +72,15 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -95,24 +101,50 @@ internal val NavWidth = 328.dp
 private const val SELECTED_TAB_WEIGHT = 2.2f
 // The open player's bar is compact (Derek, 2026-10-19: play pill ~60% of its first 161 dp,
 // the ±10 buttons tight beside it): it narrows from the tab bar's width as the player opens.
-private val PlaySlotWidth = 96.dp
-private val SeekSlotWidth = 50.dp
-private val BarPadding = 6.dp
+// 0.5.32 (Derek, 2026-10-25: mockup A "Lift" in docs/design/player-bar-reach.html): a size up
+// and lifted off the tab bar's spot, so one thumb reaches it — 264×72, play 120×60, ±10 60,
+// its bottom 36 dp above the tab bar's.
+// 0.5.34: audio only on the left and the ⋮ key on the right (PlayerBar.kt), play dead centre.
+// 0.5.36 (Derek): 15% smaller at rest so opening it reads as a bigger change — 316×61, play
+// 102×51, ±10 51, side buttons 41 (the card, panels and scrub track keep their sizes).
+internal val PlaySlotWidth = 102.dp
+internal val SeekSlotWidth = 51.dp
+internal val BarPadding = 6.dp
+/** The open player's own inset (the tabs keep [BarPadding]). */
+internal val PlayerBarPadding = 5.dp
 private val BarGap = 4.dp
-private val CompactBarWidth = BarPadding * 2 + SeekSlotWidth * 2 + PlaySlotWidth + BarGap * 2
+internal val PlayerBarGap = 5.dp
+internal val CompactBarWidth = PlayerBarPadding * 2 + SideSlotWidth * 2 + SeekSlotWidth * 2 + PlaySlotWidth + PlayerBarGap * 4
+// 0.5.37 (Derek): 10% taller (row 67) and, under it, the progress hairline's 8 dp (mockup A "Inside" in
+// docs/design/player-bar-progress.html): 316×75 at rest.
+// 0.5.38 (Derek): as much room above the buttons as below them (their inset + the hairline's
+// room): 8 dp on top, 316×83.
+internal val PlayerRowHeight = 67.dp
+internal val PlayerProgressRoom = 8.dp
+internal val PlayerTopRoom = PlayerProgressRoom
+internal val PlayerBarHeight = PlayerTopRoom + PlayerRowHeight + PlayerProgressRoom
+internal val PlayerBarLift = 36.dp
+/** How far the open player's bar reaches above the tab bar's top edge. */
+internal val PlayerBarRaise = PlayerBarLift + PlayerBarHeight - NavHeight
+private val PlayerIconSize = 26.dp
 
 // Where each part of the bar's morph happens along PlayerMorph.progress (tuning dials).
 private const val TabExitStagger = 0.04f
 private const val TabExitSpan = 0.25f
 private const val PillTravelStart = 0.06f
 private const val PillTravelEnd = 0.7f
-private const val TrackFadeStart = 0.5f
-private const val TrackFadeEnd = 0.95f
 private const val PlayEnterStart = 0.28f
 private const val SeekEnterStart = 0.34f
+private const val KeyEnterStart = 0.4f
 private const val ControlEnterSpan = 0.45f
 private const val NarrowStart = 0.1f
 private const val NarrowEnd = 0.75f
+private const val GrowStart = 0.2f
+private const val GrowEnd = 0.85f
+// The lift lags the narrowing a little and lands with a small overshoot (the bar steps up).
+private const val LiftStart = 0.22f
+private const val LiftEnd = 0.92f
+private const val LiftOvershoot = 1.1f
 /** A burst of ±10 taps stays open this long after its last tap; further taps add to it. */
 private const val BarBurstWindowMs = 700L
 
@@ -130,6 +162,10 @@ private const val BarBurstWindowMs = 700L
  * buttons spring up from below, play first. The play pill then fills with how much of the
  * video has played: a pale primary track, a full-primary fill, the glyph two-toned across
  * the edge. [controlsActive] hands the touches from the tabs to the player buttons.
+ *
+ * 0.5.34: the bar holds every playback control (PlayerBar.kt): a ⋮ key, the tools card, the
+ * quality list and the scrub track. Its size and outline follow [bar]'s values per frame on
+ * top of the morph, so the capsule is one shape that grows into each of them.
  */
 @Composable
 internal fun NavPill(
@@ -138,43 +174,83 @@ internal fun NavPill(
     player: PlayerState,
     morph: PlayerMorph,
     controlsActive: Boolean,
+    bar: PlayerBarState,
+    onFullscreen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val c = MaterialTheme.colorScheme
     val view = LocalView.current
     val reduced = rememberReducedMotion()
-    val shape = RoundedCornerShape(50)
+    SideEffect { bar.reduced = reduced }
+    val density = LocalDensity.current
+    // The card may use the whole width between the screen's 16 dp margins.
+    val maxBarWidth = with(density) { (LocalConfiguration.current.screenWidthDp.dp - 32.dp).toPx() }
+    val pip = LocalPictureInPicture.current
+    val scope = rememberCoroutineScope()
+    val gate = { barGate(morph.progress.value) }
+    val onPick: (BarTool) -> Unit = { tool -> pickTool(tool, bar, player, pip, onFullscreen) }
+    val tools = barTools(player, pip)
+    SideEffect { bar.tools = tools }
+    // The player's row is wider than the tab bar; on a narrower window it shrinks to fit.
+    val rowScale = with(density) { (maxBarWidth / CompactBarWidth.toPx()).coerceAtMost(1f) }
     val anchors = remember { BarAnchors() }
     val burst = remember { BarBurst() }
     val played = rememberPlayedFraction(player)
     val playInteraction = remember { MutableInteractionSource() }
     val playPressed by playInteraction.collectIsPressedAsState()
     val playScale = animateFloatAsState(if (playPressed && !reduced) 0.94f else 1f, spring(dampingRatio = 0.6f, stiffness = 1400f), label = "playPress")
-    val track = c.primary.copy(alpha = 0.3f).compositeOver(c.surfaceVariant)
-    val fillPath = remember { Path() }
 
     Box(modifier.widthIn(max = NavWidth).height(NavHeight).fillMaxWidth().onPlaced { anchors.outer = it }) {
-        Surface(
+        Box(
             modifier = Modifier
-                // Narrows to the compact player bar around its centre (layout only, per frame).
+                // Narrows to the compact player bar around its centre and grows upward to the
+                // player bar's height (layout only, per frame); the slot itself keeps the tab
+                // bar's size, so nothing around it moves. Open, it grows on into the tools card, the
+                // quality list or the scrub track (PlayerBar.kt), still bottom-centred.
                 .layout { measurable, constraints ->
                     val full = constraints.maxWidth
-                    val compact = CompactBarWidth.roundToPx().coerceAtMost(full)
-                    val t = FastOutSlowInEasing.transform(ramp(morph.progress.value, NarrowStart, NarrowEnd))
-                    val w = lerpF(full.toFloat(), compact.toFloat(), t).roundToInt()
+                    val compact = CompactBarWidth.toPx().coerceAtMost(maxBarWidth)
+                    val p = morph.progress.value
+                    val t = FastOutSlowInEasing.transform(ramp(p, NarrowStart, NarrowEnd))
+                    val restW = lerpF(full.toFloat(), compact, t)
+                    val g = FastOutSlowInEasing.transform(ramp(p, GrowStart, GrowEnd))
+                    val restH = lerpF(constraints.maxHeight.toFloat(), PlayerBarHeight.toPx(), g)
+                    val size = playerBarSize(bar, player, restW, restH, maxBarWidth, barGate(p))
+                    val w = size.width.roundToInt()
+                    val h = size.height.roundToInt()
                     anchors.fullWidth = full
-                    val bar = measurable.measure(Constraints.fixed(w, constraints.maxHeight))
-                    layout(full, constraints.maxHeight) { bar.place((full - w) / 2, 0) }
+                    val placeable = measurable.measure(Constraints.fixed(w, h))
+                    // The open card also reaches a little below the resting bar (its time row).
+                    val below = playerBarBelow(bar, barGate(p)).roundToInt()
+                    layout(full, constraints.maxHeight) { placeable.place((full - w) / 2, constraints.maxHeight - h + below) }
                 }
-                .shadow(20.dp, shape, clip = false, ambientColor = Color.Black.copy(alpha = 0.10f), spotColor = Color.Black.copy(alpha = 0.12f)),
-            shape = shape,
-            color = c.surfaceVariant,
-            tonalElevation = 10.dp,
-            shadowElevation = 0.dp,
+                // Lifts off the tab bar's spot toward the thumb (a layer move, so touches follow
+                // it); the outline is redrawn every frame, so the shadow and clip follow the shape.
+                // A real, if soft, shadow in every state (Derek: the bar was white on white): full
+                // black here, as Android already scales elevation shadows right down.
+                .graphicsLayer {
+                    val p = morph.progress.value
+                    translationY = -PlayerBarLift.toPx() * backOut(ramp(p, LiftStart, LiftEnd), LiftOvershoot)
+                    shape = playerBarShape(bar, size, barGate(p))
+                    clip = true
+                    shadowElevation = 12.dp.toPx()
+                    ambientShadowColor = Color.Black
+                    spotShadowColor = Color.Black
+                }
+                .drawBehind { drawRect(c.surfaceVariant) }
+                .playerBarGestures(bar, player, enabled = controlsActive, view = view, gate = gate, onPick = onPick),
         ) {
+          CompositionLocalProvider(LocalContentColor provides c.onSurfaceVariant) {
             Box(
                 Modifier
-                    .fillMaxSize()
+                    // Everything inside keeps to the resting bar's bottom; only the card's time row
+                    // (BarCard) sits in the strip it grows below that.
+                    .layout { measurable, constraints ->
+                        val below = playerBarBelow(bar, gate()).roundToInt()
+                        val h = (constraints.maxHeight - below).coerceAtLeast(0)
+                        val placeable = measurable.measure(Constraints.fixed(constraints.maxWidth, h))
+                        layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+                    }
                     .onPlaced { anchors.bar = it }
                     // The moving pill: the selected tab's pill on its way to becoming Play
                     // (at rest in tabs the tab draws its own, so tab switches keep their fade).
@@ -182,16 +258,12 @@ internal fun NavPill(
                         val p = morph.progress.value
                         if (p <= 0f) return@drawBehind
                         val rect = anchors.pillRect(selected, p, playScale.value) ?: return@drawBehind
-                        val trackT = ramp(p, TrackFadeStart, TrackFadeEnd)
-                        val corner = CornerRadius(rect.height / 2f)
-                        drawRoundRect(lerp(c.primary, track, trackT), rect.topLeft, rect.size, corner)
-                        if (trackT > 0f && played.value > 0f) {
-                            fillPath.reset()
-                            fillPath.addRoundRect(RoundRect(rect, corner))
-                            clipPath(fillPath) {
-                                drawRect(c.primary, rect.topLeft, Size(rect.width * played.value, rect.height))
-                            }
-                        }
+                        // Scrubbing: the chapter track grows out of play (PlayerBar.kt), so play fades
+                        // under it rather than showing around its thinner edges.
+                        val shown = 1f - ramp(bar.scrub.value, 0f, 0.3f)
+                        if (shown <= 0f) return@drawBehind
+                        // A plain filled button: the progress hairline under the row shows how far in (0.5.37).
+                        drawRoundRect(c.primary, rect.topLeft, rect.size, CornerRadius(rect.height / 2f), alpha = shown)
                     },
             ) {
                 // ── Tabs ── (kept at the full width, centred, while the bar narrows under them)
@@ -205,6 +277,7 @@ internal fun NavPill(
                         }
                         .padding(BarPadding),
                     horizontalArrangement = Arrangement.spacedBy(BarGap),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Tab.entries.forEachIndexed { i, t ->
                         val active = t == selected
@@ -262,18 +335,36 @@ internal fun NavPill(
                     }
                 }
 
-                // ── The player's controls ──
+                // ── The player's controls ── (bottom-centred: the bar grows upward from them)
+                val scrubFade = Modifier.graphicsLayer { alpha = 1f - ramp(bar.scrub.value, 0f, 0.45f) }
                 Row(
-                    Modifier.align(Alignment.Center).width(CompactBarWidth).fillMaxHeight().padding(BarPadding),
-                    horizontalArrangement = Arrangement.spacedBy(BarGap),
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        // The progress hairline runs underneath (BarProgress).
+                        .padding(bottom = PlayerProgressRoom)
+                        .requiredWidth(CompactBarWidth)
+                        .heightIn(max = PlayerRowHeight)
+                        .fillMaxHeight()
+                        .graphicsLayer { scaleX = rowScale; scaleY = rowScale; transformOrigin = TransformOrigin(0.5f, 1f) }
+                        .padding(PlayerBarPadding),
+                    horizontalArrangement = Arrangement.spacedBy(PlayerBarGap),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    SeekButton(-1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth))
-                    PlaySlot(player, morph, anchors, played, playInteraction, playScale, track, controlsActive, Modifier.width(PlaySlotWidth))
-                    SeekButton(1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth))
+                    BarAudioOnly(player, enabled = controlsActive, modifier = Modifier.barEnter(morph, KeyEnterStart).then(scrubFade))
+                    SeekButton(-1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    PlaySlot(player, morph, anchors, playInteraction, playScale, controlsActive, Modifier.width(PlaySlotWidth))
+                    SeekButton(1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    BarKey(bar, enabled = controlsActive, modifier = Modifier.barEnter(morph, KeyEnterStart).then(scrubFade))
                 }
+                BarProgress(bar, player, played, gate)
+                if (bar.cardShown) BarCard(bar, player, gate, onPick)
+                if (bar.panelShown) BarPanelContent(bar, player, gate, scope)
             }
+          }
         }
         BurstBubble(burst, anchors)
+        // The landing frame and Cancel, over the scrub track (outside the bar's clip).
+        ScrubOverlay(bar, player, gate) { anchors.rect(anchors.bar, within = anchors.outer) }
     }
 }
 
@@ -343,10 +434,8 @@ private fun PlaySlot(
     player: PlayerState,
     morph: PlayerMorph,
     anchors: BarAnchors,
-    played: Animatable<Float, *>,
     interaction: MutableInteractionSource,
     pressScale: androidx.compose.runtime.State<Float>,
-    track: Color,
     enabled: Boolean,
     modifier: Modifier,
 ) {
@@ -370,22 +459,12 @@ private fun PlaySlot(
     ) {
         Box(
             Modifier
-                .size(26.dp)
+                .size(PlayerIconSize)
                 .onPlaced { anchors.playIcon = it }
                 .barEnter(morph, PlayEnterStart)
                 .graphicsLayer { scaleX *= pressScale.value; scaleY *= pressScale.value }
                 .squishOn(playing)
-                // Two-toned across the fill's edge: on-primary over the fill, the page's text
-                // color over the pale track (on-primary while the whole pill is still primary).
-                .drawBehind {
-                    val p = morph.progress.value
-                    val outside = lerp(c.onPrimary, c.onSurface, ramp(p, TrackFadeStart, TrackFadeEnd))
-                    with(painter) { draw(size, colorFilter = ColorFilter.tint(outside)) }
-                    val pill = anchors.pillRect(Tab.Home, 1f, 1f) ?: return@drawBehind
-                    val icon = anchors.rect(anchors.playIcon) ?: return@drawBehind
-                    val edge = pill.left + pill.width * played.value - icon.left
-                    if (edge > 0f) clipRect(right = edge) { with(painter) { draw(size, colorFilter = ColorFilter.tint(c.onPrimary)) } }
-                },
+                .drawBehind { with(painter) { draw(size, colorFilter = ColorFilter.tint(c.onPrimary)) } },
         )
     }
 }
@@ -422,7 +501,7 @@ private fun SeekButton(
             if (side < 0) Icons.Rounded.Replay10 else Icons.Rounded.Forward10,
             contentDescription = if (side < 0) "Back 10 seconds" else "Forward 10 seconds",
             tint = c.onSurface,
-            modifier = Modifier.size(26.dp).graphicsLayer { rotationZ = spin.value },
+            modifier = Modifier.size(PlayerIconSize).graphicsLayer { rotationZ = spin.value },
         )
     }
 }
@@ -474,12 +553,13 @@ private fun BurstBubble(burst: BarBurst, anchors: BarAnchors) {
     Row(
         Modifier
             .layout { measurable, _ ->
-                // Centred over its button, 10 dp above the bar (drawn outside the bar's bounds).
+                // Centred over its button, 10 dp above the lifted bar (drawn outside the slot's bounds).
                 val bubble = measurable.measure(Constraints())
                 layout(0, 0) {
                     val button = anchors.rect(anchors.controls[if (side < 0) 0 else 2], within = anchors.outer)
                     val x = (button?.center?.x ?: 0f) - bubble.width / 2f
-                    bubble.place(x.roundToInt(), -bubble.height - 10.dp.roundToPx())
+                    val top = (button?.top ?: 0f) - PlayerBarPadding.toPx()
+                    bubble.place(x.roundToInt(), (top - bubble.height - 10.dp.toPx()).roundToInt())
                 }
             }
             .graphicsLayer {
@@ -499,3 +579,14 @@ private fun BurstBubble(burst: BarBurst, anchors: BarAnchors) {
         RollingText("${burst.seconds}", c.onSurface, up = true, fontSize = 16.sp)
     }
 }
+
+/** Back-out easing: overshoots by [tension] and settles at 1 (the bar's lift landing). */
+private fun backOut(t: Float, tension: Float): Float {
+    if (t <= 0f) return 0f
+    if (t >= 1f) return 1f
+    val u = t - 1f
+    return 1f + u * u * ((tension + 1f) * u + tension)
+}
+
+/** The bar's own extras (card, list, track) only ever open on the fully open player. */
+private fun barGate(progress: Float) = ramp(progress, 0.85f, 1f)

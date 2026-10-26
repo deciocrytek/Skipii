@@ -62,7 +62,6 @@ class PlayerState(private val scope: CoroutineScope) {
     /** The player's playback speed (see [PlaybackSpeed]). */
     var speed by mutableFloatStateOf(1f)
         private set
-    var speedPanelOpen by mutableStateOf(false)
 
     init {
         // The service's stream recovery has no player event for its outcome: follow its state.
@@ -85,7 +84,12 @@ class PlayerState(private val scope: CoroutineScope) {
      * The portrait player's shape: the video's own, within [StageMinAspect]..[StageMaxAspect].
      * Audio only keeps it too (Derek, 2026-10-14), so switching never moves the page.
      */
-    val stageAspect: Float get() = videoAspect.coerceIn(StageMinAspect, StageMaxAspect)
+    val stageAspect: Float get() = videoAspect.coerceIn(StageMinAspect, StageMaxAspect).coerceAtLeast(stageFloor)
+    /**
+     * The flattest the stage may be for the window, so it stays within [StageMaxHeightShare]
+     * of its height (a short split-screen pane); set by the shell from the window's size.
+     */
+    var stageFloor by mutableFloatStateOf(StageMinAspect)
     var firstFrameRendered by mutableStateOf(false)
         private set
     /**
@@ -111,7 +115,14 @@ class PlayerState(private val scope: CoroutineScope) {
     /** Which bottom sheet is open over the player, if any. */
     var sheet by mutableStateOf<PlayerSheet?>(null)
 
-    val comments = CommentsState(scope)
+    val comments = CommentsState(scope).apply {
+        // NewPipe only knows chapters typed into the description; YouTube's auto chapters come
+        // from the watch page the comments load from.
+        onChapters = { id, chapters ->
+            val d = details
+            if (d != null && d.item.id == id && d.chapters.isEmpty()) details = d.copy(chapters = chapters)
+        }
+    }
 
     // ── Signed-in account state for the open video (full sync) ──
     /** Like/subscribe state from the account; null while loading or signed out. */
@@ -167,7 +178,6 @@ class PlayerState(private val scope: CoroutineScope) {
         comments.clearFor(item.id)
         accountState = null
         inWatchLater = false
-        speedPanelOpen = false
         if (Account.signedIn) {
             scope.launch {
                 runCatching { InnerTube.videoState(item.id) }
@@ -268,6 +278,15 @@ class PlayerState(private val scope: CoroutineScope) {
         actionMessage = "Added to queue"
         continueIfEnded(player)
     }
+
+    /** The bar's Next: the queue's first video (the bar only offers it while the queue has one). */
+    fun playNextUp() {
+        if (queue.isNotEmpty()) playFromQueue(0)
+    }
+
+    /** The chapter playing at [ms], or null when the video has none. */
+    fun chapterAt(ms: Long): String? =
+        details?.chapters?.lastOrNull { it.startMs <= ms }?.title?.takeIf { it.isNotBlank() }
 
     /** [index] into [queue]. */
     fun playFromQueue(index: Int) {

@@ -24,10 +24,14 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+            <!-- Not singleTask: a bubble needs its own task, and singleTask hands it the
+                 app's one task instead (System UI kills it, or a later launch from Home
+                 pulls it out of the bubble and leaves the bubble blank). MainActivity
+                 keeps the app to one window itself. -->
             <!-- Orientation is set at runtime (OrientationController): portrait everywhere
                  except the open player. configChanges keeps the activity, the player
                  surface and all state alive across rotation. Android 16 ignores

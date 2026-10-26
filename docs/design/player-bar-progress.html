@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — a progress bar under the playback controls, five directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --k:1;
+  --rise:cubic-bezier(.05,.7,.1,1);
+  --spr:cubic-bezier(.3,1.25,.5,1);
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --primary:#2F2558;--on-primary:#ffffff;
+  --surface:#F8F0FA;--on:#1F1A2E;--on-var:#6B5C7B;
+  --sv:#ECDDEF;--scl:#F4EBF7;
+  --tile:color-mix(in srgb,var(--surface) 62%,var(--sv));
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --track:color-mix(in srgb,var(--primary) 30%,var(--sv));
+  --sponsor:#1FA34A;
+  --shadow:0 6px 16px -4px rgba(30,10,50,.22),0 1px 4px rgba(30,10,50,.12);
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;
+  --surface:#000000;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#28232F;--scl:#141218;
+  --tile:color-mix(in srgb,var(--surface) 45%,var(--sv));
+  --page:#0B0A0D;--chrome:#17151B;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:0 6px 18px -4px rgba(0,0,0,.7),0 1px 4px rgba(0,0,0,.5);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+.wrap{max-width:1880px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:820px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;max-width:700px}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s var(--rise),color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip.go{background:var(--ink);color:var(--page)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.chip svg{width:18px;height:18px}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;width:calc(436px * var(--z));align-self:stretch}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;color:var(--on)}
+.cap{width:100%}
+.cap .t{display:flex;align-items:baseline;gap:10px}
+.cap .t i{font-style:normal;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:15px;font-weight:850;flex:none;transform:translateY(5px)}
+.cap .t b{font-size:21px;font-weight:850;letter-spacing:-.4px}
+.cap p{margin-top:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);line-height:1.45}
+.cap ul{margin-top:8px;padding-left:16px}
+.cap li{font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.cap li b{color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;width:100%;align-items:center;margin-top:auto}
+.mini-btn{height:36px;padding:0 14px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--ink);transition:transform .42s var(--pop),opacity .3s}
+.mini-btn:active{transform:scale(.94);transition-duration:.09s}
+.mini-btn svg{width:16px;height:16px}
+.mini-btn[disabled]{opacity:.45;cursor:default}
+.notes{margin-top:60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:#6A4FB8;text-transform:uppercase}
+html.dark .note h3{color:var(--primary)}
+.note p,.note li{margin-top:8px;font-size:14px;font-weight:550;line-height:1.5;color:var(--ink-2)}
+.note ul{padding-left:18px}
+.note b{color:var(--ink)}
+
+/* phone contents */
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 34px;font-size:15px;font-weight:700;z-index:90;pointer-events:none}
+.status .r{display:flex;gap:6px;align-items:center;font-size:13px}
+.batt{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:15px;border-radius:5px;background:var(--on);color:var(--surface);font-size:10.5px;font-weight:850}
+.screen:before{content:"";position:absolute;top:12px;left:50%;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:#050505;z-index:95}
+.gest{position:absolute;bottom:8px;left:50%;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--on);opacity:.55;z-index:96;pointer-events:none}
+.vid{position:absolute;left:0;top:40px;width:412px;height:231.75px;background:#000;overflow:hidden}
+.vid canvas{width:100%;height:100%;display:block}
+.det{position:absolute;left:0;right:0;top:272px;bottom:0;overflow:hidden;padding:18px 20px}
+.ptitle{font-size:24px;font-weight:850;letter-spacing:-.6px;line-height:1.18;font-stretch:88%}
+.pmeta{font-size:14px;font-weight:600;color:var(--on-var);margin-top:10px}
+.pmeta b{color:var(--on);font-weight:750;margin-left:6px}
+.chan{display:flex;align-items:center;gap:12px;margin-top:18px}
+.chan .av{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6aa9ff,#1b3f8f);flex:none}
+.chan .nm{flex:1}
+.chan .nm b{display:block;font-size:16px;font-weight:750}
+.chan .nm small{font-size:13px;font-weight:600;color:var(--on-var)}
+.ccard{margin-top:18px;background:var(--scl);border-radius:22px;padding:15px 17px}
+.ccard .h{display:flex;justify-content:space-between;font-size:15px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:14px;font-weight:550;color:var(--on-var)}
+.ccard p i{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6aa9ff,#1b3f8f);flex:none}
+.more{margin-top:22px;font-size:22px;font-weight:850;letter-spacing:-.5px}
+.card{margin-top:14px;display:flex;gap:12px}
+.thumb{width:140px;flex:none;aspect-ratio:16/9;border-radius:16px;position:relative;overflow:hidden}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.62);color:#fff;border-radius:7px;padding:2px 6px;font-size:11px;font-weight:800}
+.card .vt{font-size:14.5px;font-weight:750;line-height:1.25}
+.card .vm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:5px}
+.pvig{position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none;z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 12%,transparent) 25%,color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 64%,transparent) 75%,color-mix(in srgb,var(--surface) 76%,transparent))}
+
+/* the bar, anchored at its bottom centre */
+.pw{position:absolute;left:50%;bottom:71px;width:0;height:0;z-index:60}
+.ab{position:absolute}
+.pill{left:0;bottom:0;background:var(--sv);box-shadow:var(--shadow);transform:translateX(-50%);
+  transition:width calc(.5s*var(--k)) var(--spr),height calc(.5s*var(--k)) var(--spr),border-radius calc(.5s*var(--k)) var(--spr)}
+.prow{left:0;display:flex;align-items:center;gap:5px;height:51px;transform:translateX(-50%);
+  transition:bottom calc(.5s*var(--k)) var(--spr),opacity calc(.2s*var(--k)),transform calc(.45s*var(--k)) var(--spr)}
+.scrubbing .prow{opacity:0;transform:translateX(-50%) scale(.92);pointer-events:none}
+.btn{display:grid;place-items:center;flex:none;color:var(--on);position:relative;transition:transform .42s var(--pop)}
+.btn:active{transform:scale(.94);transition-duration:.09s}
+.side{width:41px;height:41px;border-radius:21px;background:var(--tile)}
+.side svg{width:19px;height:19px}
+.seek{width:51px;height:51px;border-radius:26px}
+.seek .ic{position:relative;width:26px;height:26px}
+.seek .ic svg{width:26px;height:26px}
+.seek .ic small{position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:850;padding-top:3px}
+.seek.fwd .ic svg{transform:scaleX(-1)}
+.play{width:102px;height:51px;border-radius:26px;overflow:hidden;background:var(--track);cursor:ew-resize;touch-action:none}
+html.nofill .play{background:var(--primary)}
+.play .fill{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+html.nofill .play .fill{display:none}
+.gl{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px}
+.gl svg{position:absolute;inset:0;width:26px;height:26px;transition:opacity .2s,transform .42s var(--pop)}
+.gl .pl1{opacity:0;transform:scale(.4) rotate(-90deg)}
+.paused .gl .pa{opacity:0;transform:scale(.4) rotate(90deg)}
+.paused .gl .pl1{opacity:1;transform:none}
+.gl.a{color:var(--on)}
+.gl.b{color:var(--on-primary)}
+html.nofill .gl.a{display:none}
+html.nofill .gl.b{clip-path:none!important}
+
+/* the progress bar (it becomes the scrub track) */
+.prog{left:0;transform:translateX(-50%);touch-action:none;cursor:pointer;
+  transition:bottom calc(.5s*var(--k)) var(--spr),width calc(.5s*var(--k)) var(--spr),height calc(.5s*var(--k)) var(--spr),opacity calc(.25s*var(--k))}
+.prog .hit{position:absolute;left:-10px;right:-10px;top:-14px;bottom:-14px}
+.prog .seg{position:absolute;top:0;bottom:0;border-radius:var(--sr,2px);overflow:hidden;background:var(--track);transition:border-radius calc(.4s*var(--k)),top calc(.3s*var(--k)) var(--spr),bottom calc(.3s*var(--k)) var(--spr)}
+.prog .seg b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.prog .mk{position:absolute;bottom:0;height:100%;border-radius:2px;background:var(--sponsor);opacity:.95;transition:height calc(.4s*var(--k)),bottom calc(.4s*var(--k))}
+.prog .kn{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--primary);transition:all calc(.3s*var(--k)) var(--spr)}
+.scrubbing .prog .kn{top:-6px;bottom:-6px;height:auto;width:4px;margin:0 0 0 -2px;border-radius:2px;background:var(--on)}
+.scrubbing .prog .mk{height:5px;bottom:5px}
+.slabel{left:0;width:348px;transform:translateX(-50%) translateY(-10px);display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:850;white-space:nowrap;opacity:0;pointer-events:none;font-variant-numeric:tabular-nums;
+  transition:opacity calc(.2s*var(--k)),transform calc(.4s*var(--k)) var(--spr)}
+.slabel b{overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.slabel span{color:var(--on-var)}
+.scrubbing .slabel{opacity:1;transform:translateX(-50%)}
+.times{left:0;width:296px;transform:translateX(-50%);display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--on-var);font-variant-numeric:tabular-nums;pointer-events:none;transition:opacity calc(.2s*var(--k))}
+.scrubbing .times{opacity:0}
+.rim{left:0;bottom:0;transform:translateX(-50%);pointer-events:none;transition:opacity calc(.2s*var(--k))}
+.rim path{fill:none;stroke-width:3;stroke-linecap:round}
+.rim .rt{stroke:var(--track)}
+.rim .rf{stroke:var(--primary)}
+.scrubbing .rim{opacity:0}
+.bubble{left:0;bottom:0;transform:translateX(-50%) translateY(6px) scale(.9);opacity:0;white-space:nowrap;font-size:12px;font-weight:850;padding:6px 11px;border-radius:14px;background:var(--on);color:var(--surface);pointer-events:none;transition:opacity .2s,transform .35s var(--pop)}
+.bubble.on{opacity:1;transform:translateX(-50%)}
+.finger{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1.5px rgba(0,0,0,.2);pointer-events:none;z-index:99;opacity:0;transition:opacity .15s,transform .15s}
+.finger.down{transform:scale(.82)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+  <symbol id="i-rew" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.2 9.2A7.6 7.6 0 1 1 4.5 13M5 4.6v4.8h4.8"/></symbol>
+  <symbol id="i-head" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 17v-4a8 8 0 0 1 16 0v4M4 14h3v6H5a1 1 0 0 1-1-1zm16 0h-3v6h2a1 1 0 0 0 1-1z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="18.5" r="2" fill="currentColor"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>A progress bar under the controls</h1>
+      <p>Five ways to show how far into the video you are, <b>below audio only · −10 · play · +10 · ⋮</b> on 0.5.36's smaller bar (316×61). The video is the real one from your screenshot, with its <b>13 YouTube chapters</b> as segments and its <b>SponsorBlock sponsor read</b> in green. In every direction <b>the progress bar is the scrub track</b>: drag sideways on play (or on the bar itself, where it's big enough) and it grows into the big chapter track, knob under your finger, then shrinks back. Time runs 6× fast here so you can see it move.</p>
+    </div>
+    <div class="tools">
+      <button class="chip go" id="playAll"><svg><use href="#i-play"/></svg>Play all demos</button>
+      <button class="chip" id="fillT">Play pill also fills</button>
+      <button class="chip" id="slow">Slow-mo 5×</button>
+      <button class="chip" id="darkT">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.72"></label>
+    </div>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="notes">
+    <div class="note"><h3>Shared</h3><ul>
+      <li>Chapters are the segments (the gaps between them are the chapter edges); the sponsor read is green.</li>
+      <li>Scrubbing is the same everywhere: the bar grows to 380×112 and the progress bar becomes the 348 dp chapter track with the chapter name and time on top.</li>
+      <li>With a progress bar of its own, play can go back to a plain filled button — "Play pill also fills" shows both.</li>
+    </ul></div>
+    <div class="note"><h3>Sizes</h3><ul>
+      <li><b>A Inside</b> — bar 316×69 (+8), 3 dp line inside its bottom edge.</li>
+      <li><b>B Underline</b> — bar unchanged; 4 dp strip 12 dp below it.</li>
+      <li><b>C Rim</b> — bar unchanged; the progress runs along its bottom edge.</li>
+      <li><b>D Time row</b> — bar 316×85 (+24): elapsed · strip · total, draggable.</li>
+      <li><b>E Beads</b> — bar unchanged; one bead per chapter under it, the current one taller.</li>
+    </ul></div>
+  </div>
+</div>
+
+<template id="phoneT">
+  <div class="shot">
+    <div class="frame"><div class="phone"><div class="screen">
+      <div class="status"><span>2:48</span><span class="r">5G ▂▄▆█ <span class="batt">45</span></span></div>
+      <div class="vid"><canvas width="412" height="232"></canvas></div>
+      <div class="det">
+        <div class="ptitle">The Deserved Downfall of Dr Phil</div>
+        <div class="pmeta">1.2M views · 2 months ago · 15.2K likes <b>...more</b></div>
+        <div class="chan"><div class="av"></div><div class="nm"><b>Internet Anarchist</b><small>1.9M subscribers</small></div></div>
+        <div class="ccard"><div class="h">Comments <span>1.4K</span></div><p><i></i>The Dr Phil rabbit hole was so much deeper than I expected..</p></div>
+        <div class="more">More videos</div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#c0392b,#2c2c54)"><span class="dur">20:10</span></div><div><div class="vt">The Dark Life After To Catch a Predator</div><div class="vm">Internet Anarchist · 2.2M views</div></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#f6d743,#d6336c)"><span class="dur">20:35</span></div><div><div class="vt">The Satisfying Downfall of Pink</div><div class="vm">As Told by JP · 307K views</div></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#3f7f6a,#a6d49a)"><span class="dur">1:56:14</span></div><div><div class="vt">Reality Shows Are Fake. Here is the Evidence</div><div class="vm">Patrick Cc · 653K views</div></div></div>
+      </div>
+      <div class="pvig"></div>
+      <div class="pw"></div>
+      <div class="finger"></div>
+      <div class="gest"></div>
+    </div></div></div>
+    <div class="cap"><div class="t"><i></i><b></b></div><p></p><ul></ul></div>
+    <div class="row"><button class="mini-btn demo"><svg><use href="#i-play"/></svg>Demo</button></div>
+  </div>
+</template>
+
+<script>
+const W = 412, H = 915, DUR = 1692, TIME_RATE = 6;
+let SLOW = 1;
+const CH = [[0,"The decline of an empire"],[86,"Questionable credentials"],[181,"The Gracian health spa scam"],[293,"Pathways and corporate deceit"],[392,"Sponsorship break"],[476,"Rise to television stardom"],[652,"The Dr. Phil show format"],[808,"Diet supplement scandal"],[931,"Controversial guest treatment"],[1185,"Turnabout Ranch allegations"],[1348,"The Merit Street Media deal"],[1415,"Collapse of Merit Street"],[1642,"Final assessment"]];
+const SEG = [{ s: 392, e: 476 }];
+const REST = { w: 316, h: 61 };
+const SCRUB = { w: 380, h: 112, r: 32 };
+const TRACK = { w: 348, h: 40, bottom: 16, r: 20, gap: 3, sr: 7 };
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => 1 - Math.pow(1 - t, 3);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const chapterAt = s => { let c = CH[0][1]; for (const x of CH) if (s >= x[0]) c = x[1]; return c; };
+
+function paintVideo(cv, t) {
+  const g = cv.getContext('2d'), w = cv.width, h = cv.height;
+  const grd = g.createLinearGradient(0, 0, w, h);
+  grd.addColorStop(0, '#1d1b22'); grd.addColorStop(1, '#3a1214');
+  g.fillStyle = grd; g.fillRect(0, 0, w, h);
+  const x = Math.sin(t / 1400) * 8;
+  g.fillStyle = '#d9b49a'; g.beginPath(); g.ellipse(120 + x, 150, 70, 92, 0, 0, 7); g.fill();
+  g.fillStyle = '#2b2f3c'; g.beginPath(); g.roundRect(40 + x, 200, 160, 60, 30); g.fill();
+  g.font = '900 54px system-ui'; g.fillStyle = '#e8302f'; g.fillText('HE IS', 222, 98);
+  g.fillStyle = '#f1f1f1'; g.fillText('DONE', 222, 160);
+  g.fillStyle = '#e8302f'; g.fillRect(222, 174, 160, 5);
+}
+
+// ===================================================================
+class Phone {
+  constructor(v) {
+    this.v = v;
+    const node = document.getElementById('phoneT').content.firstElementChild.cloneNode(true);
+    document.getElementById('stage').appendChild(node);
+    this.node = node;
+    const q = s => node.querySelector(s);
+    this.scr = q('.screen'); this.pw = q('.pw'); this.cv = q('canvas'); this.fingerEl = q('.finger');
+    q('.cap .t i').textContent = v.letter; q('.cap .t b').textContent = v.name; q('.cap p').textContent = v.blurb;
+    q('.cap ul').innerHTML = v.how.map(s => `<li>${s}</li>`).join('');
+    this.s = { pos: 233, playing: true, scrub: false, preview: null };
+    this.build();
+    q('.demo').onclick = () => this.demo();
+    paintVideo(this.cv, 0);
+  }
+  el(cls, html = '') { const d = document.createElement('div'); d.className = 'ab ' + cls; d.innerHTML = html; this.pw.appendChild(d); return d; }
+  build() {
+    const v = this.v;
+    this.pill = this.el('pill');
+    if (v.rim) {
+      this.rim = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      this.rim.setAttribute('class', 'ab rim');
+      this.rim.innerHTML = '<path class="rt"/><path class="rf"/>';
+      this.pw.appendChild(this.rim);
+    }
+    this.slabel = this.el('slabel', '<b></b><span></span>');
+    const segs = CH.map((c, i) => { const e = (CH[i + 1] || [DUR])[0]; return `<div class="seg" style="left:${c[0] / DUR * 100}%;width:calc(${(e - c[0]) / DUR * 100}% - var(--gap,2px))"><b></b></div>`; }).join('');
+    const marks = SEG.map(m => `<i class="mk" style="left:${m.s / DUR * 100}%;width:${(m.e - m.s) / DUR * 100}%"></i>`).join('');
+    this.prog = this.el('prog', `<div class="hit"></div>${segs}${marks}<i class="kn"></i>`);
+    this.segFills = [...this.prog.querySelectorAll('.seg')].map((el, i) => ({ el, fill: el.firstElementChild, s: CH[i][0], e: (CH[i + 1] || [DUR])[0] }));
+    this.knob = this.prog.querySelector('.kn');
+    if (v.times) this.times = this.el('times', '<span class="t0"></span><span>' + fmt(DUR) + '</span>');
+    this.row = this.el('prow',
+      `<button class="btn side">${'<svg><use href="#i-head"/></svg>'}</button>` +
+      `<button class="btn seek"><div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div></button>` +
+      `<button class="btn play"><i class="fill"></i><div class="gl a"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div><div class="gl b"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div></button>` +
+      `<button class="btn seek fwd"><div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div></button>` +
+      `<button class="btn side"><svg><use href="#i-more"/></svg></button>`);
+    this.play = this.row.querySelector('.play');
+    this.bubble = this.el('bubble');
+    const seeks = this.row.querySelectorAll('.seek');
+    seeks[0].onclick = () => { this.s.pos = clamp(this.s.pos - 10, 0, DUR); };
+    seeks[1].onclick = () => { this.s.pos = clamp(this.s.pos + 10, 0, DUR); };
+    this.wire();
+    this.place();
+  }
+  // Where everything sits, at rest or scrubbing.
+  place() {
+    const v = this.v, sc = this.s.scrub;
+    const bar = sc ? SCRUB : { w: REST.w, h: REST.h + (v.extra || 0), r: (REST.h + (v.extra || 0)) / 2 };
+    Object.assign(this.pill.style, { width: bar.w + 'px', height: bar.h + 'px', borderRadius: (bar.r ?? bar.h / 2) + 'px' });
+    this.row.style.bottom = (5 + (v.rowLift || 0)) + 'px';
+    this.slabel.style.bottom = (bar.h - 34) + 'px';
+    const p = sc ? TRACK : v.prog;
+    Object.assign(this.prog.style, { width: p.w + 'px', height: p.h + 'px', bottom: p.bottom + 'px', opacity: p.o ?? 1 });
+    this.prog.style.setProperty('--gap', p.gap + 'px');
+    this.prog.style.setProperty('--sr', p.sr + 'px');
+    this.prog.style.pointerEvents = (v.tappable && !sc) ? 'auto' : 'none';
+    if (this.times) this.times.style.bottom = (v.prog.bottom - 5) + 'px';
+    this.scr.classList.toggle('scrubbing', sc);
+    if (this.rim) {
+      const w = REST.w, h = REST.h, r = h / 2, i = 3;
+      this.rim.setAttribute('width', w); this.rim.setAttribute('height', h);
+      this.rim.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      const d = `M ${i} ${r} A ${r - i} ${r - i} 0 0 0 ${r} ${h - i} L ${w - r} ${h - i} A ${r - i} ${r - i} 0 0 0 ${w - i} ${r}`;
+      this.rim.querySelectorAll('path').forEach(pa => pa.setAttribute('d', d));
+      this.rimLen = this.rim.querySelector('.rf').getTotalLength();
+      this.rim.querySelector('.rf').style.strokeDasharray = `${this.rimLen} ${this.rimLen}`;
+    }
+  }
+  local(e) { const r = this.scr.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+  centerOf(el) { const r = this.scr.getBoundingClientRect(), b = el.getBoundingClientRect(); const k = W / r.width; return { x: (b.left + b.width / 2 - r.left) * k, y: (b.top + b.height / 2 - r.top) * k }; }
+  wire() {
+    // Sideways on play scrubs (taps toggle); on a tappable strip, a touch jumps there and then drags.
+    let g = null;
+    this.play.addEventListener('pointerdown', e => { if (e.isTrusted) this.stopDemo(); g = { x0: this.local(e).x, moved: false, from: 'play', pos0: this.s.pos }; this.play.setPointerCapture(e.pointerId); });
+    this.prog.addEventListener('pointerdown', e => {
+      if (e.isTrusted) this.stopDemo();
+      const r = this.prog.getBoundingClientRect(), f = clamp((e.clientX - r.left) / r.width);
+      g = { x0: this.local(e).x, moved: true, from: 'strip', pos0: f * DUR };
+      this.prog.setPointerCapture(e.pointerId);
+      this.startScrub(g.pos0);
+    });
+    const move = e => { if (!g) return; const x = this.local(e).x; this.gMove(g, x); };
+    const up = () => { if (!g) return; this.gUp(g); g = null; };
+    [this.play, this.prog].forEach(el => { el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); });
+  }
+  gMove(g, x) {
+    if (!g.moved && Math.abs(x - g.x0) > 8) { g.moved = true; g.x0 = x; this.startScrub(this.s.pos); g.pos0 = this.s.pos; }
+    if (g.moved) this.s.preview = clamp(g.pos0 + (x - g.x0) / TRACK.w * DUR, 0, DUR);
+  }
+  gUp(g) {
+    if (!g.moved && g.from === 'play') { this.s.playing = !this.s.playing; this.play.classList.toggle('paused', !this.s.playing); return; }
+    this.s.pos = this.s.preview ?? this.s.pos; this.s.preview = null; this.s.scrub = false; this.place();
+  }
+  startScrub(pos) { this.s.preview = pos; this.s.scrub = true; this.place(); }
+  step(dt) {
+    const s = this.s, sdt = dt / SLOW;
+    if (s.playing && !s.scrub) { s.pos += sdt * TIME_RATE; if (s.pos >= DUR) s.pos = 0; }
+    this.vt = (this.vt || 0) + sdt * 1000;
+    if (s.playing) paintVideo(this.cv, this.vt);
+    this.render();
+  }
+  render() {
+    const s = this.s, at = s.preview ?? s.pos, f = at / DUR;
+    const pw = this.play.offsetWidth;
+    this.play.querySelector('.fill').style.width = (s.pos / DUR * 100) + '%';
+    this.play.querySelector('.gl.b').style.clipPath = `inset(0 ${clamp(pw / 2 + 13 - s.pos / DUR * pw, 0, 26)}px 0 0)`;
+    const cur = CH.findLastIndex(c => at >= c[0]);
+    for (const [i, sf] of this.segFills.entries()) {
+      sf.fill.style.width = (clamp((at - sf.s) / (sf.e - sf.s)) * 100) + '%';
+      if (this.v.beads) { const on = i === cur && !s.scrub; if (sf._on !== on) { sf._on = on; sf.el.style.top = on ? '-3px' : '0'; sf.el.style.bottom = on ? '-3px' : '0'; } }
+    }
+    this.knob.style.left = (f * 100) + '%';
+    this.knob.style.opacity = s.scrub || this.v.knob ? 1 : 0;
+    this.slabel.firstElementChild.textContent = chapterAt(at);
+    this.slabel.lastElementChild.textContent = `${fmt(at)} / ${fmt(DUR)}`;
+    if (this.times) this.times.querySelector('.t0').textContent = fmt(at);
+    if (this.rim && this.rimLen) this.rim.querySelector('.rf').style.strokeDashoffset = this.rimLen * (1 - s.pos / DUR);
+    // E: the chapter name pops above the bar for a moment when a new chapter starts.
+    if (this.v.beads && cur !== this.lastCh) {
+      if (this.lastCh !== undefined && !s.scrub) {
+        this.bubble.textContent = CH[cur][1];
+        this.bubble.style.bottom = (REST.h + 12) + 'px';
+        this.bubble.classList.add('on'); clearTimeout(this.bt);
+        this.bt = setTimeout(() => this.bubble.classList.remove('on'), 1600 * SLOW);
+      }
+      this.lastCh = cur;
+    }
+  }
+  // ---- demo ----
+  stopDemo() { this.tok = (this.tok || 0) + 1; this.fingerEl.style.opacity = 0; this.node.querySelector('.demo').disabled = false; }
+  async demo() {
+    this.stopDemo(); const tok = this.tok; this.alive = () => tok === this.tok;
+    this.node.querySelector('.demo').disabled = true;
+    try {
+      await this.wait(900);
+      const c = this.centerOf(this.play);
+      await this.drag([{ x: c.x - 10, y: c.y }, { x: c.x + 60, y: c.y }, { x: c.x + 30, y: c.y }, { x: c.x + 110, y: c.y }], 1500, 'play');
+      await this.wait(1200);
+      if (this.v.tappable) {
+        const r = this.centerOf(this.prog), wl = this.prog.offsetWidth;
+        await this.drag([{ x: r.x - wl * 0.1, y: r.y }, { x: r.x + wl * 0.05, y: r.y }, { x: r.x + wl * 0.02, y: r.y }], 1000, 'strip');
+        await this.wait(900);
+      }
+      await this.tap(this.play); await this.wait(900); await this.tap(this.play); await this.wait(500);
+    } catch (e) { if (e !== 'stop') throw e; }
+    if (this.alive()) this.node.querySelector('.demo').disabled = false;
+  }
+  async wait(ms) { await new Promise(r => setTimeout(r, ms * SLOW)); if (!this.alive()) throw 'stop'; }
+  fing(p, down) { const f = this.fingerEl; f.style.left = p.x + 'px'; f.style.top = p.y + 'px'; f.style.opacity = 1; f.classList.toggle('down', !!down); }
+  async tap(el) { const c = this.centerOf(el); this.fing(c, true); await this.wait(110); this.fingerEl.classList.remove('down'); this.gUp({ moved: false, from: 'play' }); await this.wait(160); this.fingerEl.style.opacity = 0; }
+  async drag(pts, ms, from) {
+    let g;
+    if (from === 'play') g = { x0: pts[0].x, moved: false, from, pos0: this.s.pos };
+    else { const r = this.prog.getBoundingClientRect(), sr = this.scr.getBoundingClientRect(), k = W / sr.width; const f = clamp((pts[0].x - (r.left - sr.left) * k) / (r.width * k)); g = { x0: pts[0].x, moved: true, from, pos0: f * DUR }; this.startScrub(g.pos0); }
+    this.fing(pts[0], true);
+    for (let k = 1; k < pts.length; k++) {
+      const a = pts[k - 1], b = pts[k], n = Math.max(4, Math.round(ms / (pts.length - 1) / 16));
+      for (let i = 1; i <= n; i++) { const t = ease(i / n), p = { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) }; this.fing(p, true); this.gMove(g, p.x); await this.wait(16); }
+    }
+    await this.wait(450);
+    this.gUp(g); this.fingerEl.classList.remove('down'); await this.wait(150); this.fingerEl.style.opacity = 0;
+  }
+}
+
+// ===================================================================
+const VARIANTS = [
+  { letter: 'A', name: 'Inside', extra: 8, rowLift: 8,
+    prog: { w: 276, h: 3, bottom: 5, gap: 2, sr: 1.5 },
+    blurb: 'A hairline inside the bar, along its bottom edge: the bar is 8 dp taller to make room. Quiet and part of the bar itself; when you scrub, the line swells into the big chapter track.',
+    how: ['Drag sideways on <b>play</b> to scrub.', 'Too thin to grab on its own — play is the handle.'] },
+  { letter: 'B', name: 'Underline', tappable: true,
+    prog: { w: 284, h: 4, bottom: -14, gap: 2, sr: 2 },
+    blurb: 'A thin strip floating just under the bar, in the gap above the screen edge. The bar stays exactly as it is; the strip rises into it as the scrub track.',
+    how: ['Drag on <b>play</b>, or <b>touch the strip</b> to jump there and keep dragging.', 'Its touch target is taller than it looks.'] },
+  { letter: 'C', name: 'Rim', rim: true,
+    prog: { w: 102, h: 51, bottom: 5, gap: 3, sr: 7, o: 0 },
+    blurb: 'No extra line at all: the progress runs along the bar’s own bottom edge, like a gauge wrapped around it. The track grows out of play when you scrub, as it does today.',
+    how: ['Drag sideways on <b>play</b> to scrub.', 'Reads at a glance, but no chapters or sponsor marks until you scrub.'] },
+  { letter: 'D', name: 'Time row', extra: 24, rowLift: 24, times: true, tappable: true, knob: true,
+    prog: { w: 214, h: 4, bottom: 11, gap: 2, sr: 2 },
+    blurb: 'A proper second row inside the bar: elapsed time, a chaptered strip with a knob, total time. The most information at rest; the bar grows 24 dp to fit it.',
+    how: ['Drag the <b>strip</b> directly, or sideways on <b>play</b>.', 'The times fade out as it grows into the big track.'] },
+  { letter: 'E', name: 'Beads', beads: true, tappable: true,
+    prog: { w: 300, h: 6, bottom: -16, gap: 5, sr: 3 },
+    blurb: 'One bead per chapter under the bar, filling as each plays; the current chapter’s bead stands taller, and its name pops up for a moment when it starts.',
+    how: ['<b>Touch a bead</b> to jump there and drag, or scrub on <b>play</b>.', 'Chapter edges are obvious at rest.'] },
+];
+
+const phones = VARIANTS.map(v => new Phone(v));
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; for (const p of phones) p.step(dt); requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+const root = document.documentElement;
+root.classList.add('nofill');
+const zoom = document.getElementById('zoom');
+const setZoom = () => root.style.setProperty('--z', zoom.value);
+zoom.oninput = setZoom; setZoom();
+document.getElementById('darkT').onclick = e => e.currentTarget.classList.toggle('on', root.classList.toggle('dark'));
+document.getElementById('fillT').onclick = e => e.currentTarget.classList.toggle('on', !root.classList.toggle('nofill'));
+document.getElementById('slow').onclick = e => { const on = root.classList.toggle('s-on'); e.currentTarget.classList.toggle('on', on); SLOW = on ? 5 : 1; root.style.setProperty('--k', SLOW); };
+document.getElementById('playAll').onclick = () => phones.forEach(p => p.demo());
+if (new URLSearchParams(location.search).get('nodemo') === null) setTimeout(() => phones.forEach(p => p.demo()), 700);
+</script>
+</body>
+</html>

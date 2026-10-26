@@ -15,7 +15,10 @@ import androidx.compose.material.icons.rounded.WatchLater
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +63,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -355,6 +360,7 @@ class SearchState(private val scope: CoroutineScope) {
     fun submit() {
         val q = query.trim()
         if (q.isEmpty()) return
+        SearchHistory.add(q)
         submitted = q
         loading = true
         error = null
@@ -368,6 +374,7 @@ class SearchState(private val scope: CoroutineScope) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (VideoItem) -> Unit, scrollToTop: Int = 0) {
     val c = MaterialTheme.colorScheme
@@ -386,9 +393,17 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
         }, 120)
         state.submit()
     }
+    var focused by remember { mutableStateOf(false) }
+    // The keyboard closed by Back or its own button leaves the field focused; drop the focus
+    // with it so the history gives way to the results again.
+    val imeVisible = WindowInsets.isImeVisible
+    LaunchedEffect(imeVisible) { if (!imeVisible && focused) focus.clearFocus() }
+    // Past searches, filtered by what's typed: while typing, and on the empty page.
+    val history = SearchHistory.matching(state.query)
+    val showHistory = history.isNotEmpty() && (focused || state.submitted.isEmpty())
     // The search bar rides with the header: both slide away together while scrolling results.
     CollapsingHeaderLayout(
-        resetKey = scrollToTop to state.generation,
+        resetKey = Triple(scrollToTop, state.generation, showHistory),
         header = { Column {
         ScreenHeader(title = "Search")
         Row(
@@ -416,7 +431,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { submit() }, onDone = { submit() }),
                     // Hardware Enter doesn't go through the IME action; treat it the same.
-                    modifier = Modifier.fillMaxWidth().onPreviewKeyEvent { e ->
+                    modifier = Modifier.fillMaxWidth().onFocusChanged { focused = it.isFocused }.onPreviewKeyEvent { e ->
                         if (e.key == Key.Enter || e.key == Key.NumPadEnter) {
                             if (e.type == KeyEventType.KeyDown) submit()
                             true
@@ -435,8 +450,14 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
         } },
     ) { top ->
         Box(Modifier.fillMaxSize()) {
-        Box(Modifier.padding(top = if (state.results.isNotEmpty() && state.error == null) 0.dp else top)) {
+        val listShown = showHistory || (state.results.isNotEmpty() && state.error == null)
+        Box(Modifier.padding(top = if (listShown) 0.dp else top)) {
         when {
+            showHistory -> SearchHistoryList(
+                history = history,
+                contentPadding = contentPadding.withTop(top),
+                onSearch = { state.query = it; submit() },
+            )
             state.loading && state.results.isEmpty() -> Box(Modifier.fillMaxWidth().padding(top = 48.dp), Alignment.Center) {
                 CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(36.dp))
             }
@@ -467,6 +488,47 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
             }
         }
         }
+        }
+    }
+}
+
+@Composable
+private fun SearchHistoryList(history: List<String>, contentPadding: PaddingValues, onSearch: (String) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    LazyColumn(contentPadding = contentPadding) {
+        item(key = "header") {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(end = 12.dp),
+            ) {
+                SectionTitle("Recent searches", Modifier.weight(1f).alignByBaseline())
+                Box(Modifier.alignByBaseline()) { TextLink("Clear all") { SearchHistory.clear() } }
+            }
+        }
+        items(history, key = { it }) { query ->
+            Row(
+                modifier = Modifier
+                    .animateItem()
+                    .fillMaxWidth()
+                    .pressable { onSearch(query) }
+                    .height(52.dp)
+                    .padding(start = 24.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Rounded.History, null, tint = c.onSurfaceVariant, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(16.dp))
+                Text(
+                    query,
+                    modifier = Modifier.weight(1f),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Box(
+                    modifier = Modifier.size(44.dp).pressable { SearchHistory.remove(query) },
+                    contentAlignment = Alignment.Center,
+                ) { Icon(Icons.Rounded.Close, "Remove", tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp)) }
+            }
         }
     }
 }

@@ -81,81 +81,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-/** The speed and audio-only buttons: apart from each other, slightly less round than the pills (Derek). */
-private val ModeButtonShape = RoundedCornerShape(16.dp)
-
-/** Speed: the gauge at 1×, the speed itself otherwise; filled in while a speed is remembered. */
-@Composable
-fun SpeedButton(state: PlayerState) {
-    val c = MaterialTheme.colorScheme
-    val normal = PlaybackSpeed.isNormal(state.speed)
-    val sticky = PlaybackSpeed.remember && !normal
-    val bg by animateColorAsState(
-        when {
-            sticky -> c.primary
-            state.speedPanelOpen -> c.surfaceContainerHighest
-            else -> c.surfaceContainerHigh
-        },
-        tween(220), label = "speedBg",
-    )
-    val ink by animateColorAsState(if (sticky) c.onPrimary else c.onSurface, tween(220), label = "speedInk")
-    Box(
-        Modifier
-            .squishOn(sticky)
-            .size(width = 58.dp, height = 44.dp)
-            .pressable { state.speedPanelOpen = !state.speedPanelOpen }
-            .background(bg, ModeButtonShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (normal) Icon(Icons.Rounded.Speed, "Playback speed", tint = ink, modifier = Modifier.size(20.dp))
-        else Text(PlaybackSpeed.label(state.speed) + "×", color = ink, fontSize = 14.sp, fontWeight = FontWeight.Black)
-    }
-}
-
-/** Audio only for the whole app; filled while on. */
-@Composable
-fun AudioOnlyButton(state: PlayerState) {
-    val c = MaterialTheme.colorScheme
-    val on = AudioOnly.enabled
-    val bg by animateColorAsState(if (on) c.primary else c.surfaceContainerHigh, tween(220), label = "audioBg")
-    val ink by animateColorAsState(if (on) c.onPrimary else c.onSurface, tween(220), label = "audioInk")
-    Box(
-        Modifier
-            .squishOn(on)
-            .size(width = 52.dp, height = 44.dp)
-            .pressable { state.setAudioOnly(!on) }
-            .background(bg, ModeButtonShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            if (on) Icons.Rounded.Headphones else Icons.Outlined.Headphones,
-            if (on) "Audio only is on" else "Audio only",
-            tint = ink, modifier = Modifier.size(20.dp),
-        )
-    }
-}
-
 /**
- * Opens under the action row: the speed in large type, a ruler dial to flick through 0.5–3×
- * (every 0.05× is a step; it lands on one), "Remember for every video" and a 1× reset.
- * Approved mockup: docs/design (Drive) "Skipii - Speed and Audio Only, Option B v2".
+ * The speed ruler (0.5.34: shown inside the player's bar, PlayerBar.kt, picked from its tools):
+ * the speed in large type, a ruler dial to flick through 0.5–3× (every 0.05× is a step; it lands
+ * on one), "Remember for every video" and a 1× reset. Approved mockup: docs/design (Drive)
+ * "Skipii - Speed and Audio Only, Option B v2". [inBar]: no card of its own, on the bar's tone.
  */
 @Composable
-fun ColumnScope.SpeedPanel(state: PlayerState) {
-    val reduced = rememberReducedMotion()
-    AnimatedVisibility(
-        visible = state.speedPanelOpen,
-        enter = if (reduced) fadeIn(tween(0)) else
-            expandVertically(spring(dampingRatio = 0.9f, stiffness = 500f), expandFrom = Alignment.Top) + fadeIn(tween(220, delayMillis = 60)),
-        exit = if (reduced) fadeOut(tween(0)) else
-            shrinkVertically(tween(260, easing = Motion.Emphasized), shrinkTowards = Alignment.Top) + fadeOut(tween(160)),
-    ) {
-        SpeedPanelContent(state)
-    }
-}
-
-@Composable
-private fun SpeedPanelContent(state: PlayerState) {
+internal fun SpeedPanelContent(state: PlayerState, inBar: Boolean = false) {
     val c = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
     val view = LocalView.current
@@ -200,12 +133,14 @@ private fun SpeedPanelContent(state: PlayerState) {
     }
     fun glideTo(speed: Float) = drive { value.animateTo(speed, spring(dampingRatio = 0.85f, stiffness = 380f)) }
 
+    val panel = if (inBar) c.surfaceVariant else c.surfaceContainer
     Column(
-        Modifier
+        if (inBar) Modifier.fillMaxWidth().padding(top = 14.dp)
+        else Modifier
             .padding(top = 12.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(c.surfaceContainer)
+            .background(panel)
             .padding(top = 16.dp, bottom = 6.dp),
     ) {
         SpeedReadout({ value.value }, Modifier.align(Alignment.CenterHorizontally))
@@ -217,7 +152,7 @@ private fun SpeedPanelContent(state: PlayerState) {
 
         val tick = c.onSurfaceVariant
         val near = c.onSurface
-        val ring = c.surfaceContainer
+        val ring = panel
         val needle = c.primary
         val measurer = rememberTextMeasurer()
         val labels = remember(measurer) {

@@ -101,6 +101,9 @@ import kotlinx.coroutines.launch
 /** Comments for the open video: first page, paging, per-comment replies, likes and posting. */
 @Stable
 class CommentsState(private val scope: CoroutineScope) {
+    /** The watch page the first comments come from also carries the video's chapters. */
+    var onChapters: ((videoId: String, chapters: List<Chapter>) -> Unit)? = null
+
     private var videoId: String? = null
     var comments by mutableStateOf<List<Comment>>(emptyList())
         private set
@@ -167,6 +170,7 @@ class CommentsState(private val scope: CoroutineScope) {
                     disabled = page.disabled
                     next = page.next
                     arrived(page.comments)
+                    if (page.chapters.isNotEmpty()) onChapters?.invoke(id, page.chapters)
                 }
                 .onFailure { if (videoId == id) error = YouTube.friendlyError(it) }
             loading = false

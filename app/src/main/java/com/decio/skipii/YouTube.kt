@@ -64,7 +64,43 @@ data class VideoDetails(
     val qualities: List<Int>,
     /** Width / height of the chosen stream, known before the first frame; null if unknown. */
     val aspect: Float? = null,
+    /** The video's chapters in order (from its description timestamps / YouTube's markers); empty if none. */
+    val chapters: List<Chapter> = emptyList(),
+    /** YouTube's storyboards (the scrub preview's frames), smallest frames first; empty if none. */
+    val storyboards: List<Storyboard> = emptyList(),
 )
+
+@Immutable
+data class Chapter(val startMs: Long, val title: String)
+
+/**
+ * One storyboard level: sheets ([urls]) of [columns] × [rows] frames of [frameWidth] × [frameHeight]
+ * px, [count] frames in all, one every [msPerFrame] (0 = spread evenly over the video).
+ */
+@Immutable
+data class Storyboard(
+    val urls: List<String>,
+    val frameWidth: Int,
+    val frameHeight: Int,
+    val columns: Int,
+    val rows: Int,
+    val count: Int,
+    val msPerFrame: Int,
+) {
+    /** The sheet and the spot in it of the frame shown at [ms] of a [durationMs] video. */
+    fun frameAt(ms: Long, durationMs: Long): StoryboardFrame? {
+        if (urls.isEmpty() || count <= 0 || columns <= 0 || rows <= 0) return null
+        val step = if (msPerFrame > 0) msPerFrame.toLong() else (durationMs / count).coerceAtLeast(1L)
+        val n = (ms / step).toInt().coerceIn(0, count - 1)
+        val perSheet = columns * rows
+        val url = urls.getOrNull(n / perSheet) ?: return null
+        val k = n % perSheet
+        return StoryboardFrame(url, (k % columns) * frameWidth, (k / columns) * frameHeight, frameWidth, frameHeight)
+    }
+}
+
+@Immutable
+data class StoryboardFrame(val url: String, val x: Int, val y: Int, val width: Int, val height: Int)
 
 @Immutable
 data class ChannelDetails(
@@ -101,7 +137,14 @@ data class Comment(
 )
 
 @Immutable
-data class CommentsPage(val comments: List<Comment>, val total: Int, val disabled: Boolean, val next: String?)
+data class CommentsPage(
+    val comments: List<Comment>,
+    val total: Int,
+    val disabled: Boolean,
+    val next: String?,
+    /** The video's chapters, read off the same first `next` page (see [CommentFeed.parseChapters]). */
+    val chapters: List<Chapter> = emptyList(),
+)
 
 /** Everything the app asks of YouTube goes through here. All calls are blocking-safe (IO). */
 object YouTube {
@@ -143,6 +186,13 @@ object YouTube {
             qualities = StreamSelection.heights(info),
             aspect = (if (picked.usesSeparate) picked.video else picked.muxed)
                 ?.takeIf { it.width > 0 && it.height > 0 }?.let { it.width.toFloat() / it.height },
+            chapters = info.streamSegments.orEmpty()
+                .map { Chapter(it.startTimeSeconds * 1000L, it.title.orEmpty().trim()) }
+                .sortedBy { it.startMs },
+            storyboards = info.previewFrames.orEmpty()
+                .filter { it.urls.isNotEmpty() && it.frameWidth > 0 && it.frameHeight > 0 }
+                .map { Storyboard(it.urls, it.frameWidth, it.frameHeight, it.framesPerPageX, it.framesPerPageY, it.totalCount, it.durationPerFrame) }
+                .sortedBy { it.frameWidth },
         )
     }
 

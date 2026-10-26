@@ -99,9 +99,11 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
- * The video with its overlay controls — shared by the portrait player and fullscreen.
- * Tap toggles the controls; they auto-hide while playing. [controlsAlpha] lets the morph
- * hold them back until the video has landed.
+ * The video — shared by the portrait player and fullscreen. In fullscreen a tap toggles the
+ * overlay controls; they auto-hide while playing. In portrait (0.5.34) the video has no
+ * controls of its own: they all live in the player's bar (PlayerBar.kt); double-tap seek, the
+ * loading spinner, the SponsorBlock Ask pill / skipped note and errors stay on the video.
+ * [controlsAlpha] lets the morph hold them back until the video has landed.
  */
 @Composable
 fun VideoContent(
@@ -158,7 +160,7 @@ fun VideoContent(
     LaunchedEffect(interactive) { if (!interactive) { controlsVisible = false; burstActive = false } }
     val currentInteractive by androidx.compose.runtime.rememberUpdatedState(interactive)
     val currentInactiveTap by androidx.compose.runtime.rememberUpdatedState(onInactiveTap)
-    fun toggleControls() { controlsVisible = !controlsVisible; touched() }
+    fun toggleControls() { if (fullscreen) { controlsVisible = !controlsVisible; touched() } }
     fun seekStep(side: Int) {
         val moved = state.seekBy(side * SeekStepMs)
         burstSeconds += ((abs(moved) + 500) / 1000).toInt()
@@ -249,7 +251,7 @@ fun VideoContent(
                 }
             }
         }
-        Box(Modifier.fillMaxSize().graphicsLayer { alpha = visibleAlpha * controlsAlpha() }) {
+        if (fullscreen) Box(Modifier.fillMaxSize().graphicsLayer { alpha = visibleAlpha * controlsAlpha() }) {
             Box(
                 Modifier.fillMaxSize().background(
                     Brush.verticalGradient(

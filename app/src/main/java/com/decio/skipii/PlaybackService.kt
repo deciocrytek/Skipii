@@ -134,8 +134,17 @@ class PlaybackService : MediaSessionService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        // A window the app has moved on from (a bubble left for the app opened from Home) gets its
+        // task removed by System UI; the open window keeps playing. Its task is still listed, as
+        // the removed one no longer is by now.
+        val open = MainActivity.openTaskId()
+        if (open != null && getSystemService(ActivityManager::class.java).appTasks.any { it.taskInfo.taskId == open }) {
+            Log.i("Skipii", "an older window's task was removed; still open in task $open, playing on")
+            return
+        }
         // Swiping the app away from Recents pauses and ends the session, playing or not
         // (Derek, 2026-10-10; it used to keep playing). onDestroy saves the resume point.
+        Log.i("Skipii", "task removed: pausing and stopping")
         pauseAllPlayersAndStopSelf()
     }
 

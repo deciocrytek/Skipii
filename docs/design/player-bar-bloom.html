@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Bloom, five ways to show what's inside</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --k:1;
+  --rise:cubic-bezier(.05,.7,.1,1);
+  --spr:cubic-bezier(.3,1.3,.5,1);
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --primary:#2F2558;--on-primary:#ffffff;
+  --surface:#F8F0FA;--on:#1F1A2E;--on-var:#6B5C7B;
+  --sv:#ECDDEF;--scl:#F4EBF7;
+  --tile:color-mix(in srgb,var(--surface) 62%,var(--sv));
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --track:color-mix(in srgb,var(--primary) 30%,var(--sv));
+  --shadow:rgba(40,20,60,.2);
+  --promo:#E8A317;--sponsor:#1FA34A;
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;
+  --surface:#141218;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#2E2838;--scl:#1E1A24;
+  --tile:color-mix(in srgb,var(--surface) 35%,var(--sv));
+  --page:#0B0A0D;--chrome:#17151B;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:rgba(0,0,0,.6);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+[hidden]{display:none!important}
+svg{display:block}
+
+.wrap{max-width:1880px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:840px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;max-width:640px}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s var(--rise),color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip.go{background:var(--ink);color:var(--page)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.chip svg{width:18px;height:18px}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;width:calc(436px * var(--z));align-self:stretch}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;color:var(--on)}
+.cap{width:100%}
+.cap .t{display:flex;align-items:baseline;gap:10px}
+.cap .t i{font-style:normal;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:15px;font-weight:850;flex:none;transform:translateY(5px)}
+.cap .t b{font-size:21px;font-weight:850;letter-spacing:-.4px}
+.cap p{margin-top:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);line-height:1.45}
+.cap ul{margin-top:8px;padding-left:16px}
+.cap li{font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.cap li b{color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;width:100%;align-items:center;margin-top:auto}
+.mini-btn{height:36px;padding:0 14px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--ink);transition:transform .42s var(--pop),opacity .3s}
+.mini-btn:active{transform:scale(.94);transition-duration:.09s}
+.mini-btn svg{width:16px;height:16px}
+.mini-btn[disabled]{opacity:.45;cursor:default}
+
+.notes{margin-top:60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:#6A4FB8;text-transform:uppercase}
+html.dark .note h3{color:var(--primary)}
+.note p,.note li{margin-top:8px;font-size:14px;font-weight:550;line-height:1.5;color:var(--ink-2)}
+.note ul{padding-left:18px}
+.note b{color:var(--ink)}
+.note code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink)}
+
+/* ---------- phone contents ---------- */
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 34px;font-size:15px;font-weight:700;z-index:90;pointer-events:none}
+.status .r{display:flex;gap:6px;align-items:center;font-size:13px}
+.batt{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:15px;border-radius:5px;background:var(--on);color:var(--surface);font-size:10.5px;font-weight:850}
+.screen:before{content:"";position:absolute;top:12px;left:50%;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:#050505;z-index:95}
+.gest{position:absolute;bottom:8px;left:50%;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--on);opacity:.55;z-index:96;pointer-events:none}
+.vid{position:absolute;left:0;top:40px;width:412px;height:231.75px;background:#000;overflow:hidden}
+.vid canvas{width:100%;height:100%;display:block;transition:filter calc(.5s*var(--k)) var(--rise)}
+.screen.audio .vid canvas{filter:blur(18px) brightness(.55) saturate(1.2)}
+.aud{position:absolute;inset:0;display:grid;place-items:center;color:#fff;opacity:0;transition:opacity calc(.4s*var(--k)) var(--rise)}
+.aud div{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:800;letter-spacing:.3px}
+.aud svg{width:40px;height:40px}
+.screen.audio .aud{opacity:1}
+.det{position:absolute;left:0;right:0;top:272px;bottom:0;overflow:hidden}
+.dein{padding:18px 20px 260px}
+.ptitle{font-size:24px;font-weight:850;letter-spacing:-.6px;line-height:1.18;font-stretch:88%}
+.pmeta{font-size:14px;font-weight:600;color:var(--on-var);margin-top:10px}
+.pmeta b{color:var(--on);font-weight:750;margin-left:6px}
+.chan{display:flex;align-items:center;gap:12px;margin-top:18px}
+.chan .av{width:46px;height:46px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:850;flex:none}
+.chan .nm{flex:1}
+.chan .nm b{display:block;font-size:16px;font-weight:750}
+.chan .nm small{font-size:13px;font-weight:600;color:var(--on-var)}
+.subbtn{height:44px;padding:0 20px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-weight:750;font-size:15px;display:flex;align-items:center}
+.acts{display:flex;gap:6px;margin-top:16px}
+.act{height:44px;padding:0 16px;border-radius:999px;background:var(--sv);display:flex;align-items:center;gap:7px;font-size:14px;font-weight:750}
+.act svg{width:20px;height:20px}
+.act.sq{border-radius:16px;cursor:pointer;transition:background .25s var(--rise),color .25s,transform .42s var(--pop)}
+.act.sq:active{transform:scale(.94);transition-duration:.09s}
+.act.sq.on{background:var(--primary);color:var(--on-primary)}
+.act.sq b{font-size:13px;font-weight:850;font-variant-numeric:tabular-nums}
+.ccard{margin-top:18px;background:var(--scl);border-radius:22px;padding:15px 17px}
+.ccard .h{display:flex;justify-content:space-between;font-size:15px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:14px;font-weight:550;color:var(--on-var)}
+.ccard p i{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d9a273,#7b5a3f);flex:none}
+.more{margin-top:22px;font-size:22px;font-weight:850;letter-spacing:-.5px}
+.card{margin-top:14px;display:flex;gap:12px}
+.thumb{width:140px;flex:none;aspect-ratio:16/9;border-radius:16px;position:relative;overflow:hidden}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.62);color:#fff;border-radius:7px;padding:2px 6px;font-size:11px;font-weight:800}
+.card .vt{font-size:14.5px;font-weight:750;line-height:1.25}
+.card .vm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:5px}
+.pvig{position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none;z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 12%,transparent) 25%,color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 64%,transparent) 75%,color-mix(in srgb,var(--surface) 76%,transparent))}
+
+/* ---------- the bar ---------- */
+.pw{position:absolute;left:50%;bottom:71px;width:0;height:0;z-index:60;filter:drop-shadow(0 12px 14px var(--shadow)) drop-shadow(0 2px 3px var(--shadow))}
+.pill{position:absolute;left:0;bottom:0;transform:translateX(-50%);background:var(--sv);overflow:hidden;touch-action:none;
+  transition:width calc(.52s*var(--k)) var(--spr),height calc(.52s*var(--k)) var(--spr),border-radius calc(.52s*var(--k)) var(--spr)}
+.ab{position:absolute!important}
+.hc{left:50%;transform:translateX(-50%)}
+.trow{display:flex;align-items:center;gap:6px;height:60px;bottom:6px;transition:opacity calc(.2s*var(--k)),transform calc(.4s*var(--k)) var(--spr)}
+.btn{display:grid;place-items:center;flex:none;color:var(--on);position:relative;transition:transform .42s var(--pop)}
+.btn:active,.petal:active,.nub:active{transform:scale(.94);transition-duration:.09s}
+.seek{width:60px;height:60px;border-radius:30px}
+.seek .ic{position:relative;width:30px;height:30px}
+.seek .ic svg{width:30px;height:30px}
+.seek .ic small{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:850;padding-top:3px}
+.seek.fwd .ic svg{transform:scaleX(-1)}
+.seek.dash .ic{animation:dashL calc(.34s*var(--k)) var(--rise)}
+.seek.fwd.dash .ic{animation:dashR calc(.34s*var(--k)) var(--rise)}
+@keyframes dashL{35%{transform:translateX(-5px) rotate(-22deg)}}
+@keyframes dashR{35%{transform:translateX(5px) rotate(22deg)}}
+.play{width:120px;height:60px;border-radius:30px;overflow:hidden;background:var(--track);cursor:ew-resize}
+.play .fill{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.gl{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px}
+.gl svg{position:absolute;inset:0;width:30px;height:30px;transition:opacity .2s,transform .42s var(--pop)}
+.gl .pl1{opacity:0;transform:scale(.4) rotate(-90deg)}
+.paused .gl .pa{opacity:0;transform:scale(.4) rotate(90deg)}
+.paused .gl .pl1{opacity:1;transform:none}
+.gl.a{color:var(--on)}
+.gl.b{color:var(--on-primary)}
+/* the "scrub me" grips on the play pill's ends */
+.play .grip{position:absolute;top:50%;width:3px;height:14px;margin-top:-7px;border-radius:2px;background:currentColor;opacity:.32}
+.sq{animation:squish calc(.38s*var(--k)) var(--pop)}
+@keyframes squish{30%{transform:scale(.88,.92)}}
+
+/* scrubbing: the bar grows and play stretches into the chapter track */
+.stop{top:14px;width:316px;display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transform:translateX(-50%) translateY(-10px);transition:opacity calc(.2s*var(--k)),transform calc(.4s*var(--k)) var(--spr)}
+.stop span{color:var(--on-var);font-weight:800}
+.trk{bottom:16px;width:316px;height:40px;opacity:0;transform:translateX(-50%) scaleX(.38);pointer-events:none;transition:opacity calc(.18s*var(--k)),transform calc(.45s*var(--k)) var(--spr)}
+.trk .seg{position:absolute;top:0;bottom:0;border-radius:7px;overflow:hidden;background:var(--track)}
+.trk .seg:first-child{border-radius:20px 7px 7px 20px}
+.trk .seg:last-of-type{border-radius:7px 20px 20px 7px}
+.trk .seg b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.trk .mk{position:absolute;bottom:5px;height:5px;border-radius:3px}
+.trk .kn{position:absolute;top:-6px;bottom:-6px;width:4px;margin-left:-2px;border-radius:2px;background:var(--on)}
+.scrubbing .stop{opacity:1;transform:translateX(-50%)}
+.scrubbing .trk{opacity:1;transform:translateX(-50%)}
+.scrubbing .trow{opacity:0;transform:translateX(-50%) scale(.92)}
+
+/* petals (the four tools) */
+.petal{width:58px;height:58px;border-radius:29px;background:var(--tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--on);opacity:0;pointer-events:none;
+  transition:opacity calc(.22s*var(--k)),transform calc(.5s*var(--k)) var(--spr),background .2s,color .2s}
+.petal svg{width:21px;height:21px}
+.petal .lb{font-size:9px;font-weight:800;color:var(--on-var);transition:opacity .2s}
+.petal .tx{font-size:12px;font-weight:850;height:21px;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.petal.on{background:var(--primary);color:var(--on-primary)}
+.petal.on .lb{color:var(--on-primary)}
+.bloom .petal{transition-delay:calc(var(--i)*.03s*var(--k)),calc(var(--i)*.03s*var(--k)),0s,0s}
+.petal.hot{background:var(--primary)!important;color:var(--on-primary)!important}
+.petal.hot .lb{color:var(--on-primary)}
+.mid{bottom:108px;text-align:center;opacity:0;transition:opacity calc(.25s*var(--k));white-space:nowrap}
+.bloom .mid{opacity:1;transition-delay:calc(.15s*var(--k))}
+.mid b{display:block;font-size:14px;font-weight:850}
+.mid small{font-size:12px;font-weight:800;color:var(--on-var);font-variant-numeric:tabular-nums}
+
+/* the quality list, opened inside the bar */
+.qhead{bottom:306px;width:280px;display:flex;justify-content:space-between;align-items:baseline;white-space:nowrap;opacity:0;transform:translateX(-50%) translateY(10px);transition:opacity calc(.2s*var(--k)),transform calc(.4s*var(--k)) var(--spr)}
+.qhead b{font-size:16px;font-weight:850}
+.qhead span{font-size:12px;font-weight:800;color:var(--on-var)}
+.qrows{bottom:78px;width:296px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.qrow{height:42px;border-radius:21px;display:flex;align-items:center;gap:8px;padding:0 16px;font-size:15px;font-weight:800;color:var(--on);opacity:0;transform:translateY(18px) scale(.96);
+  transition:opacity calc(.2s*var(--k)),transform calc(.42s*var(--k)) var(--spr),background .2s,color .2s}
+.qrow small{font-size:12px;font-weight:750;color:var(--on-var)}
+.qrow svg{width:20px;height:20px;margin-left:auto;opacity:0;transform:scale(.4);transition:opacity .2s,transform .4s var(--pop)}
+.qrow.on{background:var(--primary);color:var(--on-primary)}
+.qrow.on small{color:var(--on-primary);opacity:.8}
+.qrow.on svg{opacity:1;transform:none}
+.qopen .qhead{opacity:1;transform:translateX(-50%);transition-delay:calc(.12s*var(--k))}
+.qopen .qrows{pointer-events:auto}
+.qopen .qrow{opacity:1;transform:none;transition-delay:calc((.06s + (4 - var(--i)) * .035s)*var(--k)),calc((.06s + (4 - var(--i)) * .035s)*var(--k)),0s,0s}
+
+/* A · more key */
+.morebtn{width:52px;height:52px;border-radius:26px;background:var(--tile)}
+.morebtn svg{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;transition:opacity .2s,transform .4s var(--pop)}
+.morebtn .m2{opacity:0;transform:rotate(-90deg) scale(.5)}
+.bloom .morebtn .m1{opacity:0;transform:rotate(90deg) scale(.5)}
+.bloom .morebtn .m2{opacity:1;transform:none}
+/* B · crown */
+.nub{position:absolute;bottom:0;width:30px;height:30px;margin-left:-15px;border-radius:15px;background:var(--sv);display:grid;place-items:center;color:var(--on);
+  transition:opacity calc(.2s*var(--k)),transform calc(.45s*var(--k)) var(--spr),bottom calc(.52s*var(--k)) var(--spr)}
+.nub svg{width:15px;height:15px}
+.nub .tx{font-size:8px;font-weight:900}
+.pw.hidecrown .nub{opacity:0;transform:translateY(14px) scale(.4);pointer-events:none}
+.pw.hidecrown .nub{transition-delay:0s}
+.nub.wave{animation:wave calc(.5s*var(--k)) var(--pop)}
+@keyframes wave{40%{transform:translateY(-6px) scale(1.15)}}
+/* C · rim */
+.v-rim .petal .lb{opacity:0}
+.v-rim.bloom .petal .lb{opacity:1}
+/* D, E · chevron */
+.chev{top:1px;width:56px;height:16px;display:grid;place-items:center;color:var(--on-var);transition:opacity calc(.2s*var(--k)),transform calc(.4s*var(--k)) var(--spr)}
+.chev svg{width:22px;height:12px}
+.chev.nudge svg{animation:nudge calc(.9s*var(--k)) var(--rise) 2}
+@keyframes nudge{40%{transform:translateY(-4px)}}
+.bloom .chev,.scrubbing .chev{opacity:0;transform:translateX(-50%) translateY(-8px);pointer-events:none}
+.hint{bottom:98px;width:150px;text-align:center;line-height:1.3;font-size:12px;font-weight:850;color:var(--on-var);opacity:0;transition:opacity calc(.25s*var(--k))}
+.peek .hint{opacity:1}
+.peek .mid{opacity:0!important}
+
+.askrow{height:40px;display:flex;gap:6px;opacity:0;transform:translateX(-50%) translateY(-12px);transition:opacity calc(.3s*var(--k)) var(--rise),transform calc(.42s*var(--k)) var(--spr);pointer-events:none}
+.asking .askrow{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.askrow .skipc{flex:1;height:40px;border-radius:20px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:850}
+.askrow .skipc i{width:9px;height:9px;border-radius:2px;background:var(--promo);flex:none}
+.askrow .skipc svg{width:18px;height:18px}
+.askrow .x{width:40px;height:40px;border-radius:20px;background:var(--tile);display:grid;place-items:center;flex:none}
+.askrow .x svg{width:18px;height:18px}
+
+.toast{position:absolute;left:50%;z-index:70;transform:translateX(-50%) translateY(8px) scale(.9);opacity:0;pointer-events:none;height:36px;padding:0 15px;border-radius:18px;background:var(--on);color:var(--surface);display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;white-space:nowrap;transition:opacity calc(.25s*var(--k)),transform calc(.4s*var(--k)) var(--pop)}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast svg{width:17px;height:17px}
+.finger{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1.5px rgba(0,0,0,.2);pointer-events:none;z-index:99;opacity:0;transition:opacity .15s,transform .15s}
+.finger.down{transform:scale(.82)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+    <symbol id="i-rew" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.2 9.2A7.6 7.6 0 1 1 4.5 13M5 4.6v4.8h4.8"/></symbol>
+    <symbol id="i-speed" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4.2 16a8.5 8.5 0 1 1 15.6 0M12 14l4-4.5"/></symbol>
+    <symbol id="i-head" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 17v-4a8 8 0 0 1 16 0v4M4 14h3v6H5a1 1 0 0 1-1-1zm16 0h-3v6h2a1 1 0 0 0 1-1z"/></symbol>
+    <symbol id="i-pip" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="12" y="11" width="6.5" height="5.5" rx="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path fill="currentColor" d="M5.5 6.6v10.8a1 1 0 0 0 1.5.8l8-5.4a1 1 0 0 0 0-1.6L7 5.8a1 1 0 0 0-1.5.8z"/><rect x="16.5" y="5.5" width="2.6" height="13" rx="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-hd" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M7 9.5v5M10 9.5v5M7 12h3M13.5 9.5v5h1.5a2.5 2.5 0 0 0 0-5z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="18.5" r="2" fill="currentColor"/></symbol>
+    <symbol id="i-up" viewBox="0 0 22 12"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M4 9l7-5 7 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6.5 6.5l11 11m0-11-11 11"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path fill="currentColor" d="M4 7.2v9.6a1 1 0 0 0 1.6.8l6.2-4.8a1 1 0 0 0 0-1.6L5.6 6.4A1 1 0 0 0 4 7.2zm8 0v9.6a1 1 0 0 0 1.6.8l6.2-4.8a1 1 0 0 0 0-1.6l-6.2-4.8a1 1 0 0 0-1.6.8z"/></symbol>
+    <symbol id="i-like" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7.5 10.5V20H4.5a1 1 0 0 1-1-1v-7.5a1 1 0 0 1 1-1zm0 0 4-7.2c1.5 0 2.5 1.2 2.2 2.7l-.7 3.5h5.4a2 2 0 0 1 2 2.4l-1.3 6.4A2 2 0 0 1 17.1 20H7.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>Bloom, without the secret handshake</h1>
+      <p>Five takes on <b>Bloom</b>. All five share the new scrub: <b>drag sideways on play</b> and the bar grows (264×72 → 340×112) while play stretches into a wide chapter track with SponsorBlock marks and the chapter name and time on top. The difference is <b>how each one shows that the four tools</b> (quality, picture-in-picture, fullscreen, next) <b>are in there</b>: a visible key, peeking tools, tools always on the rim, tools that appear on pause, or a bar that shows you once. <b>Quality opens its list</b> right in the bar. <b>Speed and audio only stay where they are</b>, in the action row under the title. Hold-to-bloom and swipe-up still work on all of them.</p>
+    </div>
+    <div class="tools">
+      <button class="chip go" id="playAll"><svg><use href="#i-play"/></svg>Play all demos</button>
+      <button class="chip" id="slow">Slow-mo 5×</button>
+      <button class="chip" id="darkT">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.72"></label>
+    </div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="notes">
+    <div class="note"><h3>The new scrub (all five)</h3><ul>
+      <li>Drag sideways on the play pill: −10 and +10 step aside, the bar grows to <b>340×112</b> and play stretches into a <b>316 dp chapter track</b> — one segment per chapter, SponsorBlock marks along its bottom, a knob that stays under your finger (1:1, ≈2.4 s per dp on this 12:41 video).</li>
+      <li>The chapter name and time sit across the top while you drag; a tick on every chapter edge would be the haptic.</li>
+      <li>Two little grips on the play pill's ends hint that it slides.</li>
+    </ul></div>
+    <div class="note"><h3>Quality</h3><ul>
+      <li>Tapping Quality turns the bar into the list (<b>320×340</b>): Auto (with what it's playing now), 1080p, 720p, 480p, 360p and a "Playing …" line, the transport still at the bottom. Rows rise in from the bottom.</li>
+      <li>Pick one: the check lands and the bar folds back to where you opened it from. Tap the page to back out.</li>
+    </ul></div>
+    <div class="note"><h3>Sizes</h3><ul>
+      <li><b>A Key</b> — 322×72 at rest (adds a 52 dp ⋮ key).</li>
+      <li><b>B Crown</b> — 264×72, four 30 dp tool nubs peeking over the top edge.</li>
+      <li><b>C Rim</b> — 264×116, the four tools always on its top edge.</li>
+      <li><b>D Pause</b> and <b>E Peek</b> — 264×80 with a chevron on the top edge.</li>
+      <li>Bloomed: 380×252 dome for all five.</li>
+    </ul></div>
+    <div class="note"><h3>Could be combined</h3><p>These hints stack: e.g. <b>B</b>'s crown with <b>D</b>'s bloom-on-pause, or <b>A</b>'s key with <b>E</b>'s first-open peek.</p></div>
+  </div>
+</div>
+
+<template id="phoneT">
+  <div class="shot">
+    <div class="frame"><div class="phone"><div class="screen">
+      <div class="status"><span>9:48</span><span class="r">5G ▂▄▆█ <span class="batt">85</span></span></div>
+      <div class="vid"><canvas width="412" height="232"></canvas><div class="aud"><div><svg><use href="#i-head"/></svg>AUDIO ONLY</div></div></div>
+      <div class="det"><div class="dein">
+        <div class="ptitle">Z Fold 8 vs iPhone Duo - BETTER LUCK NEXT TIME!</div>
+        <div class="pmeta">1.2K views · 55 minutes ago · 99 likes <b>...more</b></div>
+        <div class="chan"><div class="av">TECH</div><div class="nm"><b>Tech with Benefits</b><small>117K subscribers</small></div><div class="subbtn">Subscribe</div></div>
+        <div class="acts"><div class="act"><svg><use href="#i-like"/></svg>99</div><div class="act"><svg style="transform:rotate(180deg)"><use href="#i-like"/></svg></div><div class="act"><svg><use href="#i-clock"/></svg>Save</div><button class="act sq" data-pact="speed"><svg><use href="#i-speed"/></svg><b></b></button><button class="act sq" data-pact="audio"><svg><use href="#i-head"/></svg></button></div>
+        <div class="ccard"><div class="h">Comments <span>29</span></div><p><i></i>I need to mention Duos cracking like crazy now.</p></div>
+        <div class="more">More videos</div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#d9a35a,#6b4a8a)"><span class="dur">1:13:28</span></div><div><div class="vt">iPhone Duo...Duo Review - Is It Worth The Wait?</div><div class="vm">Brian Tong · 3K views</div></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#7a5040,#c9a27a)"><span class="dur">14:02</span></div><div><div class="vt">iPhone Duo vs Z Fold8 vs X: Real-World Test</div><div class="vm">Mrwhosetheboss · 41K views</div></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#e2b5c8,#8aa0d8)"><span class="dur">11:47</span></div><div><div class="vt">This $650 Phone Fixed Everything I Hate About Phones</div><div class="vm">Mrwhosetheboss · 2M views</div></div></div>
+      </div></div>
+      <div class="pvig"></div>
+      <div class="pw"><div class="pill"></div></div>
+      <div class="toast"></div>
+      <div class="finger"></div>
+      <div class="gest"></div>
+    </div></div></div>
+    <div class="cap"><div class="t"><i></i><b></b></div><p></p><ul></ul></div>
+    <div class="row"><button class="mini-btn demo"><svg><use href="#i-play"/></svg>Demo</button><button class="mini-btn reset">Reset</button></div>
+  </div>
+</template>
+
+<script>
+const W = 412, H = 915, DUR = 761, TRACK = 316;
+let SLOW = 1;
+const CHAPTERS = [[0, 'Intro'], [75, 'Design'], [210, 'Cameras'], [400, 'Battery'], [560, 'Verdict']];
+const SEGMENTS = [{ s: 300, e: 345, kind: 'sponsor' }, { s: 517, e: 540, kind: 'promo' }];
+const QUALITIES = ['Auto', '1080p', '720p', '480p', '360p'];
+const SPEEDS = [1, 1.25, 1.5, 2, 0.75];
+const ACTS = ['quality', 'pip', 'full', 'next'];
+const DOME = { w: 380, h: 252, r: '190px 190px 36px 36px / 172px 172px 36px 36px' };
+const SCRUB = { w: 340, h: 112, r: 32 };
+const QLIST = { w: 320, h: 340, r: 32 };
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const fmtSpeed = v => (Math.round(v * 100) / 100) + '×';
+const ease = t => 1 - Math.pow(1 - t, 3);
+const ICON = id => `<svg><use href="#i-${id}"/></svg>`;
+const rr = r => typeof r === 'string' ? r : `${r}px ${r}px ${r}px ${r}px / ${r}px ${r}px ${r}px ${r}px`;
+// Bloomed spots on the dome's arc, in dome coordinates (x from the left, y from the bottom).
+const ARC = ACTS.map((_, i) => { const th = (157.5 - i * 45) * Math.PI / 180, R = 124; return { x: 190 + R * Math.cos(th), y: 70 + R * Math.sin(th) }; });
+
+function paintVideo(cv, t) {
+  const g = cv.getContext('2d'), w = cv.width, h = cv.height;
+  const grd = g.createLinearGradient(0, 0, w, h);
+  grd.addColorStop(0, '#8e9590'); grd.addColorStop(1, '#5d6461');
+  g.fillStyle = grd; g.fillRect(0, 0, w, h);
+  const sway = Math.sin(t / 900) * 4;
+  g.fillStyle = '#c99a7a';
+  g.beginPath(); g.ellipse(120 + sway, 160, 60, 70, -.3, 0, 7); g.fill();
+  g.beginPath(); g.ellipse(300 + sway, 150, 58, 70, .3, 0, 7); g.fill();
+  const r = (x, y, ww, hh, rad, c) => { g.fillStyle = c; g.beginPath(); g.roundRect(x, y, ww, hh, rad); g.fill(); };
+  r(108 + sway, 38, 100, 146, 14, '#24394a'); r(210 + sway, 38, 92, 146, 10, '#b9bfd9'); r(118 + sway, 46, 52, 30, 12, '#18283a');
+  g.fillStyle = '#0b1218'; g.beginPath(); g.arc(132 + sway, 61, 10, 0, 7); g.arc(156 + sway, 61, 10, 0, 7); g.fill();
+  g.fillStyle = '#9ea4c4'; g.beginPath(); g.roundRect(224 + sway, 46, 20, 44, 10); g.fill();
+  g.fillStyle = '#20232c'; g.beginPath(); g.arc(234 + sway, 58, 7, 0, 7); g.arc(234 + sway, 77, 7, 0, 7); g.fill();
+}
+
+// ===================================================================
+class Phone {
+  constructor(v) {
+    this.v = v;
+    const node = document.getElementById('phoneT').content.firstElementChild.cloneNode(true);
+    document.getElementById('stage').appendChild(node);
+    this.node = node;
+    const q = s => node.querySelector(s);
+    this.scr = q('.screen'); this.pw = q('.pw'); this.pill = q('.pill'); this.cv = q('canvas'); this.toastEl = q('.toast'); this.fingerEl = q('.finger');
+    this.pill.classList.add('v-' + v.id);
+    q('.cap .t i').textContent = v.letter; q('.cap .t b').textContent = v.name; q('.cap p').textContent = v.blurb;
+    q('.cap ul').innerHTML = v.how.map(s => `<li>${s}</li>`).join('');
+    this.s = {};
+    this.resetState();
+    this.askRow = this.div('ab hc askrow', this.pill,
+      `<button class="skipc" data-act="skipseg"><i></i>Skip self-promo${ICON('skip')}</button><button class="x" data-act="dismiss">${ICON('close')}</button>`);
+    this.buildCommon();
+    v.build?.(this);
+    this.bEls = [...this.pw.querySelectorAll('[data-b]')];
+    this.onEls = [...this.pw.querySelectorAll('[data-on]')];
+    this.wire();
+    this.place();
+    paintVideo(this.cv, 0);
+    q('.demo').onclick = () => this.demo();
+    q('.reset').onclick = () => { this.stopDemo(); this.reset(); };
+    if (v.extraButton) {
+      const b = document.createElement('button'); b.className = 'mini-btn'; b.textContent = v.extraButton.label;
+      b.onclick = () => { this.stopDemo(); v.extraButton.run(this); };
+      q('.row').appendChild(b);
+    }
+  }
+  resetState() {
+    Object.assign(this.s, { pos: 252, playing: true, speed: 1, audio: false, qi: 0, asking: false, dismissed: false });
+    this.bloom = false; this.scrubbing = false; this.qlist = false;
+  }
+  reset() {
+    this.resetState();
+    this.scr.classList.remove('audio'); this.play.classList.remove('paused');
+    this.pill.classList.remove('bloom', 'scrubbing', 'peek', 'asking', 'qopen');
+    this.syncPage();
+    this.v.reset?.(this);
+    this.place();
+  }
+  div(cls, parent, html = '') { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; parent.appendChild(d); return d; }
+
+  // ---- shared parts: transport, scrub track, petals, dome label ----
+  buildCommon() {
+    const P = this.pill;
+    this.stop = this.div('ab hc stop', P, `<b data-b="chapter"></b><span data-b="time"></span>`);
+    const segs = CHAPTERS.map((c, i) => { const e = (CHAPTERS[i + 1] || [DUR])[0]; return `<div class="seg" style="left:${c[0] / DUR * TRACK}px;width:${(e - c[0]) / DUR * TRACK - 3}px"><b></b></div>`; }).join('');
+    const marks = SEGMENTS.map(m => `<i class="mk" style="left:${m.s / DUR * TRACK}px;width:${(m.e - m.s) / DUR * TRACK}px;background:var(--${m.kind})"></i>`).join('');
+    this.trk = this.div('ab hc trk', P, segs + marks + '<i class="kn"></i>');
+    this.segFills = [...this.trk.querySelectorAll('.seg')].map((el, i) => ({ el: el.firstElementChild, s: CHAPTERS[i][0], e: (CHAPTERS[i + 1] || [DUR])[0] }));
+    this.knob = this.trk.querySelector('.kn');
+    const seek = fwd => `<button class="btn seek${fwd ? ' fwd' : ''}" data-act="${fwd ? 'plus' : 'minus'}"><div class="ic"><svg><use href="#i-rew"/></svg><small>10</small></div></button>`;
+    this.trow = this.div('ab hc trow', P, seek(false) +
+      `<button class="btn play" data-act="play"><i class="fill"></i><i class="grip" style="left:12px"></i><i class="grip" style="right:12px"></i>
+        <div class="gl a"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div>
+        <div class="gl b"><svg class="pa"><use href="#i-pause"/></svg><svg class="pl1"><use href="#i-play"/></svg></div></button>` + seek(true));
+    this.play = this.trow.querySelector('.play');
+    this.mid = this.div('ab hc mid', P, `<b data-b="chapter"></b><small data-b="time"></small>`);
+    this.hint = this.div('ab hc hint', P, 'Hold the bar or swipe up for these');
+    const T = {
+      speed: `<span class="tx" data-b="speed"></span><span class="lb">Speed</span>`,
+      audio: `${ICON('head')}<span class="lb">Audio only</span>`,
+      quality: `<span class="tx" data-b="q"></span><span class="lb">Quality</span>`,
+      pip: `${ICON('pip')}<span class="lb">PiP</span>`,
+      full: `${ICON('full')}<span class="lb">Fullscreen</span>`,
+      next: `${ICON('next')}<span class="lb">Next</span>`,
+    };
+    this.qhead = this.div('ab hc qhead', P, `<b>Quality</b><span data-b="playing"></span>`);
+    this.qrows = this.div('ab hc qrows', P, QUALITIES.map((q, i) =>
+      `<button class="qrow" data-act="q${i}" style="--i:${i}">${q}${i === 0 ? ' <small>· 1080p now</small>' : ''}${ICON('check')}</button>`).join(''));
+    this.petals = ACTS.map((a, i) => {
+      const p = document.createElement('button');
+      p.className = 'petal ab'; p.dataset.act = a; p.innerHTML = T[a];
+      if (a === 'speed' || a === 'audio' || a === 'quality') p.dataset.on = a === 'quality' ? 'q' : a;
+      p.style.left = (ARC[i].x - 29) + 'px'; p.style.bottom = (ARC[i].y - 29) + 'px'; p.style.setProperty('--i', i);
+      P.appendChild(p); return p;
+    });
+  }
+  // Where the bar is and what it shows, from bloom / scrubbing / the variant's rest state.
+  place() {
+    const v = this.v, rest = v.rest(this);
+    const size = this.qlist ? QLIST : this.bloom ? DOME : this.scrubbing ? SCRUB : rest;
+    this.pill.classList.toggle('qopen', this.qlist);
+    this.pill.classList.toggle('bloom', this.bloom);
+    this.pill.classList.toggle('scrubbing', this.scrubbing);
+    this.base = size; this.applySize();
+    this.petals.forEach((p, i) => {
+      let t;
+      if (this.bloom) t = { x: ARC[i].x, y: ARC[i].y, s: 1, o: 1 };
+      else t = v.petalRest?.(this, i, rest) || { x: rest.playX ?? rest.w / 2, y: 36, s: .3, o: 0 };
+      if (this.scrubbing || this.qlist) t = { ...t, o: 0 };
+      p.style.transform = `translate(${t.x - ARC[i].x}px,${ARC[i].y - t.y}px) scale(${t.s})`;
+      p.style.opacity = t.o;
+      p.style.pointerEvents = t.o > 0 ? 'auto' : 'none';
+    });
+    v.afterPlace?.(this, size);
+  }
+  applySize() {
+    const { w, h, r } = this.base, Hh = h + (this.s.asking ? 48 : 0);
+    this.H = Hh;
+    Object.assign(this.pill.style, { width: w + 'px', height: Hh + 'px', borderRadius: rr(r) });
+    this.askRow.style.width = Math.min(w - 12, 300) + 'px';
+    this.askRow.style.bottom = (h + 2) + 'px';
+    this.v.afterSize?.(this);
+  }
+  setBloom(b) { if (this.bloom === b) return; this.bloom = b; if (!b) this.pill.classList.remove('peek'); this.place(); }
+  setScrub(on) { this.scrubbing = on; this.place(); }
+  setList(on) { this.qlist = on; if (on) this.bloom = false; this.place(); }
+
+  // ---- actions ----
+  act(a, el) {
+    const s = this.s;
+    if (el) this.squish(el);
+    switch (a) {
+      case 'play': s.playing = !s.playing; this.play.classList.toggle('paused', !s.playing); break;
+      case 'minus': case 'plus':
+        s.pos = clamp(s.pos + (a === 'plus' ? 10 : -10), 0, DUR);
+        if (el) { el.classList.remove('dash'); void el.offsetWidth; el.classList.add('dash'); }
+        break;
+      case 'speed': s.speed = SPEEDS[(SPEEDS.indexOf(s.speed) + 1) % SPEEDS.length] ?? 1; this.syncPage(); break;
+      case 'audio': s.audio = !s.audio; this.scr.classList.toggle('audio', s.audio); this.syncPage(); break;
+      case 'quality': this.setList(true); break;
+      case 'q0': case 'q1': case 'q2': case 'q3': case 'q4':
+        s.qi = +a[1];
+        // A beat to see the check land, then back to where the list was opened from.
+        setTimeout(() => { if (this.qlist) { this.qlist = false; this.bloom = !!this.v.keepOpen?.(this); this.place(); } }, 420 * SLOW);
+        break;
+      case 'pip': this.toast('pip', 'Picture-in-picture'); break;
+      case 'full': this.toast('full', 'Fullscreen'); break;
+      case 'next': this.toast('next', 'Next in queue: iPhone Duo...Duo Review'); break;
+      case 'skipseg': s.pos = 540.5; s.asking = false; this.pill.classList.remove('asking'); this.applySize(); this.toast('skip', 'Skipped self-promo'); break;
+      case 'dismiss': s.dismissed = true; s.asking = false; this.pill.classList.remove('asking'); this.applySize(); break;
+    }
+    // A tool picked from the dome folds it back up (D keeps it open while paused).
+    if (ACTS.includes(a) && a !== 'quality' && this.bloom && !this.v.keepOpen?.(this)) setTimeout(() => this.setBloom(false), 300 * SLOW);
+    this.v.onAct?.(this, a);
+  }
+  // Speed and audio only live in the page's action row, as in the app.
+  syncPage() {
+    if (!this.pageBtns) return;
+    const sp = this.pageBtns.speed, au = this.pageBtns.audio, s = this.s;
+    sp.classList.toggle('on', s.speed !== 1); sp.querySelector('b').textContent = s.speed !== 1 ? fmtSpeed(s.speed) : '';
+    au.classList.toggle('on', s.audio);
+  }
+  squish(el) { el.classList.remove('sq'); void el.offsetWidth; el.classList.add('sq'); }
+  toast(icon, text) {
+    const t = this.toastEl;
+    t.innerHTML = `${ICON(icon)}${text}`;
+    t.style.bottom = (71 + (this.H || 72) + 30) + 'px';
+    t.classList.add('on'); clearTimeout(this.toastT);
+    this.toastT = setTimeout(() => t.classList.remove('on'), 1300 * SLOW);
+  }
+
+  // ---- input (real fingers and the demo share these) ----
+  local(e) { const r = this.scr.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+  centerOf(el) { const r = this.scr.getBoundingClientRect(), b = el.getBoundingClientRect(); const k = W / r.width; return { x: (b.left + b.width / 2 - r.left) * k, y: (b.top + b.height / 2 - r.top) * k }; }
+  wire() {
+    const P = this.pw;
+    P.addEventListener('click', e => {
+      if (this.swiped) { e.stopPropagation(); e.preventDefault(); this.swiped = false; return; }
+      const b = e.target.closest('[data-act]'); if (b && P.contains(b)) this.act(b.dataset.act, b);
+    });
+    P.addEventListener('pointerdown', e => { if (e.isTrusted) this.stopDemo(); this.gDown(this.local(e), e.target); });
+    window.addEventListener('pointermove', e => { if (this.g && !this.g.synthetic) this.gMove(this.local(e)); });
+    window.addEventListener('pointerup', () => { if (this.g && !this.g.synthetic) this.gUp(); });
+    this.scr.addEventListener('pointerdown', e => {
+      if (e.isTrusted) this.stopDemo();
+      if (P.contains(e.target)) return;
+      if (this.qlist) { this.qlist = false; this.bloom = !!this.v.keepOpen?.(this); this.place(); }
+      else if (this.bloom) this.setBloom(false);
+    });
+    this.pageBtns = {};
+    this.scr.querySelectorAll('[data-pact]').forEach(b => {
+      this.pageBtns[b.dataset.pact] = b;
+      b.addEventListener('click', () => this.act(b.dataset.pact, b));
+    });
+    this.syncPage();
+  }
+  gDown(pt, target, synthetic = false) {
+    this.swiped = false;
+    const g = this.g = { x0: pt.x, y0: pt.y, x: pt.x, y: pt.y, dx: 0, dy: 0, target, synthetic, onPlay: !!target.closest?.('.play'), pos0: this.s.pos };
+    clearTimeout(this.lp);
+    // Hold anywhere on the bar → bloom; keep holding and slide onto a tool.
+    if (!this.bloom && !this.qlist) this.lp = setTimeout(() => { if (this.g === g && !g.moved && !g.scrub) { g.held = true; this.swiped = true; this.setBloom(true); } }, 420 * SLOW);
+  }
+  gMove(pt) {
+    const g = this.g; if (!g) return;
+    g.x = pt.x; g.y = pt.y; g.dx = pt.x - g.x0; g.dy = pt.y - g.y0;
+    if (!g.moved && Math.hypot(g.dx, g.dy) > 10) { g.moved = true; this.swiped = true; clearTimeout(this.lp); }
+    if (g.held) { this.hot(g); return; }
+    if (!g.moved) return;
+    if (g.onPlay && (g.scrub || Math.abs(g.dx) > Math.abs(g.dy))) {
+      if (!g.scrub) { g.scrub = true; this.bloom = false; this.qlist = false; this.setScrub(true); g.dx0 = g.dx; }
+      // The knob stays under the finger: the track is TRACK dp for the whole video.
+      this.s.pos = clamp(g.pos0 + (g.dx - g.dx0) * DUR / TRACK, 0, DUR);
+      this.s.dismissed = false;
+    } else if (!this.bloom && !this.qlist && g.dy < -24) { g.held = true; this.setBloom(true); }
+  }
+  hot(g) {
+    let best = null, bd = 40;
+    for (const p of this.petals) { if (p.style.opacity === '0') continue; const c = this.centerOf(p); const d = Math.hypot(c.x - g.x, c.y - g.y); if (d < bd) { bd = d; best = p; } }
+    this.petals.forEach(p => p.classList.toggle('hot', p === best));
+    g.hotEl = best;
+  }
+  gUp() {
+    const g = this.g; if (!g) return; this.g = null;
+    clearTimeout(this.lp);
+    if (g.scrub) this.setScrub(false);
+    if (g.held && g.hotEl) { g.hotEl.classList.remove('hot'); this.act(g.hotEl.dataset.act, g.hotEl); }
+    if (!g.moved && !g.held) this.swiped = false;
+  }
+
+  // ---- frame ----
+  step(dt) {
+    const s = this.s, sdt = dt / SLOW;
+    if (s.playing && !(this.g && this.g.scrub)) { s.pos += sdt * s.speed; if (s.pos >= DUR) s.pos = 0; }
+    const inPromo = s.pos >= 517 && s.pos < 540;
+    if (!inPromo) s.dismissed = false;
+    const ask = inPromo && !s.dismissed && !this.scrubbing;
+    if (ask !== s.asking) { s.asking = ask; this.pill.classList.toggle('asking', ask); this.applySize(); }
+    this.vt = (this.vt || 0) + sdt * 1000;
+    if (s.playing && !s.audio) paintVideo(this.cv, this.vt);
+    this.render();
+  }
+  val(k) {
+    const s = this.s;
+    switch (k) {
+      case 'time': return `${fmt(s.pos)} / ${fmt(DUR)}`;
+      case 'chapter': { let c = CHAPTERS[0][1]; for (const ch of CHAPTERS) if (s.pos >= ch[0]) c = ch[1]; return c; }
+      case 'speed': return fmtSpeed(s.speed);
+      case 'q': return s.qi === 0 ? 'Auto' : QUALITIES[s.qi];
+      case 'playing': return `Playing ${s.qi === 0 ? '1080p' : QUALITIES[s.qi]}`;
+    }
+    return '';
+  }
+  render() {
+    const s = this.s, f = s.pos / DUR;
+    for (const el of this.bEls) { const v = this.val(el.dataset.b); if (el._v !== v) { el._v = v; el.textContent = v; } }
+    this.qrows.querySelectorAll('.qrow').forEach((r, i) => { if (r._on !== (i === s.qi)) { r._on = i === s.qi; r.classList.toggle('on', r._on); } });
+    for (const el of this.onEls) {
+      const k = el.dataset.on, on = k === 'speed' ? s.speed !== 1 : k === 'audio' ? s.audio : s.qi !== 0;
+      if (el._on !== on) { el._on = on; el.classList.toggle('on', on); }
+    }
+    const w = this.play.offsetWidth;
+    this.play.querySelector('.fill').style.width = (f * 100) + '%';
+    this.play.querySelector('.gl.b').style.clipPath = `inset(0 ${clamp(w / 2 + 15 - f * w, 0, 30)}px 0 0)`;
+    for (const sf of this.segFills) sf.el.style.width = (clamp((s.pos - sf.s) / (sf.e - sf.s)) * 100) + '%';
+    this.knob.style.left = (f * TRACK) + 'px';
+    this.v.render?.(this);
+  }
+
+  // ---- demo ----
+  stopDemo() { this.tok = (this.tok || 0) + 1; this.fingerEl.style.opacity = 0; this.node.querySelector('.demo').disabled = false; if (this.g?.synthetic) { this.g = null; } }
+  async demo() {
+    this.stopDemo();
+    const tok = this.tok;
+    this.alive = () => tok === this.tok;
+    this.node.querySelector('.demo').disabled = true;
+    this.reset();
+    try { await this.v.demo(this); } catch (e) { if (e !== 'stop') throw e; }
+    if (this.alive()) this.node.querySelector('.demo').disabled = false;
+  }
+  async wait(ms) { await new Promise(r => setTimeout(r, ms * SLOW)); if (!this.alive()) throw 'stop'; }
+  fing(p, down) { const f = this.fingerEl; f.style.left = p.x + 'px'; f.style.top = p.y + 'px'; f.style.opacity = 1; f.classList.toggle('down', !!down); }
+  hideFing() { this.fingerEl.style.opacity = 0; this.fingerEl.classList.remove('down'); }
+  async tap(el, hold = 110) {
+    if (!el) return;
+    this.fing(this.centerOf(el), true);
+    await this.wait(hold);
+    this.fingerEl.classList.remove('down');
+    this.swiped = false;
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await this.wait(170); this.hideFing();
+  }
+  // A finger gesture along points; `then` runs while still held.
+  async drag(points, ms, { target = this.pill, hold = 0, then } = {}) {
+    const from = points[0];
+    this.fing(from, true); this.gDown(from, target, true);
+    if (hold) await this.wait(hold);
+    for (let k = 1; k < points.length; k++) {
+      const a = points[k - 1], b = points[k], n = Math.max(4, Math.round(ms / (points.length - 1) / 16));
+      for (let i = 1; i <= n; i++) { const t = ease(i / n), p = { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) }; this.fing(p, true); this.gMove(p); await this.wait(16); }
+    }
+    if (then) await then();
+    this.gUp(); this.fingerEl.classList.remove('down'); await this.wait(150); this.hideFing();
+  }
+  async scrubDemo() {
+    const c = this.centerOf(this.play), y = c.y;
+    await this.drag([{ x: c.x - 10, y }, { x: c.x + 40, y }, { x: c.x + 25, y }, { x: c.x + 95, y }], 1500, { target: this.play, then: () => this.wait(500) });
+  }
+  async holdTo(act) {
+    const bc = this.centerOf(this.pill), a = { x: bc.x + 70, y: bc.y + 6 };
+    await this.drag([a, a], 40, { target: this.pill, hold: 560, then: async () => {
+      await this.wait(450);
+      const p = this.centerOf(this.petals[ACTS.indexOf(act)]);
+      for (let i = 1; i <= 24; i++) { const q = { x: lerp(a.x, p.x, ease(i / 24)), y: lerp(a.y, p.y, ease(i / 24)) }; this.fing(q, true); this.gMove(q); await this.wait(16); }
+      await this.wait(300);
+    } });
+  }
+  async pickQuality(i) { await this.wait(500); await this.tap(this.qrows.children[i]); }
+  async tapOutside() { this.fing({ x: 206, y: 330 }, true); await this.wait(110); this.setBloom(false); this.fingerEl.classList.remove('down'); await this.wait(150); this.hideFing(); }
+  async jumpToPromo() { this.s.pos = 514; await this.wait(3400); }
+}
+
+// ===================================================================
+const VARIANTS = [
+  {
+    id: 'key', letter: 'A', name: 'Key',
+    blurb: 'The plainest signal: a fourth button, ⋮, at the end of the bar. Tap it and the dome blooms; it turns into ✕ to close. Hold-and-slide still works for people who learn the shortcut.',
+    how: ['<b>Tap ⋮</b> to open the tools, ✕ or the page to close.', 'Drag sideways on play to scrub.'],
+    rest: () => ({ w: 322, h: 72, r: 36, playX: 132 }),
+    build(ph) {
+      const k = document.createElement('button');
+      k.className = 'btn morebtn'; k.dataset.act = 'more';
+      k.innerHTML = `<svg class="m1"><use href="#i-more"/></svg><svg class="m2"><use href="#i-close"/></svg>`;
+      ph.trow.appendChild(k); ph.key = k;
+    },
+    onAct(ph, a) { if (a === 'more') ph.setBloom(!ph.bloom); },
+    async demo(ph) {
+      await ph.wait(700);
+      await ph.scrubDemo(); await ph.wait(700);
+      await ph.tap(ph.key); await ph.wait(900);
+      await ph.tap(ph.petals[0]); await ph.pickQuality(2); await ph.wait(1000);
+      await ph.tap(ph.key); await ph.wait(700);
+      await ph.tap(ph.petals[1]); await ph.wait(1200);
+      await ph.holdTo('next'); await ph.wait(1000);
+      await ph.tap(ph.pageBtns.speed); await ph.wait(600);
+      await ph.tap(ph.pageBtns.audio); await ph.wait(1100); await ph.tap(ph.pageBtns.audio); await ph.wait(600);
+      await ph.jumpToPromo();
+      await ph.tap(ph.askRow.querySelector('.skipc')); await ph.wait(1200);
+    },
+  },
+  {
+    id: 'crown', letter: 'B', name: 'Crown',
+    blurb: 'Four little tool buttons peek over the top edge of the bar like a crown, each with its icon. You can see there is more — tap any nub and it grows into the full dome, every nub becoming its tool.',
+    how: ['<b>Tap a nub</b> (or swipe up / hold) to bloom; the nubs grow into the tools.', 'They wave once when the player opens.'],
+    rest: () => ({ w: 264, h: 72, r: 36, playX: 132 }),
+    nubX: i => (i - 1.5) * 46,
+    build(ph) {
+      const icons = ['hd', 'pip', 'full', 'next'];
+      ph.nubs = icons.map((ic, i) => {
+        const n = document.createElement('button');
+        n.className = 'nub'; n.dataset.act = 'crown';
+        n.innerHTML = ICON(ic);
+        n.style.left = this.nubX(i) + 'px';
+        n.style.transitionDelay = `calc(${i * .04}s * var(--k))`;
+        ph.pw.insertBefore(n, ph.pill); return n;
+      });
+    },
+    // Folded tools sit exactly on their nubs, so blooming grows them out of the crown.
+    petalRest(ph, i, rest) { return { x: rest.w / 2 + this.nubX(i), y: rest.h + 9, s: 30 / 58, o: 0 }; },
+    afterPlace(ph) { ph.pw.classList.toggle('hidecrown', ph.bloom || ph.scrubbing); },
+    // The nubs ride the bar's top edge (a gentle arch), also when the Skip row grows it.
+    afterSize(ph) { ph.nubs?.forEach((n, i) => { n.style.bottom = (ph.H - 8 + Math.round(Math.cos((i - 1.5) / 1.5 * 1.1) * 4)) + 'px'; }); },
+    reset(ph) { setTimeout(() => this.wave(ph), 300); },
+    wave(ph) { ph.nubs.forEach((n, i) => setTimeout(() => { n.classList.remove('wave'); void n.offsetWidth; n.classList.add('wave'); }, i * 60 * SLOW)); },
+    onAct(ph, a) { if (a === 'crown') ph.setBloom(true); },
+    async demo(ph) {
+      await ph.wait(900);
+      await ph.scrubDemo(); await ph.wait(700);
+      await ph.tap(ph.nubs[0]); await ph.wait(900);
+      await ph.tap(ph.petals[0]); await ph.pickQuality(3); await ph.wait(1000);
+      await ph.tap(ph.nubs[1]); await ph.wait(800);
+      await ph.tap(ph.petals[1]); await ph.wait(1000);
+      await ph.holdTo('next'); await ph.wait(1100);
+      await ph.jumpToPromo();
+      await ph.tap(ph.askRow.querySelector('.skipc')); await ph.wait(1200);
+    },
+  },
+  {
+    id: 'rim', letter: 'C', name: 'Rim',
+    blurb: 'Nothing hidden: the bar is a bit taller and the four tools sit along its top edge as small icons you can tap right away. Hold or swipe up and they slide out onto the dome, full size with labels.',
+    how: ['<b>Tap a rim icon</b> to use it straight away.', 'Hold / swipe up for big targets; scrub on play.'],
+    rest: () => ({ w: 264, h: 116, r: 34, playX: 132 }),
+    petalRest(ph, i, rest) {
+      const d = i - 1.5;
+      return { x: rest.w / 2 + d * 54, y: 84 + (2.25 - d * d) * 2.4, s: .62, o: 1 };
+    },
+    async demo(ph) {
+      await ph.wait(700);
+      await ph.tap(ph.petals[0]); await ph.pickQuality(1); await ph.wait(1000);
+      await ph.tap(ph.petals[1]); await ph.wait(1200);
+      await ph.scrubDemo(); await ph.wait(700);
+      await ph.holdTo('full'); await ph.wait(1100);
+      await ph.tap(ph.petals[3]); await ph.wait(1000);
+      await ph.jumpToPromo();
+      await ph.tap(ph.askRow.querySelector('.skipc')); await ph.wait(1200);
+    },
+  },
+  {
+    id: 'pause', letter: 'D', name: 'Pause',
+    blurb: 'Pausing is when you reach for quality or picture-in-picture — so pausing blooms the tools around the play button, and pressing play folds them away. While it plays, a chevron on the top edge opens them too.',
+    how: ['<b>Pause</b> → the tools bloom; <b>play</b> → they fold.', 'Or tap the <b>chevron</b>; scrub on play.'],
+    rest: () => ({ w: 264, h: 80, r: 40, playX: 132 }),
+    build(ph) {
+      ph.chev = ph.div('ab hc chev', ph.pill, ICON('up'));
+      ph.chev.dataset.act = 'chev';
+      ph.chev.firstElementChild.setAttribute('viewBox', '0 0 22 12');
+    },
+    keepOpen: ph => !ph.s.playing,
+    onAct(ph, a) {
+      if (a === 'chev') ph.setBloom(true);
+      if (a === 'play') ph.setBloom(!ph.s.playing);
+    },
+    async demo(ph) {
+      await ph.wait(700);
+      await ph.scrubDemo(); await ph.wait(700);
+      await ph.tap(ph.play); await ph.wait(1000);
+      await ph.tap(ph.petals[0]); await ph.pickQuality(2); await ph.wait(1000);
+      await ph.tap(ph.petals[1]); await ph.wait(1000);
+      await ph.tap(ph.play); await ph.wait(1200);
+      await ph.tap(ph.chev); await ph.wait(900);
+      await ph.tap(ph.petals[3]); await ph.wait(1000);
+      await ph.jumpToPromo();
+      await ph.tap(ph.askRow.querySelector('.skipc')); await ph.wait(1200);
+    },
+  },
+  {
+    id: 'peek', letter: 'E', name: 'Peek',
+    blurb: 'The bar shows you once: every time the player opens it blooms for a beat with a "Hold the bar or swipe up for these" line, then folds back down, leaving a chevron on the top edge that nudges up now and then.',
+    how: ['Watch it <b>peek</b> as the player opens (button below replays it).', 'Tap the <b>chevron</b>, hold or swipe up to bloom.'],
+    rest: () => ({ w: 264, h: 80, r: 40, playX: 132 }),
+    extraButton: { label: 'Reopen player', run: ph => ph.v.peek(ph) },
+    build(ph) {
+      ph.chev = ph.div('ab hc chev', ph.pill, ICON('up'));
+      ph.chev.dataset.act = 'chev';
+      ph.chev.firstElementChild.setAttribute('viewBox', '0 0 22 12');
+      setInterval(() => { if (!ph.bloom && !ph.scrubbing) { ph.chev.classList.remove('nudge'); void ph.chev.offsetWidth; ph.chev.classList.add('nudge'); } }, 9000);
+    },
+    peek(ph) {
+      ph.pill.classList.add('peek');
+      ph.setBloom(true);
+      clearTimeout(ph.peekT);
+      ph.peekT = setTimeout(() => { if (ph.pill.classList.contains('peek')) ph.setBloom(false); }, 1700 * SLOW);
+    },
+    onAct(ph, a) {
+      if (a === 'chev') { ph.pill.classList.remove('peek'); ph.setBloom(true); }
+      if (ph.pill.classList.contains('peek') && a !== 'chev') { ph.pill.classList.remove('peek'); clearTimeout(ph.peekT); }
+    },
+    reset(ph) { clearTimeout(ph.peekT); },
+    async demo(ph) {
+      await ph.wait(500);
+      this.peek(ph); await ph.wait(2600);
+      await ph.scrubDemo(); await ph.wait(700);
+      await ph.tap(ph.chev); await ph.wait(900);
+      await ph.tap(ph.petals[0]); await ph.pickQuality(4); await ph.wait(1000);
+      await ph.holdTo('next'); await ph.wait(1300);
+      await ph.jumpToPromo();
+      await ph.tap(ph.askRow.querySelector('.skipc')); await ph.wait(1200);
+    },
+  },
+];
+
+// ===================================================================
+const phones = VARIANTS.map(v => new Phone(v));
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const ph of phones) ph.step(dt);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+const root = document.documentElement;
+const zoom = document.getElementById('zoom');
+const setZoom = () => root.style.setProperty('--z', zoom.value);
+zoom.oninput = setZoom; setZoom();
+document.getElementById('darkT').onclick = e => e.currentTarget.classList.toggle('on', root.classList.toggle('dark'));
+document.getElementById('slow').onclick = e => { const on = root.classList.toggle('s-on'); e.currentTarget.classList.toggle('on', on); SLOW = on ? 5 : 1; root.style.setProperty('--k', SLOW); };
+document.getElementById('playAll').onclick = () => phones.forEach(p => p.demo());
+if (new URLSearchParams(location.search).get('nodemo') === null) setTimeout(() => phones.forEach(p => p.demo()), 700);
+</script>
+</body>
+</html>

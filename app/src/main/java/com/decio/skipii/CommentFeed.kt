@@ -25,14 +25,37 @@ import java.util.concurrent.ConcurrentHashMap
 object CommentFeed {
     suspend fun first(videoId: String): CommentsPage = withContext(Dispatchers.IO) {
         var token: String? = null
-        InnerTube.postAny("next", JSONObject().put("videoId", videoId)).forEachObject { obj ->
+        val watch = InnerTube.postAny("next", JSONObject().put("videoId", videoId))
+        watch.forEachObject { obj ->
             if (token == null && obj.optString("sectionIdentifier") == "comment-item-section") {
                 token = obj.collectStrings("token").firstOrNull()
             }
         }
+        val chapters = parseChapters(watch)
         // No comments section at all: they're turned off for this video.
-        val start = token ?: return@withContext CommentsPage(emptyList(), total = -1, disabled = true, next = null)
-        parsePage(InnerTube.postAny("next", JSONObject().put("continuation", start)))
+        val start = token ?: return@withContext CommentsPage(emptyList(), total = -1, disabled = true, next = null, chapters = chapters)
+        parsePage(InnerTube.postAny("next", JSONObject().put("continuation", start))).copy(chapters = chapters)
+    }
+
+    /**
+     * The video's chapters from the watch page's player bar markers. Unlike NewPipeExtractor
+     * (description chapters only), this also reads YouTube's auto-generated chapters
+     * (`engagement-panel-macro-markers-auto-chapters`): each marker set is a `chapters` array of
+     * `chapterRenderer` {title, timeRangeStartMillis}; the first non-empty set wins.
+     */
+    internal fun parseChapters(page: JSONObject): List<Chapter> {
+        var found: List<Chapter>? = null
+        page.forEachObject { obj ->
+            if (found != null) return@forEachObject
+            val markers = obj.optJSONArray("chapters") ?: return@forEachObject
+            val list = (0 until markers.length()).mapNotNull { i ->
+                val ch = markers.optJSONObject(i)?.optJSONObject("chapterRenderer") ?: return@mapNotNull null
+                val title = ch.text("title")?.trim()?.ifBlank { null } ?: return@mapNotNull null
+                Chapter(ch.optLong("timeRangeStartMillis"), title)
+            }
+            if (list.isNotEmpty()) found = list.sortedBy { it.startMs }
+        }
+        return found.orEmpty()
     }
 
     /** The next page of comments, or one thread's replies (same call, different token). */

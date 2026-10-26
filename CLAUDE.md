@@ -13,8 +13,10 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   The account-suspension risk was explained; keep the in-app warning. Signed out, everything
   still works except the account feeds. Signed in, comments and replies can be posted.
 - No inbox/notifications tab.
-- Player controls overlay the video. Chapters live on the video (label + scrubber segments),
-  never as a card under it. The related list is "More videos", never "Up next".
+- Portrait: every playback control lives in the player's bar (0.5.34, PlayerBar.kt); the video keeps
+  only double-tap seek, the spinner, SponsorBlock Ask/Skipped and errors. Chapters live on the bar's scrub
+  track (never as a card under the video). Fullscreen keeps its overlay controls. The related list is
+  "More videos", never "Up next".
 - No watch-time stats in Library.
 - Never add an ad SDK. SponsorBlock: per-category Skip / Ask / Show / Off (defaults: sponsor
   Skip; self-promo + reminder Ask; intro/outro/preview Show; music/filler Off). Settings and the
@@ -177,6 +179,105 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   across the fill edge. ±10 taps show a rolling total bubble above the button (700 ms window). Touches go to the
   controls while `expanded || dragging`, else to the tabs. Steps down off screen for the comments panel; covered
   by fullscreen/PiP/sheets. Player details pad by `bottomClearance` and get the bottom vignette.
+- 0.5.29 (2026-10-20): `morph.dragging` stuck true = dead mini-player (the player sat at its mini end still
+  "interactive", looking exactly like the mini-player) AND live −10/play under the tabs (`controlsActive`). Cause:
+  mini-player up a little then back down switched to the dismiss slide mid-gesture and never settled the morph.
+  Every gesture that calls `morph.dragBy` must end in `morph.settle` — a gesture that started on the morph stays
+  on it; `PlayerScreen` settles on dispose (page gone mid-drag, e.g. turning to fullscreen). Repro: adb
+  `input motionevent` DOWN on the mini, MOVE up ~70 px, MOVE down past the start, UP; then tap a tab.
+- 0.5.30 (2026-10-23): search history (`SearchHistory.kt`, local prefs "search", newest first, 50 max, case-
+  insensitive dedupe; recorded by `SearchState.submit`). Shown while the field is focused (filtered by what's typed)
+  and on the page before any search; tap = search, X = remove, "Clear all". The keyboard closing (Back) drops the
+  field's focus (`isImeVisible`) so the results come back.
+- 0.5.31 split screen (2026-10-23): portrait-locking in multi-window letterboxed the app (grey bar, black sides)
+  whenever its pane was wider than tall. `OrientationController` follows `addOnMultiWindowModeChangedListener`:
+  in multi-window it requests UNSPECIFIED and the app takes the pane's shape; leaving restores the usual lock.
+  Fullscreen there fills the pane (`showsFullscreen`): on by itself in a wide pane, the button / swipe up / Back
+  toggle it (`paneFullscreen`, reset when the pane changes shape or the player closes); never in audio only.
+  The portrait stage stays within 60% of the window's height (`StageMaxHeightShare` → `PlayerState.stageFloor`,
+  set from the window in MainActivity; tall videos pillarbox) so a short pane keeps the details. Test on the
+  emulator: hold-swipe into Recents → app icon → Split screen; drag the divider (adb `input motionevent`).
+- 0.5.32 player bar reach (2026-10-25, Derek picked mockup A "Lift" in `docs/design/player-bar-reach.html`): the open
+  player's bar is a size up and lifted toward the thumb — 264×72 (`PlayerBarHeight`), play 120×60, ±10 60, icons 30 dp,
+  its bottom `PlayerBarLift` 36 dp above the tab bar's. The tab bar's slot never moves: the bar grows upward in its
+  `layout` and lifts by a graphicsLayer translation (touches follow) on a back-out ramp (p 0.22–0.92, small overshoot)
+  that lags the narrowing. Player `bottomClearance` and the comments step-down include `PlayerBarRaise`. Burst bubble
+  sits 10 dp above the lifted bar.
+- 0.5.33 bubbles (2026-10-25, Derek's recording 6410.mp4 in Launchii): MainActivity is `singleTop`, NOT singleTask.
+  singleTask gave a bubble the app's one task: on the phone, tapping Skipii's Home icon while it was bubbled pulled
+  that task full screen and left the bubble blank; on the emulator, bubbling a running Skipii got the task killed by
+  System UI. Now a bubble gets its own task, and the app keeps ONE window itself: a new MainActivity
+  `finishAndRemoveTask()`s the previous one (`MainActivity.current`), so bubbling moves Skipii into the bubble and
+  opening it from Home closes the bubble. Playback carries on: `PlaybackService.onTaskRemoved` only pauses + stops
+  when the open window's task (`MainActivity.openTaskId`) is gone from `appTasks` (a real swipe from Recents or a
+  dismissed bubble); logs "an older window's task was removed … playing on". The new window starts on Home with the
+  mini-player (page state isn't carried over). Verified on skipii_qa release build; not yet on the phone.
+- 0.5.34 everything in the bar (2026-10-25, Derek picked "A · Key" in `docs/design/player-bar-bloom.html`, v2: speed
+  and audio only stay in the action row): bar = −10 · play · +10 · ⋮ (322×72, `CompactBarWidth`). `PlayerBarState`
+  (PlayerBar.kt) holds three 0…1 Animatables — `tools` (dome 380×252, four tools on an arc: Quality, PiP,
+  Fullscreen, Next), `list` (quality list in the bar, Auto + every height, check lands then folds after 420 ms) and
+  `scrub` (bar grows to 340×112, play stretches into a 316 dp chapter track: chapter slits, SponsorBlock marks,
+  knob 1:1 under the finger, seek on release, a tick per chapter edge). NavPill's size (`playerBarSize`, layout)
+  and outline (`playerBarShape`, graphicsLayer shape+clip+shadow) follow them per frame on top of the morph.
+  ONE gesture handler (`playerBarGestures`, Initial pass so a gesture it takes cancels the buttons' clicks):
+  sideways on play = scrub; up/down = dome/list follow the finger, release settles with velocity (dismiss from
+  75%, open from 35%, flick 1.6/s); hold at rest = bloom, slide onto a tool, release picks. The bar resizes under
+  the finger, so movement is summed from each change (position − previousPosition), never from the first touch.
+  Tools ride an arc whose radius shrinks with the dome (never clipped). ⋮ turns into ✕. Closes on ✕, Back, a tap
+  anywhere outside (MainActivity scrim), and when the player collapses / goes fullscreen / opens a panel. Next =
+  queue first, else the first of More videos. Chapters come from NewPipe `streamSegments` (`VideoDetails.chapters`).
+- 0.5.35 bar punch list (2026-10-25, Derek): bar = audio only · −10 · play · +10 · ⋮ (play dead centre; 48 dp side
+  slots, 372 wide — wider than the tab bar, it scales down on narrower windows). Speed and audio only left the action
+  row (signed out there's no row): audio only is the bar's left slot, speed is a dome tool whose panel is the existing
+  ruler (`SpeedPanelContent(inBar = true)`) inside the bar. Dome tools: Speed, Quality, PiP (if supported),
+  Fullscreen, Next ONLY while the queue has something; spread evenly on the arc. Tools never fly out of play: each
+  waits at its spot and pops in once the dome has grown past it (`toolRevealAt`). Panels and the scrub track are
+  never narrower than the rest bar (380; track 348). Shadow: 12 dp elevation with FULL black ambient/spot colours —
+  Android already scales them to ~4%/19%, so the old 0.10/0.12 alphas were invisible (white on white). Chapters:
+  NewPipe only reads description chapters; YouTube's auto chapters (`engagement-panel-macro-markers-auto-chapters`)
+  come from `CommentFeed.parseChapters` on the watch `next` page the comments already load (`chapterRenderer`
+  {title, timeRangeStartMillis}; tested by `ChaptersParseTest`), merged into details when NewPipe had none.
+- 0.5.36 (2026-10-25, Derek): the resting bar is 15% smaller (316×61: play 102×51, ±10 51, sides 41, gaps/inset 5 —
+  `PlayerBarPadding`; tabs keep `BarPadding` 6) so opening it reads bigger; dome/panels/track keep their sizes.
+  Audio only has NO video space on the open player: `VideoStage`'s `fold` (spring, critically damped) closes the
+  stage's layout height to 0 (picture fading + lifting, clipped while folding), scaled by `ramp(progress, 0.8)` so a
+  swipe down unfolds it again and the thumbnail still lands in the mini-player. Swipe the details to minimize then.
+- 0.5.37 progress (2026-10-25, Derek picked A "Inside" in `docs/design/player-bar-progress.html`): bar 10% taller —
+  row `PlayerRowHeight` 67 + `PlayerProgressRoom` 8 = `PlayerBarHeight` 75 (316×75 at rest). `BarProgress` (PlayerBar.kt)
+  draws a 3 dp hairline under the row (row width − 20 dp each side, 5 dp from the bottom): chapters as slits, SponsorBlock
+  marks in their colours, fill from `rememberPlayedFraction`. Scrubbing swells THAT line into the 348×40 chapter track
+  (it no longer grows out of play). Play is a plain full-primary button now (supersedes 0.5.27's play-pill progress fill).
+  Dome 262 tall, arc centre 80 dp up, so tools clear the taller row.
+- 0.5.38 (Derek): 8 dp `PlayerTopRoom` above the row so the buttons have as much room above (8 + 5 inset) as below
+  (5 inset + 8 hairline room): bar 316×83. Hairline 10% smaller: 248×2.7 (inset 34). Dome 270, arc centre 88 up.
+- 0.5.39 (2026-10-25, Derek picked A "Card" in `docs/design/player-bar-row.html`): the dome is gone. The ⋮ key / hold /
+  swipe up opens a short rounded card (`CardWidth` 380, `CardHeight` 160 above the resting bar's bottom, 32 dp corners)
+  with the tools as 58 dp circles in ONE straight row (`rowSpot`: evenly across 348 dp, centred 113 dp up; pop in left
+  to right). The card also reaches `CardBelow` 24 dp under the resting bar (`playerBarBelow`; NavPill places the bar
+  that much lower and measures its contents without it, so the row and hairline never move) — chapter · time sit
+  there, centred under the progress line. (`PlayerBarState.dome` → `card`, `BarDome` → `BarCard`.)
+- 0.5.40 (Derek): while scrubbing, the time sits on the LEFT above the track (a right thumb hid it on the right);
+  the chapter moved to the right, end-aligned.
+- 0.5.41 (2026-10-26, Derek): over a video the status bar is pitch black with white icons, in every theme mode.
+  `PlayerScreen` draws a black strip the status bar's height (alpha `ramp(progress, 0, 0.9)` × (1 − audio-only `fold`,
+  now hoisted out of `VideoStage`)) and sets `StatusBarOverVideo.on` (Theme.kt), which `SystemBars` reads for the
+  icon colour. Audio only and the pages keep the page look. 0.5.42: the strip sits OUTSIDE the morph's clipped frame
+  and fades across the open — inside the frame it slid in with the card (Derek disliked it). 0.5.43/0.5.44: the fade
+  starts only once the video's top edge is 25% of the way up the screen (`StatusBlackFromUp`; its p from
+  `miniThumb.top` → `stage.top`), black by p 0.9.
+- 0.5.45 scrub preview + cancel (2026-10-26, Derek): while scrubbing, the frame the scrub would land on floats 12 dp above
+  the bar over the knob (kept within the bar's width): YouTube's storyboard sprites (NewPipe `previewFrames` →
+  `VideoDetails.storyboards`, `Storyboard.frameAt`), sharpest level, a smaller "quick" level prefetched whole as a scrub starts
+  and shown while the sharp sheet loads (`StoryboardSheets`, ≤16 decoded, via Coil). Swiping up off the track brings out a
+  Cancel pill over the bar (`PlayerBarState.cancel` follows the finger 24 → 92 dp up; armed at 92, disarms below 78); armed
+  = full primary + haptic, the frame washes out (an opaque wash, never layer alpha — the page showed through) and the
+  landing spot holds still; letting go there drops the scrub (no seek). `ScrubOverlay` (PlayerBar.kt), placed by NavPill
+  outside the bar's clip like the burst bubble; a scrub whose pointer vanishes is dropped (`endScrub`, finally).
+- 0.5.46 (Derek, 6434.png): Cancel sits ABOVE the preview frame (10 dp over it, centred on it; just over the bar without a
+  storyboard — `cancelRaise`) and arms only when the finger reaches its bottom edge (bar-local y ≤ −cancelRaise; disarms
+  14 dp below); it fades in from 24 dp up, the frame no longer lifts. Shadows: each piece is ONE graphicsLayer holding its
+  shape + clip + shadowElevation + alpha. A fade on an outer layer around a separate `.shadow()` layer crops the shadow to
+  a hard-edged box (the half-faded Cancel showed one) — never pair layer alpha with a nested shadow.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -269,7 +370,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.
 - `Screens.kt` — Home / Subscriptions / Search / Library.
-- `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 bar.
+- `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
+- `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.
 - `Theme.kt` (wallpaper color, seed fallback), `Motion.kt` (curves, `pressable`), `Net.kt`.

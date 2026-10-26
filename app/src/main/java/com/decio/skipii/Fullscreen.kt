@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.util.Rational
 import androidx.activity.ComponentActivity
+import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
@@ -34,13 +35,23 @@ import androidx.core.view.WindowInsetsControllerCompat
  *  - The fullscreen button forces landscape even while the phone is upright, and lets go
  *    once the phone is physically turned, so turning it back later exits naturally. The
  *    exit button does the mirror image.
+ *  - Split screen (any multi-window mode) gets a pane, not the phone: locking the orientation
+ *    there only letterboxed the app into a grey-barred box when the pane was wider than tall
+ *    (Derek, 2026-10-23). It asks for nothing and lays out in the pane's own shape, and
+ *    fullscreen fills the pane: on by itself in a wide pane (as turning the phone does), and
+ *    the button / swipe up / Back toggle it either way.
  */
 @Stable
-class OrientationController(private val activity: Activity) {
+class OrientationController(private val activity: ComponentActivity) {
     private enum class Forced { Landscape, Portrait }
 
     private var forced by mutableStateOf<Forced?>(null)
     private var playerOpen = false
+
+    var multiWindow by mutableStateOf(activity.isInMultiWindowMode)
+        private set
+    /** Split screen: fullscreen chosen with the button; null follows the pane's shape. */
+    private var paneFullscreen by mutableStateOf<Boolean?>(null)
 
     private val listener = object : OrientationEventListener(activity) {
         override fun onOrientationChanged(degrees: Int) {
@@ -59,17 +70,26 @@ class OrientationController(private val activity: Activity) {
     private fun autoRotateOn() =
         Settings.System.getInt(activity.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
 
-    fun enterFullscreen() { forced = Forced.Landscape }
-    fun exitFullscreen() { forced = Forced.Portrait }
+    /** Whether the open player shows fullscreen; [landscape] is the window's (pane's) shape. */
+    fun showsFullscreen(playerOpen: Boolean, landscape: Boolean): Boolean = when {
+        !playerOpen -> false
+        // Audio only has no picture to fill the pane with.
+        multiWindow -> !AudioOnly.enabled && (paneFullscreen ?: landscape)
+        else -> landscape
+    }
+
+    fun enterFullscreen() { if (multiWindow) paneFullscreen = true else forced = Forced.Landscape }
+    fun exitFullscreen() { if (multiWindow) paneFullscreen = false else forced = Forced.Portrait }
 
     fun setPlayerOpen(open: Boolean) {
         playerOpen = open
-        if (!open) forced = null
+        if (!open) { forced = null; paneFullscreen = null }
         apply()
     }
 
     fun apply() {
         activity.requestedOrientation = when {
+            multiWindow -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             !playerOpen -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             forced == Forced.Landscape -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             forced == Forced.Portrait -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -78,17 +98,27 @@ class OrientationController(private val activity: Activity) {
     }
 
     @Composable
-    fun Bind(playerOpen: Boolean) {
+    fun Bind(playerOpen: Boolean, landscape: Boolean) {
         DisposableEffect(Unit) {
             if (listener.canDetectOrientation()) listener.enable()
-            onDispose { listener.disable() }
+            val windowListener = Consumer<MultiWindowModeChangedInfo> { info ->
+                multiWindow = info.isInMultiWindowMode
+                forced = null
+            }
+            activity.addOnMultiWindowModeChangedListener(windowListener)
+            onDispose {
+                listener.disable()
+                activity.removeOnMultiWindowModeChangedListener(windowListener)
+            }
         }
-        LaunchedEffect(playerOpen, forced) { setPlayerOpen(playerOpen) }
+        // A pane that changes shape (the divider dragged) starts over from its new shape.
+        LaunchedEffect(landscape, multiWindow) { paneFullscreen = null }
+        LaunchedEffect(playerOpen, forced, multiWindow) { setPlayerOpen(playerOpen) }
     }
 }
 
 @Composable
-fun rememberOrientationController(activity: Activity) = remember(activity) { OrientationController(activity) }
+fun rememberOrientationController(activity: ComponentActivity) = remember(activity) { OrientationController(activity) }
 
 /** Hides the status and navigation bars while [hidden]; a swipe from the edge peeks them. */
 @Composable

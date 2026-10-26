@@ -554,6 +554,11 @@ fun SkipiiTheme(content: @Composable () -> Unit) {
     }
 }
 
+/** True while the open player paints the status bar black over its video: icons go white. */
+object StatusBarOverVideo {
+    var on by mutableStateOf(false)
+}
+
 /**
  * Status/navigation bar icon colors and the window background follow the app's mode,
  * not the phone's: with Light forced on a dark-mode phone the icons would otherwise be
@@ -563,10 +568,11 @@ fun SkipiiTheme(content: @Composable () -> Unit) {
 private fun SystemBars(dark: Boolean, windowBg: Color) {
     val view = LocalView.current
     if (view.isInEditMode) return
+    val overVideo = StatusBarOverVideo.on
     SideEffect {
         val window = (view.context as? Activity)?.window ?: return@SideEffect
         val controller = WindowCompat.getInsetsController(window, view)
-        controller.isAppearanceLightStatusBars = !dark
+        controller.isAppearanceLightStatusBars = !dark && !overVideo
         controller.isAppearanceLightNavigationBars = !dark
     }
     DisposableEffect(windowBg) {

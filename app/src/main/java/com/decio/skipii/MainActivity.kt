@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
+import java.lang.ref.WeakReference
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -55,6 +56,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.offset
@@ -85,6 +88,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -109,6 +113,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // One window at a time (one player, one video texture): a newer one closes the one before.
+        // That's a bubble opened while the app is open, or the app opened from Home while it sits
+        // in a bubble (the bubble then goes away). Its task goes too, so Recents keeps no stale card;
+        // PlaybackService.onTaskRemoved sees this window still open and plays on.
+        current?.get()?.takeIf { it !== this && !it.isFinishing }?.finishAndRemoveTask()
+        current = WeakReference(this)
         enableEdgeToEdge()
         // The media notification (and its lock-screen controls) needs this on Android 13+.
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -117,6 +127,18 @@ class MainActivity : ComponentActivity() {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         setContent { SkipiiTheme { SkipiiApp() } }
+    }
+
+    override fun onDestroy() {
+        if (current?.get() === this) current = null
+        super.onDestroy()
+    }
+
+    companion object {
+        private var current: WeakReference<MainActivity>? = null
+
+        /** The task of the app's open window; null when there's none (closed, or on its way out). */
+        fun openTaskId(): Int? = current?.get()?.takeUnless { it.isFinishing || it.isDestroyed }?.taskId
     }
 }
 
@@ -194,17 +216,18 @@ fun SkipiiApp() {
 
     // Fullscreen is whenever the open player is shown in landscape (rotation or button).
     val activity = LocalContext.current as Activity
-    val orientation = rememberOrientationController(activity)
+    val orientation = rememberOrientationController(activity as ComponentActivity)
     val playerOpen = player.current != null && player.expanded
+    // In split screen this is the pane's shape, not the phone's.
+    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     // Audio only has no picture to go fullscreen with: the open player stays portrait.
-    orientation.Bind(playerOpen && !AudioOnly.enabled)
-    val pip = remember(activity) { PipController(activity as ComponentActivity) }
+    orientation.Bind(playerOpen && !AudioOnly.enabled, landscape)
+    val pip = remember(activity) { PipController(activity) }
     // Closing the picture-in-picture window pauses (expanding it just comes back).
     pip.Bind(onClosed = { player.controller?.pause() })
-    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     // The PiP window can be any shape: hold whatever was showing when it opened.
     val fullscreenBeforePip = remember { mutableStateOf(false) }
-    val showFullscreen = if (pip.active) fullscreenBeforePip.value else playerOpen && landscape
+    val showFullscreen = if (pip.active) fullscreenBeforePip.value else orientation.showsFullscreen(playerOpen, landscape)
     SideEffect { if (!pip.active) fullscreenBeforePip.value = showFullscreen }
     LaunchedEffect(showFullscreen) { player.fullscreen = showFullscreen }
     SystemBarsHidden(showFullscreen)
@@ -217,6 +240,14 @@ fun SkipiiApp() {
     BackHandler(enabled = !player.expanded && openChannel != null) { openChannel = null }
     // Registered last so it wins: in fullscreen, Back returns to the portrait player first.
     BackHandler(enabled = showFullscreen) { orientation.exitFullscreen() }
+
+    // The open player's bar (PlayerBar.kt): its tools card / quality list close on Back, on a
+    // tap anywhere else, and whenever the player stops being the open portrait page.
+    val playerBar = remember { PlayerBarState(scope) }
+    BackHandler(enabled = playerBar.isOpen && playerOpen && !showFullscreen) { playerBar.closeAll() }
+    LaunchedEffect(playerOpen, showFullscreen, player.sheet) {
+        if (!playerOpen || showFullscreen || player.sheet != null) playerBar.closeAll()
+    }
 
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val density = LocalDensity.current
@@ -232,6 +263,8 @@ fun SkipiiApp() {
     }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(c.surface)) {
+        val stageFloor = maxOf(StageMinAspect, constraints.maxWidth / (constraints.maxHeight * StageMaxHeightShare))
+        SideEffect { player.stageFloor = stageFloor }
         // Both ends of the morph, from the same constants the mini-player and player use.
         val stageAspect = player.stageAspect
         val geometry = remember(constraints.maxWidth, constraints.maxHeight, stackBottom, statusTop, density, stageAspect) {
@@ -371,7 +404,11 @@ fun SkipiiApp() {
                     }
                     .draggable(
                         state = rememberDraggableState { delta ->
-                            if (morph.progress.value <= 0f && (delta > 0f || dismiss.value > 0f)) {
+                            // Once a gesture drives the morph it stays on the morph: switching to
+                            // the dismiss slide mid-gesture (up a little, then back down) never
+                            // settled the morph, which then stayed "dragging" at its mini end —
+                            // a dead mini-player and live player-bar buttons under the tabs.
+                            if (!morph.dragging && morph.progress.value <= 0f && (delta > 0f || dismiss.value > 0f)) {
                                 scope.launch { dismiss.snapTo((dismiss.value + delta).coerceAtLeast(0f)) }
                             } else {
                                 morph.dragBy(delta)
@@ -379,7 +416,9 @@ fun SkipiiApp() {
                         },
                         orientation = Orientation.Vertical,
                         onDragStopped = { velocity ->
-                            if (dismiss.value > 0f) {
+                            if (morph.dragging) {
+                                morph.settle(velocity, reduced)
+                            } else if (dismiss.value > 0f) {
                                 if (dismiss.value > dismissDistance || velocity > 800f) {
                                     scope.launch {
                                         if (!reduced) dismiss.animateTo(dismissDistance * 2.2f, tween(200, easing = Motion.Emphasized))
@@ -388,8 +427,6 @@ fun SkipiiApp() {
                                 } else {
                                     scope.launch { dismiss.animateTo(0f, spring(dampingRatio = 0.7f, stiffness = 600f)) }
                                 }
-                            } else {
-                                morph.settle(velocity, reduced)
                             }
                         },
                     ),
@@ -403,7 +440,7 @@ fun SkipiiApp() {
                 onOpen = player::open,
                 onCollapse = { player.expanded = false },
                 onFullscreen = { toggleFullscreen() },
-                bottomClearance = stackBottom + NavHeight + 16.dp,
+                bottomClearance = stackBottom + NavHeight + PlayerBarRaise + 16.dp,
             )
         }
 
@@ -413,6 +450,21 @@ fun SkipiiApp() {
             if (player.sheet == PlayerSheet.Comments && playerOpen) 1f else 0f,
             if (reduced) snap() else tween(280, easing = Motion.Emphasized), label = "barAside",
         )
+        // A tap anywhere outside the open card / list closes it (and goes no further).
+        if (playerBar.isOpen && playerOpen) {
+            Box(
+                Modifier.fillMaxSize().pointerInput(playerBar) {
+                    awaitEachGesture {
+                        awaitFirstDown().consume()
+                        playerBar.closeAll()
+                        do {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach { it.consume() }
+                        } while (event.changes.any { it.pressed })
+                    }
+                },
+            )
+        }
         NavPill(
             selected = tab,
             onSelect = { selected ->
@@ -427,12 +479,14 @@ fun SkipiiApp() {
             player = player,
             morph = morph,
             controlsActive = player.current != null && (player.expanded || morph.dragging),
+            bar = playerBar,
+            onFullscreen = { toggleFullscreen() },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
                 .graphicsLayer {
                     // Moved fully off screen, so it can't catch touches meant for the composer.
-                    translationY = barAside * (NavHeight + stackBottom + 24.dp).toPx()
+                    translationY = barAside * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
                     alpha = 1f - barAside
                 },
         )
