@@ -42,11 +42,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
+import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -59,6 +65,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -80,6 +87,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -117,7 +125,10 @@ internal val SideSlotWidth = 41.dp
 // above the resting bar's bottom and CardBelow under it, where the chapter and time sit under the line.
 private val CardWidth = 380.dp
 private val CardHeight = 160.dp
-internal val CardBelow = 24.dp
+private val CardBelow = 24.dp
+/** With chapters, the strip holds the Chapters button instead, so it's a little taller. */
+private val CardBelowChapters = 46.dp
+private val ChaptersButtonHeight = 34.dp
 // Never narrower than the bar at rest (CompactBarWidth): it only ever grows into these.
 private val ScrubBarWidth = 380.dp
 private val ScrubBarHeight = 112.dp
@@ -156,7 +167,7 @@ private val BarSpring = spring(dampingRatio = 0.78f, stiffness = 420f, visibilit
 internal enum class BarTool { Speed, Quality, Pip, Fullscreen, Next }
 
 /** What the bar can turn into besides the card. */
-internal enum class BarPanel { Quality, Speed }
+internal enum class BarPanel { Quality, Speed, Chapters }
 
 /** The card's tools, left to right: Next only when the queue really has something next. */
 internal fun barTools(player: PlayerState, pip: PipController?): List<BarTool> = buildList {
@@ -186,6 +197,10 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
     var hot by mutableStateOf<BarTool?>(null)
     /** The tools on the card right now (set by the bar as they change). */
     var tools by mutableStateOf(listOf(BarTool.Speed, BarTool.Quality, BarTool.Fullscreen))
+    /** The video has chapters (set by the bar): the card's bottom strip becomes the Chapters button. */
+    var hasChapters by mutableStateOf(false)
+    /** The open chapter list, so a pull down from its top closes the panel rather than scrolling. */
+    var chapterList: LazyListState? = null
     var reduced = false
 
     /** Open or opening: Back and a tap outside close it. */
@@ -232,6 +247,9 @@ private class BarAmounts(val t: Float, val p: Float, val s: Float)
 
 private fun PlayerBarState.amounts(gate: Float) = BarAmounts(card.value * gate, panel.value * gate, scrub.value * gate)
 
+/** The card's strip under the resting bar: chapter · time, or the Chapters button. */
+private fun PlayerBarState.cardBelow(): Dp = if (hasChapters) CardBelowChapters else CardBelow
+
 /** Quality rows shown: Auto + every height. */
 private fun qualityRows(player: PlayerState) = 1 + (player.details?.qualities?.size ?: 0)
 
@@ -241,6 +259,19 @@ private fun Density.panelSize(kind: BarPanel, player: PlayerState): Size = when 
         (ListHeader + PlayerBarHeight + 6.dp).toPx() + qualityRows(player).coerceAtMost(ListMaxRows) * (ListRowHeight + ListRowGap).toPx(),
     )
     BarPanel.Speed -> Size(SpeedWidth.toPx(), (SpeedPanelHeight + PlayerBarHeight + 6.dp).toPx())
+    BarPanel.Chapters -> Size(ChaptersWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + chapterRowsHeight(player)).toPx())
+}
+
+private val ChaptersWidth = 380.dp
+private val ChapterRowHeight = 58.dp
+private const val ChapterMaxRows = 6
+private fun chapterRowsHeight(player: PlayerState): Dp =
+    (ChapterRowHeight + ListRowGap) * (player.details?.chapters?.size ?: 0).coerceIn(1, ChapterMaxRows)
+
+/** Where the chapter rows sit in the open panel (the bar's own pixels, top to bottom). */
+private fun Density.chaptersListSpan(barH: Float, player: PlayerState): ClosedFloatingPointRange<Float> {
+    val bottom = barH - (PlayerBarHeight + 6.dp).toPx()
+    return (bottom - chapterRowsHeight(player).toPx())..bottom
 }
 
 /**
@@ -252,12 +283,12 @@ internal fun Density.playerBarSize(bar: PlayerBarState, player: PlayerState, res
     val cardW = CardWidth.toPx().coerceAtMost(maxW)
     val pan = panelSize(bar.panelKind, player)
     val w = restW + (cardW - restW) * a.t + (pan.width.coerceAtMost(maxW) - restW) * a.p + (ScrubBarWidth.toPx().coerceAtMost(maxW) - restW) * a.s
-    val h = restH + (CardHeight.toPx() + CardBelow.toPx() - restH) * a.t + (pan.height - restH) * a.p + (ScrubBarHeight.toPx() - restH) * a.s
+    val h = restH + (CardHeight.toPx() + bar.cardBelow().toPx() - restH) * a.t + (pan.height - restH) * a.p + (ScrubBarHeight.toPx() - restH) * a.s
     return Size(w.coerceAtLeast(1f), h.coerceAtLeast(1f))
 }
 
 /** How far the bar reaches below the resting bar's bottom (the card's time row); everything else stays put. */
-internal fun Density.playerBarBelow(bar: PlayerBarState, gate: Float): Float = CardBelow.toPx() * bar.amounts(gate).t.coerceAtLeast(0f)
+internal fun Density.playerBarBelow(bar: PlayerBarState, gate: Float): Float = bar.cardBelow().toPx() * bar.amounts(gate).t.coerceAtLeast(0f)
 
 /**
  * The bar's outline at [size]: a capsule at rest; the card, panels and the track get softer
@@ -367,9 +398,13 @@ internal fun Modifier.playerBarGestures(
             val startPanel = bar.panel.value
             val cardTravel = CardHeight.toPx() - restH
             val panelTravel = panelSize(bar.panelKind, player).height - restH
-            val startPos = player.positionMs
             val duration = player.durationMs
             val trackPx = TrackWidth.toPx()
+            // The knob sits under the thumb: the track (centred in the bar) maps straight onto the video.
+            fun landingAt(x: Float): Long = (((x - size.width / 2f) / trackPx + 0.5f).coerceIn(0f, 1f) * duration).toLong()
+            // The chapter list scrolls under the finger; pulled down from its top it closes like the panel.
+            val chapterList = bar.chapterList.takeIf { panelOpen && bar.panelKind == BarPanel.Chapters }
+            val inList = chapterList != null && down.position.y in chaptersListSpan(size.height.toFloat(), player)
             val tracker = VelocityTracker()
             var moved = Offset.Zero
             tracker.addPosition(down.uptimeMillis, moved)
@@ -377,7 +412,6 @@ internal fun Modifier.playerBarGestures(
             var lastAt = down.uptimeMillis
             // 0 undecided, 1 scrub, 2 vertical, 3 held (the card opens under the finger), 4 not ours.
             var mode = 0
-            var scrubFrom = 0f
             var chapter: String? = null
             try {
                 while (true) {
@@ -422,13 +456,14 @@ internal fun Modifier.playerBarGestures(
                     if (mode == 0 && hypot(moved.x, moved.y) > viewConfiguration.touchSlop) {
                         mode = when {
                             onPlay && abs(moved.x) > abs(moved.y) && duration > 0 -> 1
+                            inList && !(moved.y > abs(moved.x) && chapterList?.canScrollBackward == false) -> 4
                             abs(moved.y) > abs(moved.x) -> 2
                             else -> 4
                         }
                         if (mode == 1) {
-                            scrubFrom = moved.x
-                            bar.previewMs = startPos
-                            chapter = player.chapterAt(startPos)
+                            val ms = landingAt(change.position.x)
+                            bar.previewMs = ms
+                            chapter = player.chapterAt(ms)
                             bar.animate(bar.scrub, 1f)
                         }
                     }
@@ -437,23 +472,26 @@ internal fun Modifier.playerBarGestures(
                             change.consume()
                             // Swiping up brings out Cancel, which arms only once the finger is on it (its
                             // bottom edge, in the bar's own pixels: above the top, so negative). Armed, the
-                            // landing spot holds still (sideways moves are ignored), so coming back down
-                            // carries on from where it was.
+                            // landing spot holds still (sideways moves are ignored); otherwise it's under the thumb.
                             val y = change.position.y
                             val reach = -cancelRaise(player).toPx()
-                            val from = (ScrubBarHeight - TrackBottom - TrackHeight / 2 - CancelFrom).toPx()
                             val armed = if (bar.cancelArmed) y < reach + CancelSlack.toPx() else y <= reach
                             if (armed != bar.cancelArmed) {
                                 bar.cancelArmed = armed
                                 haptic(view, if (armed) HapticFeedbackConstants.LONG_PRESS else HapticFeedbackConstants.CLOCK_TICK)
                             }
-                            bar.snap(bar.cancel, if (armed) 1f else ((from - y) / (from - reach)).coerceIn(0f, 0.999f))
-                            if (armed) scrubFrom += change.position.x - change.previousPosition.x
-                            // 1:1 on the track: its full width is the whole video.
-                            val ms = (startPos + (moved.x - scrubFrom) / trackPx * duration).toLong().coerceIn(0L, duration)
-                            bar.previewMs = ms
-                            val now = player.chapterAt(ms)
-                            if (now != chapter) { chapter = now; haptic(view, HapticFeedbackConstants.CLOCK_TICK) }
+                            // Fading in, measured up from the bar's bottom (which stays put while the bar grows
+                            // into the track): from CancelFrom over the track's middle to Cancel itself.
+                            val up = size.height - y
+                            val from = (TrackBottom + TrackHeight / 2 + CancelFrom).toPx()
+                            val to = size.height - reach
+                            bar.snap(bar.cancel, if (armed) 1f else ((up - from) / (to - from).coerceAtLeast(1f)).coerceIn(0f, 0.999f))
+                            if (!armed) {
+                                val ms = landingAt(change.position.x)
+                                bar.previewMs = ms
+                                val now = player.chapterAt(ms)
+                                if (now != chapter) { chapter = now; haptic(view, HapticFeedbackConstants.CLOCK_TICK) }
+                            }
                         }
                         2 -> {
                             change.consume()
@@ -565,27 +603,54 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
     val tools = bar.tools
     val live = bar.cardLive
     Box(Modifier.fillMaxSize()) {
-        // Chapter · time, under the line: this box ends at the resting bar's bottom; the card reaches CardBelow further.
-        Row(
+        // Chapter · time, under the line: this box ends at the resting bar's bottom; the card reaches cardBelow further.
+        // With chapters it's a button (the very bottom of the card) that opens the chapter list.
+        val below = bar.cardBelow()
+        Box(
             Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = CardBelow - 2.dp)
-                .height(CardBelow)
+                .offset(y = below - 2.dp)
+                .height(below)
                 .widthIn(max = ToolRowWidth)
                 .graphicsLayer { alpha = ramp(bar.card.value * gate(), 0.55f, 1f) },
-            verticalAlignment = Alignment.CenterVertically,
+            contentAlignment = Alignment.Center,
         ) {
-            player.chapterAt(player.positionMs)?.let {
+            val chapters = bar.hasChapters
+            Row(
+                Modifier.then(
+                    if (!chapters) Modifier else Modifier
+                        .padding(bottom = 6.dp)
+                        .height(ChaptersButtonHeight)
+                        .pressable(enabled = live) {
+                            haptic(view, HapticFeedbackConstants.CONTEXT_CLICK)
+                            bar.openPanel(BarPanel.Chapters)
+                        }
+                        .clip(CircleShape)
+                        .background(tile)
+                        .padding(start = 12.dp, end = 10.dp),
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (chapters) {
+                    Icon(Icons.AutoMirrored.Rounded.List, null, tint = c.onSurface, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                }
+                player.chapterAt(player.positionMs)?.let {
+                    Text(
+                        it, color = c.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Text(" · ", color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                }
                 Text(
-                    it, color = c.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                    "${formatDuration(player.positionMs)} / ${formatDuration(player.durationMs)}",
+                    color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1,
                 )
-                Text(" · ", color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                if (chapters) {
+                    Spacer(Modifier.width(4.dp))
+                    Icon(Icons.Rounded.ExpandLess, "Chapters", tint = c.onSurface, modifier = Modifier.size(20.dp))
+                }
             }
-            Text(
-                "${formatDuration(player.positionMs)} / ${formatDuration(player.durationMs)}",
-                color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1,
-            )
         }
         Layout(
             content = {
@@ -674,13 +739,19 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
                 val dur = player.durationMs.toFloat()
                 val r = scrubTrackRect(size.width, size.height, s)
                 val corner = lerpF(HairlineHeight.toPx() / 2f, 20.dp.toPx(), seen)
-                val f = (bar.previewMs?.let { it / dur } ?: played.value).coerceIn(0f, 1f)
+                // Where playback is now, and (scrubbing) where it would land, under the thumb.
+                val now = played.value.coerceIn(0f, 1f)
+                val f = (bar.previewMs?.let { it / dur } ?: now).coerceIn(0f, 1f)
                 val alpha = ramp(g, 0.4f, 1f)
                 trackPath.reset()
                 trackPath.addRoundRect(RoundRect(r, CornerRadius(corner)))
                 clipPath(trackPath) {
                     drawRect(track, r.topLeft, r.size, alpha = alpha)
-                    drawRect(c.primary, r.topLeft, Size(r.width * f, r.height), alpha = alpha)
+                    // Played is solid up to now; the stretch a scrub would jump over (either way) is a
+                    // paler primary, so the edge between them reads as "you are here".
+                    val lo = minOf(now, f)
+                    drawRect(c.primary, r.topLeft, Size(r.width * lo, r.height), alpha = alpha)
+                    if (f != now) drawRect(c.primary, Offset(r.left + r.width * lo, r.top), Size(r.width * abs(f - now), r.height), alpha = alpha * 0.45f)
                     // SponsorBlock: the whole line's height at rest, a strip along the track's bottom scrubbing.
                     val markH = lerpF(r.height, 5.dp.toPx(), seen)
                     val markBottom = lerpF(r.bottom, r.bottom - 5.dp.toPx(), seen)
@@ -700,8 +771,16 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
                         drawRect(c.surfaceVariant, Offset(x - slit / 2f, r.top), Size(slit, r.height))
                     }
                 }
-                // The knob, while scrubbing: a line through the track where it would land.
+                // While scrubbing: "now" is a primary dot over the track (ringed in the bar's tone), and the
+                // knob — the landing spot — a line through the track under the thumb.
                 if (seen > 0f) {
+                    val nx = r.left + r.width * now
+                    val ny = r.top - 10.dp.toPx()
+                    // A pin: the dot on a thin stem down through the track.
+                    drawRect(c.surfaceVariant, Offset(nx - 2.75.dp.toPx(), ny), Size(5.5.dp.toPx(), r.top - ny), alpha = seen)
+                    drawRect(c.primary, Offset(nx - 1.25.dp.toPx(), ny), Size(2.5.dp.toPx(), r.bottom - ny), alpha = seen)
+                    drawCircle(c.surfaceVariant, radius = 7.5.dp.toPx() * seen, center = Offset(nx, ny))
+                    drawCircle(c.primary, radius = 5.dp.toPx() * seen, center = Offset(nx, ny))
                     val kx = r.left + r.width * f
                     drawRoundRect(
                         c.onSurface.copy(alpha = seen),
@@ -728,6 +807,13 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
                 "${formatDuration(shownMs)} / ${formatDuration(player.durationMs)}",
                 color = c.onSurfaceVariant, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold,
             )
+            // How far from now the scrub would jump.
+            val jump = (bar.previewMs ?: player.positionMs) - player.positionMs
+            if (abs(jump) >= 1000L) Text(
+                (if (jump > 0) "+" else "−") + formatDuration(abs(jump)),
+                color = c.primary, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1,
+                modifier = Modifier.padding(start = 8.dp),
+            )
             Text(
                 player.chapterAt(shownMs).orEmpty(), color = c.onSurface, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End,
@@ -739,9 +825,10 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
 
 /** The open panel, above the transport row: the quality list or the speed ruler. */
 @Composable
-internal fun BarPanelContent(bar: PlayerBarState, player: PlayerState, gate: () -> Float, scope: CoroutineScope) {
+internal fun BarPanelContent(bar: PlayerBarState, player: PlayerState, gate: () -> Float, scope: CoroutineScope, sheets: StoryboardSheets) {
     when (bar.panelKind) {
         BarPanel.Quality -> BarQualityList(bar, player, gate, scope)
+        BarPanel.Chapters -> BarChaptersList(bar, player, gate, scope, sheets)
         BarPanel.Speed -> Box(Modifier.fillMaxSize()) {
             Box(
                 Modifier
@@ -844,6 +931,94 @@ private fun BarQualityList(bar: PlayerBarState, player: PlayerState, gate: () ->
     }
 }
 
+/**
+ * Every chapter in the bar (from the card's Chapters button): a storyboard frame from its start, its
+ * title and start time, the one playing now filled. Opens scrolled to the current chapter; a tap
+ * jumps to that chapter's start, the fill moves there, then the bar folds back down.
+ */
+@Composable
+private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -> Float, scope: CoroutineScope, sheets: StoryboardSheets) {
+    val c = MaterialTheme.colorScheme
+    val view = LocalView.current
+    val details = player.details ?: return
+    val chapters = details.chapters
+    val current = chapters.indexOfLast { it.startMs <= player.positionMs }.coerceAtLeast(0)
+    val state = rememberLazyListState(initialFirstVisibleItemIndex = (current - 1).coerceAtLeast(0))
+    DisposableEffect(state) {
+        bar.chapterList = state
+        onDispose { if (bar.chapterList === state) bar.chapterList = null }
+    }
+    val live = bar.panelLive
+    val rowsHeight = chapterRowsHeight(player)
+    Box(Modifier.fillMaxSize()) {
+        Row(
+            Modifier
+                .align(Alignment.BottomCenter)
+                // Pinned just above the rows, so a closing list clips it rather than sliding it over them.
+                .padding(bottom = PlayerBarHeight + 6.dp + rowsHeight + 10.dp)
+                .width(ChaptersWidth - 36.dp)
+                .graphicsLayer {
+                    val l = (bar.panel.value * gate()).coerceIn(0f, 1f)
+                    alpha = ramp(l, 0.5f, 1f)
+                    translationY = 10.dp.toPx() * (1f - l)
+                },
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text("Chapters", color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            Text("${current + 1} of ${chapters.size}", color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
+        LazyColumn(
+            state = state,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = PlayerBarHeight + 6.dp)
+                .width(ChaptersWidth - 24.dp)
+                .height(rowsHeight),
+            verticalArrangement = Arrangement.spacedBy(ListRowGap),
+        ) {
+            itemsIndexed(chapters) { index, chapter ->
+                val selected = index == current
+                val fromBottom = (chapters.size - 1 - index).coerceAtMost(ChapterMaxRows)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(ChapterRowHeight)
+                        .graphicsLayer {
+                            val k = ramp(bar.panel.value * gate(), 0.12f + fromBottom * 0.04f, 0.62f + fromBottom * 0.04f)
+                            alpha = k
+                            translationY = 18.dp.toPx() * (1f - Motion.Emphasized.transform(k))
+                        }
+                        .pressable(enabled = live, pressedScale = 0.97f) {
+                            haptic(view, HapticFeedbackConstants.CONTEXT_CLICK)
+                            player.seekTo(chapter.startMs)
+                            // The fill lands on the picked chapter, then the bar folds back down.
+                            scope.launch { delay(QualityPickedMs); bar.closeAll() }
+                        }
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(if (selected) c.primary else c.primary.copy(alpha = 0f))
+                        .padding(horizontal = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StoryboardThumb(
+                        sheets, details.storyboards, chapter.startMs, player.durationMs,
+                        Modifier.size(width = 80.dp, height = 45.dp).clip(RoundedCornerShape(12.dp)).background(barTile()),
+                    )
+                    Column(Modifier.weight(1f).padding(start = 12.dp, end = 6.dp)) {
+                        Text(
+                            chapter.title.ifBlank { "Chapter ${index + 1}" }, color = if (selected) c.onPrimary else c.onSurface,
+                            fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            formatDuration(chapter.startMs), color = if (selected) c.onPrimary.copy(alpha = 0.8f) else c.onSurfaceVariant,
+                            fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun qualityNote(height: Int): String? = when {
     height >= 2160 -> "4K"
     height >= 1440 -> "QHD"
@@ -887,7 +1062,7 @@ private fun cancelRaise(player: PlayerState): Dp =
     player.details?.storyboards?.lastOrNull()?.let { PreviewGap + previewSize(it).height + CancelGap } ?: CancelGap
 
 /** Storyboard sheets kept decoded at once (each up to ~1000 × 600 px); the rest reload from Coil's disk cache. */
-private const val SheetsKept = 16
+private const val SheetsKept = 24
 /** The quick level's sheets fetched as a scrub starts, so a frame is there wherever the finger goes. */
 private const val QuickSheetsPrefetched = 12
 
@@ -895,7 +1070,7 @@ private const val QuickSheetsPrefetched = 12
  * Storyboard sheets for the scrub preview, fetched through Coil (its disk cache keeps them) and held
  * decoded while recently used. [loaded] is state, so the preview redraws as a sheet arrives.
  */
-private class StoryboardSheets(private val scope: CoroutineScope, private val context: Context) {
+internal class StoryboardSheets(private val scope: CoroutineScope, private val context: Context) {
     val loaded = mutableStateMapOf<String, ImageBitmap>()
     private val asked = LinkedHashSet<String>()
 
@@ -917,6 +1092,36 @@ private class StoryboardSheets(private val scope: CoroutineScope, private val co
     }
 }
 
+/** The current video's storyboard sheets, shared by the scrub preview and the chapter list. */
+@Composable
+internal fun rememberStoryboardSheets(player: PlayerState): StoryboardSheets {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    return remember(player.details?.item?.id) { StoryboardSheets(scope, context) }
+}
+
+/** Draws [frame] (a spot in [image], a storyboard sheet) filling the whole draw area. */
+private fun DrawScope.drawStoryboardFrame(image: ImageBitmap, frame: StoryboardFrame) {
+    val x = frame.x.coerceIn(0, (image.width - 1).coerceAtLeast(0))
+    val y = frame.y.coerceIn(0, (image.height - 1).coerceAtLeast(0))
+    drawImage(
+        image,
+        srcOffset = IntOffset(x, y),
+        srcSize = IntSize(frame.width.coerceAtMost(image.width - x), frame.height.coerceAtMost(image.height - y)),
+        dstSize = IntSize(size.width.roundToInt(), size.height.roundToInt()),
+        filterQuality = FilterQuality.Medium,
+    )
+}
+
+/** The storyboard frame at [ms] (the sharpest level), drawn once its sheet is in; [modifier]'s own background until then. */
+@Composable
+private fun StoryboardThumb(sheets: StoryboardSheets, boards: List<Storyboard>, ms: Long, durationMs: Long, modifier: Modifier) {
+    val frame = boards.lastOrNull()?.frameAt(ms, durationMs.coerceAtLeast(1L))
+    LaunchedEffect(frame?.url) { frame?.url?.let(sheets::request) }
+    val image = frame?.let { sheets.loaded[it.url] }
+    Box(modifier.drawBehind { if (image != null && frame != null) drawStoryboardFrame(image, frame) })
+}
+
 /**
  * Above the scrub track, outside the bar's clip (NavPill places it in its slot, [barRect] being the
  * bar's bounds there): the frame the scrub would land on, from YouTube's storyboard, riding over the
@@ -925,12 +1130,9 @@ private class StoryboardSheets(private val scope: CoroutineScope, private val co
  * Without a storyboard only Cancel shows, just over the bar.
  */
 @Composable
-internal fun ScrubOverlay(bar: PlayerBarState, player: PlayerState, gate: () -> Float, barRect: () -> Rect?) {
+internal fun ScrubOverlay(bar: PlayerBarState, player: PlayerState, sheets: StoryboardSheets, gate: () -> Float, barRect: () -> Rect?) {
     val c = MaterialTheme.colorScheme
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val details = player.details
-    val sheets = remember(details?.item?.id) { StoryboardSheets(scope, context) }
     // The last frame shown: the preview keeps it while it fades away after the scrub ends.
     val last = remember { arrayOfNulls<Any>(2) }
     if (!bar.scrubShown) return
@@ -987,15 +1189,7 @@ internal fun ScrubOverlay(bar: PlayerBarState, player: PlayerState, gate: () -> 
                 .background(c.surfaceVariant)
                 .drawBehind {
                     val (image, f) = frame ?: return@drawBehind
-                    val x = f.x.coerceIn(0, (image.width - 1).coerceAtLeast(0))
-                    val y = f.y.coerceIn(0, (image.height - 1).coerceAtLeast(0))
-                    drawImage(
-                        image,
-                        srcOffset = IntOffset(x, y),
-                        srcSize = IntSize(f.width.coerceAtMost(image.width - x), f.height.coerceAtMost(image.height - y)),
-                        dstSize = IntSize(size.width.roundToPx(), size.height.roundToPx()),
-                        filterQuality = FilterQuality.Medium,
-                    )
+                    drawStoryboardFrame(image, f)
                 }
                 // Heading for Cancel, the frame washes out toward the bar's tone (an opaque wash, so
                 // the page never shows through it).

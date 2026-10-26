@@ -190,7 +190,9 @@ internal fun NavPill(
     val gate = { barGate(morph.progress.value) }
     val onPick: (BarTool) -> Unit = { tool -> pickTool(tool, bar, player, pip, onFullscreen) }
     val tools = barTools(player, pip)
-    SideEffect { bar.tools = tools }
+    val hasChapters = !player.details?.chapters.isNullOrEmpty()
+    SideEffect { bar.tools = tools; bar.hasChapters = hasChapters }
+    val sheets = rememberStoryboardSheets(player)
     // The player's row is wider than the tab bar; on a narrower window it shrinks to fit.
     val rowScale = with(density) { (maxBarWidth / CompactBarWidth.toPx()).coerceAtMost(1f) }
     val anchors = remember { BarAnchors() }
@@ -358,13 +360,13 @@ internal fun NavPill(
                 }
                 BarProgress(bar, player, played, gate)
                 if (bar.cardShown) BarCard(bar, player, gate, onPick)
-                if (bar.panelShown) BarPanelContent(bar, player, gate, scope)
+                if (bar.panelShown) BarPanelContent(bar, player, gate, scope, sheets)
             }
           }
         }
         BurstBubble(burst, anchors)
         // The landing frame and Cancel, over the scrub track (outside the bar's clip).
-        ScrubOverlay(bar, player, gate) { anchors.rect(anchors.bar, within = anchors.outer) }
+        ScrubOverlay(bar, player, sheets, gate) { anchors.rect(anchors.bar, within = anchors.outer) }
     }
 }
 

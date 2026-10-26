@@ -464,7 +464,11 @@ class PlayerState(private val scope: CoroutineScope) {
     fun seekTo(ms: Long) {
         val player = controller ?: return
         val max = player.duration.takeIf { it > 0 } ?: Long.MAX_VALUE
-        player.seekTo(ms.coerceIn(0L, max))
+        val to = ms.coerceIn(0L, max)
+        // A restored, not-yet-prepared item isn't known to be seekable, so Media3 drops a plain
+        // seek (scrubs and chapter taps did nothing until play); seeking to the item itself is allowed.
+        if (player.isCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) player.seekTo(to)
+        else player.seekTo(player.currentMediaItemIndex, to)
         positionMs = player.currentPosition
     }
 

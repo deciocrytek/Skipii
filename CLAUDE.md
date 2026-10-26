@@ -278,6 +278,17 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   14 dp below); it fades in from 24 dp up, the frame no longer lifts. Shadows: each piece is ONE graphicsLayer holding its
   shape + clip + shadowElevation + alpha. A fade on an outer layer around a separate `.shadow()` layer crops the shadow to
   a hard-edged box (the half-faded Cancel showed one) — never pair layer alpha with a nested shadow.
+- 0.5.47 (2026-10-26, Derek): the scrub knob sits UNDER THE THUMB — the track (centred in the bar) maps straight onto
+  the video (`landingAt`), so a scrub starts wherever the finger is (supersedes "knob from the current position + delta").
+  While scrubbing, "now" is a pin (primary dot ringed in the bar's tone on a thin stem through the track), played is
+  solid primary up to now and the stretch the scrub would jump over is primary at 45%; the time row adds the jump
+  ("+6:33" / "−5:02", primary). Chapters: with chapters, the card's bottom strip (`cardBelow()` 46 dp, else 24) is a
+  Chapters button (≡ chapter · time ⌃) opening `BarPanel.Chapters` — `BarChaptersList`: every chapter with a storyboard
+  thumb from its start (`StoryboardThumb`; `StoryboardSheets` now shared via `rememberStoryboardSheets`, 24 kept), title,
+  start time, current filled; opens scrolled to the current one; tap = seek + fold after 420 ms. Inside the rows the list
+  scrolls (gesture mode 4); pulled down from its top it closes the panel. `PlayerState.seekTo` on an item that isn't
+  known seekable yet (restored, not prepared) uses seekTo(currentIndex, ms) — Media3 silently drops a plain seek then
+  (scrubs/chapter taps did nothing until play).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
