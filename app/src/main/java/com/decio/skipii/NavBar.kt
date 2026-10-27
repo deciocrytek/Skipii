@@ -232,10 +232,12 @@ internal fun NavPill(
                 // black here, as Android already scales elevation shadows right down.
                 .graphicsLayer {
                     val p = morph.progress.value
-                    translationY = -PlayerBarLift.toPx() * backOut(ramp(p, LiftStart, LiftEnd), LiftOvershoot)
+                    // Scrubbing lifts it further, clear of the thumb, on a deeper shadow (PlayerBar.kt).
+                    translationY = -PlayerBarLift.toPx() * backOut(ramp(p, LiftStart, LiftEnd), LiftOvershoot) -
+                        playerBarScrubLift(bar, barGate(p))
                     shape = playerBarShape(bar, size, barGate(p))
                     clip = true
-                    shadowElevation = 12.dp.toPx()
+                    shadowElevation = playerBarElevation(bar, barGate(p))
                     ambientShadowColor = Color.Black
                     spotShadowColor = Color.Black
                 }

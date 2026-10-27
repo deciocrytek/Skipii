@@ -175,7 +175,9 @@ class PlaybackService : MediaSessionService() {
             mediaItems: MutableList<MediaItem>,
         ): ListenableFuture<MutableList<MediaItem>> = resolver.submit<MutableList<MediaItem>> {
             mediaItems.map { item ->
-                val info = StreamCache.getOrLoad(item.mediaId)
+                // An opened video is already loaded (the player waited for it); this resolves
+                // restored and queued items, which nobody is waiting for yet.
+                val info = BotCheck.withoutWaiting(item.mediaId) { StreamCache.getOrLoad(item.mediaId) }
                 item.buildUpon()
                     .setUri(YouTube.watchUrl(item.mediaId))
                     .setMediaMetadata(
@@ -237,7 +239,7 @@ private class StreamRecoverer(
         StreamRecovery.recovering = id
         StreamCache.invalidate(id)
         resolver.execute {
-            val result = runCatching { StreamCache.getOrLoad(id) }
+            val result = runCatching { BotCheck.retryingBlocking(id) { StreamCache.getOrLoad(id) } }
             main.post {
                 StreamRecovery.recovering = null
                 // The user moved on (another video, Try again) while the links loaded.

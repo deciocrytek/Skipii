@@ -24,6 +24,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -201,6 +202,9 @@ class PlayerState(private val scope: CoroutineScope) {
                     else if (startPlayback) startPlayback(d.item)
                 }
                 .onFailure {
+                    // Cancelled by the next open (a bot-check wait can last ~40 s): this
+                    // video's outcome no longer matters, and the new load owns the state.
+                    if (it is CancellationException) throw it
                     Log.w(TAG, "details failed for ${item.id}", it)
                     error = YouTube.friendlyError(it)
                     // Comments wait for details; without this their spinner never stopped.

@@ -55,6 +55,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -81,7 +82,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -241,6 +244,22 @@ fun VideoContent(
         // With the controls hidden, loading still shows: a small spinner in the middle.
         if (!controlsVisible && (state.isBuffering || state.hidesStaleVideo || (state.loading && state.details == null))) {
             CircularProgressIndicator(color = Color.White, strokeWidth = 3.dp, modifier = Modifier.align(Alignment.Center).size(36.dp))
+        }
+        // Waiting out a bot check (BotCheck): the spinner says why this is taking a while.
+        val botWait by animateFloatAsState(
+            if (!controlsVisible && BotCheck.waiting != null && BotCheck.waiting == state.current?.id) 1f else 0f,
+            label = "botWait",
+        )
+        if (botWait > 0f) {
+            Text(
+                "YouTube is checking this connection. Trying again…",
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                style = LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = 0.6f), blurRadius = 8f)),
+                modifier = Modifier.align(Alignment.Center).padding(top = 76.dp, start = 32.dp, end = 32.dp).graphicsLayer { alpha = botWait },
+            )
         }
         SkippedNote(state, Modifier.align(Alignment.TopCenter).padding(top = 12.dp).graphicsLayer { alpha = controlsAlpha() })
         // The Ask pill stays reachable while the controls are hidden.

@@ -289,6 +289,22 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   scrolls (gesture mode 4); pulled down from its top it closes the panel. `PlayerState.seekTo` on an item that isn't
   known seekable yet (restored, not prepared) uses seekTo(currentIndex, ms) — Media3 silently drops a plain seek then
   (scrubs/chapter taps did nothing until play).
+- 0.5.48 (2026-10-27, Derek): a scrub starts from a sideways drag ANYWHERE on the resting bar (not only play; the
+  buttons still get taps — nothing is taken before touch slop). While scrubbing the whole bar lifts `ScrubLift` 56 dp
+  (NavPill's layer translation, `playerBarScrubLift`, so touches, the preview and Cancel follow) and its shadow deepens
+  12 → 20 dp (`playerBarElevation`): the track sits clear of the thumb, which keeps scrubbing in the space below.
+  Cancel's fade follows the finger's own travel since the scrub began (summed deltas; bar-local heights move with the lift).
+- 0.5.49 bot check, part 2 (2026-10-27, Derek's 5G screenshot): the error means ANDROID was refused AND `PlayerFallback`'s
+  VISIONOS stand-in was refused too. A refused extractor VISIONOS request (its only stream source) used to be silent: the
+  extractor played ANDROID's 360p combined itag 18 with no word. `PlayerFallback` now watches that request too
+  ("bot check on VISIONOS for …", `BotCheck.noteRefused`); `StreamCache.getOrLoad` turns "refused + no separate streams"
+  into `StreamsRefused` (nothing cached). `BotCheck.retrying` (YouTube.kt) retries after 3 / 8 / 20 s with the spinner
+  and a note under it ("YouTube is checking this connection. Trying again…", `BotCheck.waiting`), then gives up: the 360p
+  combined stream if there was one (`keepRefused`, 10 min, never returned by getOrLoad), else the error. Used by
+  `YouTube.details` and `StreamRecoverer`; `onAddMediaItems` uses `withoutWaiting` (a restored item resolving after its
+  retries hijacked the video just opened). No third client exists (probed 2026-10-27): TVHTML5_SIMPLY / MWEB links need the
+  player JS for `n`, which extractor 0.26.5 (and dev without an external JS engine) can't run; ANDROID_VR 403s past chunk 1.
+  Real fix still open: PO tokens / running the player JS (WebView). Test by forcing refusals in `PlayerFallback`.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

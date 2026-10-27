@@ -148,6 +148,20 @@ private val PetalSize = 58.dp
 /** The tools' row: spread evenly across this width, centred this far above the resting bar's bottom. */
 private val ToolRowWidth = 348.dp
 private val ToolRowCenter = 113.dp
+/** While scrubbing the whole bar rises this far (Derek: the thumb hid the track and the knob under it); the
+ *  finger keeps scrubbing in the space it left, and the shadow deepens to match the lift. */
+private val ScrubLift = 56.dp
+private val ScrubElevation = 20.dp
+private val RestElevation = 12.dp
+
+/** How far the bar is lifted for scrubbing right now (NavPill adds it to the bar's layer). */
+internal fun Density.playerBarScrubLift(bar: PlayerBarState, gate: Float): Float =
+    ScrubLift.toPx() * bar.amounts(gate).s.coerceAtLeast(0f)
+
+/** The bar's shadow: the resting one, deeper as it lifts for a scrub. */
+internal fun Density.playerBarElevation(bar: PlayerBarState, gate: Float): Float =
+    lerpF(RestElevation.toPx(), ScrubElevation.toPx(), bar.amounts(gate).s.coerceIn(0f, 1f))
+
 /** Swiping up while scrubbing: Cancel (over the preview frame) fades in once the finger is CancelFrom above
  *  the track, arms only when the finger reaches it, and disarms once it's back CancelSlack below it. */
 private val CancelFrom = 24.dp
@@ -316,14 +330,6 @@ private class BarOutline(private val topX: Float, private val topY: Float, priva
     }
 }
 
-/** Where the transport row puts play, in the bar's own pixels (the row sits above the progress hairline, play in its middle). */
-private fun Density.playRect(barW: Float, barH: Float): Rect {
-    val w = PlaySlotWidth.toPx()
-    val bottom = barH - PlayerProgressRoom.toPx() - PlayerBarPadding.toPx()
-    val top = barH - PlayerProgressRoom.toPx() - PlayerRowHeight.toPx() + PlayerBarPadding.toPx()
-    return Rect(barW / 2f - w / 2f, top, barW / 2f + w / 2f, bottom)
-}
-
 /** The progress hairline at rest, under the transport row (0.5.38: 10% smaller, 248×2.7). */
 private val HairlineInset = 34.dp
 private val HairlineHeight = 2.7.dp
@@ -393,7 +399,6 @@ internal fun Modifier.playerBarGestures(
             val cardOpen = bar.card.targetValue >= 0.5f
             val panelOpen = bar.panel.targetValue >= 0.5f
             val atRest = !cardOpen && !panelOpen && gate() >= 1f
-            val onPlay = atRest && playRect(size.width.toFloat(), size.height.toFloat()).contains(down.position)
             val startCard = bar.card.value
             val startPanel = bar.panel.value
             val cardTravel = CardHeight.toPx() - restH
@@ -413,6 +418,7 @@ internal fun Modifier.playerBarGestures(
             // 0 undecided, 1 scrub, 2 vertical, 3 held (the card opens under the finger), 4 not ours.
             var mode = 0
             var chapter: String? = null
+            var scrubFromY = 0f
             try {
                 while (true) {
                     val event = if (mode == 0 && atRest) {
@@ -455,12 +461,14 @@ internal fun Modifier.playerBarGestures(
                     if (!change.pressed) break
                     if (mode == 0 && hypot(moved.x, moved.y) > viewConfiguration.touchSlop) {
                         mode = when {
-                            onPlay && abs(moved.x) > abs(moved.y) && duration > 0 -> 1
+                            // Sideways from anywhere on the resting bar: a scrub (its buttons only ever got taps).
+                            atRest && abs(moved.x) > abs(moved.y) && duration > 0 -> 1
                             inList && !(moved.y > abs(moved.x) && chapterList?.canScrollBackward == false) -> 4
                             abs(moved.y) > abs(moved.x) -> 2
                             else -> 4
                         }
                         if (mode == 1) {
+                            scrubFromY = moved.y
                             val ms = landingAt(change.position.x)
                             bar.previewMs = ms
                             chapter = player.chapterAt(ms)
@@ -480,12 +488,11 @@ internal fun Modifier.playerBarGestures(
                                 bar.cancelArmed = armed
                                 haptic(view, if (armed) HapticFeedbackConstants.LONG_PRESS else HapticFeedbackConstants.CLOCK_TICK)
                             }
-                            // Fading in, measured up from the bar's bottom (which stays put while the bar grows
-                            // into the track): from CancelFrom over the track's middle to Cancel itself.
-                            val up = size.height - y
-                            val from = (TrackBottom + TrackHeight / 2 + CancelFrom).toPx()
-                            val to = size.height - reach
-                            bar.snap(bar.cancel, if (armed) 1f else ((up - from) / (to - from).coerceAtLeast(1f)).coerceIn(0f, 0.999f))
+                            // Fading in by the finger's own travel up since the scrub began (the bar lifts under
+                            // it, so bar-local heights don't say how far it went): from CancelFrom up to Cancel.
+                            val travel = scrubFromY - moved.y - CancelFrom.toPx()
+                            val left = (y - reach).coerceAtLeast(0f)
+                            bar.snap(bar.cancel, if (armed) 1f else (travel / (travel + left).coerceAtLeast(1f)).coerceIn(0f, 0.999f))
                             if (!armed) {
                                 val ms = landingAt(change.position.x)
                                 bar.previewMs = ms

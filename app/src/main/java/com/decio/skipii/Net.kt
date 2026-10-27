@@ -66,7 +66,7 @@ class NewPipeDownloader private constructor(private val client: OkHttpClient) : 
                 response.code,
                 response.message,
                 response.headers.toMultimap(),
-                if (PlayerFallback.handles(request.url())) PlayerFallback.substitute(request.dataToSend(), text) else text,
+                if (PlayerFallback.handles(request.url())) PlayerFallback.substitute(request.url(), request.dataToSend(), text) else text,
                 response.request.url.toString(),
             )
         }
