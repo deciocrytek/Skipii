@@ -30,6 +30,12 @@ run `scripts/publish-apk.sh`.
   player down to minimize it (it follows your finger) or swipe the mini-player up to expand.
 - **Background audio** with a media notification; the mini-player shows the live video.
 - **Queue:** press and hold any video for Play next / Add to queue.
+- **Shorts:** a full-screen vertical feed (yours when signed in, a general one otherwise). Swipe
+  between shorts, tap to pause; the tab bar turns into a frosted-glass bar with Like, Comments,
+  Share and the channel (tap to subscribe). The next 10 unseen shorts are kept downloaded (about
+  100–150 MB of cache), so they start instantly even right after the app opens; each one is
+  forgotten once seen and the next is fetched in the background. Your regular video pauses and
+  comes back when you leave.
 - **SponsorBlock:** per category, Skip (with an audio fade and Undo), Ask (a Skip button), Show on the
   scrubber, or Off. Settings are in the account sheet.
 - **Comments** with replies, a **quality picker** (Auto or any height YouTube offers, remembered),
@@ -47,7 +53,8 @@ run `scripts/publish-apk.sh`.
 3. ✅ Comments, quality picker, landscape fullscreen
 4. ✅ Google sign-in with full sync
 5. ✅ Queue, comment posting, SponsorBlock, Castii-style tab bar
-6. Downloads, audio-only mode, captions
+6. ✅ Shorts tab
+7. Downloads, captions
 
 ## Building
 
@@ -71,6 +78,7 @@ app/src/main/java/com/decio/skipii/
   PlayerUi.kt         watch screen, overlay controls, scrubber, mini-player
   MainActivity.kt     app shell: tabs, floating nav capsule, player sheet
   Screens.kt          Home, Subscriptions, Search, Library
+  Shorts.kt           Shorts tab: feed, preloading player pool, frosted-glass bar
   UiKit.kt            shared components and expressive shapes
   Theme.kt, Motion.kt, Net.kt
 docs/
@@ -84,6 +92,7 @@ CLAUDE.md             product decisions and working rules for AI-assisted develo
 - [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor): YouTube data, GPL-3.0
 - [AndroidX Media3](https://github.com/androidx/media): playback
 - [SponsorBlock](https://sponsor.ajay.app): sponsor segments, CC BY-NC-SA 4.0 (planned)
+- [essopsp](https://github.com/essopsp): the idea of a Shorts tab ([#10](https://github.com/deciocrytek/Skipii/pull/10))
 
 ## License
 

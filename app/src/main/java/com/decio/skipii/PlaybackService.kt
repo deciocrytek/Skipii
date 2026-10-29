@@ -523,10 +523,10 @@ private class SponsorSkipper(private val player: ExoPlayer) : Player.Listener {
  * Builds the media source for a video ID. YouTube serves video and audio as separate
  * streams, so they're merged. Each is wrapped in a generated DASH manifest — the same
  * technique NewPipe uses — which makes ExoPlayer fetch in ranged chunks; requesting a
- * whole stream in one go gets throttled to a crawl.
+ * whole stream in one go gets throttled to a crawl. The Shorts players (Shorts.kt) use it too.
  */
 @OptIn(UnstableApi::class)
-private class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory {
+internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory {
     private val dataSourceFactory: DataSource.Factory = DefaultDataSource.Factory(
         context,
         OkHttpDataSource.Factory(Net.client).setUserAgent(Net.USER_AGENT),

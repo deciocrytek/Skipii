@@ -524,12 +524,23 @@ class PlayerState(private val scope: CoroutineScope) {
      */
     private var wantBackground = false
 
-    /** Video is off in the background and whenever audio only is on. */
+    /**
+     * The Shorts tab is open: the paused video gives its decoder back (Shorts keeps four of
+     * its own; with this one too the fourth failed to start on the emulator, 2026-10-28).
+     */
+    fun setVideoAside(aside: Boolean) {
+        wantAside = aside
+        applyVideoTrack()
+    }
+
+    private var wantAside = false
+
+    /** Video is off in the background, while Shorts is open and whenever audio only is on. */
     private fun applyVideoTrack() {
-        val off = wantBackground || AudioOnly.enabled
+        val off = wantBackground || wantAside || AudioOnly.enabled
         val player = controller ?: return
         if (player.trackSelectionParameters.disabledTrackTypes.contains(androidx.media3.common.C.TRACK_TYPE_VIDEO) == off) return
-        Log.i(TAG, if (off) "video off (${if (AudioOnly.enabled) "audio only" else "background"})" else "video on")
+        Log.i(TAG, if (off) "video off (${if (AudioOnly.enabled) "audio only" else if (wantAside) "Shorts" else "background"})" else "video on")
         player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
             .setTrackTypeDisabled(androidx.media3.common.C.TRACK_TYPE_VIDEO, off)
             .build()

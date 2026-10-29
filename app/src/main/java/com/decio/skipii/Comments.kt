@@ -1,5 +1,7 @@
 package com.decio.skipii
 
+import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -161,9 +163,11 @@ class CommentsState(private val scope: CoroutineScope) {
         liked.clear()
         loading = true
         job?.cancel()
+        val startedAt = android.os.SystemClock.elapsedRealtime()
         job = scope.launch {
             runCatching { CommentFeed.first(id) }
                 .onSuccess { page ->
+                    Log.i("Skipii", "comments for $id in ${android.os.SystemClock.elapsedRealtime() - startedAt} ms")
                     if (videoId != id) return@onSuccess
                     comments = page.comments
                     total = page.total

@@ -61,6 +61,20 @@ class InnerTubeParseTest {
         assertEquals("ordinary videos kept", 4, page.videos.size)
     }
 
+    /** The Shorts feed (reel/reel_watch_sequence), captured anonymously 2026-10-28 (prefetch data stripped). */
+    @Test fun shortsSequence() {
+        val page = InnerTube.parseShorts(fixture("reel_sequence"))
+        assertEquals(listOf("6x4mqgyvCZ8", "0fgRDkGLIkA", "yLMNlEddt1E", "vtmR8DikTx0", "ylMTylT1Hdw", "R-74QNLTgxA"), page.videos.map { it.id })
+        page.videos.forEach { assertTrue("first frame for ${it.id}", it.thumbnail!!.startsWith("https://i.ytimg.com/vi/${it.id}/")) }
+        assertNotNull("sequence continuation", page.next)
+    }
+
+    /** The seed that worked in the 2026-10-28 probe: id, then params { 3 = 5 }, then 10 = 25. */
+    @Test fun reelSequenceParams() {
+        val bytes = java.util.Base64.getDecoder().decode(InnerTube.reelSequenceParams("m7fHuAcbD0A"))
+        assertEquals(listOf(0x0A, 11) + "m7fHuAcbD0A".map { it.code } + listOf(0x2A, 0x02, 0x18, 0x05, 0x50, 25), bytes.map { it.toInt() })
+    }
+
     @Test fun viewCounts() {
         assertEquals(1_234_567L, InnerTube.parseViews("1,234,567 views"))
         assertEquals(1_200_000L, InnerTube.parseViews("1.2M views"))

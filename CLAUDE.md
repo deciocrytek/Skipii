@@ -6,7 +6,7 @@ Design source of truth: `~/decio/castii/docs/DESIGN_LANGUAGE.md` (Material 3 Exp
 motion standard) and the approved mockup `docs/design/mockup.html` (open in a browser; earlier rounds in `docs/design/`).
 
 ## Binding product decisions
-- Pure player: no upload/Create button. Tabs: Home / Subscriptions / Search / Library.
+- Pure player: no upload/Create button. Tabs: Home / Subscriptions / Shorts / Search / Library (Shorts since 0.5.50).
 - Google sign-in (decided 2026-10-04, superseding "no account"): WebView on Google's own page,
   youtube.com cookies kept AES-GCM encrypted (Keystore). **Full sync** chosen by Derek: reads
   home/subscriptions/history/playlists AND writes likes, subscribes, Watch later, watch history.
@@ -305,6 +305,75 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   retries hijacked the video just opened). No third client exists (probed 2026-10-27): TVHTML5_SIMPLY / MWEB links need the
   player JS for `n`, which extractor 0.26.5 (and dev without an external JS engine) can't run; ANDROID_VR 403s past chunk 1.
   Real fix still open: PO tokens / running the player JS (WebView). Test by forcing refusals in `PlayerFallback`.
+- 0.5.50 Shorts (2026-10-28, Derek; the idea is essopsp's PR #10, credited in README, code written fresh). `Shorts.kt`.
+  Feed = `InnerTube.shorts`: the reel sequence (reel/reel_watch_sequence, `reelSequenceParams` = hand-encoded ReelSequence
+  protobuf) after a seed that plays first: signed in, the first short on Home; else/none, a random one of the first 10 of a
+  public "shorts" search — the sequence works anonymously (probed 2026-10-28), so signed out there's a generic feed (Derek).
+  Parser tested by `shortsSequence` (reel_sequence.json, real anonymous capture). Shorts run on their OWN players (Derek:
+  "pause it, restore on leave"): entering pauses the app's video (no mini-player on the tab), leaving plays it again if it
+  was playing (`resumeMain`). `ShortsState` keeps a pool of 4 ExoPlayers (`ShortPlayer`: `YouTubeMediaSourceFactory`, now
+  internal, + `SyncedRenderersFactory`, loops, 20 MB / 180 s buffer) for the short before, this one and the two after, each on
+  its page's own TextureView (`VerticalPager`, beyondViewportPageCount 1, so the neighbour's first frame is live mid-swipe).
+  Preloading (Derek: "if the current video is fully loaded, start loading the next"): the next short prepares only once
+  the current one is `loaded` (buffered to its end, or capped with ≥30 s ahead), the one after only once the next is;
+  details/streams (`YouTube.details`) for the next three once this one's are in. Logs "shorts: loading <id> (on screen|next|
+  after next)". Leaving releases the players (feed and spot kept); background pauses (`setForeground`). 403 → fresh links once.
+  Signed in: like / subscribe (`InnerTube.videoState`), history start ping only (no watch-time pings). Tap = pause (own tap
+  detector: detectTapGestures took the down and a quick flick came out as a pause).
+  The bar (Derek's mockup, iterated 2026-10-28): the tab bar turns into ‹ + a pill of dark frosted glass along ONE progress
+  (`shortsMorph`, 620 ms linear in, 460 ms `ShortsExitEasing` out, everything moving from the first frame — the first cut
+  waited ~300 ms on the tab glide and felt slow). NavPill: `shortsTabDrop` / `shortsHomeFade` / `shortsBarFade`, tabs off
+  while shown. `ShortsBar`: ‹ 50 + gap 8 + pill 236, 50 dp tall, centred, bottom = tab bar's bottom; pill = Like ·
+  Comments · Share · channel avatar (+/✓ badge; tap subscribes, signed out a note). ‹ and Back return to the tab Shorts
+  was opened from (`shortsFrom`). Glass = One UI Launcher's recipe on the live frame: each page's frame sampled 40 px wide
+  (TextureView.getBitmap, ≤30/s while under the bar, once for a waiting short), 3×2 box blur, saturation 1.25 + Samsung curve
+  (15–255 → 53.5–232) as a ColorFilter, under #252525 at 38% (Derek: dark, more transparent); per page so mid-swipe each short
+  shows through its own half. No outline (rule 7). Icons are the mockup's own paths, centred by VISUAL MASS (silhouette
+  centroid, `Mass`; Derek: box-centred "doesn't look centered"); the comment bubble only halfway, the avatar as drawn.
+  Progress = 2.5 dp line on the screen's bottom edge (out of the pill: it weighed the pill down). Video full-bleed under both
+  system bars (`StatusBarOverVideo.shorts`: white icons on both), the page vignette hidden. Comments = `CommentsPanel` from
+  42%; the bar steps down out of its way; Back closes it. Five tabs: active weight 3.5 so "Subscriptions" fits.
+- 0.5.51 Shorts flow (2026-10-29, Derek: "taking too long to load every single video. It's not flowing"). Measured with
+  "shorts: <id> playing N ms after coming on screen (<what was ready>)": nothing ready 3.6 s, links only 1.9 s, first frame
+  ready ~0 ms. Causes: links (NewPipe extraction, 2–3.5 s) fetched only after the current one's; the next short loaded only
+  after the current was COMPLETE (most get swiped first). Now: links for the next 5 (+1 behind), 3 at a time, nearest first;
+  `YouTube.details(id, wait = false)` (no bot-check waits in Shorts); the next two load a 5 s preview (`CappedLoadControl`,
+  `capMs`) once the short on screen has played 1 s and has 5 s ahead, each in full once all before it are; `poke()` acts on
+  player/links events at once; `tick()` never nests (ExoPlayer notifies listeners inside prepare(): doubled prepares).
+  Fixed quality, no adaptive ladder (a switch stalled playback): `ShortsBank.tracks` = H.264 ≤720p by the SHORT side (720×1280)
+  + M4A. Note `StreamSelection`'s 1080 cap is on height, so vertical videos in the main player still top out at 854 tall.
+  The BANK (`ShortsBank.kt`, Derek: "always keep 10 shorts in memory even when app is closed … once viewed, forget it and
+  load more"): RAM can't outlive the app, so the next 10 unseen shorts are kept WHOLE ON DISK (SimpleCache in
+  cacheDir/shorts-bank, NoOpCacheEvictor; index + manifests + details in filesDir/shorts_bank.json, with the feed's next
+  token). Every Shorts player reads through that cache (DASH manifests whose stream URLs are the cache keys), so a banked
+  short plays with no request at all. `ShortsState` is one per process (`SkipiiApplication.shorts`, MainScope; the shell
+  calls leave() on dispose) and `fillBank()` runs every 1.5 s from 3 s after start: downloads the next unseen short in 1 MB
+  ranged pieces, one at a time, only while the connection is free (on Shorts: on-screen short started + previews loaded;
+  elsewhere: the app's video isn't buffering, `mainBusy`). Seen = forgotten once its player holds it; bytes no player holds
+  are dropped (`cleanup`). A banked short that errors plays live instead. Measured: the bank fills in ~1 min (1–38 MB each,
+  ~135 MB); after a force-stop, every banked short starts in 0–36 ms. Comments: two requests on tap (~1–2 s); now
+  `CommentFeed.prefetch` as each short comes on screen (73 ms to open). Nothing else starts until the on-screen short has
+  played 1 s. `prewarm()`: with the app open and Shorts not, one player sits ready (paused, no surface) on the bank's next
+  short, so opening the tab plays in ~25 ms (was 1–2.4 s); released in the background. Leaving Shorts moves past the short
+  just seen, so the tab reopens on an unseen one. "shorts: <id> stalled at Ns (M ms loaded ahead)" with plenty loaded is
+  the EMULATOR's c2.goldfish.h264 decoder falling behind (EventLogger: droppedFrames 50; happens with no other player and
+  with the glass sampling off) — judge stalls on the Pixel, not the emulator.
+- 0.5.52 (2026-10-29, Derek): ‹ left Shorts slowly (the Back gesture didn't): `leave()` released all four players on the
+  tap, and ExoPlayer.release() blocks until each decoder is shut (heavier with the Pixel's hardware decoders; the system
+  back animation hid it). Now leave() only pauses and detaches them; they're released one a frame after the exit animation
+  (`retired`, `retiring`), and the player of the short the tab reopens on stays paused (instant reopen). Never release
+  players on a tap. The progress line was hidden by the bezel/rounded corners: 4 dp off the bottom edge and inset by the
+  display's bottom corner curve at that height (`bottomCornerRadius`, Android 12+ RoundedCorner) + 12 dp, rounded ends.
+- 0.5.53 (2026-10-29, Derek: tapping the channel gives two options, subscribe and go to channel). The bar's channel button
+  opens `ShortsChannelMenu`: a card of the bar's dark frosted glass (darker tint, 62%, so words read; `drawFrost` /
+  `framesUnder` now shared with the bar), right edge on the pill's, 10 dp above the bar, growing from the button: the
+  channel's name, Subscribe / Unsubscribe (signed out: the sign-in note), Go to channel. A tap elsewhere (consumed), Back,
+  or the next short closes it. Go to channel = the app's channel page over Shorts (`showChannel`); the short pauses
+  (`ShortsState.cover`), the glass bar steps aside, status icons follow the page; Back returns to the short. A video opened
+  from that page leaves Shorts and plays in the app's player.
+  0.5.54: its buttons did nothing on the phone. The close-on-outside-tap catcher wrapped the card, so it saw every touch
+  (a parent's Main pass) and closed the card on touch-down before a row's click; now it's a layer BEHIND the card (a hit
+  sibling stops the ones below) and the card swallows its own touches. Test menus with a tap ~0.5 s after opening.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -397,6 +466,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.
 - `Screens.kt` — Home / Subscriptions / Search / Library.
+- `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
+- `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.

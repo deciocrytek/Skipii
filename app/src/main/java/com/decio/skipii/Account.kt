@@ -327,6 +327,73 @@ object InnerTube {
         subscribed
     }
 
+    // ── Shorts ─────────────────────────────────────────────────────────────────
+
+    /**
+     * One page of the Shorts feed; [token] null for the first. YouTube's Shorts feed is no browse
+     * page but the "reel sequence" that follows one short (reel/reel_watch_sequence, as on
+     * youtube.com/shorts). The first page starts from a seed: signed in, the first short on your
+     * Home (so the sequence is yours); else, or with none there, one from a public "shorts"
+     * search — the sequence then works anonymously (checked 2026-10-28). The seed plays first.
+     */
+    suspend fun shorts(token: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        if (token != null) return@withContext parseShorts(postAny("reel/reel_watch_sequence", JSONObject().put("sequenceParams", token)))
+        val seed = shortsSeed() ?: throw IOException("YouTube didn't offer any Shorts right now.")
+        val page = parseShorts(postAny("reel/reel_watch_sequence", JSONObject().put("sequenceParams", reelSequenceParams(seed))))
+        page.copy(videos = listOf(shortItem(seed, null)) + page.videos.filter { it.id != seed })
+    }
+
+    private fun shortsSeed(): String? {
+        if (Account.signedIn) {
+            runCatching { reelIds(post("browse", JSONObject().put("browseId", "FEwhat_to_watch"))).firstOrNull() }
+                .getOrNull()?.let { return it }
+        }
+        // A different public short each time, so the generic feed doesn't always start the same way.
+        return reelIds(postAny("search", JSONObject().put("query", "shorts"))).take(10).randomOrNull()
+    }
+
+    /** Every short a response links to (Home's Shorts shelf, search results), in order. */
+    private fun reelIds(root: JSONObject): List<String> {
+        val ids = LinkedHashSet<String>()
+        root.walk { key, obj -> if (key == "reelWatchEndpoint") obj.optString("videoId").takeIf { it.length == 11 }?.let(ids::add) }
+        return ids.toList()
+    }
+
+    /**
+     * The sequence's start, as youtube.com encodes it (the ReelSequence protobuf, per YouTube.js):
+     * 1 = the seed's id, 5 = params { 3 = 5 }, 10 = 25. Written by hand; no protobuf library.
+     */
+    internal fun reelSequenceParams(shortId: String): String {
+        val id = shortId.toByteArray()
+        val bytes = byteArrayOf(0x0A, id.size.toByte()) + id + byteArrayOf(0x2A, 0x02, 0x18, 0x05, 0x50, 25)
+        return java.util.Base64.getEncoder().encodeToString(bytes)
+    }
+
+    /**
+     * A reel sequence: each `entries[]` item's command carries a reelWatchEndpoint (the short's
+     * id and its 9:16 first frame); the next page is `continuationEndpoint`'s token. Titles and
+     * channels aren't in it; they come with the streams (YouTube.details).
+     */
+    internal fun parseShorts(root: JSONObject): FeedPage {
+        val videos = LinkedHashMap<String, VideoItem>()
+        val entries = root.optJSONArray("entries")
+        for (i in 0 until (entries?.length() ?: 0)) {
+            val reel = entries?.optJSONObject(i)?.optJSONObject("command")?.optJSONObject("reelWatchEndpoint") ?: continue
+            val id = reel.optString("videoId").takeIf { it.length == 11 } ?: continue
+            val frame = reel.optJSONObject("thumbnail")?.collectStrings("url")?.firstOrNull()
+            videos.putIfAbsent(id, shortItem(id, frame))
+        }
+        val next = root.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token")?.ifBlank { null }
+        return FeedPage(videos.values.toList(), next)
+    }
+
+    /** A short before its details load: just its id and its first frame (9:16). */
+    private fun shortItem(id: String, frame: String?) = VideoItem(
+        id = id, title = "", channel = "", channelUrl = null,
+        thumbnail = frame ?: "https://i.ytimg.com/vi/$id/oar2.jpg",
+        avatar = null, durationSec = 0, views = 0, uploaded = null,
+    )
+
     // ── Writes ─────────────────────────────────────────────────────────────────
 
     suspend fun setLike(videoId: String, status: LikeStatus) = withContext(Dispatchers.IO) {

@@ -557,6 +557,8 @@ fun SkipiiTheme(content: @Composable () -> Unit) {
 /** True while the open player paints the status bar black over its video: icons go white. */
 object StatusBarOverVideo {
     var on by mutableStateOf(false)
+    /** The Shorts tab: video under both system bars, so both bars' icons go white. */
+    var shorts by mutableStateOf(false)
 }
 
 /**
@@ -568,12 +570,13 @@ object StatusBarOverVideo {
 private fun SystemBars(dark: Boolean, windowBg: Color) {
     val view = LocalView.current
     if (view.isInEditMode) return
-    val overVideo = StatusBarOverVideo.on
+    val overVideo = StatusBarOverVideo.on || StatusBarOverVideo.shorts
+    val navOverVideo = StatusBarOverVideo.shorts
     SideEffect {
         val window = (view.context as? Activity)?.window ?: return@SideEffect
         val controller = WindowCompat.getInsetsController(window, view)
         controller.isAppearanceLightStatusBars = !dark && !overVideo
-        controller.isAppearanceLightNavigationBars = !dark
+        controller.isAppearanceLightNavigationBars = !dark && !navOverVideo
     }
     DisposableEffect(windowBg) {
         (view.context as? Activity)?.window?.setBackgroundDrawable(ColorDrawable(windowBg.toArgb()))

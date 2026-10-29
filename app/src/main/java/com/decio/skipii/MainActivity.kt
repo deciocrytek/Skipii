@@ -66,10 +66,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.SlowMotionVideo
 import androidx.compose.material.icons.outlined.Subscriptions
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material.icons.rounded.Subscriptions
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Icon
@@ -145,6 +147,7 @@ class MainActivity : ComponentActivity() {
 enum class Tab(val label: String, val icon: ImageVector, val selectedIcon: ImageVector) {
     Home("Home", Icons.Outlined.Home, Icons.Rounded.Home),
     Subscriptions("Subscriptions", Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions),
+    Shorts("Shorts", Icons.Outlined.SlowMotionVideo, Icons.Rounded.SlowMotionVideo),
     Search("Search", Icons.Rounded.Search, Icons.Rounded.Search),
     Library("Library", Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary),
 }
@@ -168,6 +171,11 @@ fun SkipiiApp() {
     var channelState by remember { mutableStateOf<ChannelState?>(null) }
     val playlistFeed = remember(openPlaylist?.id) { openPlaylist?.let { lib.playlistFeed(it.id) } }
     var tab by rememberSaveable { mutableStateOf(Tab.Home) }
+    // Shorts: its own feed and players; ‹ (and Back) return to the tab it was opened from.
+    // One per process (SkipiiApplication), so its bank keeps filling with no window open.
+    val shorts = (LocalContext.current.applicationContext as SkipiiApplication).shorts
+    DisposableEffect(shorts) { onDispose { shorts.leave() } }
+    var shortsFrom by rememberSaveable { mutableStateOf(Tab.Home) }
     // Bumped when the already-selected tab is tapped; that tab's list scrolls to the top.
     val scrollToTop = remember { mutableStateMapOf<Tab, Int>() }
     val reduced = rememberReducedMotion()
@@ -176,8 +184,8 @@ fun SkipiiApp() {
     // The screen stays on while a video plays (full player, mini-player or fullscreen);
     // paused, the normal timeout applies again. Only affects the visible window.
     val rootView = LocalView.current
-    DisposableEffect(player.isPlaying) {
-        rootView.keepScreenOn = player.isPlaying
+    DisposableEffect(player.isPlaying, shorts.playing) {
+        rootView.keepScreenOn = player.isPlaying || shorts.playing
         onDispose { rootView.keepScreenOn = false }
     }
 
@@ -194,8 +202,8 @@ fun SkipiiApp() {
     DisposableEffect(lifecycle) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             when (event) {
-                androidx.lifecycle.Lifecycle.Event.ON_STOP -> player.setBackground(true)
-                androidx.lifecycle.Lifecycle.Event.ON_START -> player.setBackground(false)
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> { player.setBackground(true); shorts.setForeground(false) }
+                androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true) }
                 else -> Unit
             }
         }
@@ -208,7 +216,8 @@ fun SkipiiApp() {
     val stackBottom = navBottom.coerceAtLeast(8.dp) +
         if (WindowInsets.tappableElement.asPaddingValues().calculateBottomPadding() > 0.dp) 10.dp else 0.dp
     var optionsFor by remember { mutableStateOf<VideoItem?>(null) }
-    val hasMini = player.current != null
+    // On Shorts the app's video waits, paused, out of sight (no mini-player).
+    val hasMini = player.current != null && tab != Tab.Shorts
     // Lists scroll fully clear of the floating nav (and mini-player when present).
     val contentPadding = PaddingValues(
         bottom = stackBottom + NavHeight + (if (hasMini) MiniHeight + MiniGap else 0.dp) + 16.dp,
@@ -234,10 +243,11 @@ fun SkipiiApp() {
     fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen()
 
     BackHandler(enabled = player.expanded) { player.expanded = false }
-    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { tab = Tab.Home }
+    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { tab = if (tab == Tab.Shorts) shortsFrom else Tab.Home }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
     BackHandler(enabled = signingIn) { signingIn = false }
     BackHandler(enabled = !player.expanded && openChannel != null) { openChannel = null }
+    BackHandler(enabled = tab == Tab.Shorts && shorts.commentsOpen) { shorts.commentsOpen = false }
     // Registered last so it wins: in fullscreen, Back returns to the portrait player first.
     BackHandler(enabled = showFullscreen) { orientation.exitFullscreen() }
 
@@ -252,6 +262,35 @@ fun SkipiiApp() {
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val density = LocalDensity.current
 
+    // Shorts (Shorts.kt) play on their own players: the app's video pauses on the way in and
+    // carries on, from the same spot in the mini-player, on the way out (Derek, 2026-10-28).
+    // One progress turns the tab bar into the glass bar: 620 ms in, 460 ms out, both moving at once.
+    val shortsMorph = remember { androidx.compose.animation.core.Animatable(if (tab == Tab.Shorts) 1f else 0f) }
+    var resumeMain by remember { mutableStateOf(false) }
+    LaunchedEffect(tab) {
+        if (tab == Tab.Shorts) {
+            resumeMain = resumeMain || player.isPlaying
+            player.controller?.pause()
+            player.setVideoAside(true)
+            shorts.enter()
+        } else if (shorts.active) {
+            shorts.leave()
+            player.setVideoAside(false)
+            if (resumeMain) player.controller?.play()
+            resumeMain = false
+        }
+    }
+    LaunchedEffect(tab == Tab.Shorts) {
+        if (tab == Tab.Shorts) shortsMorph.animateTo(1f, if (reduced) snap() else tween(ShortsEnterMs, easing = androidx.compose.animation.core.LinearEasing))
+        else shortsMorph.animateTo(0f, if (reduced) snap() else tween(ShortsExitMs, easing = ShortsExitEasing))
+    }
+    val shortsShown by remember { derivedStateOf { shortsMorph.value > 0f } }
+    SideEffect {
+        StatusBarOverVideo.shorts = tab == Tab.Shorts && openChannel == null
+        shorts.onMessage = { player.actionMessage = it }
+        shorts.mainBusy = { player.isBuffering }
+    }
+
     // Taps, back and opening a video set `expanded`; this turns that into the morph.
     // Gesture releases settle themselves and are left alone (see PlayerMorph.animateTo).
     LaunchedEffect(player.expanded, player.current?.id) {
@@ -261,6 +300,16 @@ fun SkipiiApp() {
         // Held until the morph has completely finished, so the video changes hands once.
         derivedStateOf { player.current != null && (player.expanded || morph.dragging || morph.progress.isRunning || morph.progress.value > 0f) }
     }
+
+    fun showChannel(url: String) {
+        // From the player: minimize it so the channel page is visible.
+        player.expanded = false
+        if (channelState?.url != url) channelState = ChannelState(url, scope)
+        openChannel = url
+    }
+    // A channel opened from Shorts sits over the short, which waits paused.
+    SideEffect { shorts.cover(tab == Tab.Shorts && openChannel != null) }
+    BackHandler(enabled = tab == Tab.Shorts && shorts.channelMenu) { shorts.channelMenu = false }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(c.surface)) {
         val stageFloor = maxOf(StageMinAspect, constraints.maxWidth / (constraints.maxHeight * StageMaxHeightShare))
@@ -305,12 +354,7 @@ fun SkipiiApp() {
             LocalVideoSurface provides if (pip.active) NoVideoSurface else sharedSurface,
             LocalPictureInPicture provides pip,
             LocalVideoMenu provides { optionsFor = it },
-            LocalChannelOpener provides { url ->
-                // From the player: minimize it so the channel page is visible.
-                player.expanded = false
-                if (channelState?.url != url) channelState = ChannelState(url, scope)
-                openChannel = url
-            },
+            LocalChannelOpener provides { url -> showChannel(url) },
         ) {
         AnimatedContent(
             targetState = tab,
@@ -333,6 +377,7 @@ fun SkipiiApp() {
                     onSignIn = { signingIn = true }, onAccount = { accountSheet = true },
                     scrollToTop = scrollToTop[Tab.Subscriptions] ?: 0,
                 )
+                Tab.Shorts -> ShortsScreen(shorts, { shortsMorph.value }, overlayBottom = stackBottom + GlassHeight + 16.dp)
                 Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
                 Tab.Library -> LibraryScreen(
                     lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openPlaylist = it },
@@ -362,7 +407,12 @@ fun SkipiiApp() {
             exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
         ) {
             channelState?.let { ch ->
-                ChannelScreen(ch, contentPadding, onBack = { openChannel = null }, onOpen = player::open, onMessage = { player.actionMessage = it })
+                ChannelScreen(
+                    ch, contentPadding, onBack = { openChannel = null },
+                    // A video from a channel opened in Shorts plays in the app's player: Shorts closes.
+                    onOpen = { v -> if (tab == Tab.Shorts) tab = shortsFrom; player.open(v) },
+                    onMessage = { player.actionMessage = it },
+                )
             }
         }
 
@@ -376,6 +426,8 @@ fun SkipiiApp() {
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(navBottom + 130.dp)
+                // Not over a short: the video runs to the screen's edge.
+                .graphicsLayer { alpha = 1f - shortsMorph.value }
                 .drawBehind { drawRect(vignette) },
         )
         // Swiping home from here never scrolls the page (the tab bar above still wins its taps).
@@ -473,7 +525,10 @@ fun SkipiiApp() {
                     selected == tab && openChannel != null -> openChannel = null
                     selected == tab && openPlaylist != null -> openPlaylist = null
                     selected == tab -> scrollToTop[selected] = (scrollToTop[selected] ?: 0) + 1
-                    else -> { openPlaylist = null; openChannel = null; tab = selected }
+                    else -> {
+                        if (selected == Tab.Shorts) shortsFrom = tab
+                        openPlaylist = null; openChannel = null; tab = selected
+                    }
                 }
             },
             player = player,
@@ -481,6 +536,8 @@ fun SkipiiApp() {
             controlsActive = player.current != null && (player.expanded || morph.dragging),
             bar = playerBar,
             onFullscreen = { toggleFullscreen() },
+            shorts = { shortsMorph.value },
+            tabsEnabled = !shortsShown,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
@@ -490,6 +547,32 @@ fun SkipiiApp() {
                     alpha = 1f - barAside
                 },
         )
+
+        // The tab bar's Shorts form: ‹ and the glass pill, out of the tab bar's own spot. It steps
+        // down out of the way of the comments panel (its composer sits there), as the player's bar does.
+        if (shortsShown) {
+            val shortsAside by animateFloatAsState(
+                if (shorts.commentsOpen || openChannel != null) 1f else 0f,
+                if (reduced) snap() else tween(280, easing = Motion.Emphasized), label = "shortsAside",
+            )
+            ShortsBar(
+                shorts,
+                progress = { shortsMorph.value },
+                onBack = { tab = shortsFrom },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
+                    .widthIn(max = NavWidth)
+                    .fillMaxWidth()
+                    .height(NavHeight)
+                    .graphicsLayer {
+                        translationY = shortsAside * (NavHeight + stackBottom + 24.dp).toPx()
+                        alpha = 1f - shortsAside
+                    },
+            )
+        }
+
+        if (shortsShown) ShortsChannelMenu(shorts, bottom = stackBottom + GlassHeight + 10.dp, onChannel = ::showChannel)
 
         if (showFullscreen) FullscreenPlayer(player, onExit = { orientation.exitFullscreen() })
 

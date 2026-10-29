@@ -167,8 +167,12 @@ object YouTube {
             .mapNotNull { it.toVideoItem() }
     }
 
-    suspend fun details(id: String): VideoDetails = withContext(Dispatchers.IO) {
-        val info = BotCheck.retrying(id) { StreamCache.getOrLoad(id) }
+    /**
+     * [wait] false: no quiet retries through a bot check ([BotCheck.withoutWaiting]) — Shorts
+     * would rather move on than hold a short on a spinner for up to half a minute.
+     */
+    suspend fun details(id: String, wait: Boolean = true): VideoDetails = withContext(Dispatchers.IO) {
+        val info = if (wait) BotCheck.retrying(id) { StreamCache.getOrLoad(id) } else BotCheck.withoutWaiting(id) { StreamCache.getOrLoad(id) }
         val picked = StreamSelection.pick(info)
         VideoDetails(
             item = VideoItem(

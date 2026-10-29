@@ -8,6 +8,9 @@ import org.schabi.newpipe.extractor.NewPipe
 
 class SkipiiApplication : Application(), ImageLoaderFactory {
 
+    /** The Shorts feed, players and bank: one per process, outliving any window. */
+    val shorts by lazy { ShortsState(this, kotlinx.coroutines.MainScope()) }
+
     override fun onCreate() {
         super.onCreate()
         NewPipe.init(NewPipeDownloader.instance)
@@ -22,6 +25,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         SavedSession.init(this)
         Account.init(this)
         SponsorBlock.init(this)
+        ShortsBank.init(this)
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.
         getSystemService(android.net.ConnectivityManager::class.java)?.registerDefaultNetworkCallback(
             object : android.net.ConnectivityManager.NetworkCallback() {

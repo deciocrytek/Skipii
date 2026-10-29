@@ -98,7 +98,9 @@ import kotlin.math.sin
 // 62 dp (Derek, 2026-10-05): between Castii's 56 and Ledgii's 78. Tabs keep 50 dp targets.
 internal val NavHeight = 62.dp
 internal val NavWidth = 328.dp
-private const val SELECTED_TAB_WEIGHT = 2.2f
+// 0.5.50: five tabs (Shorts); the active pill keeps about the width it had among four, so
+// "Subscriptions" still fits.
+private const val SELECTED_TAB_WEIGHT = 3.5f
 // The open player's bar is compact (Derek, 2026-10-19: play pill ~60% of its first 161 dp,
 // the ±10 buttons tight beside it): it narrows from the tab bar's width as the player opens.
 // 0.5.32 (Derek, 2026-10-25: mockup A "Lift" in docs/design/player-bar-reach.html): a size up
@@ -166,6 +168,9 @@ private const val BarBurstWindowMs = 700L
  * 0.5.34: the bar holds every playback control (PlayerBar.kt): a ⋮ key, the tools card, the
  * quality list and the scrub track. Its size and outline follow [bar]'s values per frame on
  * top of the morph, so the capsule is one shape that grows into each of them.
+ *
+ * 0.5.50: on the Shorts tab the tabs drop out and the bar's tone fades along [shorts] (0..1)
+ * while the glass bar (Shorts.kt) splits out of the same spot; [tabsEnabled] is off meanwhile.
  */
 @Composable
 internal fun NavPill(
@@ -177,6 +182,8 @@ internal fun NavPill(
     bar: PlayerBarState,
     onFullscreen: () -> Unit,
     modifier: Modifier = Modifier,
+    shorts: () -> Float = { 0f },
+    tabsEnabled: Boolean = true,
 ) {
     val c = MaterialTheme.colorScheme
     val view = LocalView.current
@@ -237,11 +244,11 @@ internal fun NavPill(
                         playerBarScrubLift(bar, barGate(p))
                     shape = playerBarShape(bar, size, barGate(p))
                     clip = true
-                    shadowElevation = playerBarElevation(bar, barGate(p))
+                    shadowElevation = playerBarElevation(bar, barGate(p)) * (1f - shortsBarFade(shorts()))
                     ambientShadowColor = Color.Black
                     spotShadowColor = Color.Black
                 }
-                .drawBehind { drawRect(c.surfaceVariant) }
+                .drawBehind { drawRect(c.surfaceVariant, alpha = 1f - shortsBarFade(shorts())) }
                 .playerBarGestures(bar, player, enabled = controlsActive, view = view, gate = gate, onPick = onPick),
         ) {
           CompositionLocalProvider(LocalContentColor provides c.onSurfaceVariant) {
@@ -306,15 +313,18 @@ internal fun NavPill(
                                 .onPlaced { anchors.tabs[t.ordinal] = it }
                                 .graphicsLayer {
                                     val k = ramp(morph.progress.value, i * TabExitStagger, TabExitSpan + i * TabExitStagger)
-                                    alpha = 1f - k
-                                    translationY = 14.dp.toPx() * k
-                                    scaleX = 1f - 0.4f * k
+                                    // Into Shorts: Home fades where ‹ appears, the rest drop out left to right.
+                                    val sp = shorts()
+                                    val d = shortsTabDrop(sp, i)
+                                    alpha = (1f - k) * (if (i == 0) 1f - shortsHomeFade(sp) else 1f - d)
+                                    translationY = 14.dp.toPx() * k + 16.dp.toPx() * d
+                                    scaleX = (1f - 0.4f * k) * (1f - 0.15f * d)
                                     scaleY = scaleX
                                 }
                                 // While the player owns the bar there's no click handler at all,
                                 // so touches reach the player buttons above.
                                 .then(
-                                    if (controlsActive) Modifier else Modifier.clickable(interactionSource = interaction, indication = null) {
+                                    if (controlsActive || !tabsEnabled) Modifier else Modifier.clickable(interactionSource = interaction, indication = null) {
                                         view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                         onSelect(t)
                                     },
