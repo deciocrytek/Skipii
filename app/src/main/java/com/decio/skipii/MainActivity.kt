@@ -250,7 +250,8 @@ fun SkipiiApp() {
     SideEffect { if (!pip.active) fullscreenBeforePip.value = showFullscreen }
     LaunchedEffect(showFullscreen) { player.fullscreen = showFullscreen }
     SystemBarsHidden(showFullscreen)
-    fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen()
+    // A vertical video's fullscreen stays upright (Fullscreen.kt).
+    fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen(vertical = player.videoAspect < 1f)
 
     BackHandler(enabled = player.expanded) { player.expanded = false }
     BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { tab = if (tab == Tab.Shorts) shortsFrom else Tab.Home }
@@ -290,6 +291,8 @@ fun SkipiiApp() {
             resumeMain = false
         }
     }
+    // Shorts turned off (account sheet) while it was the tab: back to where it was opened from.
+    LaunchedEffect(ShortsSetting.enabled) { if (!ShortsSetting.enabled && tab == Tab.Shorts) tab = shortsFrom }
     LaunchedEffect(tab == Tab.Shorts) {
         if (tab == Tab.Shorts) shortsMorph.animateTo(1f, if (reduced) snap() else tween(ShortsEnterMs, easing = androidx.compose.animation.core.LinearEasing))
         else shortsMorph.animateTo(0f, if (reduced) snap() else tween(ShortsExitMs, easing = ShortsExitEasing))

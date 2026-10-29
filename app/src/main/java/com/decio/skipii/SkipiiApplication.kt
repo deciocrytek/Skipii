@@ -25,6 +25,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         SavedSession.init(this)
         Account.init(this)
         SponsorBlock.init(this)
+        ShortsSetting.init(this)
         ShortsBank.init(this)
         AppUpdate.init(this)
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.

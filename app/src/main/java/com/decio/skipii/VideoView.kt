@@ -535,7 +535,7 @@ fun Modifier.aspectFit(aspect: Float, cover: Boolean = false) = layout { measura
 }
 
 /**
- * Landscape fullscreen. Swipe down (or Back, or the exit button) returns to portrait.
+ * Fullscreen (landscape, or upright for a vertical video). Swipe down (or Back, or the exit button) returns to portrait.
  * System bars are hidden by the caller while this is shown.
  */
 @Composable

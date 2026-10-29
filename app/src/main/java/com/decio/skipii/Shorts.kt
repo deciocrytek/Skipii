@@ -1,7 +1,6 @@
 package com.decio.skipii
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.os.SystemClock
@@ -180,6 +179,31 @@ private const val GlassSampleWidth = 40
 private const val GlassBlurRadius = 2
 
 /**
+ * The Shorts tab can be turned off (GitHub issue #21; a switch in the account sheet). Off, the
+ * tab is gone from the bar and nothing about Shorts runs: no feed, no bank (its shorts are
+ * deleted from disk), no player waiting for the tab.
+ */
+object ShortsSetting {
+    private const val KEY = "shorts_enabled"
+    private var prefs: android.content.SharedPreferences? = null
+
+    var enabled by mutableStateOf(true)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        enabled = prefs?.getBoolean(KEY, true) != false
+    }
+
+    fun set(context: Context, on: Boolean) {
+        if (on == enabled) return
+        enabled = on
+        prefs?.edit()?.putBoolean(KEY, on)?.apply()
+        if (!on) (context.applicationContext as SkipiiApplication).shorts.turnOff()
+    }
+}
+
+/**
  * The Shorts feed and its playback.
  *
  * Feed: [InnerTube.shorts] (the reel sequence; signed out it's a generic one). Each short's
@@ -301,7 +325,26 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
             feedVersion++
         }
         // Shortly after the app opens (its own pages load first), then every 1.5 s for good.
-        scope.launch { delay(3_000); while (isActive) { fillBank(); delay(1_500) } }
+        scope.launch { delay(3_000); while (isActive) { if (ShortsSetting.enabled) fillBank(); delay(1_500) } }
+    }
+
+    /**
+     * Shorts turned off ([ShortsSetting]; the tab is never open then — the switch lives in the
+     * account sheet, which Shorts has no header for): the bank's download stops, the waiting
+     * player goes, the bank is deleted and the feed is dropped (turned back on, it loads afresh).
+     */
+    fun turnOff() {
+        if (active) return
+        bankJob?.cancel()
+        pageJob?.cancel()
+        loading = false
+        pendingFresh = false
+        releasePlayers()
+        items = emptyList()
+        next = null
+        index = 0
+        feedVersion++
+        scope.launch(Dispatchers.IO + kotlinx.coroutines.NonCancellable) { ShortsBank.clear() }
     }
 
     private fun ShortsBank.Entry.details() = VideoDetails(
@@ -1324,10 +1367,7 @@ fun ShortsBar(shorts: ShortsState, progress: () -> Float, onBack: () -> Unit, mo
             }
             GlassSlot(g, g.toolCenterX(2), slot, progress, piece = { g.right(it) }, follow = onPill, appear = tool(2), enabled = live, description = "Share", onClick = {
                 val v = shorts.current ?: return@GlassSlot
-                val send = Intent(Intent.ACTION_SEND).setType("text/plain")
-                    .putExtra(Intent.EXTRA_TEXT, "https://youtube.com/shorts/${v.id}")
-                    .putExtra(Intent.EXTRA_SUBJECT, shorts.details[v.id]?.item?.title ?: "")
-                context.startActivity(Intent.createChooser(send, null))
+                shareLink(context, "https://youtube.com/shorts/${v.id}", shorts.details[v.id]?.item?.title ?: "")
             }) {
                 Icon(ShareGlyph, contentDescription = null, tint = Ink, modifier = Modifier.size(23.dp).optical(Mass.share, 23.dp))
             }

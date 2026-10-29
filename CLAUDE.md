@@ -386,6 +386,16 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Skipii.apk, signed with this Mac's debug key; another key = INSTALL_FAILED_UPDATE_INCOMPATIBLE). Logs "update check: …"
   / "update: …". Tested on skipii_qa: a 0.5.0 build found v0.5.54 and installed it silently (adb-installed, so no
   prompt); notification via a seeded `installing` pref + reinstall; Retry via a fake 9.9.9 release (downgrade refused).
+- 0.5.56 (2026-10-29, Derek, from GitHub issues): Shorts can be turned off (#21): `ShortsSetting` (Shorts.kt, prefs
+  "playback"), a card in the account sheet above SponsorBlock. Off = no Shorts tab (NavPill shows four, selected weight 2.2
+  as before 0.5.50), the bank loop idles, `ShortsState.turnOff` drops the feed + waiting player and `ShortsBank.clear()`
+  deletes the banked shorts. Vertical videos (`videoAspect` < 1) go fullscreen UPRIGHT (#20/#22): `OrientationController`
+  `portraitFullscreen` (button / swipe up / ⋮ → Fullscreen); turning the phone sideways makes it ordinary landscape
+  fullscreen (the flag drops), turning back exits; Back / swipe down / exit button leave it. Share (#19) is an `ActionPill`
+  after Save (signed out it's the whole row, so the action row always shows now); `shareLink` (UiKit.kt) is shared with
+  the long-press sheet and the Shorts bar. Age-restricted videos (#14) still can't play: stream extraction is anonymous
+  (cookies only go on InnerTube browse/next/pings), every anonymous client answers LOGIN_REQUIRED, and the clients that
+  would accept the account need the player JS (signature + `n`), which extractor 0.26.5 can't run (same open item as 0.5.49).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

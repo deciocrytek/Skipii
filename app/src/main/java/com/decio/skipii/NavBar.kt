@@ -99,8 +99,8 @@ import kotlin.math.sin
 internal val NavHeight = 62.dp
 internal val NavWidth = 328.dp
 // 0.5.50: five tabs (Shorts); the active pill keeps about the width it had among four, so
-// "Subscriptions" still fits.
-private const val SELECTED_TAB_WEIGHT = 3.5f
+// "Subscriptions" still fits. With Shorts turned off ([ShortsSetting]) it's four tabs again.
+private fun selectedTabWeight(tabs: Int) = if (tabs > 4) 3.5f else 2.2f
 // The open player's bar is compact (Derek, 2026-10-19: play pill ~60% of its first 161 dp,
 // the ±10 buttons tight beside it): it narrows from the tab bar's width as the player opens.
 // 0.5.32 (Derek, 2026-10-25: mockup A "Lift" in docs/design/player-bar-reach.html): a size up
@@ -290,7 +290,8 @@ internal fun NavPill(
                     horizontalArrangement = Arrangement.spacedBy(BarGap),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Tab.entries.forEachIndexed { i, t ->
+                    val shown = Tab.entries.filter { it != Tab.Shorts || ShortsSetting.enabled }
+                    shown.forEachIndexed { i, t ->
                         val active = t == selected
                         val spec = if (reduced) snap<Float>() else tween(260, easing = Motion.Emphasized)
                         val labelColor by animateColorAsState(
@@ -304,7 +305,7 @@ internal fun NavPill(
                             if (active) c.primary else c.primary.copy(alpha = 0f),
                             if (reduced) snap() else tween(220, easing = Motion.Emphasized), label = "tabPill",
                         )
-                        val weight by animateFloatAsState(if (active) SELECTED_TAB_WEIGHT else 1f, spec, label = "tabWeight")
+                        val weight by animateFloatAsState(if (active) selectedTabWeight(shown.size) else 1f, spec, label = "tabWeight")
                         val interaction = remember(t) { MutableInteractionSource() }
                         Box(
                             Modifier

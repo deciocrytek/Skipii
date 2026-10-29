@@ -44,6 +44,7 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.WatchLater
@@ -74,6 +75,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
@@ -290,7 +292,7 @@ fun PlayerScreen(
                             }
                         }
                         // Speed and audio only live in the player's bar now (PlayerBar.kt).
-                        if (state.accountState != null) PlayerActions(state)
+                        PlayerActions(state)
                         QueueCard(state, onOpen = { state.sheet = PlayerSheet.Queue })
                         CommentsCard(state.comments, onOpen = { state.sheet = PlayerSheet.Comments })
                     }
@@ -527,8 +529,8 @@ private fun SubscribeButton(subscribed: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * The action row (signed in): like | dislike and Save.
- * It runs edge to edge inside so a long like count scrolls it sideways instead of squeezing
+ * The action row: like | dislike and Save (signed in), then Share (GitHub issue #19; signed out
+ * it's the whole row). It runs edge to edge inside so a long like count scrolls it sideways instead of squeezing
  * the buttons, and the like sparks still have room to fly.
  */
 @Composable
@@ -542,7 +544,17 @@ private fun PlayerActions(state: PlayerState) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AccountActions(state)
+        if (state.accountState != null) AccountActions(state)
+        val context = LocalContext.current
+        val item = state.current
+        ActionPill(
+            icon = Icons.Rounded.Share,
+            label = "Share",
+            active = false,
+            flourish = null,
+            shape = RoundedCornerShape(22.dp),
+            description = "Share",
+        ) { item?.let { shareLink(context, "https://youtu.be/${it.id}", it.title) } }
     }
 }
 
@@ -597,7 +609,8 @@ private fun ActionPill(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String?,
     active: Boolean,
-    flourish: Flourish,
+    /** Null: a plain icon (an action with no on/off state). */
+    flourish: Flourish?,
     shape: androidx.compose.ui.graphics.Shape,
     description: String,
     labelRollsUp: Boolean = true,
@@ -617,7 +630,8 @@ private fun ActionPill(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        FlourishIcon(icon, description, active = active, kind = flourish, tint = tint, size = 20.dp, sparkColor = c.primary)
+        if (flourish == null) Icon(icon, description, tint = tint, modifier = Modifier.size(20.dp))
+        else FlourishIcon(icon, description, active = active, kind = flourish, tint = tint, size = 20.dp, sparkColor = c.primary)
         if (label != null) {
             Spacer(Modifier.width(7.dp))
             RollingText(label, tint, up = labelRollsUp)

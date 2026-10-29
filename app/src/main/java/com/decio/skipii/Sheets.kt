@@ -1,6 +1,5 @@
 package com.decio.skipii
 
-import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -90,10 +89,7 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
             OptionRow(Icons.Rounded.WatchLater, "Save to Watch later") { player.saveToWatchLater(video); onDismiss() }
         }
         OptionRow(Icons.Rounded.Share, "Share") {
-            val send = Intent(Intent.ACTION_SEND).setType("text/plain")
-                .putExtra(Intent.EXTRA_TEXT, "https://youtu.be/${video.id}")
-                .putExtra(Intent.EXTRA_SUBJECT, video.title)
-            context.startActivity(Intent.createChooser(send, null))
+            shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
         }
         Spacer(Modifier.height(24.dp))
@@ -323,6 +319,29 @@ private fun CategoryRow(category: SponsorBlock.Category) {
                 }
             }
         }
+    }
+}
+
+// ── Shorts (inside the account sheet) ─────────────────────────────────────────
+
+/** GitHub issue #21: the Shorts tab can go (and with it its feed and the shorts kept on disk). */
+@Composable
+fun ShortsSettings() {
+    val c = MaterialTheme.colorScheme
+    val context = LocalContext.current
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text("Shorts", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+            Text(
+                if (ShortsSetting.enabled) "Show the Shorts tab" else "The Shorts tab is hidden and no Shorts are loaded",
+                color = c.onSurfaceVariant, fontSize = 13.sp,
+            )
+        }
+        Switch(
+            checked = ShortsSetting.enabled,
+            onCheckedChange = { ShortsSetting.set(context, it) },
+            colors = SwitchDefaults.colors(checkedTrackColor = c.primary),
+        )
     }
 }
 

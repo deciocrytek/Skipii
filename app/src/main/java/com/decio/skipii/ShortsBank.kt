@@ -92,6 +92,15 @@ object ShortsBank {
         save()
     }
 
+    /** Shorts turned off ([ShortsSetting]): everything banked goes, bytes and all. */
+    fun clear() {
+        synchronized(entries) { entries.clear() }
+        next = null
+        save()
+        cleanup(emptySet())
+        Log.i("Skipii", "shorts bank: cleared (Shorts turned off)")
+    }
+
     fun setNext(token: String?) {
         if (token == next) return
         next = token

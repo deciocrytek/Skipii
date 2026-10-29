@@ -111,7 +111,7 @@ class PlayerState(private val scope: CoroutineScope) {
         private set
 
     var expanded by mutableStateOf(false)
-    /** Landscape fullscreen requested (button) or entered (rotation). */
+    /** Fullscreen: requested (button, swipe up; upright for a vertical video) or entered (rotation). */
     var fullscreen by mutableStateOf(false)
     /** Which bottom sheet is open over the player, if any. */
     var sheet by mutableStateOf<PlayerSheet?>(null)

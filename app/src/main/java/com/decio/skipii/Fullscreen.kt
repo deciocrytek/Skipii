@@ -40,6 +40,9 @@ import androidx.core.view.WindowInsetsControllerCompat
  *    (Derek, 2026-10-23). It asks for nothing and lays out in the pane's own shape, and
  *    fullscreen fills the pane: on by itself in a wide pane (as turning the phone does), and
  *    the button / swipe up / Back toggle it either way.
+ *  - A vertical video (taller than wide; GitHub issues #20/#22) goes fullscreen UPRIGHT: the
+ *    button / swipe up keep the phone portrait and fill the screen. Turning the phone sideways
+ *    then makes it ordinary landscape fullscreen (and turning it back exits, as usual).
  */
 @Stable
 class OrientationController(private val activity: ComponentActivity) {
@@ -52,6 +55,8 @@ class OrientationController(private val activity: ComponentActivity) {
         private set
     /** Split screen: fullscreen chosen with the button; null follows the pane's shape. */
     private var paneFullscreen by mutableStateOf<Boolean?>(null)
+    /** Fullscreen in portrait, for a vertical video; dropped once the window turns landscape. */
+    private var portraitFullscreen by mutableStateOf(false)
 
     private val listener = object : OrientationEventListener(activity) {
         override fun onOrientationChanged(degrees: Int) {
@@ -75,15 +80,29 @@ class OrientationController(private val activity: ComponentActivity) {
         !playerOpen -> false
         // Audio only has no picture to fill the pane with.
         multiWindow -> !AudioOnly.enabled && (paneFullscreen ?: landscape)
-        else -> landscape
+        else -> landscape || (portraitFullscreen && !AudioOnly.enabled)
     }
 
-    fun enterFullscreen() { if (multiWindow) paneFullscreen = true else forced = Forced.Landscape }
-    fun exitFullscreen() { if (multiWindow) paneFullscreen = false else forced = Forced.Portrait }
+    /** [vertical]: the video is taller than wide, so fullscreen stays portrait. */
+    fun enterFullscreen(vertical: Boolean) {
+        when {
+            multiWindow -> paneFullscreen = true
+            vertical -> portraitFullscreen = true
+            else -> forced = Forced.Landscape
+        }
+    }
+
+    fun exitFullscreen() {
+        when {
+            multiWindow -> paneFullscreen = false
+            portraitFullscreen -> portraitFullscreen = false
+            else -> forced = Forced.Portrait
+        }
+    }
 
     fun setPlayerOpen(open: Boolean) {
         playerOpen = open
-        if (!open) { forced = null; paneFullscreen = null }
+        if (!open) { forced = null; paneFullscreen = null; portraitFullscreen = false }
         apply()
     }
 
@@ -112,7 +131,11 @@ class OrientationController(private val activity: ComponentActivity) {
             }
         }
         // A pane that changes shape (the divider dragged) starts over from its new shape.
-        LaunchedEffect(landscape, multiWindow) { paneFullscreen = null }
+        LaunchedEffect(landscape, multiWindow) {
+            paneFullscreen = null
+            // Turned sideways: from here it's landscape fullscreen, which turning back exits.
+            if (landscape || multiWindow) portraitFullscreen = false
+        }
         LaunchedEffect(playerOpen, forced, multiWindow) { setPlayerOpen(playerOpen) }
     }
 }

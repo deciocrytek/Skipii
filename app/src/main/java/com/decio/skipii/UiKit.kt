@@ -418,3 +418,11 @@ fun metaLine(channel: String, views: Long, uploaded: String?): String =
         views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" },
         uploaded?.ifBlank { null },
     ).joinToString(" · ")
+
+/** Android's share sheet for a link (a video, a short). */
+fun shareLink(context: android.content.Context, url: String, title: String) {
+    val send = android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+        .putExtra(android.content.Intent.EXTRA_TEXT, url)
+        .putExtra(android.content.Intent.EXTRA_SUBJECT, title)
+    context.startActivity(android.content.Intent.createChooser(send, null))
+}
