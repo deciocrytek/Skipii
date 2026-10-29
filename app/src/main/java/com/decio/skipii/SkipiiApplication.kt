@@ -26,6 +26,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         Account.init(this)
         SponsorBlock.init(this)
         ShortsBank.init(this)
+        AppUpdate.init(this)
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.
         getSystemService(android.net.ConnectivityManager::class.java)?.registerDefaultNetworkCallback(
             object : android.net.ConnectivityManager.NetworkCallback() {

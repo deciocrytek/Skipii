@@ -94,7 +94,7 @@ fun HomeScreen(
     LaunchedEffect(signedIn) { if (signedIn) lib.home.ensureLoaded() }
     CollapsingHeaderLayout(
         resetKey = scrollToTop to lib.home.generation,
-        header = { ScreenHeader(title = "Skipii", brandMark = true) { AccountAction(onAccount) } },
+        header = { ScreenHeader(title = "Skipii", brandMark = true) { UpdateAction(); AccountAction(onAccount) } },
     ) { top ->
         if (signedIn) {
             FeedList(lib.home, contentPadding.withTop(top), onOpen, scrollToTop = scrollToTop, indicatorTop = top)

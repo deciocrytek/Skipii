@@ -374,6 +374,18 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   0.5.54: its buttons did nothing on the phone. The close-on-outside-tap catcher wrapped the card, so it saw every touch
   (a parent's Main pass) and closed the card on touch-down before a row's click; now it's a layer BEHIND the card (a hit
   sibling stops the ones below) and the card swallows its own touches. Test menus with a tap ~0.5 s after opening.
+- 0.5.55 self-update (2026-10-29, Derek; GitHub issue #13): `AppUpdate` (Updater.kt) asks the GitHub API for the latest
+  release at most once a day (each window start; a failed check retries after 1 h). If its Skipii.apk is newer than
+  `BuildConfig.VERSION_NAME`, Home's header shows an Update pill left of the profile picture (`UpdateAction`); otherwise
+  nothing. On an unmetered network the APK is fetched ahead. Tap = download (fill + %, size and the asset's sha256
+  `digest` checked) → PackageInstaller session (`USER_ACTION_NOT_REQUIRED` on 12+). Not yet allowed to install apps →
+  Android's "Install unknown apps" page, and the install carries on on return (`onWindowResumed`). The first update from
+  a Drive/Files install asks once; after that Skipii is the installer of record and updates silently: the app just
+  closes, and `UpdateReceiver` (MY_PACKAGE_REPLACED) posts "Skipii updated to X · Tap to open" (not when Android's
+  own dialog was shown, which offers Open). Releases MUST go through scripts/publish-apk.sh (tag v<versionName>, asset
+  Skipii.apk, signed with this Mac's debug key; another key = INSTALL_FAILED_UPDATE_INCOMPATIBLE). Logs "update check: …"
+  / "update: …". Tested on skipii_qa: a 0.5.0 build found v0.5.54 and installed it silently (adb-installed, so no
+  prompt); notification via a seeded `installing` pref + reinstall; Retry via a fake 9.9.9 release (downgrade refused).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -468,6 +480,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `Screens.kt` — Home / Subscriptions / Search / Library.
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
+- `Updater.kt` — `AppUpdate` (daily GitHub release check, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.

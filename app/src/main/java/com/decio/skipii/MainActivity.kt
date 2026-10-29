@@ -131,6 +131,16 @@ class MainActivity : ComponentActivity() {
         setContent { SkipiiTheme { SkipiiApp() } }
     }
 
+    override fun onStart() {
+        super.onStart()
+        AppUpdate.checkIfDue()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppUpdate.onWindowResumed(this)
+    }
+
     override fun onDestroy() {
         if (current?.get() === this) current = null
         super.onDestroy()
