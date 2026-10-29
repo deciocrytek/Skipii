@@ -1,6 +1,7 @@
 package com.decio.skipii
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,10 @@ data class Profile(val name: String, val handle: String?, val avatar: String?)
 
 @Immutable
 data class PlaylistRef(val id: String, val title: String, val thumbnail: String?, val subtitle: String?)
+
+/** A playlist a video can be saved to, and whether it's in it ([contains] null: not known). */
+@Immutable
+data class PlaylistChoice(val id: String, val title: String, val contains: Boolean?, val privacy: String?)
 
 @Immutable
 data class ChannelRef(val id: String, val name: String, val avatar: String?)
@@ -414,11 +419,38 @@ object InnerTube {
         Unit
     }
 
-    suspend fun setInWatchLater(videoId: String, add: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun setInWatchLater(videoId: String, add: Boolean) = setInPlaylist("WL", videoId, add)
+
+    suspend fun setInPlaylist(playlistId: String, videoId: String, add: Boolean) = withContext(Dispatchers.IO) {
         val action = if (add) JSONObject().put("action", "ACTION_ADD_VIDEO").put("addedVideoId", videoId)
         else JSONObject().put("action", "ACTION_REMOVE_VIDEO_BY_VIDEO_ID").put("removedVideoId", videoId)
-        post("browse/edit_playlist", JSONObject().put("playlistId", "WL").put("actions", JSONArray().put(action)))
+        post("browse/edit_playlist", JSONObject().put("playlistId", playlistId).put("actions", JSONArray().put(action)))
         Unit
+    }
+
+    /**
+     * The account's playlists for [videoId], Watch later first, each saying whether the video is
+     * in it: what youtube.com's "Save to…" dialog lists (GitHub issue #12). If that answer can't
+     * be read, the Library's playlists stand in, without knowing which hold the video.
+     */
+    suspend fun saveChoices(videoId: String): List<PlaylistChoice> = withContext(Dispatchers.IO) {
+        val answer = post(
+            "playlist/get_add_to_playlist",
+            JSONObject().put("videoIds", JSONArray().put(videoId)).put("excludeWatchLater", false),
+        )
+        parseSaveChoices(answer).ifEmpty {
+            Log.w("Skipii", "playlists: no choices in the Save dialog's answer, using the Library's list")
+            playlists().map { PlaylistChoice(it.id, it.title, contains = null, privacy = null) }
+        }
+    }
+
+    /** A new playlist holding [videoId]; returns its id. [privacy]: PRIVATE, UNLISTED or PUBLIC. */
+    suspend fun createPlaylist(title: String, privacy: String, videoId: String): String = withContext(Dispatchers.IO) {
+        val answer = post(
+            "playlist/create",
+            JSONObject().put("title", title).put("privacyStatus", privacy).put("videoIds", JSONArray().put(videoId)),
+        )
+        answer.optString("playlistId").ifBlank { throw IOException("YouTube didn't create the playlist") }
     }
 
     /** One video being watched: the tracking URL for its watch-time pings. */
@@ -685,4 +717,26 @@ internal fun JSONObject.collectStrings(field: String): List<String> {
     }
     visitObj(this)
     return out
+}
+
+/** The Save dialog's playlists (`playlistAddToOptionRenderer`s, Watch later among them). */
+internal fun parseSaveChoices(answer: JSONObject): List<PlaylistChoice> {
+    val out = LinkedHashMap<String, PlaylistChoice>()
+    answer.walk { key, obj ->
+        if (key != "playlistAddToOptionRenderer") return@walk
+        val id = obj.optString("playlistId").ifBlank { return@walk }
+        out.getOrPut(id) {
+            PlaylistChoice(
+                id = id,
+                title = obj.text("title") ?: "",
+                contains = when (obj.optString("containsSelectedVideos")) {
+                    "ALL" -> true
+                    "NONE" -> false
+                    else -> null
+                },
+                privacy = obj.optString("privacy").ifBlank { null },
+            )
+        }
+    }
+    return out.values.toList()
 }

@@ -8,16 +8,15 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -542,26 +541,24 @@ fun Modifier.aspectFit(aspect: Float, cover: Boolean = false) = layout { measura
 fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
     val reduced = rememberReducedMotion()
     var drag by remember { mutableStateOf(0f) }
-    VideoContent(
-        state = state,
-        fullscreen = true,
-        onCollapse = onExit,
-        onToggleFullscreen = onExit,
-        modifier = Modifier
-            .fillMaxSize()
-            .draggable(
-                state = rememberDraggableState { delta -> drag = (drag + delta).coerceAtLeast(0f) },
-                orientation = Orientation.Vertical,
-                onDragStopped = { velocity ->
-                    if (drag > 120f || velocity > 1400f) onExit()
-                    drag = 0f
+    // Up/down on the left = brightness, on the right = volume; the middle swipes down to exit.
+    val sliders = rememberFullscreenSliders()
+    Box(Modifier.fillMaxSize()) {
+        VideoContent(
+            state = state,
+            fullscreen = true,
+            onCollapse = onExit,
+            onToggleFullscreen = onExit,
+            modifier = Modifier
+                .fillMaxSize()
+                .fullscreenGestures(sliders, onPull = { drag = it }, onSwipeDown = onExit)
+                .graphicsLayer {
+                    // A little give while dragging, so the gesture is visibly being heard.
+                    translationY = if (reduced) 0f else drag * 0.35f
                 },
-            )
-            .graphicsLayer {
-                // A little give while dragging, so the gesture is visibly being heard.
-                translationY = if (reduced) 0f else drag * 0.35f
-            },
-    )
+        )
+        SliderLevel(sliders)
+    }
 }
 
 /** "Skip sponsor ›" — shown while playback is inside a segment set to Ask. */
@@ -620,6 +617,8 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = c.surfaceContainerLow,
     ) {
+        // Scrolls: in fullscreen (landscape) only the first few rows fit (GitHub issue #1).
+        Column(Modifier.verticalScroll(rememberScrollState())) {
         Text(
             "Quality",
             fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
@@ -639,6 +638,7 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
             QualityRow("${h}p", qualityTag(h), chosen == h) { state.setQuality(h); onDismiss() }
         }
         Spacer(Modifier.height(28.dp))
+        }
     }
 }
 

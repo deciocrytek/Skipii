@@ -429,6 +429,76 @@ class PlayerState(private val scope: CoroutineScope) {
         }
     }
 
+    // ── Save to playlist (GitHub issue #12) ──
+    /** The video the "Save to playlist" sheet is open for; null = closed. */
+    var playlistTarget by mutableStateOf<VideoItem?>(null)
+        private set
+    /** Its playlists (Watch later first); null while loading. */
+    var playlistChoices by mutableStateOf<List<PlaylistChoice>?>(null)
+        private set
+    var playlistError by mutableStateOf<String?>(null)
+        private set
+    private var choicesJob: Job? = null
+
+    fun openPlaylists(video: VideoItem) {
+        playlistTarget = video
+        playlistChoices = null
+        playlistError = null
+        choicesJob?.cancel()
+        choicesJob = scope.launch {
+            runCatching { InnerTube.saveChoices(video.id) }
+                .onSuccess { choices ->
+                    if (playlistTarget?.id != video.id) return@onSuccess
+                    playlistChoices = choices
+                    // The dialog's answer is the only place Watch later's state comes from.
+                    choices.firstOrNull { it.id == "WL" }?.contains?.let { if (current?.id == video.id) inWatchLater = it }
+                }
+                .onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w(TAG, "playlists for ${video.id}", it)
+                    if (playlistTarget?.id == video.id) playlistError = YouTube.friendlyError(it)
+                }
+        }
+    }
+
+    fun closePlaylists() {
+        choicesJob?.cancel()
+        playlistTarget = null
+    }
+
+    /** Runs here, not in the sheet: closing the sheet mid-request would cancel it. */
+    fun setInPlaylist(video: VideoItem, choice: PlaylistChoice, add: Boolean) {
+        fun mark(value: Boolean?) {
+            playlistChoices = playlistChoices?.map { if (it.id == choice.id) it.copy(contains = value) else it }
+            if (choice.id == "WL" && current?.id == video.id && value != null) inWatchLater = value
+        }
+        mark(add)
+        scope.launch {
+            runCatching { InnerTube.setInPlaylist(choice.id, video.id, add) }
+                .onSuccess { actionMessage = if (add) "Saved to ${choice.title}" else "Removed from ${choice.title}" }
+                .onFailure {
+                    mark(choice.contains)
+                    actionMessage = "Couldn't update ${choice.title}."
+                    Log.w(TAG, "playlist ${choice.id} ${video.id}", it)
+                }
+        }
+    }
+
+    fun createPlaylist(video: VideoItem, title: String, privacy: String) {
+        scope.launch {
+            runCatching { InnerTube.createPlaylist(title, privacy, video.id) }
+                .onSuccess { id ->
+                    val made = PlaylistChoice(id, title, contains = true, privacy = privacy)
+                    playlistChoices = playlistChoices?.let { list ->
+                        val wl = list.takeWhile { it.id == "WL" }
+                        wl + made + list.drop(wl.size)
+                    }
+                    actionMessage = "Saved to $title"
+                }
+                .onFailure { actionMessage = "Couldn't create the playlist."; Log.w(TAG, "create playlist", it) }
+        }
+    }
+
     /**
      * Switches quality (null = Auto). The media source is rebuilt from the cached stream
      * info at the same position, keeping play/pause as it was.

@@ -62,6 +62,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.LibraryAdd
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import android.view.inputmethod.InputMethodManager
 
 // ── Long-press options ─────────────────────────────────────────────────────────
 
@@ -87,12 +111,169 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
         OptionRow(Icons.AutoMirrored.Rounded.PlaylistAdd, "Add to queue") { player.addToQueue(video); onDismiss() }
         if (Account.signedIn) {
             OptionRow(Icons.Rounded.WatchLater, "Save to Watch later") { player.saveToWatchLater(video); onDismiss() }
+            OptionRow(Icons.Rounded.LibraryAdd, "Save to playlist") { onDismiss(); player.openPlaylists(video) }
         }
         OptionRow(Icons.Rounded.Share, "Share") {
             shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+// ── Save to playlist (GitHub issue #12) ─────────────────────────────────────────
+
+/**
+ * Every playlist on the account (Watch later first) with a check for the ones holding the
+ * video; a tap adds or removes it there and then. "New playlist" makes one with the video in it.
+ * Writes run in [PlayerState], so closing the sheet never cancels one.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem) {
+    val c = MaterialTheme.colorScheme
+    ModalBottomSheet(
+        onDismissRequest = player::closePlaylists,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = c.surfaceContainerLow,
+    ) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
+            Text(
+                "Save to playlist",
+                fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            Text(
+                video.title, color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 2.dp, bottom = 10.dp),
+            )
+            val choices = player.playlistChoices
+            val error = player.playlistError
+            when {
+                error != null -> Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(error, color = c.onSurfaceVariant, fontSize = 14.sp, textAlign = TextAlign.Center)
+                    Spacer(Modifier.height(12.dp))
+                    PillButton("Try again", { player.openPlaylists(video) })
+                }
+                choices == null -> Box(Modifier.fillMaxWidth().padding(28.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(28.dp))
+                }
+                else -> {
+                    choices.forEach { choice ->
+                        PlaylistChoiceRow(choice) { player.setInPlaylist(video, choice, add = choice.contains != true) }
+                    }
+                    NewPlaylistRow { title, privacy -> player.createPlaylist(video, title, privacy) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val on = choice.contains == true
+    Row(
+        Modifier.fillMaxWidth().pressable(pressedScale = 0.98f, onClick = onClick).padding(horizontal = 24.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(if (choice.id == "WL") Icons.Rounded.WatchLater else Icons.Rounded.PlaylistPlay, null, tint = c.onSurface)
+        Spacer(Modifier.width(18.dp))
+        Column(Modifier.weight(1f)) {
+            Text(choice.title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            privacyLabel(choice.privacy)?.let { Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
+        }
+        Spacer(Modifier.width(12.dp))
+        // Filled check when the video is in it; an empty tonal circle when it isn't.
+        Box(
+            Modifier.size(26.dp).clip(CircleShape).background(if (on) c.primary else c.surfaceContainerHighest),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (on) Icon(Icons.Rounded.Check, "Saved", tint = c.onPrimary, modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+private fun privacyLabel(privacy: String?) = when (privacy) {
+    "PRIVATE" -> "Private"
+    "UNLISTED" -> "Unlisted"
+    "PUBLIC" -> "Public"
+    else -> null
+}
+
+@Composable
+private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    var open by remember { mutableStateOf(false) }
+    if (!open) {
+        OptionRow(Icons.Rounded.Add, "New playlist") { open = true }
+        return
+    }
+    var title by remember { mutableStateOf("") }
+    var privacy by remember { mutableStateOf("PRIVATE") }
+    val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val view = LocalView.current
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    fun create() {
+        val name = title.trim()
+        if (name.isEmpty()) return
+        // As on every field: Done closes the keyboard (the window-level hide comes later or the IME undoes it).
+        focus.clearFocus(force = true)
+        keyboard?.hide()
+        view.postDelayed({ view.context.getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(view.windowToken, 0) }, 120)
+        onCreate(name, privacy)
+        open = false
+    }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Box(
+            Modifier.fillMaxWidth().height(56.dp).clip(CircleShape).background(c.surfaceContainerHigh).padding(horizontal = 20.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            if (title.isEmpty()) Text("Playlist name", color = c.onSurfaceVariant, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            BasicTextField(
+                value = title,
+                onValueChange = { title = it.take(150) },
+                singleLine = true,
+                textStyle = TextStyle(color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                cursorBrush = SolidColor(c.primary),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, capitalization = KeyboardCapitalization.Sentences),
+                keyboardActions = KeyboardActions(onDone = { create() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).onPreviewKeyEvent { e ->
+                    if (e.key == Key.Enter || e.key == Key.NumPadEnter) {
+                        if (e.type == KeyEventType.KeyDown) create()
+                        true
+                    } else false
+                },
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("PRIVATE", "UNLISTED", "PUBLIC").forEach { key ->
+                    val on = privacy == key
+                    Box(
+                        Modifier
+                            .pressable { privacy = key }
+                            .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
+                            .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                    ) { Text(privacyLabel(key)!!, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            val ready = title.isNotBlank()
+            Box(
+                Modifier
+                    .pressable(enabled = ready, onClick = ::create)
+                    .clip(CircleShape)
+                    .background(c.primary)
+                    .graphicsLayer { alpha = if (ready) 1f else 0.4f }
+                    .padding(horizontal = 18.dp, vertical = 9.dp),
+            ) { Text("Create", color = c.onPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+        }
     }
 }
 

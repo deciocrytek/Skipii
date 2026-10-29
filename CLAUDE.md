@@ -396,6 +396,26 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   the long-press sheet and the Shorts bar. Age-restricted videos (#14) still can't play: stream extraction is anonymous
   (cookies only go on InnerTube browse/next/pings), every anonymous client answers LOGIN_REQUIRED, and the clients that
   would accept the account need the player JS (signature + `n`), which extractor 0.26.5 can't run (same open item as 0.5.49).
+- 0.5.57 (2026-10-29, Derek, from GitHub issues): the fullscreen quality sheet scrolls (#1: in landscape only the first
+  three rows fit). Save to playlist (#12, signed in): `InnerTube.saveChoices` (playlist/get_add_to_playlist →
+  `playlistAddToOptionRenderer`s, Watch later first, `containsSelectedVideos`; falls back to the Library's playlists with
+  membership unknown), `setInPlaylist` (browse/edit_playlist, Watch later uses it too), `createPlaylist` (playlist/create
+  with the video). State + writes in `PlayerState` (`openPlaylists`, a closing sheet never cancels a write; the answer
+  also sets `inWatchLater`); `SaveToPlaylistSheet` (Sheets.kt): rows with a filled check, New playlist (name + Private /
+  Unlisted / Public). Opened from a Playlist pill after Save and the long-press "Save to playlist". NOT verified: any of it
+  signed in (`SaveChoicesParseTest` is hand-written in the web answer's shape, not a capture — replace it with one).
+  Fullscreen brightness / volume (#3, #6; `FullscreenSliders.kt`): vertical drags starting on the left 35% set the
+  window's brightness (never the system setting; back to the system's when fullscreen closes), on the right 35% the media
+  volume (whole steps, no system UI); full video height = full range; a glass level pill on that side, fading 700 ms after.
+  The middle keeps swipe down to exit (now in the same handler, 120 px or 1400 px/s). Starts within 28 dp of the top/bottom
+  are left to the system. Nothing taken before touch slop, so taps and double-tap seek are untouched.
+- 0.5.58 (Derek: "the brightness control isn't very good"): it worked on the LINEAR brightness a window sets, so the top
+  half of a drag barely changed anything, everything happened in the bottom third, and the pill disagreed with the system
+  slider (emulator default 0.40 linear = 82% on Android's slider, the pill said 40%). Levels now go through Android's own
+  slider curve (`toSlider` / `fromSlider`, SettingsLib BrightnessUtils' HLG constants; `BrightnessCurveTest`); the start
+  is the system setting ((n − 1) / 254, which adaptive brightness writes into too).
+- 0.5.59 (Derek: "needs two full swipes to go from the upper end to the bottom"): a swipe over 40% of the screen's height
+  (`SwipeRangeShare`) now runs the whole range, brightness and volume alike (was the full height).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

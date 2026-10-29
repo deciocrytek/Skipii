@@ -44,6 +44,7 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.LibraryAdd
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
@@ -529,7 +530,7 @@ private fun SubscribeButton(subscribed: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * The action row: like | dislike and Save (signed in), then Share (GitHub issue #19; signed out
+ * The action row: like | dislike, Save and Playlist (signed in), then Share (GitHub issue #19; signed out
  * it's the whole row). It runs edge to edge inside so a long like count scrolls it sideways instead of squeezing
  * the buttons, and the like sparks still have room to fly.
  */
@@ -567,7 +568,7 @@ private fun Modifier.bleed(x: androidx.compose.ui.unit.Dp) = layout { measurable
     layout(placeable.width - extra, placeable.height) { placeable.place(-extra / 2, 0) }
 }
 
-/** Connected like | dislike group and Save (Watch later), all synced to the account; placed in [PlayerActions]' row. */
+/** Connected like | dislike group, Save (Watch later) and Playlist, all synced to the account; placed in [PlayerActions]' row. */
 @Composable
 private fun AccountActions(state: PlayerState) {
     val like = state.accountState?.like ?: LikeStatus.None
@@ -602,6 +603,15 @@ private fun AccountActions(state: PlayerState) {
         shape = RoundedCornerShape(22.dp),
         description = "Save to Watch later",
     ) { state.toggleWatchLater() }
+    // Any of the account's playlists (GitHub issue #12).
+    ActionPill(
+        icon = Icons.Rounded.LibraryAdd,
+        label = "Playlist",
+        active = false,
+        flourish = null,
+        shape = RoundedCornerShape(22.dp),
+        description = "Save to playlist",
+    ) { state.current?.let(state::openPlaylists) }
 }
 
 @Composable
