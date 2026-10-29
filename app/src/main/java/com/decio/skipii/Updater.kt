@@ -78,6 +78,12 @@ object AppUpdate {
     private const val RETRY_AFTER_MS = 60 * 60 * 1000L
     private const val KEY_NEXT_CHECK = "next_check"
     private const val KEY_RELEASE = "release"
+    /**
+     * The version that made the last check. A different one (just installed from GitHub, Drive or
+     * adb) checks at once: installing over the app keeps the daily timer, and an install from
+     * Drive showed no Update button until the next day (2026-10-29).
+     */
+    private const val KEY_CHECKED_BY = "checked_by"
     /** The version an install was started for: the next start of that version posts "updated". */
     private const val KEY_INSTALLING = "installing"
     /** The install asked the user; Android's own dialog then offers Open, so no notification. */
@@ -119,9 +125,10 @@ object AppUpdate {
         dir().listFiles()?.forEach { if (it.name != keep) it.delete() }
     }
 
-    /** Called whenever a window comes to the front; looks GitHub up at most once a day. */
+    /** Called whenever a window comes to the front; looks GitHub up at most once a day, and on a new version's first start. */
     fun checkIfDue() {
-        if (checking || System.currentTimeMillis() < prefs.getLong(KEY_NEXT_CHECK, 0L)) return
+        val newInstall = prefs.getString(KEY_CHECKED_BY, null) != BuildConfig.VERSION_NAME
+        if (checking || (!newInstall && System.currentTimeMillis() < prefs.getLong(KEY_NEXT_CHECK, 0L))) return
         checking = true
         scope.launch {
             val result = runCatching { withContext(Dispatchers.IO) { fetchLatest() } }
@@ -129,11 +136,11 @@ object AppUpdate {
             val now = System.currentTimeMillis()
             result.onFailure {
                 Log.w(TAG, "update check failed (${it.message}); trying again in an hour")
-                prefs.edit().putLong(KEY_NEXT_CHECK, now + RETRY_AFTER_MS).apply()
+                prefs.edit().putLong(KEY_NEXT_CHECK, now + RETRY_AFTER_MS).putString(KEY_CHECKED_BY, BuildConfig.VERSION_NAME).apply()
                 return@launch
             }
             val latest = result.getOrNull()
-            prefs.edit().putLong(KEY_NEXT_CHECK, now + CHECK_EVERY_MS)
+            prefs.edit().putLong(KEY_NEXT_CHECK, now + CHECK_EVERY_MS).putString(KEY_CHECKED_BY, BuildConfig.VERSION_NAME)
                 .apply { if (latest != null) putString(KEY_RELEASE, latest.toJson()) else remove(KEY_RELEASE) }
                 .apply()
             val newer = latest?.takeIf { isNewer(it.version) }

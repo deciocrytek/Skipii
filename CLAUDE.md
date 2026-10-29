@@ -416,6 +416,9 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   is the system setting ((n − 1) / 254, which adaptive brightness writes into too).
 - 0.5.59 (Derek: "needs two full swipes to go from the upper end to the bottom"): a swipe over 40% of the screen's height
   (`SwipeRangeShare`) now runs the whole range, brightness and volume alike (was the full height).
+- 0.5.60 (2026-10-29): a new version checks for updates on its first start (`KEY_CHECKED_BY` in Updater.kt). Installing
+  over the app keeps the daily timer, so a build installed from Drive showed no Update pill until the next day. (0.5.60 on
+  Drive, the same code as 0.5.61 on GitHub, so Derek could try the Update pill.)
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
