@@ -823,7 +823,7 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
             )
             Text(
                 player.chapterAt(shownMs).orEmpty(), color = c.onSurface, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold,
-                maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End,
+                maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Right,
                 modifier = Modifier.weight(1f).padding(start = 12.dp),
             )
         }

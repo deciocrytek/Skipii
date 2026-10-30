@@ -58,6 +58,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -237,7 +240,7 @@ private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
                 value = title,
                 onValueChange = { title = it.take(150) },
                 singleLine = true,
-                textStyle = TextStyle(color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                textStyle = OwnDirectionText.merge(TextStyle(color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)),
                 cursorBrush = SolidColor(c.primary),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { create() }),
@@ -452,17 +455,7 @@ private fun SlideAway(slide: () -> Float, size: () -> Float = { 1f }, content: @
 fun SponsorBlockSettings() {
     val c = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("SponsorBlock", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
-                Text("Skip sponsor reads and other segments", color = c.onSurfaceVariant, fontSize = 13.sp)
-            }
-            Switch(
-                checked = SponsorBlock.enabled,
-                onCheckedChange = SponsorBlock::updateEnabled,
-                colors = SwitchDefaults.colors(checkedTrackColor = c.primary),
-            )
-        }
+        SettingSwitchRow("SponsorBlock", "Skip sponsor reads and other segments", SponsorBlock.enabled, SponsorBlock::updateEnabled)
         if (SponsorBlock.enabled) {
             Spacer(Modifier.height(10.dp))
             SponsorBlock.Category.entries.forEach { category -> CategoryRow(category) }
@@ -508,21 +501,39 @@ private fun CategoryRow(category: SponsorBlock.Category) {
 /** GitHub issue #21: the Shorts tab can go (and with it its feed and the shorts kept on disk). */
 @Composable
 fun ShortsSettings() {
-    val c = MaterialTheme.colorScheme
     val context = LocalContext.current
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text("Shorts", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
-            Text(
-                if (ShortsSetting.enabled) "Show the Shorts tab" else "The Shorts tab is hidden and no Shorts are loaded",
-                color = c.onSurfaceVariant, fontSize = 13.sp,
-            )
+    SettingSwitchRow(
+        "Shorts",
+        if (ShortsSetting.enabled) "Show the Shorts tab" else "The Shorts tab is hidden and no Shorts are loaded",
+        ShortsSetting.enabled,
+    ) { ShortsSetting.set(context, it) }
+}
+
+/**
+ * A setting's title and line, with its switch. The layout is the English one in every language
+ * (supportsRtl="false"), except this: on an RTL phone (Arabic) the switch sits LEFT of the words and
+ * is mirrored (on = thumb to the left), as in Android's own Settings there (checked 2026-10-30, Display
+ * › Dark theme in Arabic) and as Derek allowed.
+ */
+@Composable
+private fun SettingSwitchRow(title: String, line: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val rtl = rememberRtlLanguage()
+    val toggle = @Composable {
+        CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = SwitchDefaults.colors(checkedTrackColor = c.primary))
         }
-        Switch(
-            checked = ShortsSetting.enabled,
-            onCheckedChange = { ShortsSetting.set(context, it) },
-            colors = SwitchDefaults.colors(checkedTrackColor = c.primary),
-        )
+    }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        if (rtl) {
+            toggle()
+            Spacer(Modifier.width(14.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(title, fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+            Text(line, color = c.onSurfaceVariant, fontSize = 13.sp)
+        }
+        if (!rtl) toggle()
     }
 }
 

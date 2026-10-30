@@ -421,6 +421,19 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Drive, the same code as 0.5.61 on GitHub, so Derek could try the Update pill.)
 - 0.5.62 (Derek: the Shorts ‹ looked shifted right): an open chevron reads as the triangle it outlines, so `Mass.back` is
   that triangle's centroid (12.97), not the stroke's (11.6): the glyph sits ~1.2 dp left of its box-centred spot.
+- 0.5.64 RTL phones (2026-10-30, a user's Arabic phone, screenshot 6484.jpg; Derek: "UI elements should be where the
+  English version has them"). The app is `supportsRtl="false"`: the layout is the English one in every language (no
+  mirroring — 0.5.63 mirrored the pages and was rejected). With it on, Compose mirrored Rows/alignments/`offset {}` but
+  not `place()`, drawing or pointer x, so the Shorts glass and its buttons disagreed. Text still runs in its own
+  direction: `OwnDirectionText` (Theme.kt, merged into `LocalTextStyle`; text fields merge it into their own style) =
+  `TextDirection.Content` + `TextAlign.Left`, so an Arabic title is right to left (punctuation in place) but left-aligned
+  like English. Never pass a typography style to a Text (it would drop that); use `TextAlign.Right`, not `End`, for a
+  right-hand label (End follows an Arabic text's own direction). Numbers in labels use Latin digits (`Locale.US` in
+  formatDuration/formatCount; the default locale gave "١,٢M"). Lines joined with " · " use `joinDots` (each part a bidi
+  isolate: an Arabic channel name pulled the next "2.4" into its run, "2.4 قرآن كريم M views"). ONE exception Derek allowed
+  once it was confirmed as the norm (Android's own Settings in Arabic): settings switches (`SettingSwitchRow`, Sheets.kt) sit
+  LEFT of their words on an RTL-language phone (`rememberRtlLanguage`, from the locale) and are the mirrored switch. Test: `adb shell cmd locale set-app-locales com.skipii
+  --locales ar-EG` (back: `en-US`).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

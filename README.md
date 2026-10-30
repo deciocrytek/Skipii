@@ -93,6 +93,7 @@ CLAUDE.md             product decisions and working rules for AI-assisted develo
 - [AndroidX Media3](https://github.com/androidx/media): playback
 - [SponsorBlock](https://sponsor.ajay.app): sponsor segments, CC BY-NC-SA 4.0 (planned)
 - [essopsp](https://github.com/essopsp): the idea of a Shorts tab ([#10](https://github.com/deciocrytek/Skipii/pull/10))
+- [@o0ir4](https://www.threads.com/@o0ir4): reported the layout on Arabic (right-to-left) phones (0.5.64)
 
 ## License
 

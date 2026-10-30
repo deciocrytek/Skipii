@@ -506,7 +506,7 @@ private fun Composer(state: CommentsState) {
                 BasicTextField(
                     value = state.draft,
                     onValueChange = { state.draft = it },
-                    textStyle = TextStyle(color = c.onSurface, fontSize = 15.sp),
+                    textStyle = OwnDirectionText.merge(TextStyle(color = c.onSurface, fontSize = 15.sp)),
                     cursorBrush = SolidColor(c.primary),
                     maxLines = 5,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send, capitalization = KeyboardCapitalization.Sentences),

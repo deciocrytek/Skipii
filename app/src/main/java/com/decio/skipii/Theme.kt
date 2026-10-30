@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -20,6 +21,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -30,10 +32,14 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 
@@ -549,9 +555,31 @@ fun SkipiiTheme(content: @Composable () -> Unit) {
             // Text and icons without an explicit color follow the theme. Without this they
             // default to black, which vanished on dark surfaces (the dark-mode bug).
             LocalContentColor provides scheme.onSurface,
+            // Text in its own direction, laid out as in English (see AndroidManifest's supportsRtl).
+            LocalTextStyle provides LocalTextStyle.current.merge(OwnDirectionText),
             content = content,
         )
     }
+}
+
+/**
+ * The layout is the English one on every phone (supportsRtl="false", Derek, 2026-10-30: nothing
+ * moves on an Arabic phone), but each text runs in its own direction (Unicode's first strong
+ * letter): an Arabic title right to left, so its punctuation lands where it belongs, still
+ * left-aligned like the English. Compose's default gave every text the layout's direction, so an
+ * Arabic title's full stop showed at its start. Every Text here reads [LocalTextStyle] (none passes
+ * a typography style); text fields set the same two fields on their own [TextStyle].
+ */
+internal val OwnDirectionText = TextStyle(textDirection = TextDirection.Content, textAlign = TextAlign.Left)
+
+/**
+ * Whether the phone's language is written right to left (Arabic, Hebrew, Persian, Urdu…). The app's
+ * layout ignores it (supportsRtl="false"), so this is read from the locale, not the layout direction.
+ */
+@Composable
+fun rememberRtlLanguage(): Boolean {
+    val locale = LocalConfiguration.current.locales[0]
+    return remember(locale) { android.text.TextUtils.getLayoutDirectionFromLocale(locale) == android.view.View.LAYOUT_DIRECTION_RTL }
 }
 
 /** True while the open player paints the status bar black over its video: icons go white. */

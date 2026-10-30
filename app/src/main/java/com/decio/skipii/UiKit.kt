@@ -1,5 +1,6 @@
 package com.decio.skipii
 
+import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -318,7 +319,7 @@ fun VideoRow(video: VideoItem, onClick: () -> Unit, trailing: (@Composable () ->
             Text(video.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 18.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(4.dp))
             Text(
-                listOfNotNull(video.channel.ifBlank { null }, video.views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" }).joinToString(" · "),
+                listOfNotNull(video.channel.ifBlank { null }, video.views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" }).joinDots(),
                 color = c.onSurfaceVariant,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -399,7 +400,9 @@ fun formatDuration(ms: Long): String {
     val h = total / 3600
     val m = (total % 3600) / 60
     val s = total % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%d:%02d".format(m, s)
+    // Latin digits in every language, like the rest of the (English) UI: the default locale gave an
+    // Arabic phone "٢٣:٥٧" beside "views", and "%.1f" a "٫" that removeSuffix(".0") never matched.
+    return if (h > 0) "%d:%02d:%02d".format(Locale.US, h, m, s) else "%d:%02d".format(Locale.US, m, s)
 }
 
 fun formatCount(n: Long): String = when {
@@ -410,14 +413,21 @@ fun formatCount(n: Long): String = when {
 }
 
 private fun trimmed(v: Double): String =
-    if (v >= 100 || v == Math.floor(v)) v.toLong().toString() else "%.1f".format(v).removeSuffix(".0")
+    if (v >= 100 || v == Math.floor(v)) v.toLong().toString() else "%.1f".format(Locale.US, v).removeSuffix(".0")
 
 fun metaLine(channel: String, views: Long, uploaded: String?): String =
     listOfNotNull(
         channel.ifBlank { null },
         views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" },
         uploaded?.ifBlank { null },
-    ).joinToString(" · ")
+    ).joinDots()
+
+/**
+ * "Channel · 2.4M views · 5 years ago" with each part a bidi isolate (FSI … PDI), so one part's
+ * direction never pulls in the next: an Arabic channel name took the following "2.4" into its own
+ * right-to-left run and showed "2.4 قرآن كريم M views".
+ */
+fun List<String>.joinDots(): String = joinToString(" · ") { "\u2068$it\u2069" }
 
 /** Android's share sheet for a link (a video, a short). */
 fun shareLink(context: android.content.Context, url: String, title: String) {

@@ -426,7 +426,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
                     value = state.query,
                     onValueChange = { state.query = it },
                     singleLine = true,
-                    textStyle = TextStyle(color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                    textStyle = OwnDirectionText.merge(TextStyle(color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)),
                     cursorBrush = SolidColor(c.primary),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { submit() }, onDone = { submit() }),

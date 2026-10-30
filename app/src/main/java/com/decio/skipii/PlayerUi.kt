@@ -245,7 +245,7 @@ fun PlayerScreen(
                             item.views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" },
                             item.uploaded?.ifBlank { null },
                             details?.likes?.takeIf { it > 0 }?.let { "${formatCount(it)} likes" },
-                        ).joinToString(" · ")
+                        ).joinDots()
                         val hasDescription = !details?.description.isNullOrBlank()
                         Row(
                             modifier = if (hasDescription) Modifier.pressable(pressedScale = 0.98f) { descriptionOpen = !descriptionOpen } else Modifier,
