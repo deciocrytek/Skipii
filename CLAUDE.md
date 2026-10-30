@@ -434,6 +434,10 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   once it was confirmed as the norm (Android's own Settings in Arabic): settings switches (`SettingSwitchRow`, Sheets.kt) sit
   LEFT of their words on an RTL-language phone (`rememberRtlLanguage`, from the locale) and are the mirrored switch. Test: `adb shell cmd locale set-app-locales com.skipii
   --locales ar-EG` (back: `en-US`).
+- 0.5.65 (2026-10-30, GitHub #24): a tall empty gap under Appearance's mode chips on a big font / display size. The chips sat
+  in a plain Row: the last one (AMOLED) got only its padding's width and its label wrapped a letter a line. The row now
+  scrolls like the SponsorBlock and theme rows, labels one line. Any row of chips scrolls (or wraps) — never a bare Row.
+  Test: `adb shell settings put system font_scale 1.3` + `adb shell wm density 500` (back: 1.0 / `wm density reset`).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

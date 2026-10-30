@@ -548,7 +548,9 @@ fun AppearanceSettings() {
     Column(Modifier.fillMaxWidth()) {
         Text("Appearance", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
         Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Scrolls like the rows below: a fixed Row squeezed the last chip to its padding on a big
+        // font / display size, and its label wrapped a letter a line into a tall empty bar (#24).
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("system" to "System", "light" to "Light", "dark" to "Dark", "amoled" to "AMOLED").forEach { (key, label) ->
                 val on = ThemeSettings.mode == key
                 Box(
@@ -557,7 +559,7 @@ fun AppearanceSettings() {
                         .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
                         .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
                         .padding(horizontal = 16.dp, vertical = 9.dp),
-                ) { Text(label, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+                ) { Text(label, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false) }
             }
         }
         Spacer(Modifier.height(14.dp))
