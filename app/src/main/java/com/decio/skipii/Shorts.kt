@@ -1701,10 +1701,12 @@ private val CheckGlyph = glyph("ShortsCheck", "M5 12.6l4.6 4.6L19.2 7.4", stroke
 /**
  * Where each glyph's weight sits in its 24-unit box (centroid of its filled silhouette, measured
  * at 480 px). Centring that point instead of the box is what makes them look centred (Derek,
- * 2026-10-28); the comment bubble goes only halfway (his call).
+ * 2026-10-28); the comment bubble goes only halfway (his call). The open ‹ is read as the
+ * triangle it outlines, so it uses that triangle's centroid (tip 6.1, ends 16.4 with the round
+ * caps); its stroke's own centroid left it looking shifted right (Derek, 2026-10-29).
  */
 private object Mass {
-    val back = Offset(11.6f, 11.97f)
+    val back = Offset(12.97f, 11.97f)
     val like = Offset(11.64f, 13.42f)
     val comment = Offset(11.74f, 11.12f)
     val share = Offset(13.38f, 11.9f)

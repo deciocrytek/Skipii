@@ -419,6 +419,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - 0.5.60 (2026-10-29): a new version checks for updates on its first start (`KEY_CHECKED_BY` in Updater.kt). Installing
   over the app keeps the daily timer, so a build installed from Drive showed no Update pill until the next day. (0.5.60 on
   Drive, the same code as 0.5.61 on GitHub, so Derek could try the Update pill.)
+- 0.5.62 (Derek: the Shorts ‹ looked shifted right): an open chevron reads as the triangle it outlines, so `Mass.back` is
+  that triangle's centroid (12.97), not the stroke's (11.6): the glyph sits ~1.2 dp left of its box-centred spot.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
