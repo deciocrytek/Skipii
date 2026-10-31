@@ -1122,7 +1122,7 @@ private fun DrawScope.drawStoryboardFrame(image: ImageBitmap, frame: StoryboardF
 
 /** The storyboard frame at [ms] (the sharpest level), drawn once its sheet is in; [modifier]'s own background until then. */
 @Composable
-private fun StoryboardThumb(sheets: StoryboardSheets, boards: List<Storyboard>, ms: Long, durationMs: Long, modifier: Modifier) {
+internal fun StoryboardThumb(sheets: StoryboardSheets, boards: List<Storyboard>, ms: Long, durationMs: Long, modifier: Modifier) {
     val frame = boards.lastOrNull()?.frameAt(ms, durationMs.coerceAtLeast(1L))
     LaunchedEffect(frame?.url) { frame?.url?.let(sheets::request) }
     val image = frame?.let { sheets.loaded[it.url] }

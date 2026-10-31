@@ -194,7 +194,10 @@ internal fun NavPill(
     val maxBarWidth = with(density) { (LocalConfiguration.current.screenWidthDp.dp - 32.dp).toPx() }
     val pip = LocalPictureInPicture.current
     val scope = rememberCoroutineScope()
-    val gate = { barGate(morph.progress.value) }
+    // With the controls on the video (PlayerControls) the tab bar never becomes the player's bar: it
+    // stays tabs at progress 0 (MainActivity steps it down out of the open player's way).
+    val progress = { if (PlayerControls.inBar) morph.progress.value else 0f }
+    val gate = { barGate(progress()) }
     val onPick: (BarTool) -> Unit = { tool -> pickTool(tool, bar, player, pip, onFullscreen) }
     val tools = barTools(player, pip)
     val hasChapters = !player.details?.chapters.isNullOrEmpty()
@@ -219,7 +222,7 @@ internal fun NavPill(
                 .layout { measurable, constraints ->
                     val full = constraints.maxWidth
                     val compact = CompactBarWidth.toPx().coerceAtMost(maxBarWidth)
-                    val p = morph.progress.value
+                    val p = progress()
                     val t = FastOutSlowInEasing.transform(ramp(p, NarrowStart, NarrowEnd))
                     val restW = lerpF(full.toFloat(), compact, t)
                     val g = FastOutSlowInEasing.transform(ramp(p, GrowStart, GrowEnd))
@@ -238,7 +241,7 @@ internal fun NavPill(
                 // A real, if soft, shadow in every state (Derek: the bar was white on white): full
                 // black here, as Android already scales elevation shadows right down.
                 .graphicsLayer {
-                    val p = morph.progress.value
+                    val p = progress()
                     // Scrubbing lifts it further, clear of the thumb, on a deeper shadow (PlayerBar.kt).
                     translationY = -PlayerBarLift.toPx() * backOut(ramp(p, LiftStart, LiftEnd), LiftOvershoot) -
                         playerBarScrubLift(bar, barGate(p))
@@ -266,7 +269,7 @@ internal fun NavPill(
                     // The moving pill: the selected tab's pill on its way to becoming Play
                     // (at rest in tabs the tab draws its own, so tab switches keep their fade).
                     .drawBehind {
-                        val p = morph.progress.value
+                        val p = progress()
                         if (p <= 0f) return@drawBehind
                         val rect = anchors.pillRect(selected, p, playScale.value) ?: return@drawBehind
                         // Scrubbing: the chapter track grows out of play (PlayerBar.kt), so play fades
@@ -313,7 +316,7 @@ internal fun NavPill(
                                 .height(50.dp)
                                 .onPlaced { anchors.tabs[t.ordinal] = it }
                                 .graphicsLayer {
-                                    val k = ramp(morph.progress.value, i * TabExitStagger, TabExitSpan + i * TabExitStagger)
+                                    val k = ramp(progress(), i * TabExitStagger, TabExitSpan + i * TabExitStagger)
                                     // Into Shorts: Home fades where ‹ appears, the rest drop out left to right.
                                     val sp = shorts()
                                     val d = shortsTabDrop(sp, i)
@@ -331,7 +334,7 @@ internal fun NavPill(
                                     },
                                 )
                                 .drawBehind {
-                                    if (morph.progress.value <= 0f) drawRoundRect(pillColor, cornerRadius = CornerRadius(size.height / 2f))
+                                    if (progress() <= 0f) drawRoundRect(pillColor, cornerRadius = CornerRadius(size.height / 2f))
                                 },
                         ) {
                             CompositionLocalProvider(LocalContentColor provides labelColor) {
@@ -365,11 +368,11 @@ internal fun NavPill(
                     horizontalArrangement = Arrangement.spacedBy(PlayerBarGap),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    BarAudioOnly(player, enabled = controlsActive, modifier = Modifier.barEnter(morph, KeyEnterStart).then(scrubFade))
-                    SeekButton(-1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
-                    PlaySlot(player, morph, anchors, playInteraction, playScale, controlsActive, Modifier.width(PlaySlotWidth))
-                    SeekButton(1, player, morph, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
-                    BarKey(bar, enabled = controlsActive, modifier = Modifier.barEnter(morph, KeyEnterStart).then(scrubFade))
+                    BarAudioOnly(player, enabled = controlsActive, modifier = Modifier.barEnter(progress, KeyEnterStart).then(scrubFade))
+                    SeekButton(-1, player, progress, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    PlaySlot(player, progress, anchors, playInteraction, playScale, controlsActive, Modifier.width(PlaySlotWidth))
+                    SeekButton(1, player, progress, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    BarKey(bar, enabled = controlsActive, modifier = Modifier.barEnter(progress, KeyEnterStart).then(scrubFade))
                 }
                 BarProgress(bar, player, played, gate)
                 if (bar.cardShown) BarCard(bar, player, gate, onPick)
@@ -435,8 +438,8 @@ private fun rememberPlayedFraction(player: PlayerState): Animatable<Float, *> {
 }
 
 /** Springs a bar control up from below as the player opens (and back down as it closes). */
-private fun Modifier.barEnter(morph: PlayerMorph, start: Float) = graphicsLayer {
-    val p = morph.progress.value
+private fun Modifier.barEnter(progress: () -> Float, start: Float) = graphicsLayer {
+    val p = progress()
     val e = Motion.Pop.transform(ramp(p, start, start + ControlEnterSpan))
     alpha = ramp(p, start, start + 0.18f)
     translationY = 16.dp.toPx() * (1f - e)
@@ -447,7 +450,7 @@ private fun Modifier.barEnter(morph: PlayerMorph, start: Float) = graphicsLayer 
 @Composable
 private fun PlaySlot(
     player: PlayerState,
-    morph: PlayerMorph,
+    progress: () -> Float,
     anchors: BarAnchors,
     interaction: MutableInteractionSource,
     pressScale: androidx.compose.runtime.State<Float>,
@@ -476,7 +479,7 @@ private fun PlaySlot(
             Modifier
                 .size(PlayerIconSize)
                 .onPlaced { anchors.playIcon = it }
-                .barEnter(morph, PlayEnterStart)
+                .barEnter(progress, PlayEnterStart)
                 .graphicsLayer { scaleX *= pressScale.value; scaleY *= pressScale.value }
                 .squishOn(playing)
                 .drawBehind { with(painter) { draw(size, colorFilter = ColorFilter.tint(c.onPrimary)) } },
@@ -488,7 +491,7 @@ private fun PlaySlot(
 private fun SeekButton(
     side: Int,
     player: PlayerState,
-    morph: PlayerMorph,
+    progress: () -> Float,
     anchors: BarAnchors,
     burst: BarBurst,
     enabled: Boolean,
@@ -503,7 +506,7 @@ private fun SeekButton(
         modifier
             .fillMaxHeight()
             .onPlaced { anchors.controls[if (side < 0) 0 else 2] = it }
-            .barEnter(morph, SeekEnterStart)
+            .barEnter(progress, SeekEnterStart)
             .pressable(enabled = enabled) {
                 view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                 burst.tap(side, player.seekBy(side * 10_000L))

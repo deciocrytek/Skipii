@@ -152,7 +152,8 @@ fun PlayerScreen(
     // Audio only (Derek, 2026-10-25): the open player has no video space at all — the stage
     // folds away (the picture fading and lifting as its height closes) and unfolds for video.
     // Only on the fully open player: swiping it down unfolds it again, so the thumbnail still
-    // lands in the mini-player.
+    // lands in the mini-player. With the controls on the video (PlayerControls) it never folds:
+    // the audio stage holds them (VideoStage).
     val reduced = rememberReducedMotion()
     val fold = remember { Animatable(if (AudioOnly.enabled) 1f else 0f) }
     LaunchedEffect(AudioOnly.enabled) {
@@ -348,7 +349,8 @@ fun PlayerScreen(
 }
 
 /**
- * The pinned video in portrait: the morph's container-transform layer around [VideoContent].
+ * The pinned video in portrait: the morph's container-transform layer around [VideoContent]
+ * (with the controls on the video, also its bottom-edge playback head).
  * Swiping it down minimizes (the morph). Swiping it up while open goes fullscreen, as in the
  * YouTube app (Derek, 2026-10-10): the video swells under the finger, and past
  * [FullscreenPull] or with a flick it turns to landscape; short of that it eases back.
@@ -369,7 +371,9 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
     // anything else drives the morph.
     var decided by remember { mutableStateOf(false) }
     var pulling by remember { mutableStateOf(false) }
-    val folded = { fold.value * ramp(morph.progress.value, 0.8f) }
+    // Rubber band: up to 6% bigger, ever more slowly, growing down from the top edge.
+    val swell = { 1f + 0.06f * (1f - exp(-pullUp.value / (pullDistance * 1.5f))) }
+    val folded = { if (PlayerControls.inBar) fold.value * ramp(morph.progress.value, 0.8f) else 0f }
     val stage = Modifier
         .graphicsLayer { clip = folded() > 0.001f }
         .layout { measurable, constraints ->
@@ -386,8 +390,7 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
         .fillMaxWidth()
         .aspectRatio(aspect)
         .graphicsLayer {
-            // Rubber band: up to 6% bigger, ever more slowly, growing down from the top edge.
-            val k = 1f + 0.06f * (1f - exp(-pullUp.value / (pullDistance * 1.5f)))
+            val k = swell()
             scaleX = k
             scaleY = k
             transformOrigin = TransformOrigin(0.5f, 0f)
@@ -462,6 +465,20 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
     }
     val showVideo by remember { derivedStateOf { !AudioOnly.enabled || cover.value < 1f } }
     val showAudio by remember { derivedStateOf { AudioOnly.enabled || cover.value > 0f } }
+    // With the controls on the video, its bottom edge is the playback head (VideoView.kt's videoEdge),
+    // drawn out here, past the stage's clip, so its knob can overhang the edge; above the details below.
+    val onVideo = !PlayerControls.inBar
+    val edge = remember { EdgeScrub() }
+    Box(
+        Modifier
+            .zIndex(1f)
+            .videoEdge(
+                state, edge,
+                enabled = onVideo && interactive && !audio,
+                shown = { if (onVideo) ramp(morph.progress.value, 0.85f) * (1f - cover.value) else 0f },
+                scale = swell,
+            ),
+    ) {
     Box(stage) {
         if (showVideo) {
             VideoContent(
@@ -473,6 +490,7 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
                 onCollapse = onCollapse,
                 onToggleFullscreen = onFullscreen,
                 controlsAlpha = controlsAlpha,
+                edge = if (onVideo) edge else null,
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -488,6 +506,7 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    }
     }
 }
 

@@ -20,6 +20,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         QualityPreference.init(this)
         PlaybackSpeed.init(this)
         AudioOnly.init(this)
+        PlayerControls.init(this)
         SearchHistory.init(this)
         ResumeStore.init(this)
         SavedSession.init(this)

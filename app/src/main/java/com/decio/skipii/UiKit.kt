@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -30,6 +32,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,11 +45,14 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -247,7 +253,10 @@ fun ChannelAvatar(url: String?, name: String, size: Int = 40) {
     }
 }
 
-/** Full-width feed card: rounded thumbnail inside a 28 dp card, then avatar + title + meta. */
+/**
+ * Full-width feed card: rounded thumbnail inside a 28 dp card, then avatar + title + meta.
+ * The thumbnail sits 11 dp from the screen's edge (6 + 5), half the old 22 (Derek, 2026-10-31: wider thumbnails).
+ */
 @Composable
 fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = MaterialTheme.colorScheme
@@ -255,16 +264,16 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
     val shape = RoundedCornerShape(28.dp)
     Column(
         modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 7.dp)
+            .padding(horizontal = 6.dp, vertical = 7.dp)
             .fillMaxWidth()
             .prefetchOnPress(video.id)
             .pressable(pressedScale = 0.97f, onLongClick = { menu(video) }, onClick = onClick)
             .clip(shape)
             .background(c.surfaceContainerLow)
-            .padding(6.dp),
+            .padding(5.dp),
     ) {
         Box {
-            Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f))
+            Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = 23)
             DurationPill(video.durationSec, Modifier.align(Alignment.BottomEnd).padding(10.dp))
             ResumeBar(video.id, Modifier.align(Alignment.BottomStart))
         }
@@ -284,11 +293,37 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(4.dp))
+                CardMeta(video)
+            }
+        }
+    }
+}
+
+/**
+ * "Channel · 12K views · 46 minutes ago" on one line when it fits. When it doesn't (a narrow phone, a
+ * big font), the channel gets its own line and views · age go underneath, so the age is never cut off.
+ */
+@Composable
+private fun CardMeta(video: VideoItem) {
+    val c = MaterialTheme.colorScheme
+    val full = metaLine(video.channel, video.views, video.uploaded)
+    val style = LocalTextStyle.current.merge(TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold))
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints {
+        val fits = remember(full, style, constraints.maxWidth) {
+            measurer.measure(full, style, maxLines = 1, softWrap = false).size.width <= constraints.maxWidth
+        }
+        val rest = metaLine("", video.views, video.uploaded)
+        val split = !fits && video.channel.isNotBlank() && rest.isNotEmpty()
+        Column {
+            (if (split) listOf(video.channel, rest) else listOf(full)).forEach {
                 Text(
-                    metaLine(video.channel, video.views, video.uploaded),
+                    it,
                     color = c.onSurfaceVariant,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
+                    // Two lines read as one block: the theme's default line height left a gap between them.
+                    lineHeight = if (split) 18.sp else TextUnit.Unspecified,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

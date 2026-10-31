@@ -13,7 +13,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   The account-suspension risk was explained; keep the in-app warning. Signed out, everything
   still works except the account feeds. Signed in, comments and replies can be posted.
 - No inbox/notifications tab.
-- Portrait: every playback control lives in the player's bar (0.5.34, PlayerBar.kt); the video keeps
+- Portrait (default; 0.5.67 adds "on the video", see there): every playback control lives in the player's bar (0.5.34, PlayerBar.kt); the video keeps
   only double-tap seek, the spinner, SponsorBlock Ask/Skipped and errors. Chapters live on the bar's scrub
   track (never as a card under the video). Fullscreen keeps its overlay controls. The related list is
   "More videos", never "Up next".
@@ -438,6 +438,44 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   in a plain Row: the last one (AMOLED) got only its padding's width and its label wrapped a letter a line. The row now
   scrolls like the SponsorBlock and theme rows, labels one line. Any row of chips scrolls (or wraps) — never a bare Row.
   Test: `adb shell settings put system font_scale 1.3` + `adb shell wm density 500` (back: 1.0 / `wm density reset`).
+- 0.5.66 feed cards (2026-10-31, Derek): thumbnails sit 11 dp from the screen's edge, half the old 22 (`VideoCard`: card
+  6 dp in, 5 dp padding, thumbnail radius 23 to stay concentric with the 28 dp card). `CardMeta`: "Channel · views · age"
+  stays one line when it fits; when it doesn't (narrow phones, big fonts; measured with `rememberTextMeasurer`), the
+  channel gets its own line and views · age go under it (18 sp line height). Test: `adb shell wm density 480` (360 dp).
+- 0.5.66 What's new (2026-10-31, GitHub #30): the Update pill opens `WhatsNewSheet` (Updater.kt): the notes of every
+  release newer than this build up to the latest, newest first (version headings only when there are several), the
+  Update button pinned under them (fills with the download; "Try again" after a failure). `AppUpdate` now reads the
+  releases LIST (`parseReleases`, drafts/prereleases skipped) so a phone that skipped versions sees all their notes;
+  `parseNotes` keeps "###" headings and "- " bullets only, stops at a "---" line (the web page's install help), strips
+  bold/code/links. Notes live in CHANGELOG.md: every change people would notice goes under "## Unreleased" (### New /
+  Improved / Fixed), written for users; `publish-apk.sh` posts that section as the release notes, renames it to the
+  version (commit CHANGELOG.md after), and refuses to publish with no notes. Releases before 0.5.66 only say "Install
+  Skipii.apk…", which parses to nothing (the sheet says no notes were published). Tested: `AppUpdateTest`; live check
+  against GitHub; the sheet on skipii_qa with a seeded release (9.9.9 + 9.9.8 notes in prefs "update").
+- 0.5.66 fullscreen quality (2026-10-31, GitHub #25; Derek picked A "Drop" in `docs/design/fullscreen-quality.html`): in
+  fullscreen the quality pill opens `QualityDrop` (VideoView.kt), not the sheet (it covered the whole video): a 184 dp card
+  of dark glass hanging 8 dp under the pill, right edges aligned, popping out of it. Auto + every height with its tag, 38 dp
+  rows, scrolls when taller than the room above the scrubber (`DropBottomReserve`), opens scrolled to the chosen row. A
+  pick lands the check, folds after 420 ms. Tap outside (a layer BEHIND the card, consumes the whole gesture) or Back
+  closes it; the controls don't auto-hide while it's open. Portrait keeps the sheet. Verified on skipii_qa: scroll (no
+  volume slide), pick → "video itag 298 (720p)", outside tap, Back stays in fullscreen.
+- 0.5.67 controls on the video (2026-10-31, Derek): `PlayerControls` (PlaybackModes.kt, prefs "playback" `controls_in_bar`,
+  default the pill) picks where the open portrait player's controls live; a chip card in the account sheet ("Player controls":
+  Playback pill / On the video). On the video: NavPill never morphs (its morph reads go through `progress()`, 0 in this mode,
+  `controlsActive` false) and MainActivity steps the tab bar down along `morph.progress` (0..0.5); `bottomClearance` drops the
+  bar. `VideoContent` shows the fullscreen overlay in portrait too. The overlay (both modes, fullscreen included) is drawn like
+  the pill: `OverlayTile`/`OverlayPill` on `surfaceVariant` (full primary while a mode is on), ±10 `OverlaySeek` tiles, play a
+  full-primary 2:1 capsule (`OverlayPlay`); top row audio only (portrait) · speed (`SpeedSheet`, `PlayerSheet.Speed`) ·
+  quality · PiP; bottom row time · chapter · Ask · Next (queue) · fullscreen. Portrait has no inset scrubber: the stage's bottom
+  edge is the playback head (`Modifier.videoEdge` on an unclipped box around VideoStage's stage, zIndex over the details so the
+  knob overhangs): 3 dp line, chapter gaps, SponsorBlock marks, primary knob 5 dp (7 with controls, 9 scrubbing). Grab = the
+  bottom 36 dp, Initial pass: sideways anywhere, any direction within 28 dp of the knob (so it beats the minimize drag); seeks on
+  release, ticks per chapter; `EdgeScrubPreview` shows the storyboard frame + time over the knob, the overlay fades meanwhile.
+  Audio only doesn't fold the stage in this mode: `AudioOnlyStage` keeps its (restyled) controls plus audio only / speed tiles.
+  Verified on an emulator (debug): setting, tab bar away/back, edge scrub (seeked to the landing time), audio only, fullscreen, speed.
+  0.5.68 (Derek): play on the overlay is a full-primary CIRCLE (`OverlayPlay(size)`: 66 dp portrait / audio stage, 78
+  fullscreen), not the pill's capsule. Fullscreen's `Scrubber` is drawn like the portrait playback head (3 dp, white 32/45%,
+  primary played + knob, a gap per chapter cut with BlendMode.Clear on its own offscreen layer).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -532,7 +570,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `Screens.kt` — Home / Subscriptions / Search / Library.
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
-- `Updater.kt` — `AppUpdate` (daily GitHub release check, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill.
+- `Updater.kt` — `AppUpdate` (daily GitHub release check, release notes, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill + What's new sheet.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.

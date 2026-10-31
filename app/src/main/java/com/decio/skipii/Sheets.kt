@@ -496,6 +496,36 @@ private fun CategoryRow(category: SponsorBlock.Category) {
     }
 }
 
+// ── Player controls (inside the account sheet) ────────────────────────────────
+
+/** The open player's controls: in the playback pill (the tab bar's player form) or on the video ([PlayerControls]). */
+@Composable
+fun PlayerControlsSettings() {
+    val c = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth()) {
+        Text("Player controls", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+        Text(
+            if (PlayerControls.inBar) "In the playback pill at the bottom of the player"
+            else "On the video; drag the knob on its bottom edge to scrub",
+            color = c.onSurfaceVariant, fontSize = 13.sp,
+        )
+        Spacer(Modifier.height(10.dp))
+        // Scrolls, as every row of chips does (#24).
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(true to "Playback pill", false to "On the video").forEach { (bar, label) ->
+                val on = PlayerControls.inBar == bar
+                Box(
+                    Modifier
+                        .pressable { PlayerControls.set(bar) }
+                        .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
+                        .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
+                        .padding(horizontal = 16.dp, vertical = 9.dp),
+                ) { Text(label, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false) }
+            }
+        }
+    }
+}
+
 // ── Shorts (inside the account sheet) ─────────────────────────────────────────
 
 /** GitHub issue #21: the Shorts tab can go (and with it its feed and the shorts kept on disk). */

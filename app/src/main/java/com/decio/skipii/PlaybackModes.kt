@@ -91,3 +91,28 @@ object AudioOnly {
         prefs?.edit()?.putBoolean(KEY, on)?.apply()
     }
 }
+
+/**
+ * Where the open portrait player's controls live (Derek, 2026-10-31; a choice in the account sheet):
+ * in the playback pill the tab bar turns into (PlayerBar.kt, the default since 0.5.34), or on the
+ * video itself (VideoContent's overlay, its bottom edge a playback head with a knob to scrub). On the
+ * video, the tab bar steps down out of the open player's way. Fullscreen has its overlay either way.
+ */
+object PlayerControls {
+    private const val KEY = "controls_in_bar"
+    private var prefs: SharedPreferences? = null
+
+    /** True: the playback pill; false: on the video. */
+    var inBar by mutableStateOf(true)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        inBar = prefs?.getBoolean(KEY, true) != false
+    }
+
+    fun set(bar: Boolean) {
+        inBar = bar
+        prefs?.edit()?.putBoolean(KEY, bar)?.apply()
+    }
+}

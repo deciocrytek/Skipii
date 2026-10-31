@@ -94,7 +94,9 @@ CLAUDE.md             product decisions and working rules for AI-assisted develo
 - [SponsorBlock](https://sponsor.ajay.app): sponsor segments, CC BY-NC-SA 4.0 (planned)
 - [essopsp](https://github.com/essopsp): the idea of a Shorts tab ([#10](https://github.com/deciocrytek/Skipii/pull/10))
 - [@o0ir4](https://www.threads.com/@o0ir4): reported the layout on Arabic (right-to-left) phones (0.5.64)
-- [nsk-47](https://github.com/nsk-47): found the gap under Appearance on large font sizes ([#24](https://github.com/deciocrytek/Skipii/issues/24), 0.5.65)
+- [nsk-47](https://github.com/nsk-47): found the gap under Appearance on large font sizes ([#24](https://github.com/deciocrytek/Skipii/issues/24), 0.5.65); the fullscreen quality sheet covering the video ([#25](https://github.com/deciocrytek/Skipii/issues/25)) and wider thumbnails ([#27](https://github.com/deciocrytek/Skipii/issues/27)), 0.5.68
+- [BaooRaami](https://github.com/BaooRaami): controls on the video ([#28](https://github.com/deciocrytek/Skipii/issues/28)) and the cut-off channel line on feed cards ([#27](https://github.com/deciocrytek/Skipii/issues/27)), 0.5.68
+- [usa2525-code](https://github.com/usa2525-code): the What's new sheet before updating ([#30](https://github.com/deciocrytek/Skipii/issues/30)), 0.5.68
 
 ## License
 

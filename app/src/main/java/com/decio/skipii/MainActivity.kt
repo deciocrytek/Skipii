@@ -505,7 +505,8 @@ fun SkipiiApp() {
                 onOpen = player::open,
                 onCollapse = { player.expanded = false },
                 onFullscreen = { toggleFullscreen() },
-                bottomClearance = stackBottom + NavHeight + PlayerBarRaise + 16.dp,
+                // With the controls on the video there's no bar over the player (it steps down below).
+                bottomClearance = if (PlayerControls.inBar) stackBottom + NavHeight + PlayerBarRaise + 16.dp else stackBottom + 16.dp,
             )
         }
 
@@ -546,7 +547,7 @@ fun SkipiiApp() {
             },
             player = player,
             morph = morph,
-            controlsActive = player.current != null && (player.expanded || morph.dragging),
+            controlsActive = PlayerControls.inBar && player.current != null && (player.expanded || morph.dragging),
             bar = playerBar,
             onFullscreen = { toggleFullscreen() },
             shorts = { shortsMorph.value },
@@ -556,8 +557,11 @@ fun SkipiiApp() {
                 .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
                 .graphicsLayer {
                     // Moved fully off screen, so it can't catch touches meant for the composer.
-                    translationY = barAside * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
-                    alpha = 1f - barAside
+                    // With the controls on the video (PlayerControls) the open player has no bar:
+                    // the tabs step down as it opens and come back up as it collapses.
+                    val away = if (PlayerControls.inBar) barAside else maxOf(barAside, ramp(morph.progress.value, 0f, 0.5f))
+                    translationY = away * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
+                    alpha = 1f - away
                 },
         )
 
@@ -605,6 +609,7 @@ fun SkipiiApp() {
 
         when (player.sheet) {
             PlayerSheet.Quality -> QualitySheet(player, onDismiss = { player.sheet = null })
+            PlayerSheet.Speed -> SpeedSheet(player, onDismiss = { player.sheet = null })
             PlayerSheet.Comments -> Unit // a panel inside the player (PlayerScreen)
             PlayerSheet.Queue -> QueueSheet(player, onDismiss = { player.sheet = null })
             null -> Unit

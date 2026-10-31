@@ -788,6 +788,6 @@ fun rememberPlayerState(): PlayerState {
     return state
 }
 
-enum class PlayerSheet { Quality, Comments, Queue }
+enum class PlayerSheet { Quality, Speed, Comments, Queue }
 
 private const val TAG = "Skipii"

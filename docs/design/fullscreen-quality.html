@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — fullscreen quality picker, three small directions (GitHub #25)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --emph:cubic-bezier(.2,0,0,1);
+  --exit:cubic-bezier(.3,0,.8,.15);
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;--primary:#6A4FD0;--on-primary:#fff;
+  --glass:rgba(0,0,0,.38);
+  --z:.9;
+}
+html.dark{--page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;--primary:#CDBDFF;--on-primary:#2A1F55}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:38px;font-weight:850;letter-spacing:-1.3px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:700px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:46px}
+.frame{width:calc(943px * var(--z));height:calc(440px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:943px;height:440px;border-radius:52px;padding:14px;background:#0d0d0f;
+  transform:scale(var(--z));transform-origin:0 0;box-shadow:0 30px 60px rgba(20,10,40,.25),0 4px 12px rgba(20,10,40,.15)}
+.screen{position:relative;width:915px;height:412px;border-radius:40px;overflow:hidden;background:#000;user-select:none}
+.cutout{position:absolute;left:14px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:#000;z-index:30}
+.caption{text-align:center;max-width:860px}
+.caption h2{font-size:22px;font-weight:850;letter-spacing:-.4px}
+.caption h2 span{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);font-size:16px;margin-right:8px;vertical-align:2px}
+.caption p{margin-top:6px;color:var(--ink-2);font-size:14.5px;font-weight:550;line-height:1.5}
+
+/* the video: a made-up evening scene, mockup only */
+.video{position:absolute;inset:0;background:
+  radial-gradient(120px 120px at 70% 34%,#ffd9a0 0,#ffb76b 40%,rgba(255,150,80,0) 72%),
+  linear-gradient(180deg,#2b2350 0%,#7b3f6e 38%,#e07a5f 62%,#f2b880 70%,#3a2a3f 71%,#1d1a2c 100%)}
+.video::before{content:"";position:absolute;left:-5%;right:-5%;bottom:0;height:46%;
+  background:radial-gradient(60% 90% at 25% 100%,#1b1830 0 60%,transparent 61%),radial-gradient(55% 80% at 80% 100%,#231d38 0 60%,transparent 61%)}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 70%,rgba(0,0,0,.6) 100%)}
+
+/* overlay controls, sized like VideoContent(fullscreen = true) */
+.top{position:absolute;left:44px;right:22px;top:18px;height:30px;display:flex;align-items:center;gap:8px;color:#fff}
+.title{flex:1;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
+.pill{height:29px;padding:0 11px;border-radius:999px;background:var(--glass);font-size:11.5px;font-weight:900;color:#fff;display:inline-flex;align-items:center;
+  transition:transform .42s var(--pop),background .2s;position:relative;z-index:5}
+.pill:active{transform:scale(.94);transition-duration:.09s}
+.glassbtn{width:30px;height:30px;border-radius:50%;background:var(--glass);display:grid;place-items:center}
+.mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:56px;transition:opacity .25s}
+.skip{width:56px;height:56px;border-radius:50%;background:var(--glass);display:grid;place-items:center}
+.play{width:76px;height:76px;border-radius:50%;background:var(--glass);display:grid;place-items:center}
+.bottom{position:absolute;left:44px;right:30px;bottom:14px;color:#fff}
+.timerow{display:flex;align-items:center;font-size:12px;font-weight:700}
+.timerow .dur{opacity:.72;flex:1}
+.scrub{position:relative;height:18px;margin-top:2px}
+.scrub .rail{position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:rgba(255,255,255,.3)}
+.scrub .buf{position:absolute;left:0;width:52%;top:7px;height:4px;border-radius:2px;background:rgba(255,255,255,.45)}
+.scrub .fill{position:absolute;left:0;width:31%;top:7px;height:4px;border-radius:2px;background:#fff}
+.scrub .knob{position:absolute;left:31%;top:2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff}
+
+/* catcher: a tap outside closes the picker */
+.catch{position:absolute;inset:0;z-index:4;display:none}
+.open .catch{display:block}
+
+/* A · Drop: a small card hanging from the pill */
+.drop{position:absolute;top:55px;right:60px;width:184px;z-index:6;border-radius:22px;background:rgba(18,18,22,.72);
+  padding:6px;transform-origin:calc(100% - 34px) -10px;transform:scale(.4);opacity:0;pointer-events:none;
+  transition:transform .26s var(--exit),opacity .18s;max-height:calc(412px - 55px - 64px);overflow-y:auto;scrollbar-width:none}
+.drop::-webkit-scrollbar{display:none}
+.open .drop{transform:scale(1);opacity:1;pointer-events:auto;transition:transform .42s var(--pop),opacity .16s}
+.drop .row{width:100%;height:38px;padding:0 10px 0 12px;border-radius:16px;display:flex;align-items:center;gap:8px;color:#fff;text-align:left;
+  transition:background .25s,transform .42s var(--pop)}
+.drop .row:active{transform:scale(.97);transition-duration:.09s}
+.drop .row b{font-size:14px;font-weight:800}
+.drop .row i{font-style:normal;font-size:11px;font-weight:700;opacity:.6;flex:1}
+.drop .row.sel{background:rgba(255,255,255,.16)}
+.drop .row .ck{width:18px;height:18px;opacity:0;transform:scale(.3);transition:transform .38s var(--pop),opacity .15s}
+.drop .row.sel .ck{opacity:1;transform:scale(1)}
+.drop .row:not(:last-child){margin-bottom:1px}
+.drop .head{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.55);padding:6px 12px 4px}
+
+/* B · Strip: the pill itself opens sideways into one row of chips */
+.stripwrap{position:absolute;right:60px;top:18px;height:30px;z-index:6;pointer-events:none}
+.strip{position:absolute;right:0;top:0;height:30px;border-radius:999px;background:rgba(18,18,22,.66);display:flex;align-items:center;gap:2px;padding:0 2px;
+  clip-path:inset(0 0 0 calc(100% - var(--pw,90px)) round 999px);opacity:0;transition:clip-path .28s var(--exit),opacity .12s .16s;white-space:nowrap}
+.open .strip{clip-path:inset(0 0 0 0 round 999px);opacity:1;pointer-events:auto;transition:clip-path .46s var(--emph),opacity .08s}
+.strip .c{height:26px;padding:0 10px;border-radius:999px;color:#fff;font-size:11.5px;font-weight:900;display:inline-flex;align-items:center;gap:4px;
+  transition:background .25s,color .25s,transform .42s var(--pop),opacity .3s}
+.strip .c:active{transform:scale(.92);transition-duration:.09s}
+.strip .c small{font-size:9px;font-weight:800;opacity:.6}
+.strip .c.sel{background:#fff;color:#141414}
+.strip .c.sel small{opacity:.55}
+.strip .c.x{width:26px;padding:0;justify-content:center}
+.open .stripwrap ~ .top .pill{opacity:0}
+.B.open .title{opacity:0}
+
+/* C · Rail: a slim column of heights down the right edge */
+.qrail{position:absolute;right:22px;top:58px;width:58px;z-index:6;border-radius:29px;background:rgba(18,18,22,.66);padding:5px;
+  display:flex;flex-direction:column;gap:2px;transform-origin:50% -20px;transform:scaleY(.2) scaleX(.6);opacity:0;pointer-events:none;
+  transition:transform .26s var(--exit),opacity .16s}
+.open .qrail{transform:none;opacity:1;pointer-events:auto;transition:transform .44s var(--pop),opacity .12s}
+.qrail .r{height:26px;border-radius:999px;color:#fff;font-size:12.5px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;
+  transition:background .25s,color .25s,transform .42s var(--pop)}
+.qrail .r:active{transform:scale(.92);transition-duration:.09s}
+.qrail .r small{font-size:8.5px;font-weight:800;opacity:.6;margin-top:2px}
+.qrail .r.auto{height:34px}
+.qrail .r.sel{background:#fff;color:#141414}
+.qrail .sep{height:1px;margin:2px 10px;background:rgba(255,255,255,.18)}
+.C.open .top .glassbtn{opacity:0}
+.top .glassbtn{transition:opacity .2s}
+
+.note{max-width:860px;margin:6px auto 0;color:var(--ink-2);font-size:14px;font-weight:550;line-height:1.55}
+.note b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>Fullscreen quality, a lot smaller</h1>
+      <p>GitHub <b>#25</b>: in fullscreen the Quality sheet covers the whole video. Three small pickers that open from the
+        <b>Auto · 720p</b> pill and keep the video in view. Tap the pill to open, pick a height (the check lands, then it folds after 420 ms),
+        tap anywhere else to close.</p>
+    </div>
+    <div class="tools">
+      <button class="chip on" data-ladder="long">8 heights</button>
+      <button class="chip" data-ladder="short">4 heights</button>
+      <button class="chip" id="openAll">Open all</button>
+      <button class="chip" id="mode">Dark page</button>
+      <label class="size">Size <input type="range" id="zoom" min="0.5" max="1.1" step="0.01" value="0.9"></label>
+    </div>
+  </div>
+
+  <div id="shots"></div>
+
+  <p class="note">All three use the overlay's own glass (black, no blur, no outline) and white type, so nothing reads as a page sheet
+    over the film. Portrait keeps its current sheet (or the bar's quality list); this only replaces the sheet in fullscreen.</p>
+</div>
+
+<script>
+const ICON = {
+  pip:'<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>',
+  play:'<svg width="46" height="46" viewBox="0 0 24 24" fill="#fff"><path d="M8 6.8v10.4c0 .8.9 1.3 1.5.8l8.2-5.2c.6-.4.6-1.2 0-1.6L9.5 6c-.6-.5-1.5 0-1.5.8z"/></svg>',
+  r10:'<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M11.99 5V2.21c0-.45-.54-.67-.85-.35l-3.8 3.79c-.2.2-.2.51 0 .71l3.79 3.79c.32.31.86.09.86-.35V7c3.73 0 6.68 3.42 5.86 7.29-.47 2.27-2.31 4.1-4.57 4.57-3.57.75-6.75-1.7-7.23-5.01-.07-.48-.49-.85-.98-.85-.6 0-1.08.53-1 1.13.62 4.39 4.8 7.64 9.53 6.72 3.12-.61 5.63-3.12 6.24-6.24.99-5.13-2.9-9.61-7.85-9.61z"/><text x="12.2" y="16.3" font-size="6.6" font-weight="900" text-anchor="middle" font-family="Roboto Flex,sans-serif">10</text></svg>',
+  f10:'<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><g transform="translate(24 0) scale(-1 1)"><path d="M11.99 5V2.21c0-.45-.54-.67-.85-.35l-3.8 3.79c-.2.2-.2.51 0 .71l3.79 3.79c.32.31.86.09.86-.35V7c3.73 0 6.68 3.42 5.86 7.29-.47 2.27-2.31 4.1-4.57 4.57-3.57.75-6.75-1.7-7.23-5.01-.07-.48-.49-.85-.98-.85-.6 0-1.08.53-1 1.13.62 4.39 4.8 7.64 9.53 6.72 3.12-.61 5.63-3.12 6.24-6.24.99-5.13-2.9-9.61-7.85-9.61z"/></g><text x="11.8" y="16.3" font-size="6.6" font-weight="900" text-anchor="middle" font-family="Roboto Flex,sans-serif">10</text></svg>',
+  exit:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M6 16h2v2c0 .55.45 1 1 1s1-.45 1-1v-3c0-.55-.45-1-1-1H6c-.55 0-1 .45-1 1s.45 1 1 1zm2-8H6c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1s-1 .45-1 1v2zm7 11c.55 0 1-.45 1-1v-2h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1zm1-11V6c0-.55-.45-1-1-1s-1 .45-1 1v3c0 .55.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1h-2z"/></svg>',
+  check:'<svg class="ck" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17 5.53 12.7a.996.996 0 1 0-1.41 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71a.996.996 0 1 0-1.41-1.41L9 16.17z"/></svg>',
+  close:'<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59 7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12 5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 1 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/></svg>',
+};
+const LADDERS = { long:[2160,1440,1080,720,480,360,240,144], short:[1080,720,480,360] };
+const TAG = h => h>=2160?'4K':h>=1440?'QHD':h>=1080?'Full HD':h>=720?'HD':h<=240?'Data saver':'';
+const PLAYING = 720;
+
+const VARIANTS = [
+  { key:'A', name:'Drop', text:'A small glass card hangs from the pill: Auto, then every height with its tag. 184 dp wide, 38 dp rows; ' +
+      'it scrolls if the ladder is longer than the video is tall. The title, play and the scrubber stay visible.' },
+  { key:'B', name:'Strip', text:'The pill opens sideways into one row of chips in the top bar (the title steps aside while it is open). ' +
+      '30 dp tall, the smallest by far: the video is never covered below the top row. ✕ or a tap anywhere closes it.' },
+  { key:'C', name:'Rail', text:'A slim column of heights down the right edge, dropping from the pill (PiP steps aside). 58 dp wide, ' +
+      'numbers only; Auto on top with what it is playing. The thumb is already there, it never reaches across the film.' },
+];
+
+const state = {}; // per variant: { open, chosen (null = Auto) }
+let ladder = 'long';
+
+function pillLabel(s){ return s.chosen==null ? `Auto · ${PLAYING}p` : `${s.chosen}p` }
+
+function picker(v, s){
+  const hs = LADDERS[ladder];
+  if (v.key==='A') return `<div class="drop">
+      <div class="head">Quality</div>
+      <button class="row ${s.chosen==null?'sel':''}" data-h="auto"><b>Auto</b><i>${PLAYING}p</i>${ICON.check}</button>
+      ${hs.map(h=>`<button class="row ${s.chosen===h?'sel':''}" data-h="${h}"><b>${h}p</b><i>${TAG(h)}</i>${ICON.check}</button>`).join('')}
+    </div>`;
+  if (v.key==='B') return `<div class="stripwrap"><div class="strip">
+      <button class="c ${s.chosen==null?'sel':''}" data-h="auto">Auto <small>${PLAYING}p</small></button>
+      ${hs.map(h=>`<button class="c ${s.chosen===h?'sel':''}" data-h="${h}">${h}${TAG(h)&&h>=1440?` <small>${TAG(h)}</small>`:''}</button>`).join('')}
+      <button class="c x" data-close>${ICON.close}</button>
+    </div></div>`;
+  return `<div class="qrail">
+      <button class="r auto ${s.chosen==null?'sel':''}" data-h="auto">Auto<small>${PLAYING}p</small></button>
+      <div class="sep"></div>
+      ${hs.map(h=>`<button class="r ${s.chosen===h?'sel':''}" data-h="${h}">${h}</button>`).join('')}
+    </div>`;
+}
+
+function render(){
+  document.getElementById('shots').innerHTML = VARIANTS.map(v=>{
+    const s = state[v.key] ??= { open:false, chosen:null };
+    return `<section class="shot">
+      <div class="frame"><div class="phone"><div class="screen ${v.key} ${s.open?'open':''}" data-v="${v.key}">
+        <div class="video"></div><div class="scrim"></div><div class="cutout"></div>
+        <div class="catch"></div>
+        <div class="mid"><div class="skip">${ICON.r10}</div><div class="play">${ICON.play}</div><div class="skip">${ICON.f10}</div></div>
+        <div class="bottom">
+          <div class="timerow"><span>4:12</span><span class="dur">&nbsp;/ 13:27</span><span style="width:34px;height:34px;display:grid;place-items:center">${ICON.exit}</span></div>
+          <div class="scrub"><div class="rail"></div><div class="buf"></div><div class="fill"></div><div class="knob"></div></div>
+        </div>
+        ${picker(v, s)}
+        <div class="top"><div class="title">Evening light over the hills, a slow walk</div>
+          <button class="pill">${pillLabel(s)}</button><div class="glassbtn">${ICON.pip}</div></div>
+      </div></div></div>
+      <div class="caption"><h2><span>${v.key}</span>${v.name}</h2><p>${v.text}</p></div>
+    </section>`;
+  }).join('');
+  // The strip opens out of the pill: its closed clip is the pill's own width.
+  document.querySelectorAll('.screen.B').forEach(sc=>{
+    const pill = sc.querySelector('.pill');
+    sc.querySelector('.strip').style.setProperty('--pw', pill.offsetWidth+'px');
+  });
+}
+
+function setOpen(key, open){
+  state[key].open = open;
+  const sc = document.querySelector(`.screen[data-v="${key}"]`);
+  sc.classList.toggle('open', open);
+  if (key==='B') sc.querySelector('.strip').style.setProperty('--pw', sc.querySelector('.pill').offsetWidth+'px');
+  if (open && key==='A') { // open scrolled to the chosen row
+    const sel = sc.querySelector('.drop .row.sel'); const d = sc.querySelector('.drop');
+    d.scrollTop = Math.max(0, sel.offsetTop - d.clientHeight/2 + sel.offsetHeight/2);
+  }
+}
+
+document.addEventListener('click', e=>{
+  const sc = e.target.closest('.screen'); if (!sc) return;
+  const key = sc.dataset.v, s = state[key];
+  if (e.target.closest('.pill')) return setOpen(key, !s.open);
+  if (e.target.closest('.catch') || e.target.closest('[data-close]')) return setOpen(key, false);
+  const opt = e.target.closest('[data-h]');
+  if (opt && s.open) {
+    s.chosen = opt.dataset.h==='auto' ? null : +opt.dataset.h;
+    sc.querySelectorAll('[data-h]').forEach(b=>b.classList.toggle('sel', b===opt));
+    sc.querySelector('.pill').textContent = pillLabel(s);
+    setTimeout(()=>setOpen(key, false), 420);
+  }
+});
+
+document.querySelectorAll('[data-ladder]').forEach(b=>b.onclick=()=>{
+  ladder = b.dataset.ladder;
+  document.querySelectorAll('[data-ladder]').forEach(x=>x.classList.toggle('on', x===b));
+  Object.values(state).forEach(s=>{ if (s.chosen!=null && !LADDERS[ladder].includes(s.chosen)) s.chosen=null });
+  render();
+});
+document.getElementById('openAll').onclick = e=>{
+  const open = !e.currentTarget.classList.contains('on');
+  e.currentTarget.classList.toggle('on', open);
+  VARIANTS.forEach(v=>setOpen(v.key, open));
+};
+document.getElementById('mode').onclick = e=>{
+  document.documentElement.classList.toggle('dark');
+  e.currentTarget.classList.toggle('on');
+};
+document.getElementById('zoom').oninput = e=>document.documentElement.style.setProperty('--z', e.target.value);
+render();
+</script>
+</body>
+</html>
