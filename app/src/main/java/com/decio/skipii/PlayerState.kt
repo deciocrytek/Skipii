@@ -130,8 +130,6 @@ class PlayerState(private val scope: CoroutineScope) {
     var accountState by mutableStateOf<VideoAccountState?>(null)
         private set
     private var originalLike = LikeStatus.None
-    var inWatchLater by mutableStateOf(false)
-        private set
     /** A short message after an account action fails (shown briefly over the player). */
     var actionMessage by mutableStateOf<String?>(null)
 
@@ -178,7 +176,6 @@ class PlayerState(private val scope: CoroutineScope) {
         sheet = null
         comments.clearFor(item.id)
         accountState = null
-        inWatchLater = false
         if (Account.signedIn) {
             scope.launch {
                 runCatching { InnerTube.videoState(item.id) }
@@ -361,7 +358,6 @@ class PlayerState(private val scope: CoroutineScope) {
     fun refreshAccountState() {
         val item = current ?: return
         accountState = null
-        inWatchLater = false
         if (!Account.signedIn) return
         scope.launch {
             runCatching { InnerTube.videoState(item.id) }
@@ -406,25 +402,11 @@ class PlayerState(private val scope: CoroutineScope) {
         }
     }
 
-    fun toggleWatchLater() {
-        val id = current?.id ?: return
-        val add = !inWatchLater
-        inWatchLater = add
-        scope.launch {
-            runCatching { InnerTube.setInWatchLater(id, add) }
-                .onSuccess { actionMessage = if (add) "Saved to Watch later" else "Removed from Watch later" }
-                .onFailure { inWatchLater = !add; actionMessage = "Couldn't update Watch later."; Log.w(TAG, "watch later $id", it) }
-        }
-    }
-
     /** Long-press Save. Runs here, not in the sheet: closing the sheet would cancel its scope mid-request. */
     fun saveToWatchLater(video: VideoItem) {
         scope.launch {
             runCatching { InnerTube.setInWatchLater(video.id, true) }
-                .onSuccess {
-                    if (current?.id == video.id) inWatchLater = true
-                    actionMessage = "Saved to Watch later"
-                }
+                .onSuccess { actionMessage = "Saved to Watch later" }
                 .onFailure { actionMessage = "Couldn't save to Watch later."; Log.w(TAG, "watch later ${video.id}", it) }
         }
     }
@@ -447,12 +429,7 @@ class PlayerState(private val scope: CoroutineScope) {
         choicesJob?.cancel()
         choicesJob = scope.launch {
             runCatching { InnerTube.saveChoices(video.id) }
-                .onSuccess { choices ->
-                    if (playlistTarget?.id != video.id) return@onSuccess
-                    playlistChoices = choices
-                    // The dialog's answer is the only place Watch later's state comes from.
-                    choices.firstOrNull { it.id == "WL" }?.contains?.let { if (current?.id == video.id) inWatchLater = it }
-                }
+                .onSuccess { choices -> if (playlistTarget?.id == video.id) playlistChoices = choices }
                 .onFailure {
                     if (it is CancellationException) throw it
                     Log.w(TAG, "playlists for ${video.id}", it)
@@ -470,7 +447,6 @@ class PlayerState(private val scope: CoroutineScope) {
     fun setInPlaylist(video: VideoItem, choice: PlaylistChoice, add: Boolean) {
         fun mark(value: Boolean?) {
             playlistChoices = playlistChoices?.map { if (it.id == choice.id) it.copy(contains = value) else it }
-            if (choice.id == "WL" && current?.id == video.id && value != null) inWatchLater = value
         }
         mark(add)
         scope.launch {
@@ -568,6 +544,35 @@ class PlayerState(private val scope: CoroutineScope) {
     }
 
     fun toggleRememberSpeed() = PlaybackSpeed.setRemember(!PlaybackSpeed.remember, speed)
+
+    /** A finger is held on the video's right side (GitHub #11/#26/#32/#36): playing at [PlaybackSpeed.HOLD]. */
+    var holdingFast by mutableStateOf(false)
+        private set
+    private var heldFrom: HeldSpeed? = null
+    private class HeldSpeed(val videoId: String?, val speed: Float, val wasPlaying: Boolean)
+
+    /** Starts the hold: [PlaybackSpeed.HOLD], playing (a paused video plays while held). Never saved or remembered. */
+    fun startFastHold(): Boolean {
+        val player = controller ?: return false
+        if (holdingFast || player.playbackState == Player.STATE_IDLE || player.playbackState == Player.STATE_ENDED) return false
+        heldFrom = HeldSpeed(current?.id, player.playbackParameters.speed, player.playWhenReady)
+        player.setPlaybackSpeed(PlaybackSpeed.HOLD)
+        if (!player.playWhenReady) player.play()
+        holdingFast = true
+        return true
+    }
+
+    /** Let go: the speed it had (and paused again if it was). */
+    fun endFastHold() {
+        val from = heldFrom ?: return
+        heldFrom = null
+        holdingFast = false
+        val player = controller ?: return
+        // The next video started mid-hold: SpeedKeeper already gave it its own speed.
+        if (from.videoId != current?.id) return
+        player.setPlaybackSpeed(from.speed)
+        if (!from.wasPlaying) player.pause()
+    }
 
     /** Audio only for the whole app: the video track goes off (or back on) right away. */
     fun setAudioOnly(on: Boolean) {

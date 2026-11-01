@@ -615,7 +615,8 @@ fun SkipiiApp() {
             null -> Unit
         }
         optionsFor?.let { video -> VideoOptionsSheet(video, player, onDismiss = { optionsFor = null }) }
-        player.playlistTarget?.let { video -> SaveToPlaylistSheet(player, video) }
+        // No taller than the comments panel opens (Derek): its top rests just under the video.
+        player.playlistTarget?.let { video -> SaveToPlaylistSheet(player, video, maxHeight = maxHeight - panelRestTop(player)) }
         // Confirmations ("Added to queue") when the full player isn't showing its own.
         if (!showPlayer) {
             QueueMessage(player, Modifier.align(Alignment.BottomCenter).padding(bottom = stackBottom + NavHeight + (if (hasMini) MiniHeight + MiniGap else 0.dp) + 12.dp))

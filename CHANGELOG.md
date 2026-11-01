@@ -10,6 +10,16 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.74
+
+### New
+- Hold a finger on the right side of the video to play at 2×, in portrait and fullscreen. Let go and it goes back to the speed it had (a paused video plays while held, then pauses again) (#11, #26, #32, #36, thanks @usa2525-code, @hpqs2024-sys, @ganapathi-subramanian and @jm11x).
+
+### Improved
+- Save to playlist opens to the same height as the comments, just under the video, in one smooth motion, and scrolls inside.
+- The player's Save (Watch later) button is gone: Watch later is the first row of Playlist.
+- Picking a playlist animates (the check pops in), "Saved to …" shows right over the list, and the video above stays bright while it's open.
+
 ## 0.5.69
 
 ### Fixed

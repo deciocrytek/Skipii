@@ -41,14 +41,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.LibraryAdd
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
-import androidx.compose.material.icons.rounded.WatchLater
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -87,6 +85,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -340,8 +339,6 @@ fun PlayerScreen(
         // back with the next open (GitHub #33).
         LaunchedEffect(showDetails) { if (!showDetails && state.sheet == PlayerSheet.Comments) state.sheet = null }
         if (state.sheet == PlayerSheet.Comments && showDetails) {
-            val screenW = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp
-            val videoBottom = top + StageTopGap + (screenW - StageSideGap * 2) / state.stageAspect
             Box(
                 Modifier.fillMaxSize().graphicsLayer {
                     val p = morph.progress.value
@@ -350,7 +347,7 @@ fun PlayerScreen(
                     translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                 },
             ) {
-                CommentsPanel(state.comments, partialTop = videoBottom + 10.dp, onClose = { state.sheet = null })
+                CommentsPanel(state.comments, partialTop = panelRestTop(state), onClose = { state.sheet = null })
             }
         }
     }
@@ -361,6 +358,17 @@ fun PlayerScreen(
             .graphicsLayer { alpha = blackStatus() }
             .background(Color.Black),
     )
+}
+
+/**
+ * Where a panel opened over the player rests: just under the portrait video. The comments
+ * panel opens to here, and Save to playlist stops at the same height.
+ */
+@Composable
+fun panelRestTop(state: PlayerState): Dp {
+    val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val screenW = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp
+    return top + StageTopGap + (screenW - StageSideGap * 2) / state.stageAspect + 10.dp
 }
 
 /**
@@ -602,7 +610,7 @@ private fun Modifier.bleed(x: androidx.compose.ui.unit.Dp) = layout { measurable
     layout(placeable.width - extra, placeable.height) { placeable.place(-extra / 2, 0) }
 }
 
-/** Connected like | dislike group, Save (Watch later) and Playlist, all synced to the account; placed in [PlayerActions]' row. */
+/** Connected like | dislike group and Playlist (Watch later is its first row), all synced to the account; placed in [PlayerActions]' row. */
 @Composable
 private fun AccountActions(state: PlayerState) {
     val like = state.accountState?.like ?: LikeStatus.None
@@ -629,14 +637,6 @@ private fun AccountActions(state: PlayerState) {
             description = "Dislike",
         ) { state.setLike(LikeStatus.Dislike) }
     }
-    ActionPill(
-        icon = if (state.inWatchLater) Icons.Rounded.WatchLater else Icons.Outlined.WatchLater,
-        label = if (state.inWatchLater) "Saved" else "Save",
-        active = state.inWatchLater,
-        flourish = Flourish.Drop,
-        shape = RoundedCornerShape(22.dp),
-        description = "Save to Watch later",
-    ) { state.toggleWatchLater() }
     // Any of the account's playlists (GitHub issue #12).
     ActionPill(
         icon = Icons.Rounded.LibraryAdd,

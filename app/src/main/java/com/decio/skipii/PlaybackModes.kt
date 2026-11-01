@@ -21,6 +21,8 @@ object PlaybackSpeed {
     const val MIN = 0.5f
     const val MAX = 3f
     const val STEP = 0.05f
+    /** Holding a finger on the video's right side plays at this, until it lifts. */
+    const val HOLD = 2f
     /** Steps from [MIN] to [MAX]. */
     val LAST_STEP = ((MAX - MIN) / STEP).roundToInt()
 

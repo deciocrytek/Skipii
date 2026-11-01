@@ -484,6 +484,23 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   shrank it into the mini-player card and it was still open on the next expand. Now (PlayerUi.kt) it rides and fades like the
   details (same alpha ramp + translation under the video), the details under it stay hidden while p < 1 (no see-through), and
   `state.sheet` is cleared once `showDetails` goes false. A short drag that springs back keeps it open. Checked on skipii_qa.
+- 0.5.70–0.5.72 (2026-11-01, Derek): Save to playlist is always exactly as tall as the comments panel rests (`panelRestTop`,
+  PlayerUi.kt: just under the portrait video; MainActivity passes window height − that); the list scrolls inside. The size
+  goes on the sheet's CONTENT (`height`, minus the 48 dp handle and the nav bar), never on ModalBottomSheet's modifier — M3 1.3
+  computes its resting spot from the constraints after that modifier, so a capped sheet hung from the top with its bottom cut
+  off (0.5.70). A fixed height, not a max: sized to its content it set off for the spinner's height and changed course when the
+  playlists arrived (Derek's 6526.mp4 "hiccup", 0.5.71). The action row has no Watch later pill any more (0.5.72; Derek: keep
+  only Playlist, whose first row is Watch later); `inWatchLater`/`toggleWatchLater` are gone, long-press "Save to Watch later" stays.
+  0.5.73: no scrim (`scrimColor = Color.Transparent`, the video stays bright like with the comments; an outside tap still closes).
+  Picking: Save's `Flourish.Drop` on the row icon, the circle fills (`squishOn`) and the check springs in. The sheet is its own
+  window, so the player's `ActionMessage` was hidden under it: `SheetMessage` shows `actionMessage` at the sheet's bottom, over the list.
+- 0.5.74 hold for 2× (2026-11-01, Derek, GitHub #11/#26/#32/#36): a finger held still for the long-press timeout on the
+  video's right 40% (the double-tap seek side; portrait + fullscreen, both via `VideoContent`'s one tap handler) plays at
+  `PlaybackSpeed.HOLD` until it lifts (`PlayerState.startFastHold`/`endFastHold`: old speed back, paused again if it was; never
+  saved/remembered; skipped if the next video started mid-hold, SpeedKeeper already set its speed). LONG_PRESS haptic, controls
+  hide, `FastHoldPill` ("2× ▸▸", the seek pill's glass) at the top. Moving before the timeout keeps the old gestures (volume slide,
+  swipes, scrub take it); once held, the hold consumes every move (Main pass, before fullscreenGestures / the stage's draggable),
+  and the edge scrub (Initial pass) backs off while `holdingFast`. Not during a seek burst, an error, collapsing, idle/ended.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

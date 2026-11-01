@@ -5,6 +5,9 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +66,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicTextField
@@ -133,14 +140,24 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem) {
+fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem, maxHeight: Dp) {
     val c = MaterialTheme.colorScheme
     ModalBottomSheet(
         onDismissRequest = player::closePlaylists,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = c.surfaceContainerLow,
+        // The video above stays as it is, as with the comments; a tap there still closes the sheet.
+        scrimColor = Color.Transparent,
     ) {
-        Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
+        // Always exactly [maxHeight] tall (where the comments panel rests), handle and nav bar
+        // included, like the comments: a sheet sized to its content set off for the spinner's
+        // height and changed course when the playlists arrived (a hiccup mid-rise). Sized here,
+        // not on the sheet: a size on the sheet's own modifier also becomes the height it rests
+        // against, so it hung from the top.
+        val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        val listHeight = (maxHeight - SheetHandleHeight - nav).coerceAtLeast(240.dp)
+        Box(Modifier.height(listHeight)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
             Text(
                 "Save to playlist",
                 fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
@@ -170,8 +187,44 @@ fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem) {
                 }
             }
         }
+        // "Saved to …" lands over the list: the sheet is its own window, so the player's own
+        // note would sit hidden underneath it.
+        SheetMessage(player.actionMessage, Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp))
+        }
     }
 }
+
+/** The player's confirmation pill inside a sheet: rises and fades in, sinks out (the player clears it). */
+@Composable
+private fun SheetMessage(message: String?, modifier: Modifier) {
+    val c = MaterialTheme.colorScheme
+    val reduced = rememberReducedMotion()
+    // Keeps the last text while it fades out.
+    val last = remember { arrayOfNulls<String>(1) }
+    if (message != null) last[0] = message
+    val t by animateFloatAsState(
+        if (message != null) 1f else 0f,
+        if (reduced) snap() else if (message != null) spring(dampingRatio = 0.7f, stiffness = 520f) else tween(180, easing = Motion.Exit),
+        label = "sheetMessage",
+    )
+    val text = last[0] ?: return
+    if (t == 0f && message == null) return
+    Box(
+        modifier
+            .graphicsLayer {
+                alpha = t.coerceIn(0f, 1f)
+                translationY = (1f - t) * 24.dp.toPx()
+                val sc = 0.9f + 0.1f * t
+                scaleX = sc; scaleY = sc
+            }
+            .clip(CircleShape)
+            .background(c.inverseSurface)
+            .padding(horizontal = 18.dp, vertical = 11.dp),
+    ) { Text(text, color = c.inverseOnSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+}
+
+/** Material's drag handle: 4 dp bar with 22 dp above and below. */
+private val SheetHandleHeight = 48.dp
 
 @Composable
 private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
@@ -181,19 +234,40 @@ private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
         Modifier.fillMaxWidth().pressable(pressedScale = 0.98f, onClick = onClick).padding(horizontal = 24.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(if (choice.id == "WL") Icons.Rounded.WatchLater else Icons.Rounded.PlaylistPlay, null, tint = c.onSurface)
+        // Picking one plays Save's drop on its icon (and a haptic).
+        FlourishIcon(
+            if (choice.id == "WL") Icons.Rounded.WatchLater else Icons.Rounded.PlaylistPlay, null,
+            active = on, kind = Flourish.Drop, tint = c.onSurface, size = 24.dp, sparkColor = c.primary,
+        )
         Spacer(Modifier.width(18.dp))
         Column(Modifier.weight(1f)) {
             Text(choice.title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             privacyLabel(choice.privacy)?.let { Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
         }
         Spacer(Modifier.width(12.dp))
-        // Filled check when the video is in it; an empty tonal circle when it isn't.
+        // Filled check when the video is in it; an empty tonal circle when it isn't. Picking
+        // fills it with a squish and the check pops in; unpicking shrinks the check away.
+        val reduced = rememberReducedMotion()
+        val fill by androidx.compose.animation.animateColorAsState(
+            if (on) c.primary else c.surfaceContainerHighest, if (reduced) snap() else tween(200), label = "choiceFill",
+        )
+        val check by animateFloatAsState(
+            if (on) 1f else 0f,
+            if (reduced) snap() else if (on) spring(dampingRatio = 0.45f, stiffness = 650f) else tween(140, easing = Motion.Exit),
+            label = "choiceCheck",
+        )
         Box(
-            Modifier.size(26.dp).clip(CircleShape).background(if (on) c.primary else c.surfaceContainerHighest),
+            Modifier.size(26.dp).squishOn(on).clip(CircleShape).background(fill),
             contentAlignment = Alignment.Center,
         ) {
-            if (on) Icon(Icons.Rounded.Check, "Saved", tint = c.onPrimary, modifier = Modifier.size(18.dp))
+            if (check > 0f) Icon(
+                Icons.Rounded.Check, if (on) "Saved" else null, tint = c.onPrimary,
+                modifier = Modifier.size(18.dp).graphicsLayer {
+                    scaleX = check; scaleY = check
+                    alpha = check.coerceIn(0f, 1f)
+                    rotationZ = (1f - check) * -30f
+                },
+            )
         }
     }
 }

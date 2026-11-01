@@ -106,6 +106,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -219,6 +220,7 @@ fun VideoContent(
         burstTaps++
     }
     val pip = LocalPictureInPicture.current
+    val view = LocalView.current
     Box(modifier.background(Color.Black).onGloballyPositioned { pip?.videoBounds = it.boundsInWindow() }.pointerInput(state) {
         val doubleTapMs = viewConfiguration.doubleTapTimeoutMillis
         coroutineScope {
@@ -227,8 +229,29 @@ fun VideoContent(
             var pendingSide = 0
             var pendingAt = 0L
             awaitEachGesture {
-                awaitFirstDown()
-                val up = waitForUpOrCancellation() ?: return@awaitEachGesture
+                val down = awaitFirstDown()
+                // Held still on the right side: 2× until it lifts (GitHub #36). Moving first (a swipe,
+                // the volume slide, a scrub) takes the gesture away from it before the timeout.
+                val holdable = currentInteractive && state.error == null && !burstActive && down.position.x / size.width > 0.6f
+                val up = (if (!holdable) waitForUpOrCancellation() else try {
+                    withTimeout(viewConfiguration.longPressTimeoutMillis) { waitForUpOrCancellation() }
+                } catch (_: PointerEventTimeoutCancellationException) {
+                    pendingTap?.cancel()
+                    if (state.startFastHold()) {
+                        controlsVisible = false
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    }
+                    try {
+                        // Every move and the lift are the hold's: nothing slides, swipes or scrubs under it.
+                        do {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach { it.consume() }
+                        } while (event.changes.any { it.pressed })
+                    } finally {
+                        state.endFastHold()
+                    }
+                    return@awaitEachGesture
+                }) ?: return@awaitEachGesture
                 up.consume()
                 if (!currentInteractive) { currentInactiveTap(); return@awaitEachGesture }
                 val x = up.position.x / size.width
@@ -283,6 +306,11 @@ fun VideoContent(
             }
         }
         SeekBurstPill(burstSide, burstSeconds, burstTaps, burstActive, fullscreen)
+        FastHoldPill(
+            state.holdingFast, fullscreen,
+            Modifier.align(Alignment.TopCenter)
+                .then(if (fullscreen) Modifier.windowInsetsPadding(WindowInsets.displayCutout).padding(top = 20.dp) else Modifier.padding(top = 12.dp)),
+        )
 
         val error = state.error
         if (error != null) {
@@ -794,7 +822,8 @@ fun Modifier.videoEdge(state: PlayerState, edge: EdgeScrub, enabled: Boolean, sh
                 while (true) {
                     val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: break
                     if (edge.fraction == null) {
-                        if (!change.pressed) break
+                        // Held at 2× (VideoContent): the finger belongs to the hold, even sliding along the edge.
+                        if (!change.pressed || state.holdingFast) break
                         moved += change.position - change.previousPosition
                         if (hypot(moved.x, moved.y) <= viewConfiguration.touchSlop) continue
                         // Not ours: a swipe up / down on the video (minimize, fullscreen) carries on.
@@ -1399,6 +1428,52 @@ private fun SeekBurstPill(side: Int, seconds: Int, taps: Int, active: Boolean, f
         Spacer(Modifier.width(8.dp))
         Text(if (side < 0) "−" else "+", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = font)
         RollingText("$seconds", Color.White, up = true, fontSize = font)
+    }
+}
+
+/**
+ * "2× ▸▸" at the top of the video while a finger holds it at [PlaybackSpeed.HOLD]: the double-tap
+ * pill's glass, springing in; the glyph keeps dashing forward while held. Reduced motion: fade only.
+ */
+@Composable
+private fun FastHoldPill(shown: Boolean, fullscreen: Boolean, modifier: Modifier = Modifier) {
+    val reduced = rememberReducedMotion()
+    val alpha by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = tween(if (reduced) 0 else if (shown) 140 else 200, easing = Motion.Emphasized),
+        label = "holdPillAlpha",
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (shown || reduced) 1f else 0.6f,
+        animationSpec = if (shown) spring(dampingRatio = 0.5f, stiffness = 500f) else tween(200, easing = Motion.Emphasized),
+        label = "holdPillScale",
+    )
+    if (alpha <= 0f) return
+    val dash = remember { Animatable(0f) }
+    LaunchedEffect(shown, reduced) {
+        if (!shown || reduced) { dash.snapTo(0f); return@LaunchedEffect }
+        while (true) dash.animateTo(0f, keyframes { durationMillis = 700; 1f at 220 })
+    }
+    val font = if (fullscreen) 20.sp else 16.sp
+    Row(
+        modifier
+            .graphicsLayer { this.alpha = alpha; scaleX = scale; scaleY = scale }
+            .height(if (fullscreen) 48.dp else 40.dp)
+            .clip(CircleShape)
+            .background(Color.Black.copy(alpha = 0.42f))
+            .padding(start = if (fullscreen) 18.dp else 15.dp, end = if (fullscreen) 14.dp else 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("${PlaybackSpeed.HOLD.roundToInt()}×", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = font)
+        Spacer(Modifier.width(6.dp))
+        Icon(
+            Icons.Rounded.FastForward,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier
+                .size(if (fullscreen) 28.dp else 22.dp)
+                .graphicsLayer { translationX = 4.dp.toPx() * dash.value },
+        )
     }
 }
 
