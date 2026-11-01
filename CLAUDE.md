@@ -476,6 +476,14 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   0.5.68 (Derek): play on the overlay is a full-primary CIRCLE (`OverlayPlay(size)`: 66 dp portrait / audio stage, 78
   fullscreen), not the pill's capsule. Fullscreen's `Scrubber` is drawn like the portrait playback head (3 dp, white 32/45%,
   primary played + knob, a gap per chapter cut with BlendMode.Clear on its own offscreen layer).
+- 0.5.69 (2026-10-31, GitHub #31): fullscreen's speed pill opens `SpeedDrop` (VideoView.kt), the quality card's twin: presets
+  0.5–3× (`SpeedPresets`), "Normal" on 1×, a ruler speed that isn't a preset gets its own "Custom" row, and an "Every video" row
+  = Remember (toggles, stays open). Both cards share `OverlayDrop` + `dropShown` (each card's state starts over per opening);
+  `VideoContent`'s `drop: DropKind?` says which is open. Portrait still opens the ruler sheet (`SpeedSheet`).
+- 0.5.69 (2026-11-01, GitHub #33, @BaooRaami): the comments panel lives inside the morph's frame, so swiping the video down
+  shrank it into the mini-player card and it was still open on the next expand. Now (PlayerUi.kt) it rides and fades like the
+  details (same alpha ramp + translation under the video), the details under it stay hidden while p < 1 (no see-through), and
+  `state.sheet` is cleared once `showDetails` goes false. A short drag that springs back keeps it open. Checked on skipii_qa.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

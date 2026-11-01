@@ -10,6 +10,12 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.69
+
+### Fixed
+- In fullscreen, Speed opens a small list of speeds under its button, like Quality, instead of a sheet over the whole video. "Every video" at the bottom keeps the speed for every video (#31, thanks @nsk-47).
+- Swiping the video down to the mini-player with the comments open now takes the comments along and closes them, instead of leaving them open over the mini-player (#33, thanks @BaooRaami).
+
 ## 0.5.68
 
 ### New

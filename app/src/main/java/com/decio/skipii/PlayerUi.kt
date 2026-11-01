@@ -224,7 +224,9 @@ fun PlayerScreen(
                         // The details ride along under the video's bottom edge (so they never
                         // overlap it mid-morph) and only fade in for the last stretch.
                         val p = morph.progress.value
-                        alpha = ramp(p, DetailsFadeStart)
+                        // Under the comments panel they stay hidden while the player moves, so
+                        // the two never show through each other as the panel fades out.
+                        alpha = if (p < 1f && state.sheet == PlayerSheet.Comments) 0f else ramp(p, DetailsFadeStart)
                         val g = morph.geometry
                         translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                     },
@@ -332,11 +334,24 @@ fun PlayerScreen(
         // it lands, so the page turns into the mini-player rather than flying to one.
         MorphingMiniDetails(state, morph)
 
-        // Comments open as a panel whose top sits just under the video.
-        if (state.sheet == PlayerSheet.Comments) {
+        // Comments open as a panel whose top sits just under the video. Swiping the player down
+        // takes it along like the details (under the video's bottom edge, fading out), and it's
+        // closed once the details are gone, so it never shrinks into the mini-player or comes
+        // back with the next open (GitHub #33).
+        LaunchedEffect(showDetails) { if (!showDetails && state.sheet == PlayerSheet.Comments) state.sheet = null }
+        if (state.sheet == PlayerSheet.Comments && showDetails) {
             val screenW = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp
             val videoBottom = top + StageTopGap + (screenW - StageSideGap * 2) / state.stageAspect
-            CommentsPanel(state.comments, partialTop = videoBottom + 10.dp, onClose = { state.sheet = null })
+            Box(
+                Modifier.fillMaxSize().graphicsLayer {
+                    val p = morph.progress.value
+                    alpha = ramp(p, DetailsFadeStart)
+                    val g = morph.geometry
+                    translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
+                },
+            ) {
+                CommentsPanel(state.comments, partialTop = videoBottom + 10.dp, onClose = { state.sheet = null })
+            }
         }
     }
     // Outside the morph's frame, so it never slides in with the card: it just fades over

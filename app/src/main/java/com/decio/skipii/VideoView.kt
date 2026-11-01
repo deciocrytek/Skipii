@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -119,6 +120,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.ui.compose.PlayerSurface
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -159,10 +161,10 @@ fun VideoContent(
     var controlsVisible by remember { mutableStateOf(false) }
     var touchedAt by remember { mutableLongStateOf(0L) }
     fun touched() { touchedAt = System.nanoTime() }
-    // Fullscreen's quality picker (QualityDrop, GitHub #25): the controls stay up while it's open.
-    var qualityOpen by remember { mutableStateOf(false) }
-    LaunchedEffect(controlsVisible, state.isPlaying, touchedAt, qualityOpen) {
-        if (controlsVisible && state.isPlaying && !qualityOpen) {
+    // Fullscreen's quality and speed pickers (OverlayDrop, GitHub #25 / #31): the controls stay up while one is open.
+    var drop by remember { mutableStateOf<DropKind?>(null) }
+    LaunchedEffect(controlsVisible, state.isPlaying, touchedAt, drop) {
+        if (controlsVisible && state.isPlaying && drop == null) {
             delay(Motion.ControlsHideMs)
             controlsVisible = false
         }
@@ -197,8 +199,8 @@ fun VideoContent(
     )
 
     LaunchedEffect(interactive) { if (!interactive) { controlsVisible = false; burstActive = false } }
-    LaunchedEffect(controlsVisible, fullscreen) { if (!controlsVisible || !fullscreen) qualityOpen = false }
-    BackHandler(enabled = qualityOpen) { qualityOpen = false }
+    LaunchedEffect(controlsVisible, fullscreen) { if (!controlsVisible || !fullscreen) drop = null }
+    BackHandler(enabled = drop != null) { drop = null }
     val currentInteractive by androidx.compose.runtime.rememberUpdatedState(interactive)
     val currentInactiveTap by androidx.compose.runtime.rememberUpdatedState(onInactiveTap)
     fun toggleControls() { if (overlay) { controlsVisible = !controlsVisible; touched() } }
@@ -333,10 +335,20 @@ fun VideoContent(
             // full-primary circle, a size up, for play.
             val tool = if (fullscreen) 40.dp else 36.dp
             val inset = if (fullscreen) Modifier.windowInsetsPadding(WindowInsets.displayCutout).padding(horizontal = 12.dp, vertical = 8.dp) else Modifier
-            // Fullscreen's quality card hangs from the pill: both measured where the tap happens.
-            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(2) }
+            // Fullscreen's quality and speed cards hang from their pills: both measured where the tap happens.
+            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(3) }
             var dropAnchor by remember { mutableStateOf(Rect.Zero) }
             var dropRoom by remember { mutableFloatStateOf(0f) }
+            /** Opens (or closes) [kind]'s card under the pill at [slot]; false if there's no card here (portrait). */
+            fun toggleDrop(kind: DropKind, slot: Int): Boolean {
+                val box = dropAnchors[0]
+                val pill = dropAnchors[slot]
+                if (!fullscreen || box == null || pill == null || !box.isAttached || !pill.isAttached) return false
+                dropAnchor = box.localBoundingBoxOf(pill, clipBounds = false)
+                dropRoom = box.size.height.toFloat()
+                drop = if (drop == kind) null else kind
+                return true
+            }
             Box(Modifier.fillMaxSize().then(inset).onGloballyPositioned { dropAnchors[0] = it }) {
                 // Top row: the title (fullscreen); audio only (portrait), speed, quality, picture-in-picture.
                 Row(
@@ -363,8 +375,12 @@ fun VideoContent(
                         }
                     }
                     val stickySpeed = PlaybackSpeed.remember && !PlaybackSpeed.isNormal(state.speed)
-                    OverlayPill(PlaybackSpeed.label(state.speed) + "×", "Playback speed", enabled, tool, filled = stickySpeed) {
-                        touched(); state.sheet = PlayerSheet.Speed
+                    OverlayPill(
+                        PlaybackSpeed.label(state.speed) + "×", "Playback speed", enabled, tool, filled = stickySpeed,
+                        modifier = Modifier.onGloballyPositioned { dropAnchors[2] = it },
+                    ) {
+                        touched()
+                        if (!toggleDrop(DropKind.Speed, 2)) state.sheet = PlayerSheet.Speed
                     }
                     // The label is the resolution actually decoded; the requested one until known.
                     (state.decodedHeight?.let { "${it}p" } ?: state.details?.quality)?.let { quality ->
@@ -373,15 +389,7 @@ fun VideoContent(
                             modifier = Modifier.onGloballyPositioned { dropAnchors[1] = it },
                         ) {
                             touched()
-                            val box = dropAnchors[0]
-                            val pill = dropAnchors[1]
-                            if (fullscreen && box != null && pill != null && box.isAttached && pill.isAttached) {
-                                dropAnchor = box.localBoundingBoxOf(pill, clipBounds = false)
-                                dropRoom = box.size.height.toFloat()
-                                qualityOpen = !qualityOpen
-                            } else {
-                                state.sheet = PlayerSheet.Quality
-                            }
+                            if (!toggleDrop(DropKind.Quality, 1)) state.sheet = PlayerSheet.Quality
                         }
                     }
                     if (pip?.supported == true) {
@@ -459,7 +467,10 @@ fun VideoContent(
                         )
                     }
                 }
-                if (fullscreen) QualityDrop(state, qualityOpen, dropAnchor, dropRoom, onClose = { qualityOpen = false })
+                if (fullscreen) {
+                    QualityDrop(state, drop == DropKind.Quality, dropAnchor, dropRoom, onClose = { drop = null })
+                    SpeedDrop(state, drop == DropKind.Speed, dropAnchor, dropRoom, onClose = { drop = null })
+                }
             }
         }
         if (edge != null) EdgeScrubPreview(state, edge)
@@ -1023,23 +1034,110 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
     }
 }
 
+/** Which of fullscreen's overlay cards is open. */
+private enum class DropKind { Quality, Speed }
+
 /**
  * Fullscreen's quality picker (GitHub #25; Derek picked A "Drop" in `docs/design/fullscreen-quality.html`): a small
- * card of the overlay's glass hanging from the quality pill ([anchor], in this box's pixels) instead of a sheet over
- * the whole video ([boxHeight] = that box's). Auto, then every height with its tag; it scrolls when the ladder is taller than the room above the
- * scrubber, opening scrolled to the chosen row. A pick lands its check, then the card folds after 420 ms. A tap
- * anywhere else (a layer BEHIND the card, which keeps its own touches) or Back closes it.
+ * card of the overlay's glass hanging from the quality pill instead of a sheet over the whole video. Auto, then every
+ * height with its tag. A pick lands its check, then the card folds after 420 ms.
  */
 @Composable
 private fun BoxScope.QualityDrop(state: PlayerState, open: Boolean, anchor: Rect, boxHeight: Float, onClose: () -> Unit) {
+    val details = state.details ?: return
+    val shown = dropShown(open)
+    if (shown <= 0f || anchor == Rect.Zero) return
+    val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
+    val rows = remember(details) { listOf<Int?>(null) + details.qualities }
+    var picked by remember { mutableStateOf(QualityPreference.height) }
+    OverlayDrop(open, shown, anchor, boxHeight, "QUALITY", openAt = { rows.indexOf(picked) }, onClose = onClose) { scope ->
+        val playing = state.decodedHeight?.let { "${it}p" } ?: details.quality
+        rows.forEach { h ->
+            DropRow(
+                title = if (h == null) "Auto" else "${h}p",
+                tag = if (h == null) playing else qualityTag(h),
+                selected = picked == h,
+            ) {
+                if (!open) return@DropRow
+                picked = h
+                if (h != QualityPreference.height) state.setQuality(h)
+                scope.launch { delay(420); currentClose() }
+            }
+        }
+    }
+}
+
+/**
+ * Fullscreen's speed picker (GitHub #31: the ruler's sheet filled the landscape screen): the quality card's look,
+ * hanging from the speed pill, with preset speeds. A speed set on the ruler (portrait) that isn't a preset shows as
+ * its own "Custom" row. Under them, "Every video" is the ruler's "Remember for every video" (it stays open on that one).
+ */
+@Composable
+private fun BoxScope.SpeedDrop(state: PlayerState, open: Boolean, anchor: Rect, boxHeight: Float, onClose: () -> Unit) {
+    val shown = dropShown(open)
+    if (shown <= 0f || anchor == Rect.Zero) return
+    val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
+    var picked by remember { mutableFloatStateOf(PlaybackSpeed.snap(state.speed)) }
+    // Fixed while the card is up, so a pick never reshuffles the rows under the finger.
+    val rows = remember {
+        val custom = picked.takeIf { s -> SpeedPresets.none { abs(it - s) < PlaybackSpeed.STEP / 2 } }
+        (SpeedPresets + listOfNotNull(custom)).sorted()
+    }
+    fun same(a: Float, b: Float) = abs(a - b) < PlaybackSpeed.STEP / 2
+    OverlayDrop(open, shown, anchor, boxHeight, "SPEED", openAt = { rows.indexOfFirst { same(it, picked) } }, onClose = onClose) { scope ->
+        rows.forEach { s ->
+            DropRow(
+                title = PlaybackSpeed.label(s) + "×",
+                tag = when {
+                    PlaybackSpeed.isNormal(s) -> "Normal"
+                    SpeedPresets.none { same(it, s) } -> "Custom"
+                    else -> null
+                },
+                selected = same(picked, s),
+            ) {
+                if (!open) return@DropRow
+                picked = s
+                state.commitSpeed(s)
+                scope.launch { delay(420); currentClose() }
+            }
+        }
+        Spacer(Modifier.height(5.dp))
+        DropRow(title = "Every video", tag = null, selected = PlaybackSpeed.remember) { if (open) state.toggleRememberSpeed() }
+    }
+}
+
+/** 0.5–3×, the ruler's range. */
+private val SpeedPresets = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f, 2.5f, 3f)
+
+/**
+ * The card both pickers share ([shown] from [dropShown]): the overlay's glass, hanging 8 dp under its pill ([anchor], in this box's pixels;
+ * [boxHeight] = that box's), right edges aligned, popping out of the pill. It scrolls when the rows are taller than the
+ * room above the scrubber, opening scrolled to row [openAt] (centred). A tap anywhere else (a layer BEHIND the card,
+ * which keeps its own touches) closes it; Back too (VideoContent).
+ */
+/** How far a card is out (0 gone … 1 open); its state starts over each time it opens from 0. */
+@Composable
+private fun dropShown(open: Boolean): Float {
     val reduced = rememberReducedMotion()
     val shown by animateFloatAsState(
         targetValue = if (open) 1f else 0f,
         animationSpec = if (reduced) tween(0) else if (open) tween(420, easing = Motion.Pop) else tween(220, easing = Motion.Exit),
-        label = "qualityDrop",
+        label = "overlayDrop",
     )
-    val details = state.details
-    if (shown <= 0f || details == null || anchor == Rect.Zero) return
+    return shown
+}
+
+@Composable
+private fun BoxScope.OverlayDrop(
+    open: Boolean,
+    shown: Float,
+    anchor: Rect,
+    boxHeight: Float,
+    title: String,
+    openAt: () -> Int,
+    onClose: () -> Unit,
+    rows: @Composable ColumnScope.(CoroutineScope) -> Unit,
+) {
     val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
     if (open) {
         Box(
@@ -1062,13 +1160,11 @@ private fun BoxScope.QualityDrop(state: PlayerState, open: Boolean, anchor: Rect
     // Never over the time row and scrubber.
     val room = with(density) { (boxHeight - anchor.bottom - gap).toDp() } - DropBottomReserve
     val scope = rememberCoroutineScope()
-    var picked by remember { mutableStateOf(QualityPreference.height) }
     val scroll = rememberScrollState()
-    val rows = listOf<Int?>(null) + details.qualities
     LaunchedEffect(Unit) {
         // Open scrolled to the chosen row, centred when the list scrolls.
         withFrameNanos { }
-        val index = rows.indexOf(picked).coerceAtLeast(0)
+        val index = openAt().coerceAtLeast(0)
         val row = with(density) { (DropRowHeight + DropRowGap).toPx() }
         val top = with(density) { DropHeaderHeight.toPx() } + index * row
         scroll.scrollTo((top - (scroll.viewportSize - row) / 2f).roundToInt().coerceAtLeast(0))
@@ -1083,8 +1179,8 @@ private fun BoxScope.QualityDrop(state: PlayerState, open: Boolean, anchor: Rect
                 scaleX = s
                 scaleY = s
                 alpha = (shown * 3f).coerceIn(0f, 1f)
-                // Grows out of the pill above its right end.
-                transformOrigin = TransformOrigin(1f - 34.dp.toPx() / size.width, -10.dp.toPx() / size.height)
+                // Grows out of the pill, from under its middle.
+                transformOrigin = TransformOrigin(1f - anchor.width / 2f / size.width, -10.dp.toPx() / size.height)
                 shape = RoundedCornerShape(22.dp)
                 clip = true
             }
@@ -1093,24 +1189,12 @@ private fun BoxScope.QualityDrop(state: PlayerState, open: Boolean, anchor: Rect
             .padding(6.dp),
     ) {
         Text(
-            "QUALITY",
+            title,
             color = Color.White.copy(alpha = 0.55f), fontSize = 10.5.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.6.sp,
             maxLines = 1,
             modifier = Modifier.height(DropHeaderHeight).padding(start = 12.dp, top = 6.dp),
         )
-        rows.forEach { h ->
-            val playing = state.decodedHeight?.let { "${it}p" } ?: details.quality
-            DropRow(
-                title = if (h == null) "Auto" else "${h}p",
-                tag = if (h == null) playing else qualityTag(h),
-                selected = picked == h,
-            ) {
-                if (!open) return@DropRow
-                picked = h
-                if (h != QualityPreference.height) state.setQuality(h)
-                scope.launch { delay(420); currentClose() }
-            }
-        }
+        rows(scope)
     }
 }
 
