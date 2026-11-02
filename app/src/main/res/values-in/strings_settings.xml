@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Setelan</string>
+    <string name="settings_search">Telusuri setelan</string>
+    <string name="settings_no_results">Tidak ada yang cocok dengan “%1$s”</string>
+    <string name="settings_group_watching">Saat menonton</string>
+    <string name="settings_group_look">Tampilan &amp; bahasa</string>
+    <string name="settings_playback">Pemutaran</string>
+    <string name="settings_notifications">Notifikasi</string>
+    <string name="settings_account">Akun</string>
+    <string name="settings_about">Tentang</string>
+    <string name="settings_on">Aktif</string>
+    <string name="settings_off">Nonaktif</string>
+    <string name="settings_speed_keep">Simpan kecepatan</string>
+    <string name="settings_speed_remember_title">Ingat kecepatan untuk setiap video</string>
+    <string name="settings_speed_remember_on">Video baru dimulai pada %1$s×</string>
+    <string name="settings_speed_remember_off">Setiap video dimulai pada 1×</string>
+    <string name="settings_speed_kept_summary">kecepatan tetap %1$s×</string>
+    <string name="settings_speed_per_video">kecepatan per video</string>
+    <string name="settings_audio_only_line">Suara tanpa gambar, di setiap video. Juga ada di bilah pemutar.</string>
+    <string name="settings_sb_summary">Melewati %1$s, menanyakan %2$s</string>
+    <string name="settings_mode">Mode</string>
+    <string name="settings_theme">Tema</string>
+    <plurals name="settings_bells_count">
+        <item quantity="other">%1$s channel dengan lonceng aktif</item>
+    </plurals>
+    <string name="settings_bells_none">Belum ada lonceng yang aktif</string>
+    <string name="settings_bells_empty">Aktifkan lonceng di tombol Subscribe sebuah channel, dan Skipii akan memberi tahu setiap video barunya.</string>
+    <string name="settings_bell_line">Setiap video baru</string>
+    <string name="settings_system_notifications">Setelan notifikasi Android</string>
+    <string name="settings_system_notifications_line">Suara, getar, Jangan Ganggu</string>
+    <string name="settings_full_sync">Login dengan Google · sinkronisasi penuh</string>
+    <string name="settings_sync_note">Sinkronisasi penuh aktif: suka, langganan, Tonton Nanti, dan histori tontonan dikirim ke akun Anda.</string>
+    <string name="settings_version">Versi %1$s</string>
+    <string name="settings_up_to_date">Terbaru · ketuk untuk memeriksa</string>
+    <string name="settings_checking">Memeriksa pembaruan…</string>
+    <string name="settings_update_available">Versi %1$s tersedia</string>
+    <string name="settings_source">Kode sumber di GitHub</string>
+    <string name="settings_source_line">Laporkan masalah atau minta fitur</string>
+    <string name="settings_made_by">Dibuat oleh %1$s</string>
+    <string name="settings_say_hi">Mampir dan sapa</string>
+    <string name="settings_email_developer">Kirim email ke developer</string>
+    <string name="settings_no_app">Tidak ada aplikasi di ponsel ini yang bisa membukanya</string>
+</resources>

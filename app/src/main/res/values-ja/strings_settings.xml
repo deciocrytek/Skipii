@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">設定</string>
+    <string name="settings_search">設定を検索</string>
+    <string name="settings_no_results">「%1$s」に一致する項目はありません</string>
+    <string name="settings_group_watching">視聴</string>
+    <string name="settings_group_look">外観と言語</string>
+    <string name="settings_playback">再生</string>
+    <string name="settings_notifications">通知</string>
+    <string name="settings_account">アカウント</string>
+    <string name="settings_about">アプリについて</string>
+    <string name="settings_on">オン</string>
+    <string name="settings_off">オフ</string>
+    <string name="settings_speed_keep">速度を維持</string>
+    <string name="settings_speed_remember_title">すべての動画で速度を記憶</string>
+    <string name="settings_speed_remember_on">新しい動画は %1$s× で始まります</string>
+    <string name="settings_speed_remember_off">各動画は 1× で始まります</string>
+    <string name="settings_speed_kept_summary">速度 %1$s× を維持</string>
+    <string name="settings_speed_per_video">速度は動画ごと</string>
+    <string name="settings_audio_only_line">すべての動画で映像なしの音声のみ。プレーヤーのバーにもあります。</string>
+    <string name="settings_sb_summary">%1$s 件をスキップ、%2$s 件は確認</string>
+    <string name="settings_mode">モード</string>
+    <string name="settings_theme">テーマ</string>
+    <plurals name="settings_bells_count">
+        <item quantity="other">ベルがオンのチャンネル %1$s 件</item>
+    </plurals>
+    <string name="settings_bells_none">オンのベルはまだありません</string>
+    <string name="settings_bells_empty">チャンネルの登録ボタンでベルをオンにすると、新しい動画が出るたびに Skipii がお知らせします。</string>
+    <string name="settings_bell_line">新しい動画すべて</string>
+    <string name="settings_system_notifications">Android の通知設定</string>
+    <string name="settings_system_notifications_line">音、バイブレーション、サイレント モード</string>
+    <string name="settings_full_sync">Google でログイン中 · 完全同期</string>
+    <string name="settings_sync_note">完全同期がオンです。高評価、チャンネル登録、後で見る、再生履歴がアカウントに反映されます。</string>
+    <string name="settings_version">バージョン %1$s</string>
+    <string name="settings_up_to_date">最新です · タップして確認</string>
+    <string name="settings_checking">アップデートを確認しています…</string>
+    <string name="settings_update_available">バージョン %1$s を利用できます</string>
+    <string name="settings_source">GitHub のソースコード</string>
+    <string name="settings_source_line">問題の報告や機能のリクエスト</string>
+    <string name="settings_made_by">作者: %1$s</string>
+    <string name="settings_say_hi">気軽に声をかけてください</string>
+    <string name="settings_email_developer">開発者にメールする</string>
+    <string name="settings_no_app">この端末にはこれを開けるアプリがありません</string>
+</resources>

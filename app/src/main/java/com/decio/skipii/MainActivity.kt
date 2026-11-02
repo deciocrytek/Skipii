@@ -25,6 +25,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.slideInHorizontally
@@ -194,7 +196,8 @@ fun SkipiiApp() {
     val search = remember { SearchState(scope) }
     val lib = remember { LibraryData(scope) }
     var signingIn by remember { mutableStateOf(false) }
-    var accountSheet by remember { mutableStateOf(false) }
+    // Settings (Settings.kt): a page over the app, from the header avatar. Saveable: picking a language rebuilds the window.
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var openPlaylist by remember { mutableStateOf<PlaylistRef?>(null) }
     var openChannel by remember { mutableStateOf<String?>(null) }
     // Kept after closing so the page can slide out with its content.
@@ -210,6 +213,7 @@ fun SkipiiApp() {
     LaunchedEffect(NewVideos.opening) {
         val video = NewVideos.opening ?: return@LaunchedEffect
         NewVideos.opening = null
+        settingsOpen = false
         if (tab == Tab.Shorts) tab = shortsFrom
         player.open(video)
     }
@@ -299,6 +303,8 @@ fun SkipiiApp() {
 
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val density = LocalDensity.current
+    // 1 while Settings is open: the tab bar and mini-player sink out of sight, as Moodii's bar does under a page.
+    val settingsAway by animateFloatAsState(if (settingsOpen) 1f else 0f, if (reduced) snap() else MoodiiSpatial(), label = "settingsAway")
 
     // Shorts (Shorts.kt) play on their own players: the app's video pauses on the way in and
     // carries on, from the same spot in the mini-player, on the way out (Derek, 2026-10-28).
@@ -409,19 +415,19 @@ fun SkipiiApp() {
             when (t) {
                 Tab.Home -> HomeScreen(
                     lib, contentPadding, onOpen = player::open, onSearch = { tab = Tab.Search },
-                    onSignIn = { signingIn = true }, onAccount = { accountSheet = true },
+                    onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     scrollToTop = scrollToTop[Tab.Home] ?: 0,
                 )
                 Tab.Subscriptions -> SubscriptionsScreen(
                     lib, contentPadding, onOpen = player::open,
-                    onSignIn = { signingIn = true }, onAccount = { accountSheet = true },
+                    onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     scrollToTop = scrollToTop[Tab.Subscriptions] ?: 0,
                 )
                 Tab.Shorts -> ShortsScreen(shorts, { shortsMorph.value }, overlayBottom = stackBottom + GlassHeight + 16.dp)
                 Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
                 Tab.Library -> LibraryScreen(
                     lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openPlaylist = it },
-                    onSignIn = { signingIn = true }, onAccount = { accountSheet = true },
+                    onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     scrollToTop = scrollToTop[Tab.Library] ?: 0,
                 )
             }
@@ -489,10 +495,10 @@ fun SkipiiApp() {
                     .widthIn(max = MiniWidth)
                     // Fades as the video grows out of it; slides and fades as it's dismissed.
                     .graphicsLayer {
-                        translationY = dismiss.value
+                        translationY = dismiss.value + settingsAway * (MiniHeight + MiniGap + NavHeight + stackBottom + 24.dp).toPx()
                         // Hidden for the whole morph: the shrinking page draws the mini-player
                         // itself (it stays touchable underneath, so taps still work mid-collapse).
-                        alpha = (if (showPlayer) 0f else 1f) * (1f - (dismiss.value / (dismissDistance * 1.6f)).coerceIn(0f, 1f))
+                        alpha = (if (showPlayer) 0f else 1f) * (1f - (dismiss.value / (dismissDistance * 1.6f)).coerceIn(0f, 1f)) * (1f - settingsAway)
                     }
                     .draggable(
                         state = rememberDraggableState { delta ->
@@ -586,7 +592,7 @@ fun SkipiiApp() {
                     // Moved fully off screen, so it can't catch touches meant for the composer.
                     // With the controls on the video (PlayerControls) the open player has no bar:
                     // the tabs step down as it opens and come back up as it collapses.
-                    val away = if (PlayerControls.inBar) barAside else maxOf(barAside, ramp(morph.progress.value, 0f, 0.5f))
+                    val away = maxOf(settingsAway, if (PlayerControls.inBar) barAside else maxOf(barAside, ramp(morph.progress.value, 0f, 0.5f)))
                     translationY = away * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
                     alpha = 1f - away
                 },
@@ -620,11 +626,21 @@ fun SkipiiApp() {
 
         if (showFullscreen) FullscreenPlayer(player, onExit = { orientation.exitFullscreen() })
 
-        if (accountSheet) {
-            AccountSheet(
+        // Settings comes forward as Moodii's pages do (Derek, 2026-11-02): a little scale and rise on Moodii's
+        // spatial spring while it fades in, so the app behind seems to recede (its tab bar and mini-player sink away).
+        AnimatedVisibility(
+            visible = settingsOpen,
+            enter = if (reduced) fadeIn(snap()) else
+                scaleIn(MoodiiSpatial(), initialScale = 0.94f) + slideInVertically(MoodiiSpatial()) { it / 12 } + fadeIn(tween(220)),
+            exit = if (reduced) fadeOut(snap()) else
+                scaleOut(MoodiiSpatial(), targetScale = 0.96f) + slideOutVertically(MoodiiSpatial()) { it / 16 } + fadeOut(tween(160)),
+        ) {
+            SettingsScreen(
+                player,
+                active = settingsOpen,
+                onClose = { settingsOpen = false },
                 onSignIn = { signingIn = true },
                 onSignedOut = { lib.reset(); player.refreshAccountState() },
-                onDismiss = { accountSheet = false },
             )
         }
         if (signingIn) {
@@ -675,3 +691,6 @@ private fun QueueMessage(player: PlayerState, modifier: Modifier) {
         Text(message, color = c.inverseOnSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp)
     }
 }
+
+/** Moodii's spatial spring (Motion.spatial there): the default for anything that moves in space. */
+private fun <T> MoodiiSpatial() = spring<T>(dampingRatio = 0.86f, stiffness = 650f)

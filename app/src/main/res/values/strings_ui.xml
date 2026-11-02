@@ -87,7 +87,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Sign in</string>
     <string name="ui_account_pitch_title">Your YouTube, without the ads</string>
-    <string name="ui_account_pitch_body">Sign in to get your recommendations, subscriptions, history and playlists. Likes, subscribes, Watch later and watch history sync back to your account.\n\nGoogle treats unofficial apps as against its terms and can suspend accounts that use them. A secondary Google account keeps that risk away from your main one.</string>
+    <string name="ui_account_pitch_body">Sign in to get your recommendations, subscriptions, history and playlists. Likes, subscribes, Watch later and watch history sync back to your account.</string>
     <string name="ui_sign_out">Sign out</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

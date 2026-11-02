@@ -10,6 +10,12 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- A real Settings page. Tap your profile picture (or the person icon) at the top of Home, Subscriptions or Library. Search finds any setting, and tapping a result takes you straight to it. Audio only, SponsorBlock, Shorts and Keep speed switch on and off right from the top of the page. Everything else sits in categories: Playback, Captions, SponsorBlock, Shorts, Appearance, Language, Notifications, About and your account.
+- Notifications lists every channel whose bell is on, so you can turn bells off in one place.
+- About shows your version and checks for an update when you tap it.
+- Say hi to the developer from the bottom of Settings: Instagram, Threads, X, or an email.
+
 ## 0.5.80
 
 ### New

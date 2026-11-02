@@ -87,7 +87,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">साइन इन करें</string>
     <string name="ui_account_pitch_title">आपका YouTube, बिना विज्ञापनों के</string>
-    <string name="ui_account_pitch_body">अपने सुझाव, सदस्यताएं, इतिहास और प्लेलिस्ट देखने के लिए साइन इन करें. पसंद, सदस्यताएं, बाद में देखें और देखे गए वीडियो का इतिहास आपके खाते में सिंक होते हैं.\n\nGoogle अनौपचारिक ऐप्लिकेशन को अपनी शर्तों के ख़िलाफ़ मानता है और इन्हें इस्तेमाल करने वाले खाते निलंबित कर सकता है. दूसरा Google खाता इस्तेमाल करने से आपका मुख्य खाता इस जोखिम से बचा रहता है.</string>
+    <string name="ui_account_pitch_body">अपने सुझाव, सदस्यताएं, इतिहास और प्लेलिस्ट देखने के लिए साइन इन करें. पसंद, सदस्यताएं, बाद में देखें और देखे गए वीडियो का इतिहास आपके खाते में सिंक होते हैं.</string>
     <string name="ui_sign_out">साइन आउट करें</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

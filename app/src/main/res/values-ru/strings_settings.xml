@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_search">Поиск в настройках</string>
+    <string name="settings_no_results">Ничего не найдено по запросу «%1$s»</string>
+    <string name="settings_group_watching">Просмотр</string>
+    <string name="settings_group_look">Внешний вид и язык</string>
+    <string name="settings_playback">Воспроизведение</string>
+    <string name="settings_notifications">Уведомления</string>
+    <string name="settings_account">Аккаунт</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_on">Вкл.</string>
+    <string name="settings_off">Выкл.</string>
+    <string name="settings_speed_keep">Сохранять скорость</string>
+    <string name="settings_speed_remember_title">Запоминать скорость для всех видео</string>
+    <string name="settings_speed_remember_on">Новые видео начинаются на %1$s×</string>
+    <string name="settings_speed_remember_off">Каждое видео начинается на 1×</string>
+    <string name="settings_speed_kept_summary">скорость %1$s× сохраняется</string>
+    <string name="settings_speed_per_video">скорость для каждого видео</string>
+    <string name="settings_audio_only_line">Звук без изображения во всех видео. Также на панели плеера.</string>
+    <string name="settings_sb_summary">Пропускает: %1$s, спрашивает: %2$s</string>
+    <string name="settings_mode">Режим</string>
+    <string name="settings_theme">Тема</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s канал с колокольчиком</item>
+        <item quantity="few">%1$s канала с колокольчиком</item>
+        <item quantity="many">%1$s каналов с колокольчиком</item>
+        <item quantity="other">%1$s канала с колокольчиком</item>
+    </plurals>
+    <string name="settings_bells_none">Колокольчики пока не включены</string>
+    <string name="settings_bells_empty">Включите колокольчик на кнопке «Подписаться» канала, и Skipii сообщит о каждом его новом видео.</string>
+    <string name="settings_bell_line">Каждое новое видео</string>
+    <string name="settings_system_notifications">Настройки уведомлений Android</string>
+    <string name="settings_system_notifications_line">Звук, вибрация, «Не беспокоить»</string>
+    <string name="settings_full_sync">Вход через Google · полная синхронизация</string>
+    <string name="settings_sync_note">Полная синхронизация включена: лайки, подписки, «Смотреть позже» и история просмотра отправляются в ваш аккаунт.</string>
+    <string name="settings_version">Версия %1$s</string>
+    <string name="settings_up_to_date">Последняя версия · нажмите для проверки</string>
+    <string name="settings_checking">Поиск обновлений…</string>
+    <string name="settings_update_available">Доступна версия %1$s</string>
+    <string name="settings_source">Исходный код на GitHub</string>
+    <string name="settings_source_line">Сообщить о проблеме или предложить функцию</string>
+    <string name="settings_made_by">Автор: %1$s</string>
+    <string name="settings_say_hi">Заходите поздороваться</string>
+    <string name="settings_email_developer">Написать разработчику</string>
+    <string name="settings_no_app">На этом телефоне нет приложения, чтобы это открыть</string>
+</resources>

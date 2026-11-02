@@ -86,7 +86,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">ログイン</string>
     <string name="ui_account_pitch_title">広告なしのあなたの YouTube</string>
-    <string name="ui_account_pitch_body">ログインすると、おすすめ、登録チャンネル、履歴、再生リストが表示されます。高評価、チャンネル登録、後で見る、再生履歴はアカウントに同期されます。\n\nGoogle は非公式アプリの使用を利用規約違反とみなしており、使用したアカウントを停止することがあります。サブの Google アカウントを使えば、メインのアカウントをそのリスクから守れます。</string>
+    <string name="ui_account_pitch_body">ログインすると、おすすめ、登録チャンネル、履歴、再生リストが表示されます。高評価、チャンネル登録、後で見る、再生履歴はアカウントに同期されます。</string>
     <string name="ui_sign_out">ログアウト</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

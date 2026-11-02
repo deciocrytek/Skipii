@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Settings page (Settings.kt). -->
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_search">Search settings</string>
+    <!-- A search that found nothing; %1$s = what was typed. -->
+    <string name="settings_no_results">Nothing matches “%1$s”</string>
+    <!-- Group labels on the Settings page. -->
+    <string name="settings_group_watching">Watching</string>
+    <string name="settings_group_look">Look &amp; language</string>
+    <!-- Category names. -->
+    <string name="settings_playback">Playback</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_about">About</string>
+    <string name="settings_sponsorblock" translatable="false">SponsorBlock</string>
+    <!-- A quick toggle's state. -->
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <!-- Quick toggle: playback speed remembered for every video. Short. -->
+    <string name="settings_speed_keep">Keep speed</string>
+    <string name="settings_speed_remember_title">Remember speed for every video</string>
+    <!-- %1$s = a speed like 1.5 (the × follows). -->
+    <string name="settings_speed_remember_on">New videos start at %1$s×</string>
+    <string name="settings_speed_remember_off">Each video starts at 1×</string>
+    <string name="settings_speed_kept_summary">speed kept at %1$s×</string>
+    <string name="settings_speed_per_video">speed set per video</string>
+    <string name="settings_audio_only_line">Sound without the picture, in every video. Also on the player bar.</string>
+    <!-- SponsorBlock's summary: %1$s segment types skipped, %2$s asked about. -->
+    <string name="settings_sb_summary">Skips %1$s, asks about %2$s</string>
+    <string name="settings_mode">Mode</string>
+    <string name="settings_theme">Theme</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s channel with the bell on</item>
+        <item quantity="other">%1$s channels with the bell on</item>
+    </plurals>
+    <string name="settings_bells_none">No bells on yet</string>
+    <string name="settings_bells_empty">Ring the bell on a channel\'s Subscribe button and Skipii tells you about each of its new videos.</string>
+    <string name="settings_bell_line">Every new video</string>
+    <string name="settings_system_notifications">Android notification settings</string>
+    <string name="settings_system_notifications_line">Sound, vibration, Do Not Disturb</string>
+    <string name="settings_full_sync">Signed in with Google · full sync</string>
+    <string name="settings_sync_note">Full sync is on: likes, subscribes, Watch later and watch history go back to your account.</string>
+    <!-- %1$s = this app's version, like 0.5.81. -->
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_up_to_date">Up to date · tap to check</string>
+    <string name="settings_checking">Checking for updates…</string>
+    <!-- %1$s = the newer version. -->
+    <string name="settings_update_available">Version %1$s is available</string>
+    <string name="settings_source">Source code on GitHub</string>
+    <string name="settings_source_line">Report a problem or ask for a feature</string>
+    <!-- The developer card, last on the Settings page; %1$s = the handle (@y7esdii). -->
+    <string name="settings_made_by">Made by %1$s</string>
+    <string name="settings_say_hi">Come say hi</string>
+    <string name="settings_email_developer">Email the developer</string>
+    <string name="settings_no_app">No app on this phone can open that</string>
+</resources>

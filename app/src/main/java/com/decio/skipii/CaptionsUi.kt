@@ -614,91 +614,29 @@ private fun transcriptText(cue: CaptionCue, playing: Boolean, now: Long, query: 
         }
     }
 
-// ── Settings (inside the account sheet) ───────────────────────────────────────
+// ── Settings › Captions ───────────────────────────────────────────────────────
 
-/** When captions show, how they look and how big they are, and the translation languages kept on the phone. */
+/** A still with a sample line in the chosen look and size (Settings › Captions). */
 @Composable
-fun CaptionSettingsCard() {
-    val c = MaterialTheme.colorScheme
-    Column(Modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.captions_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
-        Text(stringResource(R.string.captions_settings_subtitle), color = c.onSurfaceVariant, fontSize = 13.sp)
-        // A still with a sample line in the chosen look and size.
-        Box(
-            Modifier
-                .padding(top = 12.dp)
-                .fillMaxWidth()
-                .aspectRatio(16f / 7f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(Brush.verticalGradient(listOf(Color(0xFF2B2350), Color(0xFF7B3F6E), Color(0xFFE07A5F), Color(0xFF1D1A2C)))),
-        ) {
-            BoxWithConstraints(Modifier.fillMaxSize()) {
-                val look = rememberCaptionLook()
-                // As big as on the portrait video, whatever this box's height.
-                val px = 15f * CaptionSettings.size * look.scale
-                Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp).widthIn(max = maxWidth * 0.92f)) {
-                    val sample = listOf(
-                        CaptionLine(stringResource(R.string.captions_sample_line_1), false),
-                        CaptionLine(stringResource(R.string.captions_sample_line_2), false),
-                    )
-                    CaptionText(sample, look, px)
-                }
+fun CaptionPreview() {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 7f)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.verticalGradient(listOf(Color(0xFF2B2350), Color(0xFF7B3F6E), Color(0xFFE07A5F), Color(0xFF1D1A2C)))),
+    ) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val look = rememberCaptionLook()
+            // As big as on the portrait video, whatever this box's height.
+            val px = 15f * CaptionSettings.size * look.scale
+            Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp).widthIn(max = maxWidth * 0.92f)) {
+                val sample = listOf(
+                    CaptionLine(stringResource(R.string.captions_sample_line_1), false),
+                    CaptionLine(stringResource(R.string.captions_sample_line_2), false),
+                )
+                CaptionText(sample, look, px)
             }
-        }
-        SettingLabel(stringResource(R.string.captions_show))
-        SettingChips(
-            CaptionSettings.Show.entries.map {
-                it to when (it) {
-                    CaptionSettings.Show.Never -> stringResource(R.string.captions_show_never)
-                    CaptionSettings.Show.Always -> stringResource(R.string.captions_show_always)
-                    CaptionSettings.Show.Foreign -> stringResource(R.string.captions_show_foreign, CaptionNames.language(CaptionSettings.appLanguage))
-                }
-            },
-            CaptionSettings.show, CaptionSettings::chooseShow,
-        )
-        SettingLabel(stringResource(R.string.captions_look))
-        SettingChips(CaptionSettings.Look.entries.map { it to stringResource(it.labelRes) }, CaptionSettings.look, CaptionSettings::chooseLook)
-        SettingLabel(stringResource(R.string.captions_size))
-        SettingChips(CaptionSettings.sizes.map { it.first to stringResource(it.second) }, CaptionSettings.size, CaptionSettings::chooseSize)
-        val kept = CaptionTranslator.downloaded.filter { it != "en" }.sortedBy { CaptionNames.language(it) }
-        if (kept.isNotEmpty()) {
-            SettingLabel(stringResource(R.string.captions_kept_languages))
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                kept.forEach { lang ->
-                    Row(
-                        Modifier.clip(RoundedCornerShape(10.dp)).background(c.surfaceContainerHighest).padding(start = 14.dp, end = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(CaptionNames.language(lang), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false)
-                        Box(Modifier.size(34.dp).pressable { CaptionTranslator.delete(lang) }, contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.Close, stringResource(R.string.captions_remove_language, CaptionNames.language(lang)), tint = c.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingLabel(text: String) {
-    Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, modifier = Modifier.padding(top = 14.dp, bottom = 7.dp))
-}
-
-/** A row of choice chips, as elsewhere in the account sheet (it scrolls, #24). */
-@Composable
-private fun <T> SettingChips(options: List<Pair<T, String>>, selected: T, onPick: (T) -> Unit) {
-    val c = MaterialTheme.colorScheme
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        options.forEach { (value, label) ->
-            val on = value == selected
-            Box(
-                Modifier
-                    .pressable { onPick(value) }
-                    .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
-                    .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
-                    .padding(horizontal = 16.dp, vertical = 9.dp),
-            ) { Text(label, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false) }
         }
     }
 }

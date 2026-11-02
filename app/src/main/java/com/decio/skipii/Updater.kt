@@ -134,13 +134,15 @@ object AppUpdate {
     /** Download progress 0…1 (written from the download thread). */
     var progress by mutableFloatStateOf(0f)
         private set
+    /** A check is on its way (Settings › About shows it). */
+    var checking by mutableStateOf(false)
+        private set
     /** The button pops in only the first time it shows in this process. */
     internal var announced = false
 
     private lateinit var app: Context
     private lateinit var prefs: SharedPreferences
     private val scope = MainScope()
-    private var checking = false
     private var download: Deferred<File?>? = null
     private var downloadVersion: String? = null
     /** Sent to "Install unknown apps"; the install carries on when the window comes back. */
@@ -157,9 +159,14 @@ object AppUpdate {
     }
 
     /** Called whenever a window comes to the front; looks GitHub up at most once a day, and on a new version's first start. */
-    fun checkIfDue() {
+    fun checkIfDue() = check(force = false)
+
+    /** Settings › About's tap: looks GitHub up now, whenever the last check was. */
+    fun checkNow() = check(force = true)
+
+    private fun check(force: Boolean) {
         val newInstall = prefs.getString(KEY_CHECKED_BY, null) != BuildConfig.VERSION_NAME
-        if (checking || (!newInstall && System.currentTimeMillis() < prefs.getLong(KEY_NEXT_CHECK, 0L))) return
+        if (checking || (!force && !newInstall && System.currentTimeMillis() < prefs.getLong(KEY_NEXT_CHECK, 0L))) return
         checking = true
         scope.launch {
             val result = runCatching { withContext(Dispatchers.IO) { fetchLatest() } }
@@ -541,7 +548,7 @@ fun UpdateAction() {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WhatsNewSheet(release: AppUpdate.Release, onDismiss: () -> Unit) {
+internal fun WhatsNewSheet(release: AppUpdate.Release, onDismiss: () -> Unit) {
     val c = MaterialTheme.colorScheme
     val context = LocalContext.current
     val phase = AppUpdate.phase

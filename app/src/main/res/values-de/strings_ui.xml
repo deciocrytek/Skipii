@@ -88,7 +88,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Anmelden</string>
     <string name="ui_account_pitch_title">Dein YouTube, ohne Werbung</string>
-    <string name="ui_account_pitch_body">Melde dich an, um deine Empfehlungen, Abos, deinen Verlauf und deine Playlists zu sehen. „Mag ich“-Bewertungen, Abos, „Später ansehen“ und der Wiedergabeverlauf werden mit deinem Konto synchronisiert.\n\nGoogle sieht inoffizielle Apps als Verstoß gegen seine Nutzungsbedingungen und kann Konten sperren, die sie verwenden. Mit einem zweiten Google-Konto hältst du dieses Risiko von deinem Hauptkonto fern.</string>
+    <string name="ui_account_pitch_body">Melde dich an, um deine Empfehlungen, Abos, deinen Verlauf und deine Playlists zu sehen. „Mag ich“-Bewertungen, Abos, „Später ansehen“ und der Wiedergabeverlauf werden mit deinem Konto synchronisiert.</string>
     <string name="ui_sign_out">Abmelden</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

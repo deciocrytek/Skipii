@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_search">Rechercher dans les paramètres</string>
+    <string name="settings_no_results">Aucun résultat pour « %1$s »</string>
+    <string name="settings_group_watching">En regardant</string>
+    <string name="settings_group_look">Apparence et langue</string>
+    <string name="settings_playback">Lecture</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_account">Compte</string>
+    <string name="settings_about">À propos</string>
+    <string name="settings_on">Activé</string>
+    <string name="settings_off">Désactivé</string>
+    <string name="settings_speed_keep">Garder la vitesse</string>
+    <string name="settings_speed_remember_title">Mémoriser la vitesse pour toutes les vidéos</string>
+    <string name="settings_speed_remember_on">Les nouvelles vidéos démarrent à %1$s×</string>
+    <string name="settings_speed_remember_off">Chaque vidéo démarre à 1×</string>
+    <string name="settings_speed_kept_summary">vitesse gardée à %1$s×</string>
+    <string name="settings_speed_per_video">vitesse par vidéo</string>
+    <string name="settings_audio_only_line">Le son sans l\'image, dans toutes les vidéos. Aussi dans la barre du lecteur.</string>
+    <string name="settings_sb_summary">Saute %1$s, demande pour %2$s</string>
+    <string name="settings_mode">Mode</string>
+    <string name="settings_theme">Thème</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s chaîne avec la cloche activée</item>
+        <item quantity="many">%1$s de chaînes avec la cloche activée</item>
+        <item quantity="other">%1$s chaînes avec la cloche activée</item>
+    </plurals>
+    <string name="settings_bells_none">Aucune cloche activée pour l\'instant</string>
+    <string name="settings_bells_empty">Activez la cloche sur le bouton S\'abonner d\'une chaîne et Skipii vous signale chacune de ses nouvelles vidéos.</string>
+    <string name="settings_bell_line">Chaque nouvelle vidéo</string>
+    <string name="settings_system_notifications">Paramètres de notification d\'Android</string>
+    <string name="settings_system_notifications_line">Son, vibreur, Ne pas déranger</string>
+    <string name="settings_full_sync">Connecté avec Google · synchronisation complète</string>
+    <string name="settings_sync_note">La synchronisation complète est activée : les « J\'aime », les abonnements, À regarder plus tard et l\'historique remontent sur votre compte.</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_up_to_date">À jour · touchez pour vérifier</string>
+    <string name="settings_checking">Recherche de mises à jour…</string>
+    <string name="settings_update_available">La version %1$s est disponible</string>
+    <string name="settings_source">Code source sur GitHub</string>
+    <string name="settings_source_line">Signaler un problème ou demander une fonction</string>
+    <string name="settings_made_by">Créé par %1$s</string>
+    <string name="settings_say_hi">Venez dire bonjour</string>
+    <string name="settings_email_developer">Écrire au développeur</string>
+    <string name="settings_no_app">Aucune appli de ce téléphone ne peut l\'ouvrir</string>
+</resources>

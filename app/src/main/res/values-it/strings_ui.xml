@@ -88,7 +88,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Accedi</string>
     <string name="ui_account_pitch_title">Il tuo YouTube, senza pubblicità</string>
-    <string name="ui_account_pitch_body">Accedi per avere i tuoi consigli, le iscrizioni, la cronologia e le playlist. Mi piace, iscrizioni, Guarda più tardi e cronologia delle visualizzazioni vengono sincronizzati con il tuo account.\n\nGoogle considera le app non ufficiali contrarie ai suoi termini e può sospendere gli account che le usano. Un account Google secondario tiene questo rischio lontano da quello principale.</string>
+    <string name="ui_account_pitch_body">Accedi per avere i tuoi consigli, le iscrizioni, la cronologia e le playlist. Mi piace, iscrizioni, Guarda più tardi e cronologia delle visualizzazioni vengono sincronizzati con il tuo account.</string>
     <string name="ui_sign_out">Esci</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

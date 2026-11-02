@@ -86,7 +86,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Login</string>
     <string name="ui_account_pitch_title">YouTube Anda, tanpa iklan</string>
-    <string name="ui_account_pitch_body">Login untuk mendapatkan rekomendasi, langganan, histori, dan playlist Anda. Suka, subscribe, Tonton Nanti, dan histori tontonan disinkronkan kembali ke akun Anda.\n\nGoogle menganggap aplikasi tidak resmi melanggar persyaratannya dan dapat menangguhkan akun yang menggunakannya. Akun Google kedua menjauhkan risiko itu dari akun utama Anda.</string>
+    <string name="ui_account_pitch_body">Login untuk mendapatkan rekomendasi, langganan, histori, dan playlist Anda. Suka, subscribe, Tonton Nanti, dan histori tontonan disinkronkan kembali ke akun Anda.</string>
     <string name="ui_sign_out">Logout</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

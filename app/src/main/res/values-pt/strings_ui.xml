@@ -88,7 +88,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Fazer login</string>
     <string name="ui_account_pitch_title">Seu YouTube, sem anúncios</string>
-    <string name="ui_account_pitch_body">Faça login para ver suas recomendações, inscrições, histórico e playlists. Curtidas, inscrições, Assistir mais tarde e o histórico de exibição são sincronizados com sua conta.\n\nO Google considera apps não oficiais contrários aos termos e pode suspender contas que os usam. Uma conta secundária do Google mantém esse risco longe da sua conta principal.</string>
+    <string name="ui_account_pitch_body">Faça login para ver suas recomendações, inscrições, histórico e playlists. Curtidas, inscrições, Assistir mais tarde e o histórico de exibição são sincronizados com sua conta.</string>
     <string name="ui_sign_out">Sair</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

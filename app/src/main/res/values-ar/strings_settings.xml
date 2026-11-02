@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_search">البحث في الإعدادات</string>
+    <string name="settings_no_results">لا شيء يطابق «%1$s»</string>
+    <string name="settings_group_watching">أثناء المشاهدة</string>
+    <string name="settings_group_look">المظهر واللغة</string>
+    <string name="settings_playback">التشغيل</string>
+    <string name="settings_notifications">الإشعارات</string>
+    <string name="settings_account">الحساب</string>
+    <string name="settings_about">حول التطبيق</string>
+    <string name="settings_on">مفعّل</string>
+    <string name="settings_off">متوقف</string>
+    <string name="settings_speed_keep">الاحتفاظ بالسرعة</string>
+    <string name="settings_speed_remember_title">تذكّر السرعة لكل الفيديوهات</string>
+    <string name="settings_speed_remember_on">تبدأ الفيديوهات الجديدة بسرعة %1$s×</string>
+    <string name="settings_speed_remember_off">يبدأ كل فيديو بسرعة 1×</string>
+    <string name="settings_speed_kept_summary">السرعة ثابتة على %1$s×</string>
+    <string name="settings_speed_per_video">السرعة لكل فيديو</string>
+    <string name="settings_audio_only_line">الصوت دون الصورة في كل الفيديوهات. وأيضًا في شريط المشغّل.</string>
+    <string name="settings_sb_summary">يتخطى %1$s، ويسأل عن %2$s</string>
+    <string name="settings_mode">الوضع</string>
+    <string name="settings_theme">السمة</string>
+    <plurals name="settings_bells_count">
+        <item quantity="zero">%1$s قناة جرسها مفعّل</item>
+        <item quantity="one">%1$s قناة جرسها مفعّل</item>
+        <item quantity="two">%1$s قناتان جرسهما مفعّل</item>
+        <item quantity="few">%1$s قنوات جرسها مفعّل</item>
+        <item quantity="many">%1$s قناة جرسها مفعّل</item>
+        <item quantity="other">%1$s قناة جرسها مفعّل</item>
+    </plurals>
+    <string name="settings_bells_none">لم يُفعَّل أي جرس بعد</string>
+    <string name="settings_bells_empty">فعّل الجرس على زر الاشتراك في قناة، وسيخبرك Skipii بكل فيديو جديد لها.</string>
+    <string name="settings_bell_line">كل فيديو جديد</string>
+    <string name="settings_system_notifications">إعدادات الإشعارات في Android</string>
+    <string name="settings_system_notifications_line">الصوت، الاهتزاز، عدم الإزعاج</string>
+    <string name="settings_full_sync">تم تسجيل الدخول باستخدام Google · مزامنة كاملة</string>
+    <string name="settings_sync_note">المزامنة الكاملة مفعّلة: الإعجابات والاشتراكات وقائمة المشاهدة لاحقًا وسجلّ المشاهدة تعود إلى حسابك.</string>
+    <string name="settings_version">الإصدار %1$s</string>
+    <string name="settings_up_to_date">محدَّث · انقر للتحقق</string>
+    <string name="settings_checking">جارٍ البحث عن تحديثات…</string>
+    <string name="settings_update_available">الإصدار %1$s متاح</string>
+    <string name="settings_source">الشيفرة المصدرية على GitHub</string>
+    <string name="settings_source_line">أبلغ عن مشكلة أو اطلب ميزة</string>
+    <string name="settings_made_by">من صنع %1$s</string>
+    <string name="settings_say_hi">تعال وقل مرحبًا</string>
+    <string name="settings_email_developer">راسل المطوّر</string>
+    <string name="settings_no_app">لا يوجد تطبيق على هذا الهاتف يمكنه فتح ذلك</string>
+</resources>

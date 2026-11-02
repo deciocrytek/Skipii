@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_search">Ayarlarda ara</string>
+    <string name="settings_no_results">“%1$s” ile eşleşen bir şey yok</string>
+    <string name="settings_group_watching">İzlerken</string>
+    <string name="settings_group_look">Görünüm ve dil</string>
+    <string name="settings_playback">Oynatma</string>
+    <string name="settings_notifications">Bildirimler</string>
+    <string name="settings_account">Hesap</string>
+    <string name="settings_about">Hakkında</string>
+    <string name="settings_on">Açık</string>
+    <string name="settings_off">Kapalı</string>
+    <string name="settings_speed_keep">Hızı koru</string>
+    <string name="settings_speed_remember_title">Hızı her video için hatırla</string>
+    <string name="settings_speed_remember_on">Yeni videolar %1$s× hızla başlar</string>
+    <string name="settings_speed_remember_off">Her video 1× hızla başlar</string>
+    <string name="settings_speed_kept_summary">hız sabit: %1$s×</string>
+    <string name="settings_speed_per_video">hız videoya göre</string>
+    <string name="settings_audio_only_line">Her videoda görüntüsüz ses. Oynatıcı çubuğunda da var.</string>
+    <string name="settings_sb_summary">Atlanan: %1$s, sorulan: %2$s</string>
+    <string name="settings_mode">Mod</string>
+    <string name="settings_theme">Tema</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">Zili açık %1$s kanal</item>
+        <item quantity="other">Zili açık %1$s kanal</item>
+    </plurals>
+    <string name="settings_bells_none">Henüz açık zil yok</string>
+    <string name="settings_bells_empty">Bir kanalın Abone ol düğmesindeki zili aç, Skipii her yeni videosunu sana haber versin.</string>
+    <string name="settings_bell_line">Her yeni video</string>
+    <string name="settings_system_notifications">Android bildirim ayarları</string>
+    <string name="settings_system_notifications_line">Ses, titreşim, Rahatsız Etmeyin</string>
+    <string name="settings_full_sync">Google ile giriş yapıldı · tam senkronizasyon</string>
+    <string name="settings_sync_note">Tam senkronizasyon açık: beğeniler, abonelikler, Daha sonra izle ve izleme geçmişi hesabına geri gider.</string>
+    <string name="settings_version">Sürüm %1$s</string>
+    <string name="settings_up_to_date">Güncel · kontrol için dokun</string>
+    <string name="settings_checking">Güncellemeler kontrol ediliyor…</string>
+    <string name="settings_update_available">%1$s sürümü hazır</string>
+    <string name="settings_source">GitHub’da kaynak kodu</string>
+    <string name="settings_source_line">Bir sorun bildir ya da özellik iste</string>
+    <string name="settings_made_by">%1$s tarafından yapıldı</string>
+    <string name="settings_say_hi">Gel bir merhaba de</string>
+    <string name="settings_email_developer">Geliştiriciye e-posta gönder</string>
+    <string name="settings_no_app">Bu telefondaki hiçbir uygulama bunu açamıyor</string>
+</resources>

@@ -88,7 +88,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Acceder</string>
     <string name="ui_account_pitch_title">Tu YouTube, sin anuncios</string>
-    <string name="ui_account_pitch_body">Accede para ver tus recomendaciones, suscripciones, historial y listas de reproducción. Los me gusta, las suscripciones, Ver más tarde y el historial de reproducciones se sincronizan con tu cuenta.\n\nGoogle considera que las apps no oficiales infringen sus condiciones y puede suspender las cuentas que las usan. Con una cuenta de Google secundaria, ese riesgo queda lejos de tu cuenta principal.</string>
+    <string name="ui_account_pitch_body">Accede para ver tus recomendaciones, suscripciones, historial y listas de reproducción. Los me gusta, las suscripciones, Ver más tarde y el historial de reproducciones se sincronizan con tu cuenta.</string>
     <string name="ui_sign_out">Cerrar sesión</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

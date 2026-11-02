@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_search">Pesquisar configurações</string>
+    <string name="settings_no_results">Nada corresponde a “%1$s”</string>
+    <string name="settings_group_watching">Ao assistir</string>
+    <string name="settings_group_look">Aparência e idioma</string>
+    <string name="settings_playback">Reprodução</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_on">Ativado</string>
+    <string name="settings_off">Desativado</string>
+    <string name="settings_speed_keep">Manter velocidade</string>
+    <string name="settings_speed_remember_title">Lembrar a velocidade em todos os vídeos</string>
+    <string name="settings_speed_remember_on">Vídeos novos começam em %1$s×</string>
+    <string name="settings_speed_remember_off">Cada vídeo começa em 1×</string>
+    <string name="settings_speed_kept_summary">velocidade mantida em %1$s×</string>
+    <string name="settings_speed_per_video">velocidade por vídeo</string>
+    <string name="settings_audio_only_line">Som sem imagem, em todos os vídeos. Também na barra do player.</string>
+    <string name="settings_sb_summary">Pula %1$s, pergunta sobre %2$s</string>
+    <string name="settings_mode">Modo</string>
+    <string name="settings_theme">Tema</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s canal com o sino ativado</item>
+        <item quantity="many">%1$s de canais com o sino ativado</item>
+        <item quantity="other">%1$s canais com o sino ativado</item>
+    </plurals>
+    <string name="settings_bells_none">Nenhum sino ativado ainda</string>
+    <string name="settings_bells_empty">Ative o sino no botão Inscrever-se de um canal e o Skipii avisa sobre cada vídeo novo.</string>
+    <string name="settings_bell_line">Cada vídeo novo</string>
+    <string name="settings_system_notifications">Configurações de notificação do Android</string>
+    <string name="settings_system_notifications_line">Som, vibração, Não perturbe</string>
+    <string name="settings_full_sync">Conectado com o Google · sincronização completa</string>
+    <string name="settings_sync_note">A sincronização completa está ativada: marcações “Gostei”, inscrições, Assistir mais tarde e o histórico voltam para sua conta.</string>
+    <string name="settings_version">Versão %1$s</string>
+    <string name="settings_up_to_date">Atualizado · toque para verificar</string>
+    <string name="settings_checking">Procurando atualizações…</string>
+    <string name="settings_update_available">A versão %1$s está disponível</string>
+    <string name="settings_source">Código-fonte no GitHub</string>
+    <string name="settings_source_line">Relate um problema ou peça um recurso</string>
+    <string name="settings_made_by">Feito por %1$s</string>
+    <string name="settings_say_hi">Vem dar um oi</string>
+    <string name="settings_email_developer">Enviar e-mail ao desenvolvedor</string>
+    <string name="settings_no_app">Nenhum app deste celular consegue abrir isso</string>
+</resources>

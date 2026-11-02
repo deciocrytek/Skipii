@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_search">Einstellungen durchsuchen</string>
+    <string name="settings_no_results">Nichts passt zu „%1$s“</string>
+    <string name="settings_group_watching">Beim Ansehen</string>
+    <string name="settings_group_look">Aussehen und Sprache</string>
+    <string name="settings_playback">Wiedergabe</string>
+    <string name="settings_notifications">Benachrichtigungen</string>
+    <string name="settings_account">Konto</string>
+    <string name="settings_about">Info</string>
+    <string name="settings_on">An</string>
+    <string name="settings_off">Aus</string>
+    <string name="settings_speed_keep">Tempo behalten</string>
+    <string name="settings_speed_remember_title">Tempo für alle Videos merken</string>
+    <string name="settings_speed_remember_on">Neue Videos starten mit %1$s×</string>
+    <string name="settings_speed_remember_off">Jedes Video startet mit 1×</string>
+    <string name="settings_speed_kept_summary">Tempo bleibt bei %1$s×</string>
+    <string name="settings_speed_per_video">Tempo pro Video</string>
+    <string name="settings_audio_only_line">Ton ohne Bild, in jedem Video. Auch in der Leiste des Players.</string>
+    <string name="settings_sb_summary">Überspringt %1$s, fragt bei %2$s</string>
+    <string name="settings_mode">Modus</string>
+    <string name="settings_theme">Design</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s Kanal mit aktivierter Glocke</item>
+        <item quantity="other">%1$s Kanäle mit aktivierter Glocke</item>
+    </plurals>
+    <string name="settings_bells_none">Noch keine Glocke aktiviert</string>
+    <string name="settings_bells_empty">Aktiviere die Glocke am Abonnieren-Button eines Kanals, und Skipii meldet dir jedes neue Video.</string>
+    <string name="settings_bell_line">Jedes neue Video</string>
+    <string name="settings_system_notifications">Android-Benachrichtigungseinstellungen</string>
+    <string name="settings_system_notifications_line">Ton, Vibration, Bitte nicht stören</string>
+    <string name="settings_full_sync">Mit Google angemeldet · vollständige Synchronisierung</string>
+    <string name="settings_sync_note">Die vollständige Synchronisierung ist an: Likes, Abos, Später ansehen und der Wiedergabeverlauf gehen zurück an dein Konto.</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_up_to_date">Aktuell · zum Prüfen tippen</string>
+    <string name="settings_checking">Suche nach Updates…</string>
+    <string name="settings_update_available">Version %1$s ist verfügbar</string>
+    <string name="settings_source">Quellcode auf GitHub</string>
+    <string name="settings_source_line">Ein Problem melden oder eine Funktion wünschen</string>
+    <string name="settings_made_by">Gemacht von %1$s</string>
+    <string name="settings_say_hi">Sag gern Hallo</string>
+    <string name="settings_email_developer">E-Mail an den Entwickler</string>
+    <string name="settings_no_app">Keine App auf diesem Telefon kann das öffnen</string>
+</resources>

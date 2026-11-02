@@ -88,7 +88,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Se connecter</string>
     <string name="ui_account_pitch_title">Votre YouTube, sans les pubs</string>
-    <string name="ui_account_pitch_body">Connectez-vous pour retrouver vos recommandations, abonnements, historique et playlists. Les J\'aime, les abonnements, À regarder plus tard et l\'historique des vidéos regardées sont synchronisés avec votre compte.\n\nGoogle considère que les applications non officielles enfreignent ses conditions et peut suspendre les comptes qui les utilisent. Un compte Google secondaire protège votre compte principal de ce risque.</string>
+    <string name="ui_account_pitch_body">Connectez-vous pour retrouver vos recommandations, abonnements, historique et playlists. Les J\'aime, les abonnements, À regarder plus tard et l\'historique des vidéos regardées sont synchronisés avec votre compte.</string>
     <string name="ui_sign_out">Se déconnecter</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

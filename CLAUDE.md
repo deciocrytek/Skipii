@@ -10,7 +10,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - Google sign-in (decided 2026-10-04, superseding "no account"): WebView on Google's own page,
   youtube.com cookies kept AES-GCM encrypted (Keystore). **Full sync** chosen by Derek: reads
   home/subscriptions/history/playlists AND writes likes, subscribes, Watch later, watch history.
-  The account-suspension risk was explained; keep the in-app warning. Signed out, everything
+  The account-suspension risk was explained; the in-app warning was REMOVED at Derek's request (2026-11-02, 0.5.83):
+  the sign-in pitch and Settings › Account only say what syncs. Signed out, everything
   still works except the account feeds. Signed in, comments and replies can be posted.
 - No inbox/notifications tab. New-video notifications for belled channels only (the bell, 2026-11-01, below).
 - Portrait (default; 0.5.67 adds "on the video", see there): every playback control lives in the player's bar (0.5.34, PlayerBar.kt); the video keeps
@@ -19,8 +20,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   "More videos", never "Up next".
 - No watch-time stats in Library.
 - Never add an ad SDK. SponsorBlock: per-category Skip / Ask / Show / Off (defaults: sponsor
-  Skip; self-promo + reminder Ask; intro/outro/preview Show; music/filler Off). Settings and the
-  CC BY-NC-SA credit live in the account sheet (Derek's choice). No commercial use.
+  Skip; self-promo + reminder Ask; intro/outro/preview Show; music/filler Off). Its settings and the
+  CC BY-NC-SA credit live in Settings › SponsorBlock (0.5.81; the account sheet before). No commercial use.
 - No minimize button on the player (swipe down / Back). Tab bar = Castii's NavPill, but the
   selected tab uses full `primary` / `onPrimary` for contrast (not primaryContainer).
 - Queue: playlist is always [current, ...queue]; long-press any video → Play next / Add to queue.
@@ -575,6 +576,35 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   same placeholders; check with a script). Caption "Foreign" mode and language names follow the app's language. Verified on
   skipii_qa (Android 16): picker → Spanish, feeds/player/bar/tabs, Arabic search line, release (R8) playback in Spanish.
   NOT verified: Android 12 and below (the prefs path), signed-in screens in other languages, every translation on screen.
+- 0.5.81 Settings page (2026-11-02, Derek picked example 4 "Big title that folds" in `docs/design/settings-merged.html`,
+  A + C of `docs/design/settings.html`; Settings.kt). Supersedes the account sheet (gone): the header avatar / person icon
+  opens Settings, a page over everything (mini-player and tab bar included) sliding in from the right; Back goes category →
+  front page → search cleared → closed. Ledgii's anatomy + Android's structure: a large title (RoundedHeavy 38) that folds into
+  a 64 dp bar as the page scrolls (read in layer lambdas only, 70 dp of scroll; search becomes an icon in the bar, a page
+  vignette fades in under it), the search field, Ledgii's primaryContainer account card, four quick toggles (Audio only,
+  SponsorBlock, Shorts, Keep speed: full primary when on), then category tiles (icon square, title, a summary of what's set,
+  chevron) JOINED per group: 3 dp apart, inner corners 7, outer 21 (`Joined`). Groups: Watching (Playback, Captions,
+  SponsorBlock, Shorts), Look & language (Appearance, Language), then Notifications + About; version under them. Sections
+  enter Ledgii's way (fade up 16 dp, 35 ms apart); categories slide shared-axis X (1/8 width, 440 ms). Categories hold joined
+  rows (`SettingBox`): Playback = controls placement, remember speed, audio only; Captions = preview + show/look/size + kept
+  translation languages; SponsorBlock = switch, the eight segments (dimmed, not hidden, when off) and the credit; Shorts;
+  Appearance = mode + themes; Language = a radio list (picking rebuilds the window; page state is saveable so it reopens on
+  Language); Notifications = every belled channel (`Bells.on`, a list frozen as the page opens so one turned off can go back
+  on) + Android's notification settings; About = version (tap: What's new if newer, else `AppUpdate.checkNow()`) + GitHub;
+  Account = sign in / out and what full sync sends (0.5.83: no suspension warning, Derek). Search (`entries()`): every setting's title and option words in the
+  app's language, accents and case folded; a result opens its category, scrolls to that row (`Find`) and lights it
+  (surfaceContainer → primaryContainer and back). A new setting needs its row key in `entries()` to be searchable. Strings:
+  `strings_settings.xml` (prefix settings_). Verified on skipii_qa (debug): fold, search → lit row, every category, quick
+  toggles, Spanish switch reopening on Language, light + AMOLED. NOT verified: signed-in Account/Notifications (bells list).
+  0.5.82 (Derek: "match the opening animation of my app Moodii", ~/decio/Moodii AppShell `transitionsFor` + Entrance.kt): Settings
+  comes forward like Moodii's pages — scaleIn from 0.94 + slideInVertically 1/12 on Moodii's spatial spring (0.86, 650;
+  `MoodiiSpatial`, MainActivity) + fadeIn 220 ms; out = scaleOut 0.96 + 1/16 down + fadeOut 160. The tab bar and mini-player
+  sink away while it's open (`settingsAway`, as Moodii's bar under a page). The front page rises in with Moodii's `riseIn`
+  (620 ms EmphasizedDecelerate, 70 ms per order, 26 dp; title 0 … developer card 7), ONCE per opening (`entered` hoisted
+  above the category AnimatedContent, so Back from a category doesn't replay it). Categories keep the shared axis X.
+  Moodii's developer card is last on the front page (replaces the version line; About has it): "Made by @y7esdii", Come say
+  hi, Instagram / Threads / X discs (Moodii's brand paths, even-odd), "Email the developer" (SENDTO mailto:, subject
+  "Skipii feedback"). Outside links go through `openOrSay` (no app → a message, never a crash).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -662,7 +692,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   450 ms fade in; logs "SponsorBlock: skipping …"). UI: scrubber marks, Ask pill, Skipped·Undo.
 - `PlaybackModes.kt` (`PlaybackSpeed`, `AudioOnly`) and `SpeedPanel.kt` (speed/audio buttons, ruler panel, `SpeedHaptics`).
 - `Sheets.kt` — long-press options, queue card + sheet, SponsorBlock settings.
-- `SecureStore.kt` (Keystore AES-GCM prefs), `SignIn.kt` (WebView sign-in, account sheet),
+- `SecureStore.kt` (Keystore AES-GCM prefs), `SignIn.kt` (WebView sign-in, header account button),
+  `Settings.kt` (the Settings page: folding title, search, quick toggles, categories),
   `Feeds.kt` (`FeedState` paging, `LibraryData`, `FeedList`).
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.

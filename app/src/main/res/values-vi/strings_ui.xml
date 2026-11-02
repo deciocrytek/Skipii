@@ -86,7 +86,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Đăng nhập</string>
     <string name="ui_account_pitch_title">YouTube của bạn, không quảng cáo</string>
-    <string name="ui_account_pitch_body">Đăng nhập để xem nội dung đề xuất, kênh đăng ký, nhật ký xem và danh sách phát của bạn. Lượt thích, đăng ký, Xem sau và nhật ký xem được đồng bộ về tài khoản của bạn.\n\nGoogle coi ứng dụng không chính thức là vi phạm điều khoản và có thể tạm ngưng tài khoản dùng chúng. Dùng một tài khoản Google phụ sẽ giúp tài khoản chính tránh được rủi ro đó.</string>
+    <string name="ui_account_pitch_body">Đăng nhập để xem nội dung đề xuất, kênh đăng ký, nhật ký xem và danh sách phát của bạn. Lượt thích, đăng ký, Xem sau và nhật ký xem được đồng bộ về tài khoản của bạn.</string>
     <string name="ui_sign_out">Đăng xuất</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

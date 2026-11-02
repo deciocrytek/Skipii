@@ -91,7 +91,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">تسجيل الدخول</string>
     <string name="ui_account_pitch_title">YouTube الخاص بك، بلا إعلانات</string>
-    <string name="ui_account_pitch_body">سجّل الدخول للحصول على اقتراحاتك واشتراكاتك وسجلّ المشاهدة وقوائم التشغيل. تتم مزامنة الإعجابات والاشتراكات وقائمة المشاهدة لاحقًا وسجلّ المشاهدة مع حسابك.\n\nتَعتبر Google التطبيقات غير الرسمية مخالفة لبنودها، وقد تعلّق الحسابات التي تستخدمها. استخدام حساب Google ثانوي يُبعد هذا الخطر عن حسابك الرئيسي.</string>
+    <string name="ui_account_pitch_body">سجّل الدخول للحصول على اقتراحاتك واشتراكاتك وسجلّ المشاهدة وقوائم التشغيل. تتم مزامنة الإعجابات والاشتراكات وقائمة المشاهدة لاحقًا وسجلّ المشاهدة مع حسابك.</string>
     <string name="ui_sign_out">تسجيل الخروج</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

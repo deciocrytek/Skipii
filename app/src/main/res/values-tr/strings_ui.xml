@@ -87,7 +87,7 @@
     <!-- Accessibility label of the account button when signed out. -->
     <string name="ui_sign_in">Oturum aç</string>
     <string name="ui_account_pitch_title">Reklamsız YouTube\'unuz</string>
-    <string name="ui_account_pitch_body">Önerilerinizi, aboneliklerinizi, geçmişinizi ve oynatma listelerinizi görmek için oturum açın. Beğeniler, abonelikler, Daha sonra izle ve izleme geçmişi hesabınızla senkronize edilir.\n\nGoogle, resmi olmayan uygulamaları şartlarına aykırı sayar ve bunları kullanan hesapları askıya alabilir. İkinci bir Google hesabı kullanmak bu riski ana hesabınızdan uzak tutar.</string>
+    <string name="ui_account_pitch_body">Önerilerinizi, aboneliklerinizi, geçmişinizi ve oynatma listelerinizi görmek için oturum açın. Beğeniler, abonelikler, Daha sonra izle ve izleme geçmişi hesabınızla senkronize edilir.</string>
     <string name="ui_sign_out">Oturumu kapat</string>
 
     <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->

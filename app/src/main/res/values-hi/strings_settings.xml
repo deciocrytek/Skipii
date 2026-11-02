@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">सेटिंग</string>
+    <string name="settings_search">सेटिंग खोजें</string>
+    <string name="settings_no_results">“%1$s” से मेल खाता कुछ नहीं मिला</string>
+    <string name="settings_group_watching">देखते समय</string>
+    <string name="settings_group_look">रूप और भाषा</string>
+    <string name="settings_playback">प्लेबैक</string>
+    <string name="settings_notifications">सूचनाएं</string>
+    <string name="settings_account">खाता</string>
+    <string name="settings_about">जानकारी</string>
+    <string name="settings_on">चालू</string>
+    <string name="settings_off">बंद</string>
+    <string name="settings_speed_keep">स्पीड बनाए रखें</string>
+    <string name="settings_speed_remember_title">हर वीडियो के लिए स्पीड याद रखें</string>
+    <string name="settings_speed_remember_on">नए वीडियो %1$s× पर शुरू होते हैं</string>
+    <string name="settings_speed_remember_off">हर वीडियो 1× पर शुरू होता है</string>
+    <string name="settings_speed_kept_summary">स्पीड %1$s× पर तय</string>
+    <string name="settings_speed_per_video">हर वीडियो की अपनी स्पीड</string>
+    <string name="settings_audio_only_line">हर वीडियो में बिना तस्वीर के सिर्फ़ आवाज़. प्लेयर बार में भी.</string>
+    <string name="settings_sb_summary">%1$s छोड़ता है, %2$s के लिए पूछता है</string>
+    <string name="settings_mode">मोड</string>
+    <string name="settings_theme">थीम</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s चैनल की घंटी चालू</item>
+        <item quantity="other">%1$s चैनलों की घंटी चालू</item>
+    </plurals>
+    <string name="settings_bells_none">अभी तक कोई घंटी चालू नहीं</string>
+    <string name="settings_bells_empty">किसी चैनल के सदस्यता लें बटन पर घंटी चालू करें, और Skipii उसके हर नए वीडियो के बारे में बताएगा.</string>
+    <string name="settings_bell_line">हर नया वीडियो</string>
+    <string name="settings_system_notifications">Android की सूचना सेटिंग</string>
+    <string name="settings_system_notifications_line">आवाज़, वाइब्रेशन, परेशान न करें</string>
+    <string name="settings_full_sync">Google से साइन इन · पूरा सिंक</string>
+    <string name="settings_sync_note">पूरा सिंक चालू है: पसंद, सदस्यताएं, बाद में देखें और देखे गए वीडियो का इतिहास आपके खाते में वापस जाते हैं.</string>
+    <string name="settings_version">वर्शन %1$s</string>
+    <string name="settings_up_to_date">अप टू डेट · जांचने के लिए टैप करें</string>
+    <string name="settings_checking">अपडेट खोजे जा रहे हैं…</string>
+    <string name="settings_update_available">वर्शन %1$s उपलब्ध है</string>
+    <string name="settings_source">GitHub पर सोर्स कोड</string>
+    <string name="settings_source_line">कोई समस्या बताएं या कोई सुविधा मांगें</string>
+    <string name="settings_made_by">%1$s ने बनाया</string>
+    <string name="settings_say_hi">आइए, नमस्ते कहिए</string>
+    <string name="settings_email_developer">डेवलपर को ईमेल करें</string>
+    <string name="settings_no_app">इस फ़ोन पर कोई ऐप इसे नहीं खोल सकता</string>
+</resources>

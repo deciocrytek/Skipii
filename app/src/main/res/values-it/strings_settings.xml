@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_search">Cerca nelle impostazioni</string>
+    <string name="settings_no_results">Nessun risultato per «%1$s»</string>
+    <string name="settings_group_watching">Mentre guardi</string>
+    <string name="settings_group_look">Aspetto e lingua</string>
+    <string name="settings_playback">Riproduzione</string>
+    <string name="settings_notifications">Notifiche</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_about">Informazioni</string>
+    <string name="settings_on">Attivo</string>
+    <string name="settings_off">Disattivato</string>
+    <string name="settings_speed_keep">Mantieni velocità</string>
+    <string name="settings_speed_remember_title">Ricorda la velocità per ogni video</string>
+    <string name="settings_speed_remember_on">I nuovi video partono a %1$s×</string>
+    <string name="settings_speed_remember_off">Ogni video parte a 1×</string>
+    <string name="settings_speed_kept_summary">velocità fissa a %1$s×</string>
+    <string name="settings_speed_per_video">velocità per video</string>
+    <string name="settings_audio_only_line">Audio senza immagine, in ogni video. Anche nella barra del player.</string>
+    <string name="settings_sb_summary">Salta %1$s, chiede per %2$s</string>
+    <string name="settings_mode">Modalità</string>
+    <string name="settings_theme">Tema</string>
+    <plurals name="settings_bells_count">
+        <item quantity="one">%1$s canale con la campanella attiva</item>
+        <item quantity="many">%1$s di canali con la campanella attiva</item>
+        <item quantity="other">%1$s canali con la campanella attiva</item>
+    </plurals>
+    <string name="settings_bells_none">Ancora nessuna campanella attiva</string>
+    <string name="settings_bells_empty">Attiva la campanella sul pulsante Iscriviti di un canale e Skipii ti avvisa di ogni suo nuovo video.</string>
+    <string name="settings_bell_line">Ogni nuovo video</string>
+    <string name="settings_system_notifications">Impostazioni di notifica di Android</string>
+    <string name="settings_system_notifications_line">Suono, vibrazione, Non disturbare</string>
+    <string name="settings_full_sync">Accesso con Google · sincronizzazione completa</string>
+    <string name="settings_sync_note">La sincronizzazione completa è attiva: Mi piace, iscrizioni, Guarda più tardi e cronologia tornano al tuo account.</string>
+    <string name="settings_version">Versione %1$s</string>
+    <string name="settings_up_to_date">Aggiornata · tocca per controllare</string>
+    <string name="settings_checking">Ricerca aggiornamenti…</string>
+    <string name="settings_update_available">È disponibile la versione %1$s</string>
+    <string name="settings_source">Codice sorgente su GitHub</string>
+    <string name="settings_source_line">Segnala un problema o chiedi una funzione</string>
+    <string name="settings_made_by">Creato da %1$s</string>
+    <string name="settings_say_hi">Passa a salutare</string>
+    <string name="settings_email_developer">Scrivi allo sviluppatore</string>
+    <string name="settings_no_app">Nessuna app di questo telefono può aprirlo</string>
+</resources>
