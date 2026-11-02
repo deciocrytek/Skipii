@@ -65,6 +65,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -135,8 +138,8 @@ fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, 
             verticalArrangement = Arrangement.spacedBy((px * 0.16f).dp, Alignment.Bottom),
         ) {
             if (cues == null) CaptionStatus(cap, choice, px)
-            else lines.forEach { line ->
-                Box(Modifier.widthIn(max = this@BoxWithConstraints.maxWidth * 0.92f)) { CaptionLineText(line, look, px) }
+            else if (lines.isNotEmpty()) {
+                Box(Modifier.widthIn(max = this@BoxWithConstraints.maxWidth * 0.92f)) { CaptionText(lines, look, px) }
             }
         }
     }
@@ -208,9 +211,13 @@ private fun rememberCaptionLook(): CaptionLook {
     }
 }
 
-/** One caption line, a box behind each of its visual lines (not one box around both). */
+/**
+ * The lines on screen as ONE block (Derek: the two lines connect, no gap between them): one text, a box behind
+ * each visual line, the boxes touching. Corners are rounded only where a line sticks out past its neighbour, so
+ * the boxes join into one shape (no notch at the seam), and they're one path, filled once (no darker seam).
+ */
 @Composable
-private fun CaptionLineText(line: CaptionLine, look: CaptionLook, px: Float) {
+private fun CaptionText(lines: List<CaptionLine>, look: CaptionLook, px: Float) {
     val density = LocalDensity.current
     val size = with(density) { px.dp.toSp() }
     val style = TextStyle(
@@ -219,10 +226,17 @@ private fun CaptionLineText(line: CaptionLine, look: CaptionLook, px: Float) {
         lineHeight = 1.3.em,
         fontWeight = look.weight,
         fontFamily = look.family,
-        fontStyle = if (line.sound) FontStyle.Italic else FontStyle.Normal,
         textAlign = TextAlign.Center,
         shadow = look.shadow,
     )
+    val text = remember(lines) {
+        buildAnnotatedString {
+            lines.forEachIndexed { i, line ->
+                if (i > 0) append('\n')
+                if (line.sound) withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append(line.text) } else append(line.text)
+            }
+        }
+    }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     // One em, in pixels.
     val em = with(density) { px.dp.toPx() }
@@ -232,27 +246,38 @@ private fun CaptionLineText(line: CaptionLine, look: CaptionLook, px: Float) {
             .drawBehind {
                 val l = layout ?: return@drawBehind
                 if (look.box.alpha == 0f) return@drawBehind
-                val inset = 0.04f * em
                 val pad = look.pad * em
-                for (i in 0 until l.lineCount) {
+                val r = look.corner * em
+                // Each visual line's box (empty lines have none).
+                val boxes = (0 until l.lineCount).mapNotNull { i ->
                     val left = l.getLineLeft(i)
                     val right = l.getLineRight(i)
-                    if (right <= left) continue
-                    val top = l.getLineTop(i) + inset
-                    val bottom = l.getLineBottom(i) - inset
-                    drawRoundRect(
-                        look.box,
-                        topLeft = Offset(left - pad, top),
-                        size = Size(right - left + pad * 2, bottom - top),
-                        cornerRadius = CornerRadius(look.corner * em),
+                    if (right <= left) null else Rect(left - pad, l.getLineTop(i), right + pad, l.getLineBottom(i))
+                }
+                val shape = Path()
+                boxes.forEachIndexed { i, box ->
+                    val above = boxes.getOrNull(i - 1)
+                    val below = boxes.getOrNull(i + 1)
+                    // A corner is round only where this box reaches past the one it touches there.
+                    fun round(out: Boolean) = if (out) CornerRadius(r) else CornerRadius.Zero
+                    shape.addRoundRect(
+                        RoundRect(
+                            // A pixel into the box below, so antialiasing never opens a hairline between them.
+                            rect = if (below != null) box.copy(bottom = box.bottom + 1f) else box,
+                            topLeft = round(above == null || box.left < above.left - 0.5f),
+                            topRight = round(above == null || box.right > above.right + 0.5f),
+                            bottomRight = round(below == null || box.right > below.right + 0.5f),
+                            bottomLeft = round(below == null || box.left < below.left - 0.5f),
+                        ),
                     )
                 }
+                drawPath(shape, look.box)
             },
     ) {
         look.outline?.let { edge ->
-            Text(line.text, style = style.copy(color = edge, shadow = null, drawStyle = Stroke(width = em * 0.16f, join = androidx.compose.ui.graphics.StrokeJoin.Round)))
+            Text(text, style = style.copy(color = edge, shadow = null, drawStyle = Stroke(width = em * 0.16f, join = androidx.compose.ui.graphics.StrokeJoin.Round)))
         }
-        Text(line.text, style = style, onTextLayout = { layout = it })
+        Text(text, style = style, onTextLayout = { layout = it })
     }
 }
 
@@ -607,7 +632,7 @@ fun CaptionSettingsCard() {
                 // As big as on the portrait video, whatever this box's height.
                 val px = 15f * CaptionSettings.size * look.scale
                 Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp).widthIn(max = maxWidth * 0.92f)) {
-                    CaptionLineText(CaptionLine("This is how captions will look.", false), look, px)
+                    CaptionText(listOf(CaptionLine("This is how captions", false), CaptionLine("will look on the video.", false)), look, px)
                 }
             }
         }

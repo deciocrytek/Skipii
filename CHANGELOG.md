@@ -10,9 +10,12 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.78
+
 ### Improved
 - Captions show like YouTube's: two whole lines at a time, switching straight to the next two as they're said, instead of one word at a time.
 - The captions button turns captions on with one press; the list it opens is there to pick another language.
+- The two caption lines sit together in one box, with no gap between them.
 
 ## 0.5.75
 

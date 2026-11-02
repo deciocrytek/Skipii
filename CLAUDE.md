@@ -508,7 +508,9 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   = the creator's cues running at t (3 at most). Auto-generated tracks show as YouTube does (Derek, 0.5.77, after word by
   word in 0.5.75 and a sliding roll-up in 0.5.76 were both hard to follow): `captionPages` pairs lines in order (a pause
   over 1 s or a sound ends a pair), both lines at once from the pair's first word, hard cut to the next pair, no animation
-  at all; `captionPageAt` looks a page up. Word times only light the transcript. Pressing any captions button (bar tool,
+  at all; `captionPageAt` looks a page up. 0.5.78 (Derek: "both lines connect, no gap"): a page is ONE text (`CaptionText`,
+  lines joined by \n, sounds italic by span) with a box per visual line, touching, as one Path filled once; a corner
+  is round only where its line sticks out past the neighbour it touches (no notch, no darker seam). Word times only light the transcript. Pressing any captions button (bar tool,
   overlay CC tile) turns captions ON first (`turn(true)`), then opens the list (Derek: no second press).
   `CaptionsState` (PlayerState.captions): tracks, choice (track or track + `translateTo`), on, cues; lines load only while
   shown or the transcript is open. `CaptionSettings` (prefs "captions"): Show Never / Always / Foreign (default: on when
