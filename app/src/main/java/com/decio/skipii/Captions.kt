@@ -33,8 +33,7 @@ import kotlin.coroutines.resumeWithException
 // Captions (Derek, 2026-11-01; docs/design/captions.html). YouTube lists every track a video has with the
 // player answer (NewPipe's `subtitles`): the creator's, and "asr" — auto-generated, in the language spoken.
 // The files (srv3 XML) need no sign-in or PO token. Auto-generated ones carry a time per word (the transcript
-// lights words with it); on the video they roll up whole lines, as the YouTube app shows them (0.5.76: word by
-// word, as the web player does, was hard to follow). YouTube's own auto-translate (`tlang`) is refused (HTTP 429,
+// lights words with it); on the video they show two whole lines at a time, as YouTube does (`captionPages`). YouTube's own auto-translate (`tlang`) is refused (HTTP 429,
 // probed 2026-11-01), so translations are made on the phone (ML Kit, a model per language).
 
 /** One caption track YouTube has for a video. [language] is its tag ("en", "pt-BR"); [auto] = auto-generated. */
@@ -63,29 +62,70 @@ data class CaptionChoice(val track: CaptionTrack, val translateTo: String? = nul
     val label: String get() = CaptionNames.language(language)
 }
 
-/** A line on screen right now; [id] (its cue's start) follows it as it rolls up. */
+/** A line on screen right now. */
 @Immutable
-data class CaptionLine(val text: String, val sound: Boolean, val id: Long = 0)
+data class CaptionLine(val text: String, val sound: Boolean)
 
-/**
- * The lines showing at [t]: every cue running then, each whole (as the YouTube app shows them; word by word,
- * as the web player does, was hard to follow), the last two for an auto-generated track (rolling up: a new
- * line comes in under the last one, which moves up), the last three otherwise. [cues] sorted by start.
- */
-fun captionLinesAt(cues: List<CaptionCue>, t: Long, rollUp: Boolean): List<CaptionLine> {
-    if (cues.isEmpty()) return emptyList()
+/** The creator's lines showing at [t]: every cue running then (three at most). [cues] sorted by start. */
+fun captionLinesAt(cues: List<CaptionCue>, t: Long): List<CaptionLine> {
     val last = cueIndexAt(cues, t)
     if (last < 0) return emptyList()
     val active = ArrayList<CaptionCue>(3)
-    // Cues overlap only a few deep (auto-generated lines hang on while the next two are said).
+    // Cues rarely overlap, and only a few deep.
     var i = last
     while (i >= 0 && i > last - 8) {
         val cue = cues[i]
         if (cue.endMs > t) active.add(0, cue)
         i--
     }
-    return active.takeLast(if (rollUp) 2 else 3).map { CaptionLine(it.text, it.sound, it.startMs) }
+    return active.takeLast(3).map { CaptionLine(it.text, it.sound) }
 }
+
+/** Lines of an auto-generated track shown together, from [startMs] to [endMs]. */
+@Immutable
+data class CaptionPage(val startMs: Long, val endMs: Long, val lines: List<CaptionLine>)
+
+/**
+ * An auto-generated track as YouTube shows it (Derek, 0.5.77): two lines at a time, both at once, then a hard cut
+ * to the next two as the first word of the next line is said. No roll, no word-by-word (0.5.75's word by word and
+ * 0.5.76's roll-up were both hard to follow). Lines pair up in order; a pause over [PairGapMs] or a sound ("[Music]")
+ * ends a pair early. A page stays until the next one starts, or until its own lines are over. [cues] sorted by start.
+ */
+fun captionPages(cues: List<CaptionCue>): List<CaptionPage> {
+    val groups = ArrayList<List<CaptionCue>>()
+    var i = 0
+    while (i < cues.size) {
+        val first = cues[i]
+        val next = cues.getOrNull(i + 1)
+        if (next != null && !first.sound && !next.sound && next.startMs - first.endMs <= PairGapMs) {
+            groups += listOf(first, next)
+            i += 2
+        } else {
+            groups += listOf(first)
+            i++
+        }
+    }
+    return groups.mapIndexed { k, group ->
+        val next = groups.getOrNull(k + 1)?.first()?.startMs ?: Long.MAX_VALUE
+        CaptionPage(group.first().startMs, minOf(group.maxOf { it.endMs }, next), group.map { CaptionLine(it.text, it.sound) })
+    }
+}
+
+/** The page's lines showing at [t], or none between pages. */
+fun captionPageAt(pages: List<CaptionPage>, t: Long): List<CaptionLine> {
+    var lo = 0
+    var hi = pages.size - 1
+    var last = -1
+    while (lo <= hi) {
+        val mid = (lo + hi) ushr 1
+        if (pages[mid].startMs <= t) { last = mid; lo = mid + 1 } else hi = mid - 1
+    }
+    val page = pages.getOrNull(last) ?: return emptyList()
+    return if (t < page.endMs) page.lines else emptyList()
+}
+
+/** Two auto-generated lines further apart than this aren't shown as one page. */
+private const val PairGapMs = 1_000L
 
 /** The index of the cue playing at [t] (the last one started), or -1 before the first. */
 fun cueIndexAt(cues: List<CaptionCue>, t: Long): Int {

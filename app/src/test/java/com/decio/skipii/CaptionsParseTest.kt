@@ -39,28 +39,33 @@ class CaptionsParseTest {
     }
 
     @Test
-    fun autoLinesRollUpWholeLines() {
+    fun autoLinesShowTwoAtATime() {
         val cues = Srv3.parse(fixture("captions_auto.srv3"), timedWords = true)
-        // The first sung line shows whole as soon as it starts (not word by word).
-        assertEquals(listOf(CaptionLine("We're no strangers to", false, 18_800)), captionLinesAt(cues, 18_800 + 300, rollUp = true))
-        // The next line comes in under it.
-        val two = captionLinesAt(cues, 21_800 + 1_100, rollUp = true)
-        assertEquals(listOf("We're no strangers to", two[1].text), two.map { it.text })
-        assertTrue(two[1].text.startsWith("love. You know the rules"))
-        // Once a third starts, the first is gone: two lines at most.
-        val rolled = captionLinesAt(cues, 25_960 + 100, rollUp = true)
-        assertEquals(2, rolled.size)
-        assertEquals(two[1], rolled[0])
-        // Before anything is said.
-        assertEquals(emptyList<CaptionLine>(), captionLinesAt(cues, 0, rollUp = true))
+        val pages = captionPages(cues)
+        // The first sung page: both its lines at once, as soon as its first word is said.
+        val first = captionPageAt(pages, 18_800 + 300)
+        assertEquals(2, first.size)
+        assertEquals("We're no strangers to", first[0].text)
+        assertTrue(first[1].text.startsWith("love. You know the rules"))
+        // Still the same two lines while the second one is said: no roll.
+        assertEquals(first, captionPageAt(pages, 21_800 + 1_100))
+        // The next line's first word: a hard cut to the next two.
+        val next = captionPageAt(pages, 25_960 + 100)
+        assertEquals(cues.first { it.startMs == 25_960L }.text, next[0].text)
+        assertTrue(next.none { it in first })
+        // Never more than two; nothing before anything is said.
+        assertTrue(pages.all { it.lines.size <= 2 })
+        assertEquals(emptyList<CaptionLine>(), captionPageAt(pages, 0))
+        // Pages never overlap.
+        assertTrue(pages.zipWithNext().all { (a, b) -> a.endMs <= b.startMs })
     }
 
     @Test
     fun creatorLinesShowWhole() {
         val cues = Srv3.parse(fixture("captions_creator.srv3"), timedWords = false)
-        assertEquals(listOf(CaptionLine("♪ We're no strangers to love ♪", false, 18_640)), captionLinesAt(cues, 19_000, rollUp = false))
+        assertEquals(listOf(CaptionLine("♪ We're no strangers to love ♪", false)), captionLinesAt(cues, 19_000))
         // Between lines: nothing.
-        assertEquals(emptyList<CaptionLine>(), captionLinesAt(cues, 10_000, rollUp = false))
+        assertEquals(emptyList<CaptionLine>(), captionLinesAt(cues, 10_000))
         assertEquals(1, cueIndexAt(cues, 19_000))
         assertEquals(-1, cueIndexAt(cues, 0))
     }

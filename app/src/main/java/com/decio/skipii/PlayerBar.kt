@@ -1181,7 +1181,8 @@ internal fun pickTool(tool: BarTool, bar: PlayerBarState, player: PlayerState, p
     when (tool) {
         BarTool.Speed -> bar.openPanel(BarPanel.Speed)
         BarTool.Quality -> bar.openPanel(BarPanel.Quality)
-        BarTool.Captions -> bar.openPanel(BarPanel.Captions)
+        // Turns captions on at once (Derek: no second press), and opens the list to pick another language.
+        BarTool.Captions -> { player.captions.turn(true); bar.openPanel(BarPanel.Captions) }
         BarTool.Pip -> {
             bar.closeAll()
             if (pip?.enter(player.videoAspect) != true) player.actionMessage = "Picture-in-picture is turned off for Skipii in Settings."

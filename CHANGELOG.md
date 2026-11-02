@@ -11,7 +11,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 ## Unreleased
 
 ### Improved
-- Captions show whole lines, as in the YouTube app, instead of one word at a time: easier to follow. Auto-generated captions roll up two lines at a time; each new line slides in under the last.
+- Captions show like YouTube's: two whole lines at a time, switching straight to the next two as they're said, instead of one word at a time.
+- The captions button turns captions on with one press; the list it opens is there to pick another language.
 
 ## 0.5.75
 

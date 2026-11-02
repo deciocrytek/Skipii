@@ -429,7 +429,12 @@ fun VideoContent(
                         OverlayTile(
                             "Captions", enabled, tool, filled = state.captions.on,
                             modifier = Modifier.onGloballyPositioned { dropAnchors[3] = it },
-                            onClick = { touched(); if (!toggleDrop(DropKind.Captions, 3)) state.sheet = PlayerSheet.Captions },
+                            onClick = {
+                                touched()
+                                // On at once (no second press); the card / sheet is there to pick another language.
+                                state.captions.turn(true)
+                                if (!toggleDrop(DropKind.Captions, 3)) state.sheet = PlayerSheet.Captions
+                            },
                         ) { ink -> Icon(Icons.Rounded.ClosedCaption, null, tint = ink, modifier = Modifier.size(tool * 0.52f)) }
                     }
                     // The label is the resolution actually decoded; the requested one until known.

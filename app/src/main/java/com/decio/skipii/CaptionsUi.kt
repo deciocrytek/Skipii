@@ -2,13 +2,6 @@ package com.decio.skipii
 
 import android.view.accessibility.CaptioningManager
 import androidx.compose.animation.core.animateFloatAsState
-import kotlinx.coroutines.launch
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.onPlaced
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.key
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -110,8 +103,8 @@ import kotlinx.coroutines.delay
 /**
  * The captions over the picture: centred, [bottom] above its bottom edge (the caller lifts them clear of
  * the controls), never wider than 92% of it. Sized to the picture (as YouTube's are), times the chosen
- * size. Lines show whole; auto-generated ones roll up two at a time (the new line fades in under the last
- * one, which slides up). The lines are recomputed every frame while playing.
+ * size. Lines show whole and change with a hard cut, no animation: auto-generated ones two at a time
+ * ([captionPages]). The lines are recomputed every frame while playing.
  */
 @Composable
 fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, alpha: () -> Float = { 1f }) {
@@ -119,17 +112,16 @@ fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, 
     if (!cap.on) return
     val choice = cap.choice ?: return
     val cues = cap.cues
-    // Auto-generated lines overlap as they roll up: two at most.
-    val rollUp = choice.track.auto
+    val pages = remember(cues, choice) { cues?.takeIf { choice.track.auto }?.let(::captionPages) }
     var lines by remember(cues) { mutableStateOf(emptyList<CaptionLine>()) }
-    if (cues != null) LaunchedEffect(cues, rollUp) {
+    if (cues != null) LaunchedEffect(cues, pages) {
         var frame = 0
         while (true) {
             withFrameMillis { }
             // Paused, the position only moves on seeks: a few checks a second are plenty.
             if (!state.isPlaying && frame++ % 6 != 0) continue
             val t = if (state.isPlaying) state.controller?.currentPosition ?: state.positionMs else state.positionMs
-            val now = captionLinesAt(cues, t, rollUp)
+            val now = if (pages != null) captionPageAt(pages, t) else captionLinesAt(cues, t)
             if (now != lines) lines = now
         }
     }
@@ -137,7 +129,6 @@ fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, 
     BoxWithConstraints(modifier.fillMaxSize().graphicsLayer { this.alpha = alpha() }) {
         // About 15 dp on the portrait video, 20 in fullscreen, small in picture-in-picture.
         val px = (maxHeight.value * 0.065f).coerceIn(9f, 20f) * CaptionSettings.size * look.scale
-        val reduced = rememberReducedMotion()
         Column(
             Modifier.fillMaxSize().padding(bottom = bottom),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,41 +136,10 @@ fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, 
         ) {
             if (cues == null) CaptionStatus(cap, choice, px)
             else lines.forEach { line ->
-                key(line.id) {
-                    Box(Modifier.widthIn(max = this@BoxWithConstraints.maxWidth * 0.92f).rolling(reduced)) { CaptionLineText(line, look, px) }
-                }
+                Box(Modifier.widthIn(max = this@BoxWithConstraints.maxWidth * 0.92f)) { CaptionLineText(line, look, px) }
             }
         }
     }
-}
-
-/**
- * A caption line's motion: it fades in where it lands, and when the lines around it change (a new one under it,
- * the one above gone) it slides from where it was, so the eye can follow it up. Measured from the bottom of the
- * lines' area, so the whole block lifting for the controls doesn't count as a move.
- */
-@Composable
-private fun Modifier.rolling(reduced: Boolean): Modifier {
-    val scope = rememberCoroutineScope()
-    val shift = remember { Animatable(0f) }
-    val appear = remember { Animatable(if (reduced) 1f else 0f) }
-    val placed = remember { floatArrayOf(Float.NaN) }
-    LaunchedEffect(Unit) { appear.animateTo(1f, tween(200, easing = Motion.Emphasized)) }
-    return this
-        .onPlaced { c ->
-            val parent = c.parentLayoutCoordinates ?: return@onPlaced
-            val fromBottom = parent.size.height - c.positionInParent().y
-            val before = placed[0]
-            placed[0] = fromBottom
-            if (!before.isNaN() && before != fromBottom && !reduced) {
-                scope.launch {
-                    // Still drawn where it was (part way through an earlier slide, too), then eased to its new place.
-                    shift.snapTo(shift.value + fromBottom - before)
-                    shift.animateTo(0f, spring(dampingRatio = 1f, stiffness = 420f))
-                }
-            }
-        }
-        .graphicsLayer { translationY = shift.value; alpha = appear.value }
 }
 
 /** What's keeping the captions: a translation model downloading, a translation starting, or a failure (for a while). */
