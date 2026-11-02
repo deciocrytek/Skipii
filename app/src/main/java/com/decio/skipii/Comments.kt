@@ -11,6 +11,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -327,6 +329,63 @@ fun CommentsCard(state: CommentsState, onOpen: () -> Unit) {
 @Composable
 fun CommentsPanel(state: CommentsState, partialTop: Dp, onClose: () -> Unit) {
     val c = MaterialTheme.colorScheme
+    PlayerPanel(
+        partialTop = partialTop,
+        onClose = onClose,
+        closeLabel = "Close comments",
+        title = {
+            Text("Comments", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
+            if (state.total > 0) {
+                Spacer(Modifier.width(8.dp))
+                Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        },
+    ) { listModifier ->
+        val list = rememberLazyListState()
+        val nearEnd by remember {
+            derivedStateOf { (list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= list.layoutInfo.totalItemsCount - 4 }
+        }
+        LaunchedEffect(nearEnd) { if (nearEnd) state.loadMore() }
+        LazyColumn(state = list, modifier = listModifier) {
+            items(state.comments, key = { it.id }) { comment -> CommentRow(comment, state) }
+            if (state.loading || state.hasMore) item {
+                Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
+                    CircularProgressIndicator(color = c.primary, strokeWidth = 3.dp, modifier = Modifier.size(26.dp))
+                }
+            }
+            if (!state.loading && state.comments.isEmpty()) item {
+                Text(
+                    if (state.disabled) "Comments are turned off for this video." else "No comments yet.",
+                    color = c.onSurfaceVariant, fontSize = 14.sp, modifier = Modifier.padding(20.dp),
+                )
+            }
+            item { Spacer(Modifier.height(12.dp)) }
+        }
+        if (Account.signedIn) Composer(state) else Text(
+            "Sign in to comment.",
+            color = c.onSurfaceVariant, fontSize = 13.sp,
+            modifier = Modifier.fillMaxWidth().background(c.surfaceContainer).padding(horizontal = 20.dp, vertical = 14.dp),
+        )
+        // Clear of the gesture bar when the keyboard isn't up.
+        Spacer(Modifier.fillMaxWidth().background(c.surfaceContainer).windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+}
+
+/**
+ * The panel the comments and the transcript open in, over the player's details with its top just under
+ * the video. Drag the top handle (and [title]) up to cover the screen, down to shrink or close; a fling
+ * decides on its own. [content] gets the modifier for its list (it fills the room left and, once at its
+ * top, a further pull down moves the panel); anything after the list stays pinned to the bottom.
+ */
+@Composable
+fun PlayerPanel(
+    partialTop: Dp,
+    onClose: () -> Unit,
+    closeLabel: String,
+    title: @Composable RowScope.() -> Unit,
+    content: @Composable ColumnScope.(listModifier: Modifier) -> Unit,
+) {
+    val c = MaterialTheme.colorScheme
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val reduced = rememberReducedMotion()
@@ -425,44 +484,14 @@ fun CommentsPanel(state: CommentsState, partialTop: Dp, onClose: () -> Unit) {
                     Box(Modifier.size(width = 36.dp, height = 4.dp).clip(CircleShape).background(c.onSurfaceVariant.copy(alpha = 0.45f)))
                 }
                 Row(Modifier.padding(start = 20.dp, end = 8.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Comments", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
-                    if (state.total > 0) {
-                        Spacer(Modifier.width(8.dp))
-                        Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    }
+                    title()
                     Spacer(Modifier.weight(1f))
                     Box(Modifier.size(44.dp).pressable { close() }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Close, "Close comments", tint = c.onSurfaceVariant)
+                        Icon(Icons.Rounded.Close, closeLabel, tint = c.onSurfaceVariant)
                     }
                 }
             }
-            val list = rememberLazyListState()
-            val nearEnd by remember {
-                derivedStateOf { (list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= list.layoutInfo.totalItemsCount - 4 }
-            }
-            LaunchedEffect(nearEnd) { if (nearEnd) state.loadMore() }
-            LazyColumn(state = list, modifier = Modifier.weight(1f).nestedScroll(listPull)) {
-                items(state.comments, key = { it.id }) { comment -> CommentRow(comment, state) }
-                if (state.loading || state.hasMore) item {
-                    Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
-                        CircularProgressIndicator(color = c.primary, strokeWidth = 3.dp, modifier = Modifier.size(26.dp))
-                    }
-                }
-                if (!state.loading && state.comments.isEmpty()) item {
-                    Text(
-                        if (state.disabled) "Comments are turned off for this video." else "No comments yet.",
-                        color = c.onSurfaceVariant, fontSize = 14.sp, modifier = Modifier.padding(20.dp),
-                    )
-                }
-                item { Spacer(Modifier.height(12.dp)) }
-            }
-            if (Account.signedIn) Composer(state) else Text(
-                "Sign in to comment.",
-                color = c.onSurfaceVariant, fontSize = 13.sp,
-                modifier = Modifier.fillMaxWidth().background(c.surfaceContainer).padding(horizontal = 20.dp, vertical = 14.dp),
-            )
-            // Clear of the gesture bar when the keyboard isn't up.
-            Spacer(Modifier.fillMaxWidth().background(if (Account.signedIn) c.surfaceContainer else c.surfaceContainer).windowInsetsBottomHeight(WindowInsets.navigationBars))
+            content(Modifier.weight(1f).nestedScroll(listPull))
         }
     }
 }

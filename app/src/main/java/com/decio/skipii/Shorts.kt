@@ -33,6 +33,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.NotificationsNone
 import androidx.compose.material.icons.rounded.PersonRemove
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +60,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -825,6 +828,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         touched.forEach { k -> accountStates[k]?.let { accountStates[k] = it.copy(subscribed = subscribe, channelId = channelId) } }
         scope.launch {
             runCatching { InnerTube.setSubscribed(channelId, subscribe) }
+                .onSuccess { if (!subscribe) Bells.forget(channelId) }
                 .onFailure {
                     if (it is CancellationException) throw it
                     touched.forEach { k -> accountStates[k]?.let { s -> accountStates[k] = s.copy(subscribed = !subscribe) } }
@@ -1635,10 +1639,35 @@ fun ShortsChannelMenu(shorts: ShortsState, bottom: Dp, onChannel: (String) -> Un
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 6.dp, bottom = 4.dp),
             )
+            // Subscribed: the bell key sits at the row's end (as on the player's Subscribe button).
+            val channelId = account?.channelId
+            val toggleBell = rememberBellToggle(shorts.onMessage)
             MenuRow(
                 icon = if (subscribed) Icons.Rounded.PersonRemove else Icons.Rounded.PersonAdd,
                 label = if (subscribed) "Unsubscribe" else "Subscribe",
                 enabled = open,
+                trailing = if (subscribed && channelId != null) {
+                    {
+                        val bell = Bells.isOn(channelId)
+                        Box(
+                            Modifier
+                                .squishOn(bell)
+                                .size(38.dp)
+                                .pressable(enabled = open) {
+                                    toggleBell(BellChannel(channelId, details?.item?.channel?.ifBlank { null }, details?.item?.avatar))
+                                }
+                                .clip(CircleShape)
+                                .background(if (bell) Ink else Ink.copy(alpha = 0.16f)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            FlourishIcon(
+                                if (bell) Icons.Rounded.NotificationsActive else Icons.Rounded.NotificationsNone,
+                                if (bell) "Bell on: every new video. Tap to turn off" else "Bell: get a notification for every new video",
+                                active = bell, kind = Flourish.Ring, tint = if (bell) Color(0xFF1A1A1A) else Ink, size = 20.dp,
+                            )
+                        }
+                    }
+                } else null,
             ) {
                 shorts.toggleSubscribe()
                 shorts.channelMenu = false
@@ -1651,20 +1680,22 @@ fun ShortsChannelMenu(shorts: ShortsState, bottom: Dp, onChannel: (String) -> Un
     }
 }
 
-private val MenuWidth = 212.dp
+private val MenuWidth = 228.dp
 
 @Composable
-private fun MenuRow(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {
+private fun MenuRow(icon: ImageVector, label: String, enabled: Boolean, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
     androidx.compose.foundation.layout.Row(
         Modifier
             .fillMaxWidth()
             .pressable(enabled = enabled, pressedScale = 0.97f, onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
+            // A trailing key keeps the row its usual height.
+            .padding(start = 18.dp, end = if (trailing != null) 10.dp else 18.dp, top = if (trailing != null) 4.dp else 12.dp, bottom = if (trailing != null) 4.dp else 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, contentDescription = null, tint = Ink, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(14.dp))
-        Text(label, color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        trailing?.invoke()
     }
 }
 

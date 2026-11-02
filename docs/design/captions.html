@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — captions, as good as YouTube's</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --emph:cubic-bezier(.2,0,0,1);
+  --primary:#6A4FD0;--on-primary:#ffffff;--pc:#E6DEFF;--on-pc:#22105E;
+  --surface:#F7F1FB;--on:#2A2140;--on-var:#76689A;
+  --sv:#EEE5F6;--scl:#F1EAF8;--sch:#E6DCEF;
+  --tile:#F7F2FB;
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --track:color-mix(in srgb,var(--primary) 28%,var(--sv));
+  --sponsor:#1FA34A;
+  --shadow:0 6px 12px rgba(40,20,80,.20),0 1px 3px rgba(40,20,80,.10);
+  --z:.74;
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;--pc:#4A3C86;--on-pc:#E8DEFF;
+  --surface:#141218;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#2B2633;--scl:#1E1B24;--sch:#2E2936;
+  --tile:#3A3444;
+  --page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:0 6px 14px rgba(0,0,0,.6),0 1px 3px rgba(0,0,0,.4);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+.wrap{max-width:1640px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:820px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;max-width:620px}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center;margin-bottom:46px}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;width:calc(436px * var(--z))}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;color:var(--on);transition:background .4s}
+.shot.wide{width:calc(943px * var(--z))}
+.wide .frame{width:calc(943px * var(--z));height:calc(440px * var(--z))}
+.wide .phone{width:943px;height:440px;border-radius:52px;padding:14px}
+.wide .screen{width:915px;height:412px;border-radius:40px;clip-path:inset(0 round 40px);background:#000}
+.cap{width:100%}
+.cap .t{display:flex;align-items:baseline;gap:10px}
+.cap .t i{font-style:normal;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:15px;font-weight:850;flex:none;transform:translateY(5px)}
+.cap .t b{font-size:21px;font-weight:850;letter-spacing:-.4px}
+.cap p{margin-top:6px;font-size:13.5px;font-weight:550;color:var(--ink-2);line-height:1.45}
+.cap ul{margin-top:8px;padding-left:16px}
+.cap li{font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.cap li b{color:var(--ink)}
+
+h2.sec{font-size:26px;font-weight:850;letter-spacing:-.7px;margin:10px 0 16px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:#6A4FB8;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.note h3 em{font-style:normal;height:22px;padding:0 9px;border-radius:11px;display:inline-grid;place-items:center;font-size:11px;letter-spacing:.3px;text-transform:none}
+.ok{background:#D5F2DC;color:#145C2A}.mid{background:#FCEBC4;color:#6B4A00}.no{background:#FAD9D9;color:#7A1616}
+html.dark .ok{background:#1E4A2A;color:#BDF0C9}html.dark .mid{background:#4E3D12;color:#FCE3A6}html.dark .no{background:#5A1F1F;color:#FAC9C9}
+html.dark .note h3{color:var(--primary)}
+.note li{margin-top:8px;font-size:14px;font-weight:550;line-height:1.5;color:var(--ink-2)}
+.note ul{padding-left:18px}
+.note b{color:var(--ink)}
+.note code{font-size:12.5px;background:var(--page);padding:1px 6px;border-radius:6px}
+.table{margin-top:14px;background:var(--chrome);border-radius:24px;padding:8px 8px;overflow-x:auto}
+.table table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{text-align:left;font-size:12px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2);padding:12px 14px}
+.table td{padding:11px 14px;font-weight:550;color:var(--ink-2);line-height:1.45;vertical-align:top}
+.table tr+tr td{background:linear-gradient(var(--page),var(--page)) top/100% 1px no-repeat}
+.table td:first-child{color:var(--ink);font-weight:750;white-space:nowrap}
+.table td .ok,.table td .mid,.table td .no{display:inline-block;padding:2px 10px;border-radius:10px;font-weight:800;font-size:12.5px;white-space:nowrap}
+
+/* phone chrome */
+.status{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 30px;font-size:15px;font-weight:700;z-index:90;pointer-events:none;background:#000;color:#fff}
+.status .r{display:flex;gap:6px;align-items:center;font-size:13px}
+.batt{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:15px;border-radius:5px;background:#fff;color:#000;font-size:10.5px;font-weight:850}
+.gest{position:absolute;bottom:8px;left:50%;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--on);opacity:.55;z-index:96;pointer-events:none}
+
+/* the video: a made-up evening scene, mockup only */
+.vid{position:absolute;left:0;top:40px;width:412px;height:232px;overflow:hidden;background:#000}
+.scene{position:absolute;inset:0;background:
+  radial-gradient(90px 90px at 72% 34%,#ffd9a0 0,#ffb76b 40%,rgba(255,150,80,0) 72%),
+  linear-gradient(180deg,#2b2350 0%,#7b3f6e 38%,#e07a5f 62%,#f2b880 70%,#3a2a3f 71%,#1d1a2c 100%)}
+.scene::before{content:"";position:absolute;left:-5%;right:-5%;bottom:0;height:46%;
+  background:radial-gradient(60% 90% at 25% 100%,#1b1830 0 60%,transparent 61%),radial-gradient(55% 80% at 80% 100%,#231d38 0 60%,transparent 61%)}
+/* a phone held up in the shot */
+.scene::after{content:"";position:absolute;left:30%;top:22%;width:17%;height:62%;border-radius:12px;background:linear-gradient(160deg,#3d3a48,#17151d);box-shadow:inset 0 0 0 3px #555066,0 10px 30px rgba(0,0,0,.5);transform:rotate(-8deg)}
+.edge{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.32)}
+.edge b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+
+/* captions */
+.cc{position:absolute;left:12px;right:12px;bottom:var(--ccb,12px);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;
+  font-size:calc(var(--ccs,15px) * var(--k,1));line-height:1.28;text-align:center;transition:bottom .38s var(--emph);z-index:6}
+.cc .row{max-width:92%}
+.cc .ln{box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.look-skipii .ln{background:rgba(18,15,26,.74);color:#fff;font-weight:720;border-radius:.5em;padding:.08em .5em}
+.look-classic .ln{background:rgba(8,8,8,.75);color:#fff;font-family:'Roboto Flex',Roboto,sans-serif;font-weight:500;padding:.02em .3em}
+.look-outline .ln{color:#fff;font-weight:800;text-shadow:0 0 2px #000,0 0 2px #000,0 0 3px #000,1px 1px 2px #000}
+.look-android .ln{background:#000;color:#FFE44D;font-family:'Roboto Mono',monospace;font-weight:500;padding:.02em .3em;font-size:.92em}
+.cc .w{display:inline}
+.cc .w.new{animation:wIn .22s var(--emph) both}
+@keyframes wIn{from{opacity:0;filter:blur(2px)}}
+.cc .tag{font-style:italic;opacity:.92}
+.ccnote{position:absolute;left:50%;top:10px;transform:translateX(-50%);height:24px;padding:0 10px;border-radius:12px;background:rgba(18,15,26,.6);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;gap:6px;white-space:nowrap;z-index:7;transition:opacity .3s}
+
+/* page under the video */
+.det{position:absolute;left:0;right:0;top:272px;bottom:0;overflow:hidden;padding:18px 20px}
+.ptitle{font-size:22px;font-weight:850;letter-spacing:-.6px;line-height:1.18;font-stretch:88%}
+.pmeta{font-size:14px;font-weight:600;color:var(--on-var);margin-top:10px}
+.pmeta b{color:var(--on);font-weight:750;margin-left:6px}
+.chan{display:flex;align-items:center;gap:12px;margin-top:18px}
+.chan .av{width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.chan .av i{width:26px;height:26px;border-radius:50%;border:4px solid #4F7FA8}
+.chan .nm{flex:1}
+.chan .nm b{display:block;font-size:15px;font-weight:750}
+.chan .nm small{font-size:12.5px;font-weight:600;color:var(--on-var)}
+.chan .sub{height:40px;padding:0 14px;border-radius:20px;background:var(--scl);font-size:14px;font-weight:750;display:flex;align-items:center;gap:6px}
+.acts{display:flex;gap:6px;margin-top:16px;white-space:nowrap}
+.acts span{height:44px;padding:0 15px;border-radius:16px;background:var(--sv);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:750;flex:none}
+.acts span.hot{background:var(--primary);color:var(--on-primary)}
+.acts span svg{width:18px;height:18px}
+.ccard{margin-top:16px;background:var(--scl);border-radius:22px;padding:15px 17px}
+.ccard .h{display:flex;justify-content:space-between;font-size:15px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:14px;font-weight:550;color:var(--on-var)}
+.ccard p i{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ddd,#555);flex:none}
+.more{margin-top:22px;font-size:22px;font-weight:850;letter-spacing:-.5px}
+.card{margin-top:14px;display:flex;gap:12px}
+.thumb{width:140px;flex:none;aspect-ratio:16/9;border-radius:16px;position:relative;overflow:hidden;background:linear-gradient(135deg,#3b6b8f,#1d2f45)}
+.card .vt{font-size:14.5px;font-weight:750;line-height:1.25}
+.card .vm{font-size:12.5px;font-weight:600;color:var(--on-var);margin-top:5px}
+.pvig{position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none;z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 38%,transparent) 50%,color-mix(in srgb,var(--surface) 76%,transparent))}
+
+/* the bar, resting (316×83) */
+.bar{position:absolute;left:50%;bottom:52px;width:316px;height:83px;margin-left:-158px;border-radius:41.5px;background:var(--sv);box-shadow:var(--shadow);z-index:60;transition:background .4s}
+.row5{position:absolute;left:5px;right:5px;top:8px;height:67px;display:flex;align-items:center;justify-content:space-between;padding:0 0}
+.side{width:41px;height:41px;border-radius:50%;background:var(--tile);display:grid;place-items:center;color:var(--on)}
+.side svg{width:20px;height:20px}
+.seek{width:51px;height:51px;border-radius:50%;display:grid;place-items:center;color:var(--on);position:relative}
+.seek svg{width:27px;height:27px}
+.seek small{position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:850;padding-top:3px}
+.seek.fwd svg{transform:scaleX(-1)}
+.play{width:102px;height:51px;border-radius:26px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.play svg{width:26px;height:26px}
+.hair{position:absolute;left:34px;right:34px;bottom:5px;height:2.7px;border-radius:2px;background:var(--track);overflow:hidden}
+.hair b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+
+/* the bar, open: card (380 wide, 160 up + 46 down for the chapters strip) and the captions panel */
+.obar{position:absolute;left:50%;bottom:6px;width:380px;margin-left:-190px;border-radius:32px;background:var(--sv);box-shadow:var(--shadow);z-index:60;overflow:hidden;
+  height:206px;transition:height .5s var(--pop),background .4s}
+.obar.panel{height:560px}
+.obar .layer{position:absolute;inset:0;transition:opacity .22s}
+.obar.panel .cardL{opacity:0;pointer-events:none}
+.obar:not(.panel) .panelL{opacity:0;pointer-events:none}
+.obar .rowA{position:absolute;left:37px;right:37px;bottom:54px;height:67px;display:flex;align-items:center;justify-content:space-between}
+.obar .hairA{position:absolute;left:66px;right:66px;bottom:51px;height:2.7px;border-radius:2px;background:var(--track);overflow:hidden}
+.obar .hairA b{position:absolute;left:0;top:0;bottom:0;background:var(--primary)}
+.toolrow{position:absolute;left:16px;right:16px;bottom:136px;height:58px;display:flex;justify-content:space-between}
+.tool{width:58px;height:58px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--tile);color:var(--on);transition:background .25s,color .25s,transform .42s var(--pop)}
+.tool:active{transform:scale(.94);transition-duration:.09s}
+.tool .g{height:22px;display:grid;place-items:center;font-size:14px;font-weight:850}
+.tool .g svg{width:22px;height:22px}
+.tool .l{font-size:9.5px;font-weight:750;color:var(--on-var);white-space:nowrap}
+.tool.hot{background:var(--primary);color:var(--on-primary)}
+.tool.hot .l{color:var(--on-primary)}
+.strip{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);height:34px;padding:0 14px;border-radius:17px;background:var(--tile);display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12.5px;font-weight:750;color:var(--on-var)}
+.strip b{color:var(--on)}
+.ccg{display:inline-grid;place-items:center;height:16px;padding:0 3px;border-radius:4px;border:0;background:currentColor;font-size:9.5px;font-weight:900;letter-spacing:.2px;line-height:1}
+.ccg span{color:var(--sv)}
+.tool.hot .ccg span{color:var(--primary)}
+
+.phead{position:absolute;left:22px;right:14px;top:16px;height:44px;display:flex;align-items:center;gap:10px}
+.phead b{font-size:19px;font-weight:850;letter-spacing:-.3px;flex:1}
+.x{width:40px;height:40px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
+.x svg{width:18px;height:18px}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--sch);position:relative;transition:background .25s;flex:none}
+.sw::after{content:"";position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--on-var);transition:all .3s var(--pop)}
+.sw.on{background:var(--primary)}
+.sw.on::after{left:23px;top:4px;width:24px;height:24px;background:var(--on-primary)}
+.plist{position:absolute;left:10px;right:10px;top:68px;bottom:72px;overflow:auto;scrollbar-width:none}
+.plist::-webkit-scrollbar{display:none}
+.prow{width:100%;height:50px;border-radius:18px;display:flex;align-items:center;gap:12px;padding:0 14px;text-align:left;transition:background .25s,transform .42s var(--pop)}
+.prow:active{transform:scale(.97);transition-duration:.09s}
+.prow .nm{flex:1;font-size:15px;font-weight:750}
+.prow .nm small{display:block;font-size:11.5px;font-weight:650;color:var(--on-var);margin-top:1px}
+.prow .ck{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--on-primary);transform:scale(0);transition:transform .38s var(--pop)}
+.prow .ck svg{width:15px;height:15px}
+.prow.sel{background:var(--tile)}
+.prow.sel .ck{transform:scale(1)}
+.prow.sel .nm{color:var(--on)}
+.psec{padding:14px 14px 6px;font-size:11.5px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:var(--on-var);display:flex;align-items:center;gap:6px}
+.pfoot{position:absolute;left:12px;right:12px;bottom:12px;height:48px;display:flex;gap:8px}
+.pfoot button{flex:1;border-radius:24px;background:var(--tile);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:750;transition:transform .42s var(--pop)}
+.pfoot button:active{transform:scale(.94);transition-duration:.09s}
+.pfoot svg{width:18px;height:18px}
+.dl{font-size:11px;font-weight:800;color:var(--on-var);background:var(--sch);border-radius:9px;padding:2px 8px}
+
+/* transcript panel (the comments panel's shape, from just under the video) */
+.tpanel{position:absolute;left:0;right:0;top:272px;bottom:0;background:var(--scl);border-radius:28px 28px 0 0;z-index:40;display:flex;flex-direction:column}
+.handle{width:36px;height:4px;border-radius:2px;background:var(--on-var);opacity:.5;margin:12px auto 2px}
+.thead{display:flex;align-items:center;gap:10px;padding:8px 18px 4px}
+.thead b{font-size:20px;font-weight:850;letter-spacing:-.4px;flex:1}
+.lang{height:34px;padding:0 12px;border-radius:17px;background:var(--sv);font-size:13px;font-weight:750;display:flex;align-items:center;gap:6px}
+.search{margin:10px 16px 6px;height:44px;border-radius:22px;background:var(--sv);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:14.5px;font-weight:600;color:var(--on-var)}
+.search svg{width:19px;height:19px}
+.tlist{flex:1;overflow:auto;padding:4px 10px 120px;scrollbar-width:none;position:relative}
+.tlist::-webkit-scrollbar{display:none}
+.tl{display:flex;gap:12px;padding:10px 12px;border-radius:18px;cursor:pointer;transition:background .3s,transform .42s var(--pop)}
+.tl:active{transform:scale(.98);transition-duration:.09s}
+.tl .ts{flex:none;width:40px;font-size:12.5px;font-weight:800;color:var(--on-var);padding-top:2px;font-variant-numeric:tabular-nums}
+.tl .tx{font-size:15px;font-weight:600;line-height:1.4;color:var(--on-var)}
+.tl.past .tx{color:var(--on)}
+.tl.now{background:var(--sv)}
+.tl.now .ts{color:var(--primary)}
+.tl.now .tx{color:var(--on-var)}
+.tl.now .tx .said{color:var(--on);font-weight:700}
+.tl mark{background:color-mix(in srgb,var(--primary) 30%,transparent);color:inherit;border-radius:4px;padding:0 2px}
+.follow{position:absolute;left:50%;bottom:28px;transform:translate(-50%,0);height:42px;padding:0 16px;border-radius:21px;background:var(--primary);color:var(--on-primary);font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px;z-index:45;box-shadow:var(--shadow);transition:opacity .25s,transform .42s var(--pop)}
+.follow.gone{opacity:0;transform:translate(-50%,16px);pointer-events:none}
+.follow svg{width:16px;height:16px}
+
+/* account sheet */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.36);z-index:70}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:120px;background:var(--surface);border-radius:28px 28px 0 0;z-index:71;overflow:hidden;display:flex;flex-direction:column}
+.sheet .scroll{flex:1;overflow:auto;padding:4px 14px 40px;scrollbar-width:none}
+.sheet .scroll::-webkit-scrollbar{display:none}
+.scard{background:var(--scl);border-radius:26px;padding:16px 16px 14px;margin-top:10px}
+.scard h4{font-size:17px;font-weight:850;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.scard .lbl{font-size:12.5px;font-weight:750;color:var(--on-var);margin:14px 2px 8px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.sc{height:38px;padding:0 14px;border-radius:19px;background:var(--sv);font-size:13.5px;font-weight:750;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px;transition:background .25s,color .25s,transform .42s var(--pop)}
+.sc:active{transform:scale(.94);transition-duration:.09s}
+.sc.on{background:var(--primary);color:var(--on-primary)}
+.looks{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.looks::-webkit-scrollbar{display:none}
+.lk{flex:none;width:96px;border-radius:18px;background:var(--sv);padding:6px;transition:background .25s,transform .42s var(--pop)}
+.lk:active{transform:scale(.95);transition-duration:.09s}
+.lk .sw2{height:50px;border-radius:13px;position:relative;overflow:hidden}
+.lk .sw2 .scene::after{display:none}
+.lk .sw2 .cc{--ccs:11px;--k:1!important;bottom:7px;left:4px;right:4px}
+.lk .nm{font-size:12px;font-weight:800;margin-top:6px;text-align:center;padding-bottom:2px}
+.lk.on{background:var(--primary);color:var(--on-primary)}
+.prev{height:150px;border-radius:18px;position:relative;overflow:hidden;margin-top:12px}
+.prev .cc{--ccs:14px}
+.srow{display:flex;align-items:center;gap:12px;margin-top:12px;padding:4px 2px}
+.srow .nm{flex:1;font-size:14.5px;font-weight:750}
+.srow .nm small{display:block;font-size:12px;font-weight:600;color:var(--on-var);margin-top:2px;line-height:1.35}
+.srow .val{font-size:13.5px;font-weight:750;color:var(--on-var);display:flex;align-items:center;gap:4px}
+.other{background:var(--scl);border-radius:26px;height:64px;margin-top:10px;display:flex;align-items:center;padding:0 18px;font-size:16px;font-weight:800;color:var(--on-var)}
+
+/* fullscreen (landscape) */
+.lv{position:absolute;inset:0}
+.lscrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 66%,rgba(0,0,0,.55) 100%);transition:opacity .25s}
+.ov{transition:opacity .25s}
+.hid .ov,.hid .lscrim{opacity:0;pointer-events:none}
+.ltop{position:absolute;left:44px;right:22px;top:16px;height:36px;display:flex;align-items:center;gap:8px;color:#fff}
+.ltop .title{flex:1;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.otile{height:36px;min-width:36px;border-radius:18px;background:var(--sv);color:var(--on);display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;font-size:12.5px;font-weight:850;transition:background .25s,color .25s,transform .42s var(--pop)}
+.otile.round{padding:0;width:36px}
+.otile svg{width:19px;height:19px}
+.otile.hot{background:var(--primary);color:var(--on-primary)}
+.otile.hot .ccg span{color:var(--primary)}
+.otile .ccg span{color:var(--sv)}
+.otile:active{transform:scale(.94);transition-duration:.09s}
+.lmid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:22px}
+.lmid .s{width:60px;height:60px;border-radius:50%;background:var(--sv);color:var(--on);display:grid;place-items:center;position:relative}
+.lmid .s svg{width:28px;height:28px}
+.lmid .s small{position:absolute;inset:0;display:grid;place-items:center;font-size:8.5px;font-weight:850;padding-top:3px}
+.lmid .s.fwd svg{transform:scaleX(-1)}
+.lmid .p{width:78px;height:78px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.lmid .p svg{width:32px;height:32px}
+.lbot{position:absolute;left:44px;right:30px;bottom:8px;color:#fff}
+.lbot .tr{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;height:36px}
+.lbot .tr .t{flex:1}
+.lbot .tr .t span{opacity:.72}
+.lscrub{position:relative;height:16px}
+.lscrub i{position:absolute;left:0;right:0;top:6.5px;height:3px;border-radius:2px;background:rgba(255,255,255,.32)}
+.lscrub b{position:absolute;left:0;top:6.5px;height:3px;border-radius:2px;background:var(--primary)}
+.lscrub u{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--primary)}
+.drop{position:absolute;top:60px;width:232px;border-radius:24px;background:rgba(24,20,30,.78);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);color:#fff;padding:6px;z-index:20;
+  transform-origin:top right;transition:transform .42s var(--pop),opacity .2s}
+.drop.gone{transform:scale(.6);opacity:0;pointer-events:none}
+.drow{width:100%;height:38px;border-radius:14px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:13.5px;font-weight:750;text-align:left;color:#fff}
+.drow .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .nm small{font-weight:650;opacity:.6;margin-left:4px}
+.drow .ck{width:20px;height:20px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;transform:scale(0);transition:transform .38s var(--pop)}
+.drow .ck svg{width:13px;height:13px}
+.drow.sel{background:rgba(255,255,255,.12)}
+.drow.sel .ck{transform:scale(1)}
+.dsep{height:6px}
+.dhead{font-size:10.5px;font-weight:850;letter-spacing:1px;text-transform:uppercase;opacity:.6;padding:6px 12px 4px}
+.lcatch{position:absolute;inset:0;z-index:19;display:none}
+.dropOpen .lcatch{display:block}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8a1.3 1.3 0 0 0 2 1.1l10-6.4a1.3 1.3 0 0 0 0-2.2L10 4.5a1.3 1.3 0 0 0-2 1.1z"/></symbol>
+  <symbol id="i-rew" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.2 9.2A7.6 7.6 0 1 1 4.5 13M5 4.6v4.8h4.8"/></symbol>
+  <symbol id="i-head" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 17v-4a8 8 0 0 1 16 0v4M4 14h3v6H5a1 1 0 0 1-1-1zm16 0h-3v6h2a1 1 0 0 0 1-1z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="18.5" r="2" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pip" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="11.5" y="11" width="7" height="5.5" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol>
+  <symbol id="i-fullx" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 4v3.5A1.5 1.5 0 0 1 7.5 9H4M20 9h-3.5A1.5 1.5 0 0 1 15 7.5V4M15 20v-3.5a1.5 1.5 0 0 1 1.5-1.5H20M4 15h3.5A1.5 1.5 0 0 1 9 16.5V20"/></symbol>
+  <symbol id="i-like" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 10v10H4V10zm0 0 4-7c1.5 0 2.5 1 2.2 2.6L12.6 9H19a2 2 0 0 1 2 2.3l-1.2 6.8A2.3 2.3 0 0 1 17.5 20H7"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a6 6 0 0 0-6 6v4l-2 3v1h16v-1l-2-3V9a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-lines" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M4 6h16M4 12h11M4 18h14"/></symbol>
+  <symbol id="i-aa" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" d="M3 19 8.5 5l5.5 14M5.2 14h6.6M15.5 12.3c.8-.9 1.8-1.3 3-1.3 1.7 0 2.5 1 2.5 2.6V19m0-3.6c-.9-.4-1.9-.5-3-.3-1.4.2-2.2 1-2.2 2 0 1.2 1 2 2.3 1.9 1.2-.1 2.3-.8 2.9-1.9"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M15 15l5 5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4-6.5 4v-16a1 1 0 0 1 1-1z"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>Captions, as good as YouTube's</h1>
+      <p>Everything YouTube's captions do, in Skipii's look: <b>every track the video has</b> (the creator's, auto-generated, other languages), <b>auto-generated captions that appear word by word</b> like YouTube's, <b>translation</b>, <b>your own caption look and size</b>, captions that <b>step up out of the controls' way</b>, and a <b>tappable transcript</b>. The clip below plays live: pick a track in phone 2, a look in phone 4, and every phone follows.</p>
+    </div>
+    <div class="tools">
+      <button class="chip on" id="playT">Playing</button>
+      <button class="chip on" id="ctrlT">Fullscreen controls shown</button>
+      <button class="chip" id="darkT">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.74"></label>
+    </div>
+  </div>
+
+  <div class="stage">
+    <!-- 1 · watching -->
+    <div class="shot">
+      <div class="frame"><div class="phone"><div class="screen" id="p1">
+        <div class="status"><span>5:01</span><span class="r">▂▄▆█ <span class="batt">66</span></span></div>
+        <div class="vid"><div class="scene"></div><div class="cc"></div></div>
+        <div class="det">
+          <div class="ptitle">The iPhone Duo Has Problems!</div>
+          <div class="pmeta">84K views · 2 days ago <b>...more</b></div>
+          <div class="chan"><div class="av"><i></i></div><div class="nm"><b>TechOdyssey</b><small>217K subscribers</small></div><div class="sub"><svg width="18" height="18"><use href="#i-bell"/></svg>Subscribed</div></div>
+          <div class="acts"><span><svg><use href="#i-like"/></svg>3.1K</span><span><svg><use href="#i-save"/></svg>Playlist</span><span class="tbtn"><svg><use href="#i-lines"/></svg>Transcript</span><span>Share</span></div>
+          <div class="ccard"><div class="h">Comments <span>412</span></div><p><i></i>The crease thing is a dealbreaker for me honestly</p></div>
+          <div class="more">More videos</div>
+          <div class="card"><div class="thumb"></div><div><div class="vt">Galaxy Fold 8 after one year</div><div class="vm">TechOdyssey · 1.2M views</div></div></div>
+        </div>
+        <div class="pvig"></div>
+        <div class="bar">
+          <div class="row5">
+            <div class="side"><svg><use href="#i-head"/></svg></div>
+            <div class="seek"><svg><use href="#i-rew"/></svg><small>10</small></div>
+            <div class="play"><svg><use href="#i-pause"/></svg></div>
+            <div class="seek fwd"><svg><use href="#i-rew"/></svg><small>10</small></div>
+            <div class="side"><svg><use href="#i-more"/></svg></div>
+          </div>
+          <div class="hair"><b class="fill"></b></div>
+        </div>
+        <div class="gest"></div>
+      </div></div></div>
+      <div class="cap">
+        <div class="t"><i>1</i><b>Watching</b></div>
+        <p>Captions sit on the picture, 12 dp above its bottom edge, centred, never more than two lines. Auto-generated tracks <b>roll up word by word</b> as they're spoken (YouTube's own timing, per word); the creator's captions change a sentence at a time. Sounds like <i>[hinge creaks]</i> show in italics.</p>
+        <ul><li>The video stays clean otherwise: no CC button on it (the bar has it).</li><li>Transcript is an action pill; it opens like comments (phone 3).</li></ul>
+      </div>
+    </div>
+
+    <!-- 2 · picking in the bar -->
+    <div class="shot">
+      <div class="frame"><div class="phone"><div class="screen" id="p2">
+        <div class="status"><span>5:01</span><span class="r">▂▄▆█ <span class="batt">66</span></span></div>
+        <div class="vid"><div class="scene"></div><div class="cc"></div></div>
+        <div class="det">
+          <div class="ptitle">The iPhone Duo Has Problems!</div>
+          <div class="pmeta">84K views · 2 days ago <b>...more</b></div>
+          <div class="chan"><div class="av"><i></i></div><div class="nm"><b>TechOdyssey</b><small>217K subscribers</small></div><div class="sub"><svg width="18" height="18"><use href="#i-bell"/></svg>Subscribed</div></div>
+        </div>
+        <div class="obar panel" id="obar">
+          <div class="layer cardL">
+            <div class="toolrow">
+              <button class="tool"><span class="g">1×</span><span class="l">Speed</span></button>
+              <button class="tool"><span class="g">1080</span><span class="l">Quality</span></button>
+              <button class="tool hot" id="ccTool"><span class="g"><span class="ccg"><span>CC</span></span></span><span class="l" id="ccToolL">English</span></button>
+              <button class="tool"><span class="g"><svg><use href="#i-pip"/></svg></span><span class="l">PiP</span></button>
+              <button class="tool"><span class="g"><svg><use href="#i-full"/></svg></span><span class="l">Fullscreen</span></button>
+            </div>
+            <div class="rowA">
+              <div class="side"><svg><use href="#i-head"/></svg></div>
+              <div class="seek"><svg><use href="#i-rew"/></svg><small>10</small></div>
+              <div class="play"><svg><use href="#i-pause"/></svg></div>
+              <div class="seek fwd"><svg><use href="#i-rew"/></svg><small>10</small></div>
+              <div class="side"><svg><use href="#i-x"/></svg></div>
+            </div>
+            <div class="hairA"><b class="fill"></b></div>
+            <div class="strip"><svg width="16" height="16"><use href="#i-lines"/></svg><span class="chap">The hinge</span> · <b class="clock">2:14</b></div>
+          </div>
+          <div class="layer panelL">
+            <div class="phead"><b>Captions</b><button class="sw on" id="ccSw" aria-label="Captions on"></button><button class="x" id="pClose"><svg><use href="#i-x"/></svg></button></div>
+            <div class="plist" id="plist"></div>
+            <div class="pfoot"><button id="toLook"><svg><use href="#i-aa"/></svg>Look &amp; size</button><button class="tbtn"><svg><use href="#i-lines"/></svg>Transcript</button></div>
+          </div>
+        </div>
+        <div class="gest"></div>
+      </div></div></div>
+      <div class="cap">
+        <div class="t"><i>2</i><b>Picking a track, in the bar</b></div>
+        <p>⋮ opens the card; <b>Captions</b> joins its row (CC, filled while on, labelled with the language). Tapping it turns the bar into the Captions list, like Quality: the switch on top, every track the video has, then <b>Translated on your phone</b>. A pick lands its check and the bar folds after 420 ms. Tap <b>CC</b> in the card (✕ first) to see it again.</p>
+        <ul><li><b>Auto-generated</b> is only listed when there's no creator track in that language, or as a second choice under it.</li><li>The card holds 6 tools at most (Speed, Quality, Captions, PiP, Fullscreen, Next) — that's the 348 dp row's limit.</li></ul>
+      </div>
+    </div>
+
+    <!-- 3 · transcript -->
+    <div class="shot">
+      <div class="frame"><div class="phone"><div class="screen" id="p3">
+        <div class="status"><span>5:01</span><span class="r">▂▄▆█ <span class="batt">66</span></span></div>
+        <div class="vid"><div class="scene"></div><div class="cc"></div></div>
+        <div class="tpanel">
+          <div class="handle"></div>
+          <div class="thead"><b>Transcript</b><span class="lang" id="tLang">English</span><button class="x"><svg><use href="#i-x"/></svg></button></div>
+          <div class="search"><svg><use href="#i-search"/></svg><span id="tq">Search the transcript</span></div>
+          <div class="tlist" id="tlist"></div>
+          <button class="follow gone" id="follow"><svg><use href="#i-down"/></svg><span>Back to now</span></button>
+        </div>
+        <div class="gest"></div>
+      </div></div></div>
+      <div class="cap">
+        <div class="t"><i>3</i><b>Transcript</b></div>
+        <p>The same panel as comments, from just under the video (the bar steps down out of its way). The line being spoken is filled and <b>its words light up as they're said</b>; the list follows along. <b>Tap any line to jump there.</b> Scroll away and a <b>Back to now</b> pill brings you back. Search jumps to the lines that match.</p>
+        <ul><li>Try it: tap a line, or scroll the list.</li><li>Uses the track picked in phone 2 (the chip shows which).</li></ul>
+      </div>
+    </div>
+
+    <!-- 4 · account sheet -->
+    <div class="shot">
+      <div class="frame"><div class="phone"><div class="screen" id="p4">
+        <div class="status"><span>5:01</span><span class="r">▂▄▆█ <span class="batt">66</span></span></div>
+        <div class="vid"><div class="scene"></div><div class="cc"></div></div>
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="scroll">
+            <div class="other">Player controls</div>
+            <div class="scard">
+              <h4><span class="ccg" style="color:var(--on)"><span style="color:var(--scl)">CC</span></span>Captions</h4>
+              <div class="prev" id="prev"><div class="scene"></div><div class="cc"></div></div>
+              <div class="lbl">Show captions</div>
+              <div class="chips" id="showC"><button class="sc">Never</button><button class="sc">Always</button><button class="sc on">When it isn't in English</button></div>
+              <div class="lbl">Look</div>
+              <div class="looks" id="looks"></div>
+              <div class="lbl">Size</div>
+              <div class="chips" id="sizeC"><button class="sc" data-k=".85">Small</button><button class="sc on" data-k="1">Medium</button><button class="sc" data-k="1.22">Large</button><button class="sc" data-k="1.5">Huge</button></div>
+              <div class="srow"><div class="nm">Language<small>English first; auto-generated if that's all there is; else translated on your phone</small></div><div class="val">English<svg width="16" height="16"><use href="#i-chev"/></svg></div></div>
+              <div class="srow"><div class="nm">Translation languages<small>Deutsch · 31 MB · works offline</small></div><div class="val">1<svg width="16" height="16"><use href="#i-chev"/></svg></div></div>
+            </div>
+            <div class="other">SponsorBlock</div>
+          </div>
+        </div>
+        <div class="gest"></div>
+      </div></div></div>
+      <div class="cap">
+        <div class="t"><i>4</i><b>Captions card in the account sheet</b></div>
+        <p>Next to Player controls and SponsorBlock. <b>Show captions</b>: Never / Always / When it isn't in your language (the default: an English video plays clean, a Spanish one turns English captions on). <b>Look</b>: Skipii (tonal rounded boxes), Classic (YouTube's black box), Outline (no box), or <b>Android's own caption settings</b>. Four sizes. The preview plays live.</p>
+        <ul><li>Every chip row scrolls (0.5.65's rule).</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="shot wide">
+      <div class="frame"><div class="phone"><div class="screen" id="p5">
+        <div class="lv"><div class="scene"></div></div>
+        <div class="lscrim"></div>
+        <div class="cc"></div>
+        <div class="lcatch" id="lcatch"></div>
+        <div class="ov ltop">
+          <div class="title">The iPhone Duo Has Problems!</div>
+          <button class="otile">1×</button>
+          <button class="otile hot" id="ccPill"><span class="ccg"><span>CC</span></span><span id="ccPillL">English</span></button>
+          <button class="otile">Auto · 1080p</button>
+          <button class="otile round"><svg><use href="#i-pip"/></svg></button>
+        </div>
+        <div class="drop gone ov" id="drop"></div>
+        <div class="ov lmid">
+          <div class="s"><svg><use href="#i-rew"/></svg><small>10</small></div>
+          <div class="p"><svg><use href="#i-pause"/></svg></div>
+          <div class="s fwd"><svg><use href="#i-rew"/></svg><small>10</small></div>
+        </div>
+        <div class="ov lbot">
+          <div class="tr"><div class="t"><b class="clock">2:14</b><span> / 12:48 · <span class="chap">The hinge</span></span></div><button class="otile round"><svg><use href="#i-fullx"/></svg></button></div>
+          <div class="lscrub"><i></i><b class="fill"></b><u class="knob"></u></div>
+        </div>
+      </div></div></div>
+      <div class="cap" style="max-width:820px">
+        <div class="t"><i>5</i><b>Fullscreen</b></div>
+        <p>A <b>CC pill</b> joins the top row between speed and quality (filled while on, with the language). It opens a card like the quality and speed ones: Off, every track, translations. Captions sit just above the scrubber while the controls show and <b>glide down to the bottom</b> when they hide (toggle "Fullscreen controls shown" above). Picture-in-picture keeps them too, smaller.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec">Is it fully possible?</h2>
+  <div class="notes">
+    <div class="note"><h3>Works today <em class="ok">probed 2026-11-01</em></h3><ul>
+      <li><b>The track list comes free with the player answer</b> Skipii already gets: a test video listed 6 tracks — English, <b>English (auto-generated)</b>, German, Japanese, Portuguese (Brazil), Spanish (Latin America).</li>
+      <li><b>The caption files download with no sign-in and no PO token</b> (HTTP 200, unlike streams). Formats: YouTube's own srv3 XML and WebVTT. Links are signed and last ~1 day, so they're fetched with the video and cached.</li>
+      <li><b>Auto-generated tracks carry per-word timing</b> (<code>&lt;s t="559"&gt; strangers&lt;/s&gt;</code>), which is exactly what YouTube's word-by-word roll-up uses.</li>
+    </ul></div>
+    <div class="note"><h3>Ours to build <em class="mid">no blockers</em></h3><ul>
+      <li>A small srv3 parser (cues, words, sound tags, the creator's positions) and a Compose caption layer over the one video surface, on the same AV-synced clock.</li>
+      <li>Media3's own subtitle renderer isn't used: it can't roll up per word, lift out of the controls' way or draw Skipii's look. It is used for Android's caption settings (<code>CaptioningManager</code>).</li>
+      <li>Transcript panel, account card, bar tool, fullscreen card, PiP. Captions in Shorts can come later from the same data.</li>
+    </ul></div>
+    <div class="note"><h3>Not like YouTube <em class="no">one gap</em></h3><ul>
+      <li><b>YouTube's own auto-translate is refused.</b> Asking for a translated track (<code>tlang=fr</code>, <code>tlang=de</code>) got HTTP 429 "Sorry…" both times, while the untranslated track loaded fine right after. It's the same wall as PO tokens / the player JS (0.5.49).</li>
+      <li><b>Instead: translated on the phone</b> (Google's ML Kit, ~30 MB per language, downloaded once, offline after, 50+ languages). Good, a step below YouTube's (it translates line by line, YouTube translates the whole text).</li>
+      <li>To check on Derek's 5G: when the bot check refuses the player answer, the track list has to come from the VISIONOS fallback.</li>
+    </ul></div>
+  </div>
+  <div class="table"><table>
+    <tr><th>YouTube does</th><th>Skipii</th><th>How</th></tr>
+    <tr><td>Creator's captions, any language</td><td><span class="ok">Yes</span></td><td>From the player answer's track list; srv3 file per track.</td></tr>
+    <tr><td>Auto-generated captions</td><td><span class="ok">Yes</span></td><td>Same list, kind "asr".</td></tr>
+    <tr><td>Word-by-word roll-up</td><td><span class="ok">Yes</span></td><td>Per-word offsets in the asr srv3 file.</td></tr>
+    <tr><td>Auto-translate</td><td><span class="mid">Different</span></td><td>YouTube refuses it (429); translated on the phone instead.</td></tr>
+    <tr><td>Caption style (font, colour, size, box)</td><td><span class="ok">Yes</span></td><td>Skipii's looks + Android's caption settings.</td></tr>
+    <tr><td>Turns on for foreign-language videos</td><td><span class="ok">Yes</span></td><td>Video language from the track list / details.</td></tr>
+    <tr><td>Captions move above the controls</td><td><span class="ok">Yes</span></td><td>Our own layer knows when controls show.</td></tr>
+    <tr><td>Show transcript, tap to seek</td><td><span class="ok">Yes</span></td><td>Same file; no extra request.</td></tr>
+    <tr><td>Creator-positioned / coloured captions</td><td><span class="ok">Mostly</span></td><td>srv3 has positions and colours; karaoke effects are rare and could be skipped.</td></tr>
+    <tr><td>Captions in PiP</td><td><span class="ok">Yes</span></td><td>Same layer, smaller.</td></tr>
+    <tr><td>Age-restricted / members-only videos</td><td><span class="no">No</span></td><td>They don't play at all yet (0.5.56, 0.5.4).</td></tr>
+  </table></div>
+</div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s)
+const $$ = (s, r = document) => [...r.querySelectorAll(s)]
+
+// --- the clip: 32 s from 2:10 into a 12:48 review ---
+const BASE = 130, LEN = 32, DUR = 768
+const CUES = [[0.2,3.2],[3.2,6.6],[6.6,9.8],[9.8,13.4],[13.4,17],[17,20.6],[20.6,24.4],[24.4,27.6],[27.8,31.6]]
+const TEXT = {
+  en: ["So the first thing you notice is the hinge.","It's a lot stiffer than the one on the Fold,","and honestly? I kind of like that.","It stays exactly where you put it.","But there's a catch, and it's a big one:","the crease is still there after a week.","Run your finger across it and you'll feel it.","[hinge creaks]","Okay — let's talk about the battery."],
+  es: ["Lo primero que notas es la bisagra.","Es mucho más dura que la del Fold,","y, sinceramente, eso me gusta.","Se queda justo donde la dejas.","Pero hay una trampa, y es grande:","el pliegue sigue ahí después de una semana.","Pasa el dedo por encima y lo notarás.","[cruje la bisagra]","Bueno, hablemos de la batería."],
+  de: ["Das Erste, was auffällt, ist das Scharnier.","Es ist viel steifer als das beim Fold,","und ehrlich? Das gefällt mir irgendwie.","Es bleibt genau da, wo man es hinstellt.","Aber es gibt einen Haken, und zwar einen großen:","Die Falte ist nach einer Woche immer noch da.","Fahr mit dem Finger darüber, und du spürst sie.","[Scharnier knarrt]","Okay – reden wir über den Akku."],
+}
+const CHAPTERS = [[0,"The hinge"],[13.4,"The crease"],[27.8,"Battery"]]
+// Auto-generated: lower case, no punctuation, no sound tags, a time per word.
+const WORDS = []
+CUES.forEach(([s, e], i) => {
+  if (TEXT.en[i].startsWith('[')) return
+  const ws = TEXT.en[i].toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter(Boolean)
+  const span = e - s - 0.45
+  ws.forEach((w, j) => WORDS.push({ w, t: s + 0.12 + span * (j / ws.length) + (j % 3) * 0.04, cue: i }))
+})
+const TRACKS = [
+  { id: 'en', name: 'English', sub: "Creator's" },
+  { id: 'asr', name: 'English', sub: 'Auto-generated' },
+  { id: 'es', name: 'Español', sub: "Creator's" },
+]
+const TRANSLATED = [
+  { id: 'de', name: 'Deutsch', sub: 'From English · 31 MB, downloaded' },
+  { id: 'fr', name: 'Français', sub: 'Download 29 MB to use', dl: true },
+  { id: 'ja', name: '日本語', sub: 'Download 33 MB to use', dl: true },
+]
+const S = { t: 9.2, playing: true, track: 'asr', on: true, look: 'skipii', k: 1, ctrls: true }
+const label = () => !S.on ? 'Off' : ({ en: 'English', asr: 'English', es: 'Español', de: 'Deutsch' })[S.track]
+
+const fmt = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') }
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+const cueAt = t => CUES.findIndex(([s, e]) => t >= s && t < e)
+
+// --- caption content for time t: { key, html } ---
+function captionHtml(t, maxChars, track = S.track) {
+  if (!S.on) return { key: 'off', html: '' }
+  if (track === 'asr') {
+    // Roll-up: the words said since the last long pause, wrapped, last two lines; clears after 2.5 s of silence.
+    let n = WORDS.findIndex(w => w.t > t); if (n < 0) n = WORDS.length
+    if (n === 0 || t - WORDS[n - 1].t > 2.5) return { key: 'none', html: '' }
+    let start = n - 1
+    while (start > 0 && WORDS[start].t - WORDS[start - 1].t < 1.6) start--
+    const lines = [[]]; let len = 0
+    for (let i = start; i < n; i++) {
+      const w = WORDS[i].w
+      if (len + w.length + 1 > maxChars && lines[lines.length - 1].length) { lines.push([]); len = 0 }
+      lines[lines.length - 1].push(i); len += w.length + 1
+    }
+    const shown = lines.slice(-2)
+    const html = shown.map(l => `<div class="row"><span class="ln">${l.map(i => `<span class="w${i === n - 1 ? ' new' : ''}">${esc(WORDS[i].w)}</span>`).join(' ')}</span></div>`).join('')
+    return { key: 'asr' + n + ':' + start, html }
+  }
+  const i = cueAt(t)
+  if (i < 0) return { key: 'none', html: '' }
+  const text = TEXT[track][i]
+  const tag = text.startsWith('[')
+  // Wrap at a word boundary near the middle when longer than a line.
+  let rows = [text]
+  if (text.length > maxChars) {
+    const mid = text.length / 2; let best = -1
+    for (let j = 0; j < text.length; j++) if (text[j] === ' ' && (best < 0 || Math.abs(j - mid) < Math.abs(best - mid))) best = j
+    rows = [text.slice(0, best), text.slice(best + 1)]
+  }
+  return { key: track + i, html: rows.map(r => `<div class="row"><span class="ln${tag ? ' tag' : ''}">${esc(r)}</span></div>`).join('') }
+}
+function paint(el, t, maxChars, track) {
+  const c = captionHtml(t, maxChars, track)
+  if (el.dataset.key === c.key) return
+  el.dataset.key = c.key; el.innerHTML = c.html
+}
+const lookClass = el => { el.classList.remove('look-skipii', 'look-classic', 'look-outline', 'look-android'); el.classList.add('look-' + S.look) }
+
+// --- phone 2: the list in the bar ---
+const obar = $('#obar')
+function renderList() {
+  const row = (tr, sel) => `<button class="prow${sel ? ' sel' : ''}" data-id="${tr.id}"><span class="nm">${tr.name}<small>${tr.sub}</small></span>${tr.dl ? '<span class="dl">Get</span>' : '<span class="ck"><svg><use href="#i-check"/></svg></span>'}</button>`
+  $('#plist').innerHTML =
+    TRACKS.map(tr => row(tr, S.on && S.track === tr.id)).join('') +
+    `<div class="psec"><svg width="14" height="14"><use href="#i-phone"/></svg>Translated on your phone</div>` +
+    TRANSLATED.map(tr => row(tr, S.on && S.track === tr.id)).join('')
+  $('#ccSw').classList.toggle('on', S.on)
+  $('#ccTool').classList.toggle('hot', S.on)
+  $('#ccToolL').textContent = label()
+  $('#ccPill').classList.toggle('hot', S.on)
+  $('#ccPillL').textContent = label()
+  $('#tLang').textContent = S.track === 'asr' ? 'English · auto' : label()
+  renderDrop(); renderTranscript(true)
+}
+let foldTimer
+function pick(id) {
+  if (!['en', 'asr', 'es', 'de'].includes(id)) return
+  S.track = id; S.on = true; renderList(); refreshAll()
+  clearTimeout(foldTimer); foldTimer = setTimeout(() => obar.classList.remove('panel'), 420)
+}
+$('#plist').addEventListener('click', e => { const b = e.target.closest('.prow'); if (b) pick(b.dataset.id) })
+$('#ccSw').onclick = () => { S.on = !S.on; renderList(); refreshAll(); clearTimeout(foldTimer); foldTimer = setTimeout(() => obar.classList.remove('panel'), 420) }
+$('#pClose').onclick = () => obar.classList.remove('panel')
+$('#ccTool').onclick = () => obar.classList.add('panel')
+$('#toLook').onclick = () => { const p = $('#p4').closest('.shot'); p.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
+
+// --- phone 5: the fullscreen card ---
+const drop = $('#drop'), p5 = $('#p5')
+function renderDrop() {
+  const row = (id, name, sub, sel) => `<button class="drow${sel ? ' sel' : ''}" data-id="${id}"><span class="nm">${name}${sub ? `<small>${sub}</small>` : ''}</span><span class="ck"><svg><use href="#i-check"/></svg></span></button>`
+  drop.innerHTML = row('off', 'Off', '', !S.on) +
+    TRACKS.map(tr => row(tr.id, tr.name, tr.id === 'asr' ? 'auto' : '', S.on && S.track === tr.id)).join('') +
+    `<div class="dhead">On your phone</div>` + row('de', 'Deutsch', 'translated', S.on && S.track === 'de')
+}
+function placeDrop() {
+  const pill = $('#ccPill'), r = pill.getBoundingClientRect(), s = p5.getBoundingClientRect(), z = s.width / 915
+  drop.style.right = ((s.right - r.right) / z) + 'px'
+}
+$('#ccPill').onclick = () => { placeDrop(); const open = drop.classList.toggle('gone'); p5.classList.toggle('dropOpen', !open) }
+const closeDrop = () => { drop.classList.add('gone'); p5.classList.remove('dropOpen') }
+$('#lcatch').onclick = closeDrop
+drop.addEventListener('click', e => {
+  const b = e.target.closest('.drow'); if (!b) return
+  if (b.dataset.id === 'off') { S.on = false; renderList(); refreshAll() } else pick(b.dataset.id)
+  setTimeout(closeDrop, 420)
+})
+
+// --- phone 3: transcript ---
+const tlist = $('#tlist'), follow = $('#follow')
+let following = true, lastNow = -2, autoScrolling = false
+function transcriptLines() {
+  const tr = S.track === 'asr' ? 'asr' : (S.on ? S.track : 'en')
+  return CUES.map(([s], i) => ({ s, i, text: tr === 'asr' ? WORDS.filter(w => w.cue === i).map(w => w.w).join(' ') : TEXT[tr][i] }))
+    .filter(l => l.text)
+}
+function renderTranscript(force) {
+  const now = cueAt(S.t)
+  if (!force && now === lastNow) { wordsInLine(now); return }
+  lastNow = now
+  const lines = transcriptLines()
+  tlist.innerHTML = lines.map(l => `<div class="tl ${l.i < now ? 'past' : ''} ${l.i === now ? 'now' : ''}" data-s="${l.s}" data-i="${l.i}"><span class="ts">${fmt(BASE + l.s)}</span><span class="tx">${esc(l.text)}</span></div>`).join('')
+  wordsInLine(now)
+  if (following) scrollToNow()
+}
+function wordsInLine(now) {
+  // The line being said: its words light up as they're spoken.
+  const el = tlist.querySelector('.tl.now .tx'); if (!el) return
+  const tr = S.track === 'asr' ? 'asr' : (S.on ? S.track : 'en')
+  const text = tr === 'asr' ? WORDS.filter(w => w.cue === now).map(w => w.w).join(' ') : TEXT[tr][now]
+  const [s, e] = CUES[now], f = Math.min(1, (S.t - s) / (e - s - 0.3))
+  const ws = text.split(' '), n = Math.round(ws.length * f)
+  const html = `<span class="said">${esc(ws.slice(0, n).join(' '))}</span>${n && n < ws.length ? ' ' : ''}${esc(ws.slice(n).join(' '))}`
+  if (el.dataset.n !== String(n)) { el.dataset.n = n; el.innerHTML = html }
+}
+function scrollToNow() {
+  const el = tlist.querySelector('.tl.now') || tlist.querySelector('.tl:not(.past)'); if (!el) return
+  autoScrolling = true
+  tlist.scrollTo({ top: Math.max(0, el.offsetTop - tlist.clientHeight * 0.28), behavior: 'smooth' })
+  setTimeout(() => autoScrolling = false, 600)
+}
+tlist.addEventListener('wheel', () => { following = false; follow.classList.remove('gone') }, { passive: true })
+tlist.addEventListener('touchmove', () => { following = false; follow.classList.remove('gone') }, { passive: true })
+follow.onclick = () => { following = true; follow.classList.add('gone'); scrollToNow() }
+tlist.addEventListener('click', e => {
+  const l = e.target.closest('.tl'); if (!l) return
+  S.t = +l.dataset.s + 0.01; following = true; follow.classList.add('gone'); refreshAll(); renderTranscript(true)
+})
+$$('.tbtn').forEach(b => b.onclick = () => $('#p3').closest('.shot').scrollIntoView({ behavior: 'smooth', block: 'center' }))
+
+// --- phone 4: looks and sizes ---
+const LOOKS = [['skipii', 'Skipii'], ['classic', 'Classic'], ['outline', 'Outline'], ['android', "Android's"]]
+$('#looks').innerHTML = LOOKS.map(([id, nm]) => `<button class="lk${S.look === id ? ' on' : ''}" data-id="${id}"><div class="sw2"><div class="scene"></div><div class="cc look-${id}"><div class="row"><span class="ln">Hello!</span></div></div></div><div class="nm">${nm}</div></button>`).join('')
+$('#looks').addEventListener('click', e => {
+  const b = e.target.closest('.lk'); if (!b) return
+  S.look = b.dataset.id; $$('.lk').forEach(x => x.classList.toggle('on', x === b)); refreshAll()
+})
+$('#sizeC').addEventListener('click', e => {
+  const b = e.target.closest('.sc'); if (!b) return
+  S.k = +b.dataset.k; $$('#sizeC .sc').forEach(x => x.classList.toggle('on', x === b)); refreshAll()
+})
+$('#showC').addEventListener('click', e => { const b = e.target.closest('.sc'); if (b) $$('#showC .sc').forEach(x => x.classList.toggle('on', x === b)) })
+
+// --- every caption layer ---
+const layers = [
+  { el: $('#p1 .cc'), max: 34, ccs: 15, b: 12 },
+  { el: $('#p2 .cc'), max: 34, ccs: 15, b: 12 },
+  { el: $('#p3 .cc'), max: 34, ccs: 15, b: 12 },
+  { el: $('#p4 .vid .cc'), max: 34, ccs: 15, b: 12 },
+  { el: $('#prev .cc'), max: 30, ccs: 14, b: 14, sample: true },
+  { el: $('#p5 .cc'), max: 48, ccs: 21, fs: true },
+]
+function refreshAll() {
+  for (const L of layers) {
+    lookClass(L.el)
+    L.el.style.setProperty('--ccs', L.ccs + 'px')
+    L.el.style.setProperty('--k', S.k)
+    if (L.fs) L.el.style.setProperty('--ccb', S.ctrls ? '66px' : '22px')
+    else L.el.style.setProperty('--ccb', L.b + 'px')
+    L.el.dataset.key = ''
+  }
+  frame(true)
+}
+function frame(force) {
+  const t = S.t
+  for (const L of layers) {
+    if (L.sample) {
+      // The preview always shows something, even with captions off or between lines.
+      const on = S.on; S.on = true
+      const i = cueAt(t) < 0 || TEXT.en[cueAt(t)].startsWith('[') ? 3 : cueAt(t)
+      paint(L.el, CUES[i][0] + 0.5, L.max, S.track === 'asr' ? 'en' : S.track)
+      S.on = on
+    } else paint(L.el, t, L.max, S.track)
+  }
+  const f = (BASE + t) / DUR
+  $$('.fill').forEach(b => b.style.width = (f * 100) + '%')
+  $$('.knob').forEach(b => b.style.left = (f * 100) + '%')
+  $$('.clock').forEach(b => b.textContent = fmt(BASE + t))
+  const ch = CHAPTERS.filter(c => c[0] <= t).pop()[1]
+  $$('.chap').forEach(b => b.textContent = ch)
+  renderTranscript(force)
+}
+
+let last = performance.now()
+function loop(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now
+  if (S.playing) { S.t += dt; if (S.t >= LEN) S.t = 0 }
+  frame(false)
+  requestAnimationFrame(loop)
+}
+
+// --- page tools ---
+$('#playT').onclick = e => { S.playing = !S.playing; e.currentTarget.classList.toggle('on', S.playing); e.currentTarget.textContent = S.playing ? 'Playing' : 'Paused'; $$('.play use, .lmid .p use').forEach(u => u.setAttribute('href', S.playing ? '#i-pause' : '#i-play')) }
+$('#ctrlT').onclick = e => { S.ctrls = !S.ctrls; e.currentTarget.classList.toggle('on', S.ctrls); p5.classList.toggle('hid', !S.ctrls); if (!S.ctrls) closeDrop(); refreshAll() }
+$('#darkT').onclick = e => { e.currentTarget.classList.toggle('on', document.documentElement.classList.toggle('dark')) }
+$('#zoom').oninput = e => { document.documentElement.style.setProperty('--z', e.target.value); placeDrop() }
+
+renderList(); refreshAll(); requestAnimationFrame(loop)
+// Open the fullscreen card to start with.
+requestAnimationFrame(() => { placeDrop(); drop.classList.remove('gone'); p5.classList.add('dropOpen') })
+</script>
+</body>
+</html>

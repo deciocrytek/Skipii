@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — the bell on the Subscribe button, two directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --emph:cubic-bezier(.2,0,0,1);
+  --primary:#6A4FD0;--on-primary:#ffffff;
+  --surface:#F7F1FB;--on:#2A2140;--on-var:#76689A;
+  --sv:#EEE5F6;--scl:#F1EAF8;--sch:#FFFFFF;
+  --sec:#E6DCF7;--on-sec:#241B3A;
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+  --shadow:0 10px 28px rgba(40,20,80,.20),0 2px 6px rgba(40,20,80,.10);
+  --z:.78;
+}
+html.dark{
+  --primary:#CDBDFF;--on-primary:#2A1F55;
+  --surface:#141218;--on:#E9E0EF;--on-var:#B3A7C0;
+  --sv:#2B2633;--scl:#1E1B24;--sch:#2A2531;
+  --sec:#463F55;--on-sec:#E9DEFB;
+  --page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;
+  --shadow:0 12px 30px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.4);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+.wrap{max-width:1600px;margin:0 auto;padding:40px 28px 72px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:34px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:780px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.size{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--primary)}
+
+.option{margin-bottom:64px}
+.ohead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.ohead .t{display:flex;align-items:center;gap:12px}
+.ohead .t i{font-style:normal;width:38px;height:38px;border-radius:12px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:19px;font-weight:850}
+.ohead .t b{font-size:28px;font-weight:850;letter-spacing:-.7px}
+.ohead p{margin-top:8px;color:var(--ink-2);font-size:15px;font-weight:550;max-width:760px;line-height:1.5}
+.ohead p b{color:var(--ink)}
+.states{display:flex;gap:8px;flex-wrap:wrap}
+.stage{display:flex;flex-wrap:wrap;gap:34px 28px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:12px;width:calc(436px * var(--z))}
+.shot .lab{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-2)}
+.frame{width:calc(436px * var(--z));height:calc(939px * var(--z));position:relative}
+.phone{position:absolute;left:0;top:0;width:436px;height:939px;border-radius:54px;padding:12px;background:#111;transform:scale(var(--z));transform-origin:0 0;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.screen{width:412px;height:915px;border-radius:42px;overflow:hidden;clip-path:inset(0 round 42px);position:relative;background:var(--surface);isolation:isolate;user-select:none;-webkit-user-select:none;color:var(--on);transition:background .4s}
+
+/* ── shared page bits (mockup only) ─────────────────────────────── */
+.statusbar{height:30px;background:#000;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.video{height:232px;position:relative;background:
+  radial-gradient(90px 90px at 68% 36%,#ffd9a0 0,#ffb76b 40%,rgba(255,150,80,0) 72%),
+  linear-gradient(180deg,#2b2350 0%,#7b3f6e 38%,#e07a5f 62%,#f2b880 70%,#3a2a3f 71%,#1d1a2c 100%)}
+.video::before{content:"";position:absolute;inset:auto 0 0 0;height:46%;background:radial-gradient(60% 90% at 25% 100%,#1b1830 0 60%,transparent 61%),radial-gradient(55% 80% at 80% 100%,#231d38 0 60%,transparent 61%)}
+.video .head{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.32)}
+.video .head::after{content:"";position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--primary)}
+.details{padding:16px 20px 0}
+.vt{font-size:19px;font-weight:800;line-height:1.25;letter-spacing:-.2px}
+.vm{margin-top:6px;font-size:13px;font-weight:600;color:var(--on-var)}
+.chrow{display:flex;align-items:center;gap:12px;margin-top:16px;position:relative}
+.av{width:46px;height:46px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#ffd36b,#f08a3c 45%,#7b3f6e)}
+.chname{flex:1;min-width:0}
+.chname b{display:block;font-size:15px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chname span{font-size:12px;font-weight:650;color:var(--on-var)}
+.actions{display:flex;gap:8px;margin-top:14px;overflow:hidden}
+.act{height:40px;padding:0 16px;border-radius:16px;background:var(--sv);font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px;flex:none}
+.card{margin-top:14px;border-radius:24px;background:var(--scl);padding:14px 16px}
+.card b{font-size:14px;font-weight:850}
+.card p{margin-top:6px;font-size:13px;font-weight:550;color:var(--on-var);line-height:1.4}
+.sect{padding:22px 20px 10px;font-size:18px;font-weight:850}
+.row{display:flex;gap:12px;padding:0 20px 14px}
+.row .th{width:150px;height:84px;border-radius:16px;flex:none}
+.row .tx b{display:block;font-size:13.5px;font-weight:800;line-height:1.3}
+.row .tx span{display:block;margin-top:4px;font-size:12px;font-weight:600;color:var(--on-var)}
+.g1{background:linear-gradient(135deg,#3d5a80,#98c1d9)}
+.g2{background:linear-gradient(135deg,#6d597a,#e56b6f)}
+.g3{background:linear-gradient(135deg,#2a9d8f,#e9c46a)}
+.topbar{height:58px;display:flex;align-items:center;gap:10px;padding:0 12px}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.chpage{padding:0 20px}
+.banner{height:66px;border-radius:22px;background:linear-gradient(90deg,#7b3f6e,#e07a5f 60%,#f2b880)}
+.chhead{display:flex;align-items:center;gap:14px;margin-top:16px}
+.chhead .av{width:76px;height:76px}
+.chhead b{display:block;font-size:20px;font-weight:850;letter-spacing:-.3px}
+.chhead span{font-size:13px;font-weight:650;color:var(--on-var)}
+.desc{margin-top:12px;font-size:13.5px;font-weight:550;color:var(--on-var);line-height:1.4}
+.vcard{margin:0 20px 16px;border-radius:28px;background:var(--scl);padding:5px}
+.vcard .th{height:200px;border-radius:23px}
+.vcard .tx{padding:10px 10px 8px}
+.vcard .tx b{font-size:15px;font-weight:800}
+.vcard .tx span{display:block;margin-top:3px;font-size:12.5px;font-weight:600;color:var(--on-var)}
+.btmfade{position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,transparent,var(--surface) 70%);pointer-events:none;z-index:2}
+.navpill{position:absolute;left:50%;bottom:26px;width:328px;height:62px;margin-left:-164px;border-radius:999px;background:var(--sch);box-shadow:var(--shadow);z-index:3;display:flex;align-items:center;padding:6px;gap:4px}
+.navpill i{flex:1;height:50px;border-radius:999px;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;color:var(--on-var)}
+.navpill i.sel{flex:2.2;background:var(--primary);color:var(--on-primary)}
+
+/* the message pill (ActionMessage) */
+.toast{position:absolute;left:50%;bottom:104px;transform:translate(-50%,16px) scale(.92);opacity:0;z-index:6;white-space:nowrap;
+  height:44px;padding:0 18px;border-radius:999px;background:var(--on);color:var(--surface);font-size:13.5px;font-weight:750;display:flex;align-items:center;gap:8px;
+  transition:opacity .2s,transform .42s var(--pop);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.toast svg{width:18px;height:18px}
+
+/* bell glyphs: outline when off, ringing when on */
+.bell{position:relative;width:20px;height:20px;flex:none}
+.bell svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .18s,transform .42s var(--pop)}
+.bell .on{opacity:0;transform:scale(.6)}
+.is-bell .bell .off{opacity:0;transform:scale(.6)}
+.is-bell .bell .on{opacity:1;transform:scale(1)}
+.ring .bell .on{animation:ring .9s var(--emph)}
+@keyframes ring{0%{rotate:0}12%{rotate:22deg}28%{rotate:-18deg}44%{rotate:12deg}60%{rotate:-7deg}76%{rotate:3deg}100%{rotate:0}}
+.squish{animation:squish .42s var(--pop)}
+@keyframes squish{0%{transform:scale(1)}35%{transform:scale(.9,.94)}100%{transform:scale(1)}}
+
+/* ── A · Split: Subscribed + a bell key, a connected pair ─────────── */
+.split{display:flex;align-items:center;height:44px;flex:none}
+.split .main{height:100%;padding:0 20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:850;white-space:nowrap;
+  background:var(--on);color:var(--surface);border-radius:22px;
+  transition:background .3s,color .3s,border-radius .42s var(--pop),padding .42s var(--pop),transform .42s var(--pop)}
+.split .key{height:100%;width:0;margin-left:0;opacity:0;overflow:hidden;display:grid;place-items:center;
+  background:var(--sec);color:var(--on-sec);border-radius:22px;
+  transition:width .42s var(--pop),margin .42s var(--pop),opacity .2s,background .3s,color .3s,border-radius .42s var(--pop),transform .42s var(--pop)}
+.split .key .bell{width:21px;height:21px}
+.split:not(.is-none) .main{background:var(--sec);color:var(--on-sec);border-radius:22px 7px 7px 22px;padding:0 16px}
+.split:not(.is-none) .key{width:48px;margin-left:3px;opacity:1;border-radius:7px 22px 22px 7px}
+.split.is-bell .key{background:var(--primary);color:var(--on-primary);border-radius:22px}
+.split .main:active,.split .key:active{transform:scale(.94);transition-duration:.09s}
+.split.wide{width:100%;height:46px}
+.split.wide .main{flex:1;border-radius:23px}
+.split.wide:not(.is-none) .main{border-radius:23px 7px 7px 23px}
+.split.wide:not(.is-none) .key{width:64px;border-radius:7px 23px 23px 7px}
+.split.wide.is-bell .key{border-radius:23px}
+
+/* ── B · Menu: the bell rides inside Subscribed; a tap opens a card ─ */
+.mb{position:relative;flex:none;z-index:5}
+.mb .pill{height:44px;padding:0 20px;border-radius:22px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:850;white-space:nowrap;
+  background:var(--on);color:var(--surface);transition:background .3s,color .3s,padding .42s var(--pop),border-radius .42s var(--pop),transform .42s var(--pop)}
+.mb .pill:active{transform:scale(.94);transition-duration:.09s}
+.mb .pill .bell,.mb .pill .chev{display:none}
+.mb:not(.is-none) .pill{background:var(--sec);color:var(--on-sec);padding:0 12px 0 14px;border-radius:16px}
+.mb:not(.is-none) .pill .bell,.mb:not(.is-none) .pill .chev{display:block}
+.mb.is-bell .pill{background:var(--primary);color:var(--on-primary)}
+.mb .chev{width:20px;height:20px;flex:none;transition:rotate .42s var(--pop);opacity:.8}
+.mb.open .chev{rotate:180deg}
+.mb.wide{width:100%}
+.mb.wide .pill{width:100%;height:46px;border-radius:23px}
+.mb.wide:not(.is-none) .pill{border-radius:23px}
+.menu{position:absolute;right:0;top:52px;width:304px;border-radius:24px;background:var(--sch);box-shadow:var(--shadow);padding:8px;
+  transform-origin:calc(100% - 40px) -10px;transform:scale(.5);opacity:0;pointer-events:none;
+  transition:transform .3s var(--emph),opacity .15s}
+.mb.open .menu{transform:scale(1);opacity:1;pointer-events:auto;transition:transform .42s var(--pop),opacity .12s}
+.mb.wide .menu{left:0;right:0;width:auto;transform-origin:50% -10px;top:54px}
+.mi{display:flex;align-items:center;gap:12px;width:100%;padding:12px 12px;border-radius:16px;text-align:left;transition:transform .42s var(--pop),background .2s}
+.mi:active{transform:scale(.97);transition-duration:.09s}
+.mi .ic{width:38px;height:38px;border-radius:50%;background:var(--sv);display:grid;place-items:center;flex:none;color:var(--on);transition:background .3s,color .3s}
+.mi .ic .bell{width:20px;height:20px}
+.mb.is-bell .mi.bellrow .ic{background:var(--primary);color:var(--on-primary)}
+.mi .tx{flex:1;min-width:0}
+.mi .tx b{display:block;font-size:14.5px;font-weight:850}
+.mi .tx span{display:block;margin-top:2px;font-size:12px;font-weight:600;color:var(--on-var);line-height:1.3}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--sv);position:relative;flex:none;transition:background .3s}
+.sw::after{content:"";position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--on-var);transition:left .42s var(--pop),top .42s var(--pop),width .42s var(--pop),height .42s var(--pop),background .3s}
+.mb.is-bell .sw{background:var(--primary)}
+.mb.is-bell .sw::after{left:24px;top:4px;width:24px;height:24px;background:var(--on-primary)}
+.catch{position:absolute;inset:0;z-index:4;display:none}
+.screen.menu-open .catch{display:block}
+.screen.menu-open .chrow{z-index:5}
+
+.notes{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.note{background:var(--chrome);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:850;letter-spacing:1.3px;color:var(--primary);text-transform:uppercase}
+.note p{margin-top:8px;font-size:14px;font-weight:550;color:var(--ink-2);line-height:1.5}
+.note p b{color:var(--ink)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="bell-off" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></symbol>
+    <symbol id="bell-on" viewBox="0 0 24 24"><path fill="currentColor" d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.39 6.42h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42zM18 11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2v-5zm-6 11c.14 0 .27-.01.4-.04.65-.14 1.18-.58 1.44-1.18.1-.24.15-.5.15-.78h-4c.01 1.1.9 2 2.01 2z"/></symbol>
+    <symbol id="chev" viewBox="0 0 24 24"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+    <symbol id="unsub" viewBox="0 0 24 24"><path fill="currentColor" d="M14 8c0-2.21-1.79-4-4-4S6 5.79 6 8s1.79 4 4 4 4-1.79 4-4zm3 2v2h6v-2h-6zM2 18v2h16v-2c0-2.66-5.33-4-8-4s-8 1.34-8 4z"/></symbol>
+    <symbol id="back" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+    <symbol id="up" viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>The bell, on the Subscribe button</h1>
+      <p>Bell on = <b>a phone notification for every new video</b> from that channel (YouTube's “All”). Bell off = no notifications from Skipii.
+        It reads and writes the same setting as YouTube, so turning it on here turns it on in the YouTube app too.
+        Both phones in each option are live: tap the buttons.</p>
+    </div>
+    <div class="tools">
+      <button class="chip" id="dark">Dark</button>
+      <label class="size">Size <input id="zoom" type="range" min="0.5" max="1" step="0.02" value="0.78"></label>
+    </div>
+  </div>
+
+  <section class="option" data-kind="A">
+    <div class="ohead">
+      <div>
+        <div class="t"><i>A</i><b>Split · a bell key beside Subscribed</b></div>
+        <p>Once you're subscribed, a small bell key grows out of the button's right side, joined to it. <b>One tap on the bell</b> turns
+          notifications on: the key fills with the theme colour, goes round and rings. Tap it again to turn them off. Subscribed still
+          unsubscribes in one tap, exactly like today.</p>
+      </div>
+      <div class="states"></div>
+    </div>
+    <div class="stage">
+      <div class="shot"><div class="lab">Player</div><div class="frame"><div class="phone"><div class="screen" data-page="player"></div></div></div></div>
+      <div class="shot"><div class="lab">Channel page</div><div class="frame"><div class="phone"><div class="screen" data-page="channel"></div></div></div></div>
+    </div>
+  </section>
+
+  <section class="option" data-kind="B">
+    <div class="ohead">
+      <div>
+        <div class="t"><i>B</i><b>Menu · the bell lives inside Subscribed</b></div>
+        <p>Subscribed carries the bell as its icon: outline when it's off, and with the bell on the whole button turns the theme colour.
+          <b>Tapping Subscribed opens a small card</b> under it: an “Every new video” switch and Unsubscribe. Two taps to change the bell, but
+          you can't unsubscribe by accident.</p>
+      </div>
+      <div class="states"></div>
+    </div>
+    <div class="stage">
+      <div class="shot"><div class="lab">Player</div><div class="frame"><div class="phone"><div class="screen" data-page="player"></div></div></div></div>
+      <div class="shot"><div class="lab">Channel page</div><div class="frame"><div class="phone"><div class="screen" data-page="channel"></div></div></div></div>
+    </div>
+  </section>
+
+  <div class="notes">
+    <div class="note"><h3>Turning it off</h3><p>Sets YouTube's <b>Personalized</b> (YouTube's default), so the YouTube app goes back to how it was. Channels on Personalized or None both show the bell off.</p></div>
+    <div class="note"><h3>First time</h3><p>The first bell turned on asks Android's <b>“Allow Skipii to send notifications?”</b>. Said no = the bell stays off with a note pointing to Settings.</p></div>
+    <div class="note"><h3>Shorts</h3><p>The Shorts channel card (Subscribe · Go to channel) gets the same bell: A as a key on its Subscribe row, B as an “Every new video” switch row.</p></div>
+  </div>
+</div>
+
+<script>
+const bell = `<span class="bell"><svg class="off"><use href="#bell-off"/></svg><svg class="on"><use href="#bell-on"/></svg></span>`
+
+function playerPage(btn) {
+  return `
+  <div class="statusbar"><span>9:41</span><span>5G ▮▮▮ 82%</span></div>
+  <div class="video"><div class="head"></div></div>
+  <div class="details">
+    <div class="vt">Why the sky turns orange at sunset (and the green flash nobody sees)</div>
+    <div class="vm">1.2M views · 3 days ago · more</div>
+    <div class="chrow">
+      <div class="av"></div>
+      <div class="chname"><b>Veritasium</b><span>17M subscribers</span></div>
+      ${btn}
+    </div>
+    <div class="actions">
+      <div class="act"><svg width="18" height="18"><use href="#up"/></svg>48K</div>
+      <div class="act">Save</div><div class="act">Playlist</div><div class="act">Share</div>
+    </div>
+    <div class="card"><b>Comments 2.1K</b><p>The green flash bit at 9:40 finally explained what I saw on holiday years ago.</p></div>
+  </div>
+  <div class="sect">More videos</div>
+  <div class="row"><div class="th g1"></div><div class="tx"><b>The hidden shape of a rainbow</b><span>Veritasium · 4.1M views</span></div></div>
+  <div class="row"><div class="th g2"></div><div class="tx"><b>How long is a day, really?</b><span>Veritasium · 2.8M views</span></div></div>
+  <div class="row"><div class="th g3"></div><div class="tx"><b>Why mirrors flip left and right</b><span>Veritasium · 6M views</span></div></div>
+  <div class="btmfade"></div>
+  <div class="navpill"><i>Home</i><i>Subs</i><i class="sel">Search</i><i>Library</i></div>
+  <div class="toast"><svg><use href="#bell-on"/></svg><span></span></div>
+  <div class="catch"></div>`
+}
+
+function channelPage(btn) {
+  return `
+  <div style="height:30px"></div>
+  <div class="topbar"><div class="iconbtn"><svg width="24" height="24"><use href="#back"/></svg></div></div>
+  <div class="chpage">
+    <div class="banner"></div>
+    <div class="chhead"><div class="av"></div><div><b>Veritasium</b><span>17M subscribers</span></div></div>
+    <div class="chrow" style="margin-top:14px">${btn}</div>
+    <div class="desc">An element of truth — videos about science, education and anything else I find interesting.</div>
+  </div>
+  <div class="sect">Videos</div>
+  <div class="vcard"><div class="th g2"></div><div class="tx"><b>Why the sky turns orange at sunset</b><span>1.2M views · 3 days ago</span></div></div>
+  <div class="vcard"><div class="th g1"></div><div class="tx"><b>The hidden shape of a rainbow</b><span>4.1M views · 2 weeks ago</span></div></div>
+  <div class="btmfade"></div>
+  <div class="navpill"><i>Home</i><i class="sel">Subscriptions</i><i>Search</i><i>Library</i></div>
+  <div class="toast"><svg><use href="#bell-on"/></svg><span></span></div>
+  <div class="catch"></div>`
+}
+
+const buttons = {
+  A: wide => `<div class="split${wide ? ' wide' : ''}"><button class="main"></button><button class="key">${bell}</button></div>`,
+  B: wide => `<div class="mb${wide ? ' wide' : ''}">
+      <button class="pill">${bell}<span class="lbl"></span><svg class="chev" viewBox="0 0 24 24"><use href="#chev"/></svg></button>
+      <div class="menu">
+        <button class="mi bellrow"><span class="ic">${bell}</span><span class="tx"><b>Every new video</b><span>A notification for each upload</span></span><span class="sw"></span></button>
+        <button class="mi unsub"><span class="ic"><svg width="20" height="20"><use href="#unsub"/></svg></span><span class="tx"><b>Unsubscribe</b></span></button>
+      </div>
+    </div>`,
+}
+
+document.querySelectorAll('.option').forEach(opt => {
+  const kind = opt.dataset.kind
+  const st = { s: 'sub', open: false } // none | sub | bell
+  const screens = [...opt.querySelectorAll('.screen')]
+  screens.forEach(sc => {
+    const wide = sc.dataset.page === 'channel'
+    sc.innerHTML = (wide ? channelPage : playerPage)(buttons[kind](wide))
+  })
+  const chips = ['none', 'sub', 'bell'].map(s => {
+    const b = document.createElement('button')
+    b.className = 'chip'
+    b.textContent = { none: 'Not subscribed', sub: 'Subscribed', bell: 'Bell on' }[s]
+    b.onclick = () => { st.open = false; set(s, false) }
+    opt.querySelector('.states').appendChild(b)
+    return [s, b]
+  })
+
+  function toast(sc, text) {
+    const t = sc.querySelector('.toast')
+    t.querySelector('span').textContent = text
+    t.classList.add('show')
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200)
+  }
+
+  function render(animate, origin) {
+    chips.forEach(([s, b]) => b.classList.toggle('on', s === st.s))
+    screens.forEach(sc => {
+      const root = sc.querySelector(kind === 'A' ? '.split' : '.mb')
+      root.classList.remove('is-none', 'is-sub', 'is-bell')
+      root.classList.add('is-' + st.s)
+      root.classList.toggle('open', st.open)
+      sc.classList.toggle('menu-open', st.open)
+      const label = st.s === 'none' ? 'Subscribe' : 'Subscribed'
+      if (kind === 'A') root.querySelector('.main').textContent = label
+      else root.querySelector('.lbl').textContent = label
+      if (animate && sc === origin) {
+        const target = kind === 'A' ? (animate === 'bell' ? root.querySelector('.key') : root.querySelector('.main')) : root.querySelector('.pill')
+        target.classList.remove('squish'); void target.offsetWidth; target.classList.add('squish')
+      }
+      root.classList.remove('ring')
+      if (animate === 'bell' && st.s === 'bell') { void root.offsetWidth; root.classList.add('ring') }
+    })
+  }
+
+  function set(s, animate, origin) {
+    const was = st.s
+    st.s = s
+    render(animate ? (s === 'bell' || was === 'bell' ? 'bell' : 'main') : false, origin)
+    if (!animate || !origin) return
+    if (s === 'bell') toast(origin, 'Every new video from Veritasium')
+    else if (was === 'bell' && s === 'sub') toast(origin, 'Notifications off for Veritasium')
+    else if (s === 'sub') toast(origin, 'Subscribed to Veritasium')
+    else if (s === 'none') toast(origin, 'Unsubscribed')
+  }
+
+  screens.forEach(sc => {
+    if (kind === 'A') {
+      sc.querySelector('.split .main').onclick = () => set(st.s === 'none' ? 'sub' : 'none', true, sc)
+      sc.querySelector('.split .key').onclick = () => set(st.s === 'bell' ? 'sub' : 'bell', true, sc)
+    } else {
+      sc.querySelector('.mb .pill').onclick = () => {
+        if (st.s === 'none') { set('sub', true, sc); return }
+        st.open = !st.open; render(false)
+      }
+      sc.querySelector('.mi.bellrow').onclick = () => set(st.s === 'bell' ? 'sub' : 'bell', true, sc)
+      sc.querySelector('.mi.unsub').onclick = () => { st.open = false; set('none', true, sc) }
+      sc.querySelector('.catch').onclick = () => { st.open = false; render(false) }
+    }
+  })
+  render(false)
+})
+
+document.getElementById('dark').onclick = e => {
+  document.documentElement.classList.toggle('dark')
+  e.currentTarget.classList.toggle('on')
+}
+document.getElementById('zoom').oninput = e => document.documentElement.style.setProperty('--z', e.target.value)
+</script>
+</body>
+</html>

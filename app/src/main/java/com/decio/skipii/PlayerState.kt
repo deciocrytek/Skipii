@@ -125,6 +125,9 @@ class PlayerState(private val scope: CoroutineScope) {
         }
     }
 
+    /** The open video's captions (Captions.kt). */
+    val captions = CaptionsState(scope) { controller?.currentPosition ?: positionMs }
+
     // ── Signed-in account state for the open video (full sync) ──
     /** Like/subscribe state from the account; null while loading or signed out. */
     var accountState by mutableStateOf<VideoAccountState?>(null)
@@ -175,6 +178,7 @@ class PlayerState(private val scope: CoroutineScope) {
         loading = true
         sheet = null
         comments.clearFor(item.id)
+        captions.clear()
         accountState = null
         if (Account.signedIn) {
             scope.launch {
@@ -195,6 +199,7 @@ class PlayerState(private val scope: CoroutineScope) {
                     // page fetch and only slowed down the critical path.
                     comments.load(item.id)
                     known[item.id] = d.item
+                    captions.useTracks(d.captions)
                     if (!d.playable) error = "No playable stream was found for this video."
                     else if (startPlayback) startPlayback(d.item)
                 }
@@ -398,6 +403,7 @@ class PlayerState(private val scope: CoroutineScope) {
         accountState = before.copy(subscribed = subscribe, channelId = channelId)
         scope.launch {
             runCatching { InnerTube.setSubscribed(channelId, subscribe) }
+                .onSuccess { if (!subscribe) Bells.forget(channelId) }
                 .onFailure { accountState = before; actionMessage = "Couldn't update your subscription." }
         }
     }
@@ -630,6 +636,7 @@ class PlayerState(private val scope: CoroutineScope) {
         sheet = null
         current = null
         details = null
+        captions.clear()
         error = null
         loading = false
     }
@@ -663,7 +670,7 @@ class PlayerState(private val scope: CoroutineScope) {
         )
         current = item
         loadJob = scope.launch {
-            runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item }
+            runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item; captions.useTracks(it.captions) }
         }
     }
 
@@ -793,6 +800,9 @@ fun rememberPlayerState(): PlayerState {
     return state
 }
 
-enum class PlayerSheet { Quality, Speed, Comments, Queue }
+enum class PlayerSheet { Quality, Speed, Comments, Queue, Captions, Transcript }
+
+/** Comments and the transcript open as a panel inside the player (PlayerScreen), not a sheet. */
+val PlayerSheet?.isPanel: Boolean get() = this == PlayerSheet.Comments || this == PlayerSheet.Transcript
 
 private const val TAG = "Skipii"

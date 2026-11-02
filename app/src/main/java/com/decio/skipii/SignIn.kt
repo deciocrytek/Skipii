@@ -198,6 +198,10 @@ fun AccountSheet(onSignIn: () -> Unit, onSignedOut: () -> Unit, onDismiss: () ->
             }
             Spacer(Modifier.height(12.dp))
             Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.surfaceContainer).padding(18.dp)) {
+                CaptionSettingsCard()
+            }
+            Spacer(Modifier.height(12.dp))
+            Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.surfaceContainer).padding(18.dp)) {
                 ShortsSettings()
             }
             Spacer(Modifier.height(12.dp))

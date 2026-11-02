@@ -12,7 +12,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   home/subscriptions/history/playlists AND writes likes, subscribes, Watch later, watch history.
   The account-suspension risk was explained; keep the in-app warning. Signed out, everything
   still works except the account feeds. Signed in, comments and replies can be posted.
-- No inbox/notifications tab.
+- No inbox/notifications tab. New-video notifications for belled channels only (the bell, 2026-11-01, below).
 - Portrait (default; 0.5.67 adds "on the video", see there): every playback control lives in the player's bar (0.5.34, PlayerBar.kt); the video keeps
   only double-tap seek, the spinner, SponsorBlock Ask/Skipped and errors. Chapters live on the bar's scrub
   track (never as a card under the video). Fullscreen keeps its overlay controls. The related list is
@@ -501,6 +501,56 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   hide, `FastHoldPill` ("2× ▸▸", the seek pill's glass) at the top. Moving before the timeout keeps the old gestures (volume slide,
   swipes, scrub take it); once held, the hold consumes every move (Main pass, before fullscreenGestures / the stage's draggable),
   and the edge scrub (Initial pass) backs off while `holdingFast`. Not during a seek burst, an error, collapsing, idle/ended.
+- 0.5.75 captions (2026-11-01, Derek: "build this" on `docs/design/captions.html`; Captions.kt + CaptionsUi.kt). Tracks come
+  with the details (`VideoDetails.captions`): NewPipe's `subtitles` keeps each track ONCE, as TTML — the same link with
+  `fmt=srv3` is fetched instead (srv3 = YouTube's XML, auto-generated "asr" tracks carry per-word `<s t>` offsets). The files
+  need no sign-in or PO token (probed). `Srv3` parses (tested by `CaptionsParseTest` on real captures); `captionLinesAt`
+  = every cue running at t, last 2 for asr (each line's words appear as said = YouTube's roll-up), last 3 otherwise.
+  `CaptionsState` (PlayerState.captions): tracks, choice (track or track + `translateTo`), on, cues; lines load only while
+  shown or the transcript is open. `CaptionSettings` (prefs "captions"): Show Never / Always / Foreign (default: on when
+  the asr track's language ≠ the phone's), Look Skipii / Classic / Outline / Android's (`CaptioningManager` style + font
+  scale), Size, and the language last PICKED (preferred next time). YouTube's own auto-translate (`tlang`) answers HTTP 429
+  (probed twice), so translation is ML Kit on the phone (`CaptionTranslator`, a ~30 MB model per language, downloaded on
+  first pick, English built in; ML Kit logs every line under tag "native"). It translates SENTENCES (lines grouped to . ? !,
+  a 1.5 s pause or 5 lines) and shares each back over its lines by length (`shareOut`) — a lone asr line is half a
+  sentence and read badly. `CaptionLayer` draws on the picture (VideoContent's aspect box + PiP), sized 6.5% of its height
+  (9–20 dp) × size, a box per visual line; it re-reads the controller's position every frame while playing (the 250 ms
+  poll is too coarse for words) and lifts 56 dp (72 fullscreen) while the overlay controls show, 50 dp over the Ask pill.
+  Pickers share `captionOptions` (tracks, then "Translated on your phone": phone language, last picked, downloaded, More
+  languages = all): the bar's `BarTool.Captions` → `BarPanel.Captions` (switch + rows + Transcript; scrolls like Chapters via
+  `bar.panelList`; six tools shrink the circles, `petalPx`), the overlay's CC tile → `CaptionsDrop` in fullscreen /
+  `CaptionsSheet` in portrait. Transcript = `PlayerSheet.Transcript`, a `PlayerPanel` (the comments panel's shell, now
+  shared) with search, the current line's words lit, follow + "Back to now", tap to seek. Verified on skipii_qa (debug):
+  tracks + transcript + seek, sheet, bar panel, word roll-up, ML Kit German download + translation, settings looks; release
+  (R8): playback, tracks, model download + translated captions. ML Kit's `libtranslate_jni.so` (~16 MB per ABI) is the app's
+  only big native code: release ships arm64-v8a + armeabi-v7a only, compressed (`useLegacyPackaging`): 17 MB APK, not 67.
+  NOT verified: Derek's 5G (bot check: whether the VISIONOS stand-in carries the track list).
+- 0.5.75 the bell (2026-11-01, Derek picked A "Split" in `docs/design/bell.html`; Bell.kt + NewVideos.kt). Bell on = the account's
+  "All" for that channel and a phone notification per new video; off = "Personalized" (YouTube's default). `Bells` (prefs
+  "bells") is the local copy: `learn` takes what a page says (`parseBell`: the subscribe button's
+  `subscriptionNotificationToggleButtonRenderer`, current state's icon NOTIFICATIONS_ACTIVE / id 2 = All) from the watch page
+  (`videoState`), the channel page (`channelSubscribed`) and the whole subscriptions list (`InnerTube.subscriptions`,
+  FEchannels + continuations, `syncIfDue` every 20 h from the worker); a page read within 30 s of a change doesn't overrule it.
+  NOT subscribed, YouTube still sends the toggle on Personalized (next.json) — `learn` ignores it then. Writes:
+  `InnerTube.setBell` → notification/modify_channel_preference with hand-built params (`bellParams`, YouTube.js's
+  encoding: 1 Personalized, 2 All, 3 None; `BellTest` matches youtube.com's own items minus their field 10). Unsubscribing
+  `forget`s; signing out `clear`s. UI `SubscribeWithBell` (player row + channel page, `wide`): Subscribed (inner corners 7) ·
+  3 dp · bell key 48/64 dp growing out of it; on = full primary, round, Ring flourish; Subscribed still unsubscribes in one
+  tap. Shorts' channel card: a 38 dp key at the Unsubscribe row's end. Turning one on needs notifications
+  (`rememberBellToggle`: Android 13+ asks; turned off in Settings → that page opens). `NewVideos` (WorkManager, unique
+  periodic "new-videos", 15 min, network): reads each belled channel's public RSS feed (no cookies) only up to the first
+  video already seen (seen ids in prefs "bells" `seen:<id>`, 30 kept); a channel's first look announces only what went up
+  after its bell did (`BellChannel.since`), nothing older than 3 days, ≤4 per channel per pass; Shorts (/shorts/ links)
+  only while Shorts are on. YouTube's RSS feeds 404 on and off for hours (reported widely since Dec 2025; 4 of 5
+  channels on 2026-11-01): a pass where a channel's feed failed fills those channels in from the first page of the
+  account's Subscriptions feed (ONE signed-in request, only then; ages from "3 hours ago", `ageMs`; no Shorts there).
+  Notification channel "New videos", thumbnail as big picture, tap → MainActivity
+  (`takeVideo` → `NewVideos.opening` → `player.open`). Logs "bells: …" / "new videos: …".
+  Verified on skipii_qa (debug, seeded prefs "bells"): worker run, 404 → "feed failed", notifications with thumbnails,
+  tap opens and plays the video; the button's states / grow / revert-on-failure via a /tmp preview build (fake
+  subscribed state, never shipped). Test the worker: delete `no_backup/androidx.work.workdb*` (run-as) and relaunch —
+  WorkManager won't run periodic work early even with `cmd jobscheduler run -f`. NOT verified (needs Derek's account):
+  bells read from his pages / FEchannels, `setBell` accepted, the Subscriptions-feed fallback, the Shorts card's key.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -593,9 +643,13 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `MainActivity.kt` — shell: tabs, nav capsule, morphing player / fullscreen, sheets, sign-in and
   playlist overlays.
 - `Screens.kt` — Home / Subscriptions / Search / Library.
+- `Captions.kt` — caption tracks, srv3 parser, `CaptionSettings`, `CaptionTranslator` (ML Kit), `CaptionsState`.
+- `CaptionsUi.kt` — `CaptionLayer` (on the picture), `captionOptions`, `CaptionsSheet`, `TranscriptPanel`, the account card.
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
 - `Updater.kt` — `AppUpdate` (daily GitHub release check, release notes, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill + What's new sheet.
+- `Bell.kt` — `Bells` (each channel's bell, synced with the account), `SubscribeWithBell`, `rememberBellToggle`.
+- `NewVideos.kt` — the 15-minute new-video check (RSS feeds of belled channels), notifications, `NewVideoWorker`.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
@@ -625,4 +679,4 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
    pre-warmed (`Net.prewarmMediaConnection`); NewPipe iOS client off. Screen stays on while
    playing (`keepScreenOn` from isPlaying); player wake mode NETWORK.
    Measure with `adb logcat -s SkipiiTime:I` (open → details → first frame → quality changes).
-7. Downloads, audio-only mode, captions.
+7. Downloads (audio-only mode ✅ 0.5.20, captions ✅ 0.5.75).

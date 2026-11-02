@@ -55,6 +55,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ClosedCaption
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.FastRewind
@@ -297,6 +298,19 @@ fun VideoContent(
                 Thumbnail(state.current?.thumbnail, Modifier.fillMaxSize(), radius = 0)
                 LocalVideoSurface.current(Modifier.fillMaxSize().hideStaleVideo(state))
             }
+            // Captions on the picture, stepping up out of the controls' way while they show (and the Ask pill's).
+            if (state.error == null) {
+                val captionLift by androidx.compose.animation.core.animateDpAsState(
+                    when {
+                        overlay && controlsVisible && interactive -> if (fullscreen) 72.dp else 56.dp
+                        state.askSegment != null -> 50.dp
+                        else -> if (fullscreen) 22.dp else 12.dp
+                    },
+                    if (reduced) tween(0) else spring(dampingRatio = 0.9f, stiffness = 380f),
+                    label = "captionLift",
+                )
+                CaptionLayer(state, bottom = captionLift, alpha = controlsAlpha)
+            }
             // Where the burst has got to, while the controls (and their scrubber) are hidden. The
             // playback head on the edge (on-video controls) already shows it.
             if (edge == null) Canvas(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(3.dp).graphicsLayer { alpha = peekAlpha }) {
@@ -364,7 +378,7 @@ fun VideoContent(
             val tool = if (fullscreen) 40.dp else 36.dp
             val inset = if (fullscreen) Modifier.windowInsetsPadding(WindowInsets.displayCutout).padding(horizontal = 12.dp, vertical = 8.dp) else Modifier
             // Fullscreen's quality and speed cards hang from their pills: both measured where the tap happens.
-            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(3) }
+            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(4) }
             var dropAnchor by remember { mutableStateOf(Rect.Zero) }
             var dropRoom by remember { mutableFloatStateOf(0f) }
             /** Opens (or closes) [kind]'s card under the pill at [slot]; false if there's no card here (portrait). */
@@ -409,6 +423,14 @@ fun VideoContent(
                     ) {
                         touched()
                         if (!toggleDrop(DropKind.Speed, 2)) state.sheet = PlayerSheet.Speed
+                    }
+                    // Captions (filled while on): fullscreen's card, or the sheet.
+                    if (state.captions.tracks.isNotEmpty()) {
+                        OverlayTile(
+                            "Captions", enabled, tool, filled = state.captions.on,
+                            modifier = Modifier.onGloballyPositioned { dropAnchors[3] = it },
+                            onClick = { touched(); if (!toggleDrop(DropKind.Captions, 3)) state.sheet = PlayerSheet.Captions },
+                        ) { ink -> Icon(Icons.Rounded.ClosedCaption, null, tint = ink, modifier = Modifier.size(tool * 0.52f)) }
                     }
                     // The label is the resolution actually decoded; the requested one until known.
                     (state.decodedHeight?.let { "${it}p" } ?: state.details?.quality)?.let { quality ->
@@ -498,6 +520,7 @@ fun VideoContent(
                 if (fullscreen) {
                     QualityDrop(state, drop == DropKind.Quality, dropAnchor, dropRoom, onClose = { drop = null })
                     SpeedDrop(state, drop == DropKind.Speed, dropAnchor, dropRoom, onClose = { drop = null })
+                    CaptionsDrop(state, drop == DropKind.Captions, dropAnchor, dropRoom, onClose = { drop = null })
                 }
             }
         }
@@ -643,13 +666,14 @@ private fun OverlayTile(
     size: Dp,
     filled: Boolean = false,
     tile: Color = MaterialTheme.colorScheme.surfaceVariant,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     content: @Composable (ink: Color) -> Unit,
 ) {
     val c = MaterialTheme.colorScheme
     val view = LocalView.current
     Box(
-        Modifier
+        modifier
             .squishOn(filled)
             .size(size)
             .pressable(enabled = enabled) { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onClick() }
@@ -1064,7 +1088,45 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
 }
 
 /** Which of fullscreen's overlay cards is open. */
-private enum class DropKind { Quality, Speed }
+private enum class DropKind { Quality, Speed, Captions }
+
+/**
+ * Fullscreen's captions card (docs/design/captions.html), the quality card's twin hanging from the CC tile: Off, every
+ * track, then the translations made on the phone. A pick lands its check and the card folds; picking a translation
+ * that still has to download starts it (the captions say so on the video).
+ */
+@Composable
+private fun BoxScope.CaptionsDrop(state: PlayerState, open: Boolean, anchor: Rect, boxHeight: Float, onClose: () -> Unit) {
+    val shown = dropShown(open)
+    if (shown <= 0f || anchor == Rect.Zero) return
+    val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
+    val cap = state.captions
+    // Fixed while the card is up, so a pick never reshuffles the rows under the finger.
+    val options = remember { captionOptions(cap, all = false).filterIsInstance<CaptionOption.Pick>() }
+    OverlayDrop(open, shown, anchor, boxHeight, "CAPTIONS", openAt = { if (!cap.on) 0 else 1 + options.indexOfFirst { cap.shows(it) } }, onClose = onClose) { scope ->
+        DropRow(title = "Off", tag = null, selected = !cap.on) {
+            if (!open) return@DropRow
+            cap.turn(false)
+            scope.launch { delay(420); currentClose() }
+        }
+        options.forEach { option ->
+            DropRow(
+                title = option.title,
+                tag = when {
+                    option.choice.translateTo == null -> if (option.choice.track.auto) "auto" else null
+                    option.busy -> "downloading"
+                    option.ready -> "translated"
+                    else -> "download"
+                },
+                selected = cap.shows(option),
+            ) {
+                if (!open) return@DropRow
+                cap.pick(option.choice)
+                scope.launch { delay(420); currentClose() }
+            }
+        }
+    }
+}
 
 /**
  * Fullscreen's quality picker (GitHub #25; Derek picked A "Drop" in `docs/design/fullscreen-quality.html`): a small

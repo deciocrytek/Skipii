@@ -2,6 +2,7 @@ package com.decio.skipii
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.res.Configuration
 import android.content.pm.PackageManager
 import android.os.Build
@@ -128,7 +129,14 @@ class MainActivity : ComponentActivity() {
         ) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+        NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
         setContent { SkipiiTheme { SkipiiApp() } }
+    }
+
+    /** A new-video notification tapped while this window is open (singleTop). */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
     }
 
     override fun onStart() {
@@ -186,6 +194,13 @@ fun SkipiiApp() {
     val shorts = (LocalContext.current.applicationContext as SkipiiApplication).shorts
     DisposableEffect(shorts) { onDispose { shorts.leave() } }
     var shortsFrom by rememberSaveable { mutableStateOf(Tab.Home) }
+    // A new-video notification's tap: that video opens in the player (leaving Shorts, as a channel page's video does).
+    LaunchedEffect(NewVideos.opening) {
+        val video = NewVideos.opening ?: return@LaunchedEffect
+        NewVideos.opening = null
+        if (tab == Tab.Shorts) tab = shortsFrom
+        player.open(video)
+    }
     // Bumped when the already-selected tab is tapped; that tab's list scrolls to the top.
     val scrollToTop = remember { mutableStateMapOf<Tab, Int>() }
     val reduced = rememberReducedMotion()
@@ -513,7 +528,7 @@ fun SkipiiApp() {
         // Over the player: while it's open the nav pill is the player's own bar (NavBar.kt).
         // It steps down out of the way of the comments panel (its composer sits there).
         val barAside by animateFloatAsState(
-            if (player.sheet == PlayerSheet.Comments && playerOpen) 1f else 0f,
+            if (player.sheet.isPanel && playerOpen) 1f else 0f,
             if (reduced) snap() else tween(280, easing = Motion.Emphasized), label = "barAside",
         )
         // A tap anywhere outside the open card / list closes it (and goes no further).
@@ -610,7 +625,8 @@ fun SkipiiApp() {
         when (player.sheet) {
             PlayerSheet.Quality -> QualitySheet(player, onDismiss = { player.sheet = null })
             PlayerSheet.Speed -> SpeedSheet(player, onDismiss = { player.sheet = null })
-            PlayerSheet.Comments -> Unit // a panel inside the player (PlayerScreen)
+            PlayerSheet.Comments, PlayerSheet.Transcript -> Unit // a panel inside the player (PlayerScreen)
+            PlayerSheet.Captions -> CaptionsSheet(player, onDismiss = { player.sheet = null }, onTranscript = { player.sheet = PlayerSheet.Transcript })
             PlayerSheet.Queue -> QueueSheet(player, onDismiss = { player.sheet = null })
             null -> Unit
         }
@@ -625,7 +641,10 @@ fun SkipiiApp() {
         // underneath, so expanding returns to exactly where things were).
         if (pip.active) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
-                sharedSurface(Modifier.fillMaxSize().aspectFit(player.videoAspect))
+                Box(Modifier.fillMaxSize().aspectFit(player.videoAspect)) {
+                    sharedSurface(Modifier.fillMaxSize())
+                    CaptionLayer(player, bottom = 4.dp)
+                }
             }
         }
         }

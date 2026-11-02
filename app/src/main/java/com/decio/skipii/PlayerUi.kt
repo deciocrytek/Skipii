@@ -45,6 +45,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.LibraryAdd
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.CircularProgressIndicator
@@ -225,7 +226,7 @@ fun PlayerScreen(
                         val p = morph.progress.value
                         // Under the comments panel they stay hidden while the player moves, so
                         // the two never show through each other as the panel fades out.
-                        alpha = if (p < 1f && state.sheet == PlayerSheet.Comments) 0f else ramp(p, DetailsFadeStart)
+                        alpha = if (p < 1f && state.sheet.isPanel) 0f else ramp(p, DetailsFadeStart)
                         val g = morph.geometry
                         translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                     },
@@ -290,8 +291,15 @@ fun PlayerScreen(
                                 }
                             }
                             }
-                            state.accountState?.subscribed?.let { subscribed ->
-                                SubscribeButton(subscribed, onClick = state::toggleSubscribe)
+                            state.accountState?.let { account ->
+                                val subscribed = account.subscribed ?: return@let
+                                val channelId = account.channelId ?: channelUrl?.substringAfter("/channel/", "")?.takeIf { it.startsWith("UC") }
+                                SubscribeWithBell(
+                                    subscribed,
+                                    channel = channelId?.let { BellChannel(it, item.channel.ifBlank { null }, details?.item?.avatar ?: item.avatar) },
+                                    onSubscribe = state::toggleSubscribe,
+                                    onMessage = { state.actionMessage = it },
+                                )
                             }
                         }
                         // Speed and audio only live in the player's bar now (PlayerBar.kt).
@@ -337,8 +345,8 @@ fun PlayerScreen(
         // takes it along like the details (under the video's bottom edge, fading out), and it's
         // closed once the details are gone, so it never shrinks into the mini-player or comes
         // back with the next open (GitHub #33).
-        LaunchedEffect(showDetails) { if (!showDetails && state.sheet == PlayerSheet.Comments) state.sheet = null }
-        if (state.sheet == PlayerSheet.Comments && showDetails) {
+        LaunchedEffect(showDetails) { if (!showDetails && state.sheet.isPanel) state.sheet = null }
+        if (state.sheet.isPanel && showDetails) {
             Box(
                 Modifier.fillMaxSize().graphicsLayer {
                     val p = morph.progress.value
@@ -347,7 +355,8 @@ fun PlayerScreen(
                     translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                 },
             ) {
-                CommentsPanel(state.comments, partialTop = panelRestTop(state), onClose = { state.sheet = null })
+                if (state.sheet == PlayerSheet.Transcript) TranscriptPanel(state, partialTop = panelRestTop(state), onClose = { state.sheet = null })
+                else CommentsPanel(state.comments, partialTop = panelRestTop(state), onClose = { state.sheet = null })
             }
         }
     }
@@ -540,36 +549,7 @@ private const val AudioSwitchMs = 360
 private val FullscreenPull = 64.dp
 
 // ── Account actions (signed in) ────────────────────────────────────────────────
-
-@Composable
-private fun SubscribeButton(subscribed: Boolean, onClick: () -> Unit) {
-    val c = MaterialTheme.colorScheme
-    val reduced = rememberReducedMotion()
-    // Expressive state change: the pill rounds into a softer tonal shape once subscribed,
-    // squishes as it does, and the bell rings.
-    val radius by animateDpAsState(if (subscribed) 16.dp else 22.dp, if (reduced) tween(0) else spring(dampingRatio = 0.6f, stiffness = 500f), label = "subShape")
-    Row(
-        modifier = Modifier
-            .squishOn(subscribed)
-            .height(44.dp)
-            .pressable(onClick = onClick)
-            .clip(RoundedCornerShape(radius))
-            .background(if (subscribed) c.secondaryContainer else c.onSurface)
-            .animateContentSize(spring(dampingRatio = 0.7f, stiffness = 500f))
-            .padding(horizontal = if (subscribed) 14.dp else 20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (subscribed) {
-            FlourishIcon(Icons.Rounded.NotificationsActive, null, active = subscribed, kind = Flourish.Ring, tint = c.onSecondaryContainer, size = 18.dp)
-            Spacer(Modifier.width(6.dp))
-        }
-        Text(
-            if (subscribed) "Subscribed" else "Subscribe",
-            color = if (subscribed) c.onSecondaryContainer else c.surface,
-            fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
-        )
-    }
-}
+// Subscribe + bell: SubscribeWithBell (Bell.kt), shared with the channel page.
 
 /**
  * The action row: like | dislike, Save and Playlist (signed in), then Share (GitHub issue #19; signed out
@@ -598,6 +578,17 @@ private fun PlayerActions(state: PlayerState) {
             shape = RoundedCornerShape(22.dp),
             description = "Share",
         ) { item?.let { shareLink(context, "https://youtu.be/${it.id}", it.title) } }
+        // Every line of the captions, tap to jump (TranscriptPanel); only when the video has captions.
+        if (state.captions.tracks.isNotEmpty()) {
+            ActionPill(
+                icon = Icons.Rounded.Subtitles,
+                label = "Transcript",
+                active = false,
+                flourish = null,
+                shape = RoundedCornerShape(22.dp),
+                description = "Transcript",
+            ) { state.sheet = PlayerSheet.Transcript }
+        }
     }
 }
 

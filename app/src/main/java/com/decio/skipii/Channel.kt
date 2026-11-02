@@ -73,7 +73,7 @@ class ChannelState(val url: String, private val scope: CoroutineScope) {
             runCatching { YouTube.channel(url) }
                 .onSuccess { d ->
                     details = d
-                    if (Account.signedIn) launch { subscribed = runCatching { InnerTube.channelSubscribed(d.id) }.getOrNull() }
+                    if (Account.signedIn) launch { subscribed = runCatching { InnerTube.channelSubscribed(d.id, d.name, d.avatar) }.getOrNull() }
                     runCatching { YouTube.channelVideos(d, null) }
                         .onSuccess { p -> videos = p.videos; next = p.next }
                         .onFailure { error = YouTube.friendlyError(it) }
@@ -105,6 +105,7 @@ class ChannelState(val url: String, private val scope: CoroutineScope) {
         subscribed = !before
         scope.launch {
             runCatching { InnerTube.setSubscribed(id, !before) }
+                .onSuccess { if (before) Bells.forget(id) }
                 .onFailure { subscribed = before; onError("Couldn't update your subscription.") }
         }
     }
@@ -161,7 +162,14 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
                         }
                         state.subscribed?.let { subscribed ->
                             Spacer(Modifier.height(14.dp))
-                            ChannelSubscribeButton(subscribed) { state.toggleSubscribe(onMessage) }
+                            SubscribeWithBell(
+                                subscribed,
+                                channel = BellChannel(d.id, d.name, d.avatar),
+                                onSubscribe = { state.toggleSubscribe(onMessage) },
+                                onMessage = onMessage,
+                                modifier = Modifier.fillMaxWidth(),
+                                wide = true,
+                            )
                         }
                         if (d.description.isNotBlank()) {
                             Spacer(Modifier.height(12.dp))
@@ -179,27 +187,5 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
             }
         }
     }
-    }
-}
-
-@Composable
-private fun ChannelSubscribeButton(subscribed: Boolean, onClick: () -> Unit) {
-    val c = MaterialTheme.colorScheme
-    Row(
-        Modifier
-            .squishOn(subscribed)
-            .fillMaxWidth()
-            .height(46.dp)
-            .pressable(onClick = onClick)
-            .clip(CircleShape)
-            .background(if (subscribed) c.secondaryContainer else c.onSurface),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (subscribed) {
-            FlourishIcon(Icons.Rounded.NotificationsActive, null, active = true, kind = Flourish.Ring, tint = c.onSecondaryContainer, size = 18.dp)
-            Spacer(Modifier.width(6.dp))
-        }
-        Text(if (subscribed) "Subscribed" else "Subscribe", color = if (subscribed) c.onSecondaryContainer else c.surface, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
     }
 }
