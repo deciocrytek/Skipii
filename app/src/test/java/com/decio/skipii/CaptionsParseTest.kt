@@ -39,15 +39,18 @@ class CaptionsParseTest {
     }
 
     @Test
-    fun autoLinesRollUpWordByWord() {
+    fun autoLinesRollUpWholeLines() {
         val cues = Srv3.parse(fixture("captions_auto.srv3"), timedWords = true)
-        // 0.3 s into the first sung line: two words said.
-        assertEquals(listOf(CaptionLine("We're no", false)), captionLinesAt(cues, 18_800 + 300, rollUp = true))
-        // The next line has started under it: both show, the new one growing.
+        // The first sung line shows whole as soon as it starts (not word by word).
+        assertEquals(listOf(CaptionLine("We're no strangers to", false, 18_800)), captionLinesAt(cues, 18_800 + 300, rollUp = true))
+        // The next line comes in under it.
         val two = captionLinesAt(cues, 21_800 + 1_100, rollUp = true)
-        assertEquals(2, two.size)
-        assertEquals("We're no strangers to", two[0].text)
-        assertEquals("love. You", two[1].text)
+        assertEquals(listOf("We're no strangers to", two[1].text), two.map { it.text })
+        assertTrue(two[1].text.startsWith("love. You know the rules"))
+        // Once a third starts, the first is gone: two lines at most.
+        val rolled = captionLinesAt(cues, 25_960 + 100, rollUp = true)
+        assertEquals(2, rolled.size)
+        assertEquals(two[1], rolled[0])
         // Before anything is said.
         assertEquals(emptyList<CaptionLine>(), captionLinesAt(cues, 0, rollUp = true))
     }
@@ -55,7 +58,7 @@ class CaptionsParseTest {
     @Test
     fun creatorLinesShowWhole() {
         val cues = Srv3.parse(fixture("captions_creator.srv3"), timedWords = false)
-        assertEquals(listOf(CaptionLine("♪ We're no strangers to love ♪", false)), captionLinesAt(cues, 19_000, rollUp = false))
+        assertEquals(listOf(CaptionLine("♪ We're no strangers to love ♪", false, 18_640)), captionLinesAt(cues, 19_000, rollUp = false))
         // Between lines: nothing.
         assertEquals(emptyList<CaptionLine>(), captionLinesAt(cues, 10_000, rollUp = false))
         assertEquals(1, cueIndexAt(cues, 19_000))

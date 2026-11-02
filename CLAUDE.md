@@ -505,7 +505,9 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   with the details (`VideoDetails.captions`): NewPipe's `subtitles` keeps each track ONCE, as TTML — the same link with
   `fmt=srv3` is fetched instead (srv3 = YouTube's XML, auto-generated "asr" tracks carry per-word `<s t>` offsets). The files
   need no sign-in or PO token (probed). `Srv3` parses (tested by `CaptionsParseTest` on real captures); `captionLinesAt`
-  = every cue running at t, last 2 for asr (each line's words appear as said = YouTube's roll-up), last 3 otherwise.
+  = every cue running at t, WHOLE (0.5.76, Derek: word by word, as the web player does, was hard to follow; the YouTube
+  app shows lines), last 2 for asr (roll-up: `CaptionLayer` keys lines by cue start and `rolling` slides a line from
+  where it was measured from the bottom, the new one fades in), last 3 otherwise. Word times now only light the transcript.
   `CaptionsState` (PlayerState.captions): tracks, choice (track or track + `translateTo`), on, cues; lines load only while
   shown or the transcript is open. `CaptionSettings` (prefs "captions"): Show Never / Always / Foreign (default: on when
   the asr track's language ≠ the phone's), Look Skipii / Classic / Outline / Android's (`CaptioningManager` style + font

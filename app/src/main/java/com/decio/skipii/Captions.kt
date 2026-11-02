@@ -32,8 +32,9 @@ import kotlin.coroutines.resumeWithException
 
 // Captions (Derek, 2026-11-01; docs/design/captions.html). YouTube lists every track a video has with the
 // player answer (NewPipe's `subtitles`): the creator's, and "asr" — auto-generated, in the language spoken.
-// The files (srv3 XML) need no sign-in or PO token, and auto-generated ones carry a time per word, so they
-// roll up word by word as YouTube's do. YouTube's own auto-translate (`tlang`) is refused (HTTP 429,
+// The files (srv3 XML) need no sign-in or PO token. Auto-generated ones carry a time per word (the transcript
+// lights words with it); on the video they roll up whole lines, as the YouTube app shows them (0.5.76: word by
+// word, as the web player does, was hard to follow). YouTube's own auto-translate (`tlang`) is refused (HTTP 429,
 // probed 2026-11-01), so translations are made on the phone (ML Kit, a model per language).
 
 /** One caption track YouTube has for a video. [language] is its tag ("en", "pt-BR"); [auto] = auto-generated. */
@@ -62,24 +63,18 @@ data class CaptionChoice(val track: CaptionTrack, val translateTo: String? = nul
     val label: String get() = CaptionNames.language(language)
 }
 
-/** A line on screen right now. */
+/** A line on screen right now; [id] (its cue's start) follows it as it rolls up. */
 @Immutable
-data class CaptionLine(val text: String, val sound: Boolean)
+data class CaptionLine(val text: String, val sound: Boolean, val id: Long = 0)
 
 /**
- * The lines showing at [t]: every cue running then, the last two for an auto-generated track (rolling up:
- * each one's words appear as they're said), the last three otherwise. [cues] sorted by start.
+ * The lines showing at [t]: every cue running then, each whole (as the YouTube app shows them; word by word,
+ * as the web player does, was hard to follow), the last two for an auto-generated track (rolling up: a new
+ * line comes in under the last one, which moves up), the last three otherwise. [cues] sorted by start.
  */
 fun captionLinesAt(cues: List<CaptionCue>, t: Long, rollUp: Boolean): List<CaptionLine> {
     if (cues.isEmpty()) return emptyList()
-    // The last cue starting at or before t.
-    var lo = 0
-    var hi = cues.size - 1
-    var last = -1
-    while (lo <= hi) {
-        val mid = (lo + hi) ushr 1
-        if (cues[mid].startMs <= t) { last = mid; lo = mid + 1 } else hi = mid - 1
-    }
+    val last = cueIndexAt(cues, t)
     if (last < 0) return emptyList()
     val active = ArrayList<CaptionCue>(3)
     // Cues overlap only a few deep (auto-generated lines hang on while the next two are said).
@@ -89,10 +84,7 @@ fun captionLinesAt(cues: List<CaptionCue>, t: Long, rollUp: Boolean): List<Capti
         if (cue.endMs > t) active.add(0, cue)
         i--
     }
-    return active.takeLast(if (rollUp) 2 else 3).mapNotNull { cue ->
-        val text = cue.words?.let { words -> words.filter { cue.startMs + it.offsetMs <= t }.joinToString("") { it.text }.trim() } ?: cue.text
-        text.takeIf { it.isNotBlank() }?.let { CaptionLine(it, cue.sound) }
-    }
+    return active.takeLast(if (rollUp) 2 else 3).map { CaptionLine(it.text, it.sound, it.startMs) }
 }
 
 /** The index of the cue playing at [t] (the last one started), or -1 before the first. */

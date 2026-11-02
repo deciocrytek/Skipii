@@ -10,6 +10,9 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### Improved
+- Captions show whole lines, as in the YouTube app, instead of one word at a time: easier to follow. Auto-generated captions roll up two lines at a time; each new line slides in under the last.
+
 ## 0.5.75
 
 ### New
