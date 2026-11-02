@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube didn\'t offer any Shorts right now.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">This Short can\'t play right now.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">This Short can\'t play</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Try again</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Sign in to like Shorts.</string>
+    <string name="shorts_like_failed">Couldn\'t update your like.</string>
+    <string name="shorts_sign_in_to_subscribe">Sign in to subscribe.</string>
+    <string name="shorts_subscription_failed">Couldn\'t update your subscription.</string>
+    <string name="shorts_channel_unavailable">This channel can\'t be opened.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Back</string>
+    <string name="shorts_like">Like</string>
+    <string name="shorts_comments">Comments</string>
+    <string name="shorts_share">Share</string>
+    <string name="shorts_channel">Channel</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Subscribe</string>
+    <string name="shorts_unsubscribe">Unsubscribe</string>
+    <string name="shorts_go_to_channel">Go to channel</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Bell on: every new video. Tap to turn off</string>
+    <string name="shorts_bell_off">Bell: get a notification for every new video</string>
+</resources>

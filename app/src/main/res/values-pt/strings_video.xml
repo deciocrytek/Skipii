@@ -1,0 +1,73 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">O YouTube está verificando esta conexão. Tentando de novo…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">Somente áudio</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">Somente áudio ativado</string>
+    <string name="video_playback_speed">Velocidade da reprodução</string>
+    <string name="video_captions">Legendas</string>
+    <string name="video_quality">Qualidade</string>
+    <string name="video_pip">Picture-in-picture</string>
+    <string name="video_next">Próximo</string>
+    <string name="video_fullscreen">Tela cheia</string>
+    <string name="video_exit_fullscreen">Sair da tela cheia</string>
+    <string name="video_back_10">Voltar 10 segundos</string>
+    <string name="video_forward_10">Avançar 10 segundos</string>
+    <string name="video_play">Reproduzir</string>
+    <string name="video_pause">Pausar</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">Selecionado</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">O picture-in-picture está desativado para o Skipii nas Configurações.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">Auto</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">A melhor até 1080p</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">tocando em %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">Tocando %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">Economia de dados</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">Velocidade</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">LEGENDAS</string>
+    <string name="video_drop_quality">QUALIDADE</string>
+    <string name="video_drop_speed">VELOCIDADE</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">Desativadas</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">auto</string>
+    <string name="video_captions_tag_downloading">baixando</string>
+    <string name="video_captions_tag_translated">traduzida</string>
+    <string name="video_captions_tag_download">baixar</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">Normal</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">Personalizada</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">Todos os vídeos</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("patrocínio", "introdução", …). Keep short. -->
+    <string name="video_skip_segment">Pular %1$s</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("patrocínio"). -->
+    <string name="video_skipped_segment">Pulou %1$s de %2$s</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">Desfazer</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">Tentar de novo</string>
+</resources>

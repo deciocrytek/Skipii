@@ -1,0 +1,74 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube bu bağlantıyı kontrol ediyor. Tekrar deneniyor…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">Yalnızca ses</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">Yalnızca ses açık</string>
+    <string name="video_playback_speed">Oynatma hızı</string>
+    <string name="video_captions">Altyazılar</string>
+    <string name="video_quality">Kalite</string>
+    <string name="video_pip">Pencere içinde pencere</string>
+    <string name="video_next">Sonraki</string>
+    <string name="video_fullscreen">Tam ekran</string>
+    <string name="video_exit_fullscreen">Tam ekrandan çık</string>
+    <string name="video_back_10">10 saniye geri</string>
+    <string name="video_forward_10">10 saniye ileri</string>
+    <string name="video_play">Oynat</string>
+    <string name="video_pause">Duraklat</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">Seçili</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">Pencere içinde pencere, Ayarlar\'da Skipii için kapatılmış.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">Otomatik</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">1080p\'ye kadar en iyisi</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">oynatılan: %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">Oynatılan: %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">Veri tasarrufu</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">Hız</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">ALTYAZILAR</string>
+    <string name="video_drop_quality">KALİTE</string>
+    <string name="video_drop_speed">HIZ</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">Kapalı</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">otomatik</string>
+    <string name="video_captions_tag_downloading">indiriliyor</string>
+    <string name="video_captions_tag_translated">çevrildi</string>
+    <string name="video_captions_tag_download">indir</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">Normal</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">Özel</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">Tüm videolar</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short.
+         (Turkish: "Atla: sponsor" avoids a case suffix on the placeholder.) -->
+    <string name="video_skip_segment">Atla: %1$s</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">Atlandı: %1$s %2$s</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">Geri al</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">Tekrar dene</string>
+</resources>

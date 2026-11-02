@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">O YouTube não ofereceu nenhum Short agora.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Este Short não pode ser reproduzido agora.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Não é possível reproduzir este Short</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Tentar de novo</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Faça login para curtir Shorts.</string>
+    <string name="shorts_like_failed">Não foi possível atualizar sua curtida.</string>
+    <string name="shorts_sign_in_to_subscribe">Faça login para se inscrever.</string>
+    <string name="shorts_subscription_failed">Não foi possível atualizar sua inscrição.</string>
+    <string name="shorts_channel_unavailable">Não é possível abrir este canal.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Voltar</string>
+    <string name="shorts_like">Gostei</string>
+    <string name="shorts_comments">Comentários</string>
+    <string name="shorts_share">Compartilhar</string>
+    <string name="shorts_channel">Canal</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Inscrever-se</string>
+    <string name="shorts_unsubscribe">Cancelar inscrição</string>
+    <string name="shorts_go_to_channel">Ir para o canal</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Sino ativado: todos os vídeos novos. Toque para desativar</string>
+    <string name="shorts_bell_off">Sino: receba uma notificação a cada vídeo novo</string>
+</resources>

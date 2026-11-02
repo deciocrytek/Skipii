@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">फिर से कोशिश करें</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">वापस जाएं</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">बंद करें</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Google से साइन इन करें</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">बाद में देखें</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">पसंद किए गए वीडियो</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">इसके बाद चलाएं</string>
+    <string name="ui_add_to_queue">सूची में जोड़ें</string>
+    <string name="ui_save_to_watch_later">बाद में देखें में सेव करें</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">प्लेलिस्ट में सेव करें</string>
+    <string name="ui_share">शेयर करें</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">सेव किया गया</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">निजी</string>
+    <string name="ui_privacy_unlisted">असूचीबद्ध</string>
+    <string name="ui_privacy_public">सार्वजनिक</string>
+    <string name="ui_new_playlist">नई प्लेलिस्ट</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">प्लेलिस्ट का नाम</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">बनाएं</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="one">सूची · %1$s</item>
+        <item quantity="other">सूची · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">साफ़ करें</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">सूची</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">सूची से हटाएं</string>
+    <string name="ui_queue_empty">सूची में कुछ नहीं है. किसी वीडियो को जोड़ने के लिए उसे दबाकर रखें.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">स्पॉन्सर वाले हिस्से और दूसरे सेगमेंट स्किप करें</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">सेगमेंट SponsorBlock (sponsor.ajay.app) से लिए गए हैं, जो एक कम्युनिटी प्रोजेक्ट है. डेटा का लाइसेंस CC BY-NC-SA 4.0 है.</string>
+    <string name="ui_player_controls">प्लेयर कंट्रोल</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">प्लेयर के नीचे प्लेबैक पिल में</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">वीडियो पर; आगे-पीछे जाने के लिए उसके निचले किनारे का नॉब खींचें</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">प्लेबैक पिल</string>
+    <string name="ui_player_controls_on_video">वीडियो पर</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Shorts टैब दिखाएं</string>
+    <string name="ui_shorts_off_line">Shorts टैब छिपा है और कोई Shorts लोड नहीं होते</string>
+    <string name="ui_appearance">थीम</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">सिस्टम</string>
+    <string name="ui_mode_light">लाइट</string>
+    <string name="ui_mode_dark">डार्क</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">वॉलपेपर</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">चुना गया</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">रद्द करें</string>
+    <string name="ui_sign_in_title">YouTube में साइन इन करें</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · इस फ़ोन पर एन्क्रिप्ट करके रखा जाता है</string>
+    <string name="ui_sign_in_error">साइन इन हो गया, लेकिन YouTube ने जवाब नहीं दिया. अपना कनेक्शन देखें और फिर से कोशिश करें.</string>
+    <string name="ui_finishing_sign_in">साइन इन पूरा हो रहा है…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">साइन इन करें</string>
+    <string name="ui_account_pitch_title">आपका YouTube, बिना विज्ञापनों के</string>
+    <string name="ui_account_pitch_body">अपने सुझाव, सदस्यताएं, इतिहास और प्लेलिस्ट देखने के लिए साइन इन करें. पसंद, सदस्यताएं, बाद में देखें और देखे गए वीडियो का इतिहास आपके खाते में सिंक होते हैं.\n\nGoogle अनौपचारिक ऐप्लिकेशन को अपनी शर्तों के ख़िलाफ़ मानता है और इन्हें इस्तेमाल करने वाले खाते निलंबित कर सकता है. दूसरा Google खाता इस्तेमाल करने से आपका मुख्य खाता इस जोखिम से बचा रहता है.</string>
+    <string name="ui_sign_out">साइन आउट करें</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">आपके सुझाव, बिना विज्ञापनों के</string>
+    <string name="ui_home_signed_out_body">YouTube की अपनी होम फ़ीड देखने के लिए Google से साइन इन करें, या बस खोजें.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">इसके बजाय खोजें</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">सदस्यताएं</string>
+    <string name="ui_subscriptions_signed_out_title">आपकी सदस्यताएं</string>
+    <string name="ui_subscriptions_signed_out_body">जिन चैनलों को आप फ़ॉलो करते हैं, उनके नए वीडियो देखने के लिए Google से साइन इन करें.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">लाइब्रेरी</string>
+    <string name="ui_library_signed_out_title">आपकी लाइब्रेरी</string>
+    <string name="ui_library_signed_out_body">अपना इतिहास, बाद में देखें, पसंद किए गए वीडियो और प्लेलिस्ट देखने के लिए Google से साइन इन करें.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">इतिहास</string>
+    <string name="ui_history_empty">अभी तक कुछ नहीं देखा गया.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">प्लेलिस्ट</string>
+    <string name="ui_playlist_empty_title">यहां अभी कुछ नहीं है</string>
+    <string name="ui_playlist_empty_body">इस प्लेलिस्ट में जोड़े गए वीडियो यहां दिखेंगे.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">खोजें</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">YouTube पर खोजें</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">साफ़ करें</string>
+    <string name="ui_search_error_title">खोज लोड नहीं हुई</string>
+    <string name="ui_search_intro_title">बिना विज्ञापनों के खोजें</string>
+    <string name="ui_search_intro_body">नतीजे तुरंत चलते हैं, बिना विज्ञापन और बिना साइन इन के.</string>
+    <string name="ui_search_nothing_found">कुछ नहीं मिला</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">“%1$s” से मेल खाता कोई वीडियो नहीं मिला.</string>
+    <string name="ui_recent_searches">हाल ही की खोजें</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">सब साफ़ करें</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">हटाएं</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">आपकी सदस्यता अपडेट नहीं हो सकी.</string>
+    <string name="ui_channel_error_title">यह चैनल लोड नहीं हो सका</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">वीडियो</string>
+    <string name="ui_feed_error_title">इसे लोड नहीं किया जा सका</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">आप साइन आउट हो गए हैं.</string>
+</resources>

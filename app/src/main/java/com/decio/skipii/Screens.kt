@@ -67,6 +67,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -103,13 +104,13 @@ fun HomeScreen(
                 item {
                     EmptyState(
                         icon = Icons.Rounded.Subscriptions,
-                        title = "Your recommendations, minus the ads",
-                        body = "Sign in with Google to see your own YouTube home feed, or just search.",
+                        title = stringResource(R.string.ui_home_signed_out_title),
+                        body = stringResource(R.string.ui_home_signed_out_body),
                         action = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                PillButton("Sign in with Google", onSignIn)
+                                PillButton(stringResource(R.string.ui_sign_in_with_google), onSignIn)
                                 Spacer(Modifier.height(12.dp))
-                                TextLink("Search instead", onSearch)
+                                TextLink(stringResource(R.string.ui_search_instead), onSearch)
                             }
                         },
                     )
@@ -137,7 +138,7 @@ fun SubscriptionsScreen(
     }
     CollapsingHeaderLayout(
         resetKey = scrollToTop to lib.subscriptions.generation,
-        header = { ScreenHeader(title = "Subscriptions") { AccountAction(onAccount) } },
+        header = { ScreenHeader(title = stringResource(R.string.ui_subscriptions_title)) { AccountAction(onAccount) } },
     ) { top ->
         if (signedIn) {
             FeedList(lib.subscriptions, contentPadding.withTop(top), onOpen, header = {
@@ -149,9 +150,9 @@ fun SubscriptionsScreen(
                 item {
                     EmptyState(
                         icon = Icons.Rounded.Subscriptions,
-                        title = "Your subscriptions",
-                        body = "Sign in with Google to see new videos from the channels you follow.",
-                        action = { PillButton("Sign in with Google", onSignIn) },
+                        title = stringResource(R.string.ui_subscriptions_signed_out_title),
+                        body = stringResource(R.string.ui_subscriptions_signed_out_body),
+                        action = { PillButton(stringResource(R.string.ui_sign_in_with_google), onSignIn) },
                     )
                 }
             }
@@ -196,7 +197,7 @@ fun LibraryScreen(
     }
     CollapsingHeaderLayout(
         resetKey = scrollToTop to lib.history.generation,
-        header = { ScreenHeader(title = "Library") { AccountAction(onAccount) } },
+        header = { ScreenHeader(title = stringResource(R.string.ui_library_title)) { AccountAction(onAccount) } },
     ) { top ->
         PullToRefresh(
             enabled = signedIn,
@@ -204,19 +205,22 @@ fun LibraryScreen(
             onRefresh = { lib.history.refresh(); lib.loadPlaylists() },
             topPadding = top,
         ) {
+        // Resolved here: the list's builder below isn't composable.
+        val watchLater = stringResource(R.string.ui_watch_later)
+        val likedVideos = stringResource(R.string.ui_liked_videos)
         LazyColumn(state = rememberScrollToTop(scrollToTop), contentPadding = contentPadding.withTop(top)) {
             if (!signedIn) {
                 item {
                     EmptyState(
                         icon = Icons.Rounded.VideoLibrary,
-                        title = "Your library",
-                        body = "Sign in with Google for your history, Watch later, liked videos and playlists.",
-                        action = { PillButton("Sign in with Google", onSignIn) },
+                        title = stringResource(R.string.ui_library_signed_out_title),
+                        body = stringResource(R.string.ui_library_signed_out_body),
+                        action = { PillButton(stringResource(R.string.ui_sign_in_with_google), onSignIn) },
                     )
                 }
                 return@LazyColumn
             }
-            item(key = "historyTitle") { SectionTitle("History") }
+            item(key = "historyTitle") { SectionTitle(stringResource(R.string.ui_history)) }
             item(key = "history") {
                 val history = lib.history.videos
                 when {
@@ -230,16 +234,16 @@ fun LibraryScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 4.dp, modifier = Modifier.size(28.dp))
                     }
                     else -> Text(
-                        lib.history.error ?: "Nothing watched yet.",
+                        lib.history.error ?: stringResource(R.string.ui_history_empty),
                         color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp,
                         modifier = Modifier.padding(horizontal = 20.dp),
                     )
                 }
             }
-            item(key = "playlistsTitle") { SectionTitle("Playlists") }
+            item(key = "playlistsTitle") { SectionTitle(stringResource(R.string.ui_playlists)) }
             val pinned = listOf(
-                PlaylistRef("WL", "Watch later", null, null),
-                PlaylistRef("LL", "Liked videos", null, null),
+                PlaylistRef("WL", watchLater, null, null),
+                PlaylistRef("LL", likedVideos, null, null),
             )
             items((pinned + lib.playlists).chunked(2), key = { row -> row.joinToString { it.id } }) { row ->
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 5.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -309,7 +313,7 @@ fun PlaylistScreen(playlist: PlaylistRef, feed: FeedState, contentPadding: Paddi
             Modifier.fillMaxWidth().statusBarsPadding().padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircleAction(Icons.AutoMirrored.Rounded.ArrowBack, "Back", onBack)
+            CircleAction(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.ui_back), onBack)
             Spacer(Modifier.width(12.dp))
             Text(
                 playlist.title,
@@ -320,7 +324,7 @@ fun PlaylistScreen(playlist: PlaylistRef, feed: FeedState, contentPadding: Paddi
         },
     ) { top ->
         if (feed.videos.isEmpty() && !feed.loading && feed.error == null && !feed.hasMore) {
-            Box(Modifier.padding(top = top)) { EmptyState(Icons.Rounded.VideoLibrary, "Nothing here yet", "Videos you add to this playlist will show up here.") }
+            Box(Modifier.padding(top = top)) { EmptyState(Icons.Rounded.VideoLibrary, stringResource(R.string.ui_playlist_empty_title), stringResource(R.string.ui_playlist_empty_body)) }
         } else {
             FeedList(feed, contentPadding.withTop(top), onOpen, indicatorTop = top)
         }
@@ -405,7 +409,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
     CollapsingHeaderLayout(
         resetKey = Triple(scrollToTop, state.generation, showHistory),
         header = { Column {
-        ScreenHeader(title = "Search")
+        ScreenHeader(title = stringResource(R.string.ui_search_title))
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -420,7 +424,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
             Spacer(Modifier.width(12.dp))
             Box(Modifier.weight(1f)) {
                 if (state.query.isEmpty()) {
-                    Text("Search YouTube", color = c.onSurfaceVariant, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ui_search_hint), color = c.onSurfaceVariant, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
                 BasicTextField(
                     value = state.query,
@@ -443,7 +447,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
                 Box(
                     modifier = Modifier.size(44.dp).pressable { state.query = "" },
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Rounded.Close, "Clear", tint = c.onSurfaceVariant) }
+                ) { Icon(Icons.Rounded.Close, stringResource(R.string.ui_clear_search), tint = c.onSurfaceVariant) }
             }
         }
         Spacer(Modifier.height(8.dp))
@@ -463,19 +467,19 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
             }
             state.error != null -> EmptyState(
                 icon = Icons.Rounded.CloudOff,
-                title = "Search didn't load",
+                title = stringResource(R.string.ui_search_error_title),
                 body = state.error.orEmpty(),
-                action = { PillButton("Try again", { state.submit() }) },
+                action = { PillButton(stringResource(R.string.ui_try_again), { state.submit() }) },
             )
             state.submitted.isEmpty() -> EmptyState(
                 icon = Icons.Rounded.TravelExplore,
-                title = "Search without the ads",
-                body = "Results play straight away, with no ads and no sign-in.",
+                title = stringResource(R.string.ui_search_intro_title),
+                body = stringResource(R.string.ui_search_intro_body),
             )
             state.results.isEmpty() -> EmptyState(
                 icon = Icons.Rounded.History,
-                title = "Nothing found",
-                body = "No videos matched “${state.submitted}”.",
+                title = stringResource(R.string.ui_search_nothing_found),
+                body = stringResource(R.string.ui_search_no_match, state.submitted),
             )
             else -> {
                 val list = rememberScrollToTop(scrollToTop)
@@ -500,8 +504,8 @@ private fun SearchHistoryList(history: List<String>, contentPadding: PaddingValu
             Row(
                 modifier = Modifier.fillMaxWidth().padding(end = 12.dp),
             ) {
-                SectionTitle("Recent searches", Modifier.weight(1f).alignByBaseline())
-                Box(Modifier.alignByBaseline()) { TextLink("Clear all") { SearchHistory.clear() } }
+                SectionTitle(stringResource(R.string.ui_recent_searches), Modifier.weight(1f).alignByBaseline())
+                Box(Modifier.alignByBaseline()) { TextLink(stringResource(R.string.ui_clear_all)) { SearchHistory.clear() } }
             }
         }
         items(history, key = { it }) { query ->
@@ -527,7 +531,7 @@ private fun SearchHistoryList(history: List<String>, contentPadding: PaddingValu
                 Box(
                     modifier = Modifier.size(44.dp).pressable { SearchHistory.remove(query) },
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Rounded.Close, "Remove", tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp)) }
+                ) { Icon(Icons.Rounded.Close, stringResource(R.string.ui_remove_search), tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp)) }
             }
         }
     }

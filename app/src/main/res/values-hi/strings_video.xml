@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube इस कनेक्शन की जांच कर रहा है. फिर से कोशिश की जा रही है…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">सिर्फ़ ऑडियो</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">सिर्फ़ ऑडियो चालू है</string>
+    <string name="video_playback_speed">प्लेबैक स्पीड</string>
+    <string name="video_captions">कैप्शन</string>
+    <string name="video_quality">क्वालिटी</string>
+    <string name="video_pip">पिक्चर में पिक्चर</string>
+    <string name="video_next">अगला</string>
+    <string name="video_fullscreen">फ़ुलस्क्रीन</string>
+    <string name="video_exit_fullscreen">फ़ुलस्क्रीन से बाहर निकलें</string>
+    <string name="video_back_10">10 सेकंड पीछे</string>
+    <string name="video_forward_10">10 सेकंड आगे</string>
+    <string name="video_play">चलाएं</string>
+    <string name="video_pause">रोकें</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">चुना गया</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">सेटिंग में Skipii के लिए पिक्चर में पिक्चर बंद है.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">ऑटो</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">1080p तक सबसे अच्छी</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">%1$s चल रहा है</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">%1$s चल रहा है</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">डेटा सेवर</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">स्पीड</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">कैप्शन</string>
+    <string name="video_drop_quality">क्वालिटी</string>
+    <string name="video_drop_speed">स्पीड</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">बंद</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">ऑटो</string>
+    <string name="video_captions_tag_downloading">डाउनलोड हो रही है</string>
+    <string name="video_captions_tag_translated">अनुवादित</string>
+    <string name="video_captions_tag_download">डाउनलोड करें</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">सामान्य</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">कस्टम</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">हर वीडियो</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short. -->
+    <string name="video_skip_segment">%1$s स्किप करें</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">%1$s का %2$s स्किप किया</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">पहले जैसा करें</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">फिर से कोशिश करें</string>
+</resources>

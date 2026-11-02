@@ -70,6 +70,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -145,7 +146,7 @@ internal fun SpeedPanelContent(state: PlayerState, inBar: Boolean = false) {
     ) {
         SpeedReadout({ value.value }, Modifier.align(Alignment.CenterHorizontally))
         Text(
-            if (PlaybackSpeed.remember) "Every video" else "This video only",
+            stringResource(if (PlaybackSpeed.remember) R.string.bar_speed_every_video else R.string.bar_speed_this_video),
             color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp),
         )
@@ -277,8 +278,8 @@ private fun RememberCheck(checked: Boolean, modifier: Modifier, onToggle: () -> 
         }
         Spacer(Modifier.width(13.dp))
         Column {
-            Text("Remember for every video", fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
-            Text("Until you set it back to 1×", color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.bar_speed_remember), fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.bar_speed_remember_note), color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

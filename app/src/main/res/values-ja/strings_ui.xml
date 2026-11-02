@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">再試行</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">戻る</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">閉じる</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Google でログイン</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">後で見る</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">高く評価した動画</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">次に再生</string>
+    <string name="ui_add_to_queue">キューに追加</string>
+    <string name="ui_save_to_watch_later">[後で見る] に保存</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">再生リストに保存</string>
+    <string name="ui_share">共有</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">保存済み</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">非公開</string>
+    <string name="ui_privacy_unlisted">限定公開</string>
+    <string name="ui_privacy_public">公開</string>
+    <string name="ui_new_playlist">新しい再生リスト</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">再生リスト名</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">作成</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="other">キュー · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">クリア</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">キュー</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">キューから削除</string>
+    <string name="ui_queue_empty">キューは空です。動画を長押しすると追加できます。</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">スポンサー紹介などの区間をスキップ</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">区間データはコミュニティプロジェクト SponsorBlock（sponsor.ajay.app）によるものです。データのライセンスは CC BY-NC-SA 4.0 です。</string>
+    <string name="ui_player_controls">プレーヤーの操作</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">プレーヤー下部の再生ピルに表示</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">動画の上に表示。下端のつまみをドラッグしてシーク</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">再生ピル</string>
+    <string name="ui_player_controls_on_video">動画の上</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">ショート</string>
+    <string name="ui_shorts_on_line">ショートタブを表示</string>
+    <string name="ui_shorts_off_line">ショートタブは非表示で、ショートは読み込まれません</string>
+    <string name="ui_appearance">外観</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">システム</string>
+    <string name="ui_mode_light">ライト</string>
+    <string name="ui_mode_dark">ダーク</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">壁紙</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">選択済み</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">キャンセル</string>
+    <string name="ui_sign_in_title">YouTube にログイン</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · このスマートフォンに暗号化して保存</string>
+    <string name="ui_sign_in_error">ログインしましたが、YouTube から応答がありません。接続を確認して、もう一度お試しください。</string>
+    <string name="ui_finishing_sign_in">ログインを完了しています…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">ログイン</string>
+    <string name="ui_account_pitch_title">広告なしのあなたの YouTube</string>
+    <string name="ui_account_pitch_body">ログインすると、おすすめ、登録チャンネル、履歴、再生リストが表示されます。高評価、チャンネル登録、後で見る、再生履歴はアカウントに同期されます。\n\nGoogle は非公式アプリの使用を利用規約違反とみなしており、使用したアカウントを停止することがあります。サブの Google アカウントを使えば、メインのアカウントをそのリスクから守れます。</string>
+    <string name="ui_sign_out">ログアウト</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">広告なしのおすすめ</string>
+    <string name="ui_home_signed_out_body">Google でログインすると、あなたの YouTube ホームフィードが表示されます。検索だけでも使えます。</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">検索する</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">登録チャンネル</string>
+    <string name="ui_subscriptions_signed_out_title">登録チャンネル</string>
+    <string name="ui_subscriptions_signed_out_body">Google でログインすると、登録しているチャンネルの新しい動画が表示されます。</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">ライブラリ</string>
+    <string name="ui_library_signed_out_title">ライブラリ</string>
+    <string name="ui_library_signed_out_body">Google でログインすると、履歴、後で見る、高く評価した動画、再生リストが表示されます。</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">履歴</string>
+    <string name="ui_history_empty">まだ何も視聴していません。</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">再生リスト</string>
+    <string name="ui_playlist_empty_title">まだ何もありません</string>
+    <string name="ui_playlist_empty_body">この再生リストに追加した動画がここに表示されます。</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">検索</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">YouTube を検索</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">クリア</string>
+    <string name="ui_search_error_title">検索結果を読み込めませんでした</string>
+    <string name="ui_search_intro_title">広告なしで検索</string>
+    <string name="ui_search_intro_body">検索結果はすぐに再生できます。広告もログインも不要です。</string>
+    <string name="ui_search_nothing_found">見つかりませんでした</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">「%1$s」に一致する動画はありません。</string>
+    <string name="ui_recent_searches">最近の検索</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">すべて削除</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">削除</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">チャンネル登録を更新できませんでした。</string>
+    <string name="ui_channel_error_title">このチャンネルを読み込めませんでした</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">動画</string>
+    <string name="ui_feed_error_title">読み込めませんでした</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">ログアウトしています。</string>
+</resources>

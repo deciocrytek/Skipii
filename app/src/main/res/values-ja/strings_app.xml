@@ -1,0 +1,65 @@
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">ホーム</string>
+    <string name="app_tab_subscriptions">登録チャンネル</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">ショート</string>
+    <string name="app_tab_search">検索</string>
+    <string name="app_tab_library">ライブラリ</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">更新</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">インストール中</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">再試行</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). -->
+    <string name="app_update_percent">%1$s%%</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">新機能</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s MB</string>
+    <string name="app_update_no_notes">このバージョンにはリリースノートがありません。</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">更新</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">ダウンロード中 %1$s%%</string>
+    <string name="app_update_installing">インストール中…</string>
+    <string name="app_update_try_again">再試行</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">アプリの更新</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Skipii を %1$s に更新しました</string>
+    <string name="app_updated_text">タップして開く</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">登録</string>
+    <string name="app_subscribed">登録済み</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">通知オン: すべての新しい動画。タップでオフ</string>
+    <string name="app_bell_off_description">通知: 新しい動画ごとに通知を受け取る</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">%1$s のすべての新しい動画を通知します</string>
+    <string name="app_bell_off_message">%1$s の通知をオフにしました</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">このチャンネルのすべての新しい動画を通知します</string>
+    <string name="app_bell_off_message_unnamed">このチャンネルの通知をオフにしました</string>
+    <string name="app_bell_failed">通知設定を変更できませんでした。</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">ベルを使うには Skipii の通知を許可してください。</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">ベルを使うには Skipii の通知をオンにしてください。</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">新しい動画</string>
+    <string name="app_new_videos_channel_description">ベルをオンにしたチャンネルのすべての新しい動画</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">新しい動画</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">YouTube アカウント</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube がセッションを拒否しました（%1$s）。もう一度ログインしてください。</string>
+    <string name="app_error_youtube_returned">YouTube からの応答: %1$s</string>
+</resources>

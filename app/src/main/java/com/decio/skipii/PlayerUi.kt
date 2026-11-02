@@ -77,6 +77,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -85,6 +86,7 @@ import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -245,24 +247,25 @@ fun PlayerScreen(
                         )
                         Spacer(Modifier.height(6.dp))
                         val stats = listOfNotNull(
-                            item.views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" },
-                            item.uploaded?.ifBlank { null },
-                            details?.likes?.takeIf { it > 0 }?.let { "${formatCount(it)} likes" },
+                            item.views.takeIf { it >= 0 }?.let { viewsLine(it) },
+                            displayAge(item.uploaded)?.ifBlank { null },
+                            details?.likes?.takeIf { it > 0 }?.let { plural(R.plurals.player_likes, compactQuantity(it), formatCount(it)) },
                         ).joinDots()
                         val hasDescription = !details?.description.isNullOrBlank()
-                        Row(
+                        // One text: "…more" follows the stats and wraps with them. As a second Text in a Row it got
+                        // only what the stats left, and a long line (Spanish) stood it up a letter a line.
+                        val more = if (hasDescription) stringResource(if (descriptionOpen) R.string.player_description_less else R.string.player_description_more) else null
+                        Text(
+                            androidx.compose.ui.text.buildAnnotatedString {
+                                append(stats)
+                                if (more != null) {
+                                    append("  ")
+                                    withStyle(androidx.compose.ui.text.SpanStyle(color = c.onSurface, fontWeight = FontWeight.ExtraBold)) { append(more) }
+                                }
+                            },
                             modifier = if (hasDescription) Modifier.pressable(pressedScale = 0.98f) { descriptionOpen = !descriptionOpen } else Modifier,
-                        ) {
-                            Text(stats, color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                            if (hasDescription) {
-                                Text(
-                                    if (descriptionOpen) "  less" else "  …more",
-                                    color = c.onSurface,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                )
-                            }
-                        }
+                            color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                        )
                         if (descriptionOpen && details != null) {
                             Text(
                                 details.description,
@@ -287,7 +290,7 @@ fun PlayerScreen(
                             Column(Modifier.weight(1f)) {
                                 Text(item.channel, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 details?.subscribers?.takeIf { it > 0 }?.let {
-                                    Text("${formatCount(it)} subscribers", color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(subscribersLine(it), color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                             }
@@ -310,7 +313,7 @@ fun PlayerScreen(
                 }
                 val related = details?.related.orEmpty()
                 if (related.isNotEmpty()) {
-                    item(key = "moreTitle") { SectionTitle("More videos") }
+                    item(key = "moreTitle") { SectionTitle(stringResource(R.string.player_more_videos)) }
                     items(related, key = { "rel-" + it.id }) { video ->
                         Box(Modifier.padding(horizontal = 20.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
                     }
@@ -572,21 +575,21 @@ private fun PlayerActions(state: PlayerState) {
         val item = state.current
         ActionPill(
             icon = Icons.Rounded.Share,
-            label = "Share",
+            label = stringResource(R.string.player_share),
             active = false,
             flourish = null,
             shape = RoundedCornerShape(22.dp),
-            description = "Share",
+            description = stringResource(R.string.player_share),
         ) { item?.let { shareLink(context, "https://youtu.be/${it.id}", it.title) } }
         // Every line of the captions, tap to jump (TranscriptPanel); only when the video has captions.
         if (state.captions.tracks.isNotEmpty()) {
             ActionPill(
                 icon = Icons.Rounded.Subtitles,
-                label = "Transcript",
+                label = stringResource(R.string.player_transcript),
                 active = false,
                 flourish = null,
                 shape = RoundedCornerShape(22.dp),
-                description = "Transcript",
+                description = stringResource(R.string.player_transcript),
             ) { state.sheet = PlayerSheet.Transcript }
         }
     }
@@ -617,7 +620,7 @@ private fun AccountActions(state: PlayerState) {
             flourish = Flourish.Pop,
             labelRollsUp = rising,
             shape = RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp, topEnd = 8.dp, bottomEnd = 8.dp),
-            description = "Like",
+            description = stringResource(R.string.player_like),
         ) { state.setLike(LikeStatus.Like) }
         ActionPill(
             icon = if (like == LikeStatus.Dislike) Icons.Rounded.ThumbDown else Icons.Outlined.ThumbDown,
@@ -625,17 +628,17 @@ private fun AccountActions(state: PlayerState) {
             active = like == LikeStatus.Dislike,
             flourish = Flourish.Droop,
             shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp, topEnd = 22.dp, bottomEnd = 22.dp),
-            description = "Dislike",
+            description = stringResource(R.string.player_dislike),
         ) { state.setLike(LikeStatus.Dislike) }
     }
     // Any of the account's playlists (GitHub issue #12).
     ActionPill(
         icon = Icons.Rounded.LibraryAdd,
-        label = "Playlist",
+        label = stringResource(R.string.player_playlist),
         active = false,
         flourish = null,
         shape = RoundedCornerShape(22.dp),
-        description = "Save to playlist",
+        description = stringResource(R.string.player_save_to_playlist),
     ) { state.current?.let(state::openPlaylists) }
 }
 
@@ -757,7 +760,7 @@ private fun RowScope.MiniDetails(state: PlayerState, interactive: Boolean) {
                 onClick = state::togglePlay,
             )
             Box(Modifier.size(40.dp).pressable(enabled = interactive, onClick = state::close), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.Close, "Close", tint = c.onSurfaceVariant)
+                Icon(Icons.Rounded.Close, stringResource(R.string.player_close), tint = c.onSurfaceVariant)
             }
         }
         val progress = if (state.durationMs > 0) (state.positionMs.toFloat() / state.durationMs).coerceIn(0f, 1f) else 0f

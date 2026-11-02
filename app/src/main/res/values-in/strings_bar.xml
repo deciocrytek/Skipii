@@ -1,0 +1,69 @@
+<resources>
+    <!-- The open player's bar (the tab bar turns into it): play, -10 / +10, audio only, the ⋮ key. -->
+    <!-- Accessibility labels of the bar's play button. -->
+    <string name="bar_play">Putar</string>
+    <string name="bar_pause">Jeda</string>
+    <!-- Accessibility labels of the bar's seek buttons. -->
+    <string name="bar_back_10">Mundur 10 detik</string>
+    <string name="bar_forward_10">Maju 10 detik</string>
+    <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
+    <string name="bar_more_controls">Kontrol lainnya</string>
+    <!-- Accessibility label of the ✕ the ⋮ key turns into. -->
+    <string name="bar_close">Tutup</string>
+    <!-- Accessibility labels of the audio only button (plays sound without the picture). -->
+    <string name="bar_audio_only">Audio saja</string>
+    <string name="bar_audio_only_on">Audio saja aktif</string>
+
+    <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
+    <string name="bar_tool_speed">Kecepatan</string>
+    <string name="bar_tool_quality">Kualitas</string>
+    <!-- Picture-in-picture, abbreviated. -->
+    <string name="bar_tool_pip">PiP</string>
+    <string name="bar_tool_captions">Subtitel</string>
+    <string name="bar_tool_fullscreen">Layar penuh</string>
+    <!-- Plays the next video. -->
+    <string name="bar_tool_next">Berikutnya</string>
+
+    <!-- Title of the chapter list, and the accessibility label of the button that opens it. -->
+    <string name="bar_chapters">Bab</string>
+    <!-- Above the chapter list: which chapter is playing, e.g. "3 of 12". -->
+    <string name="bar_chapter_position">%1$s dari %2$s</string>
+    <!-- A chapter with no title: "Chapter 3". -->
+    <string name="bar_chapter_untitled">Bab %1$s</string>
+
+    <!-- Quality list title. -->
+    <string name="bar_quality">Kualitas</string>
+    <!-- The quality that picks itself from the connection. Short, shown on a small round button too. -->
+    <string name="bar_quality_auto">Otomatis</string>
+    <!-- Next to the quality list's title: the quality playing now. %1$s = "720p". -->
+    <string name="bar_quality_playing">Memutar %1$s</string>
+    <!-- After "Auto" in the quality list: the height it plays right now. %1$s = 720 (shown as "720p now"). -->
+    <string name="bar_quality_now">%1$sp sekarang</string>
+    <!-- Note after the lowest qualities (240p and below): uses little mobile data. -->
+    <string name="bar_quality_data_saver">Hemat data</string>
+    <!-- Accessibility label of the check on the chosen row of a list. -->
+    <string name="bar_selected">Dipilih</string>
+
+    <!-- Captions list title (next to an on/off switch). -->
+    <string name="bar_captions">Subtitel</string>
+    <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into. -->
+    <string name="bar_captions_translated">DITERJEMAHKAN DI PONSEL ANDA</string>
+    <!-- Captions list row that shows every language. -->
+    <string name="bar_captions_more_languages">Bahasa lainnya</string>
+    <!-- Captions list button that opens the full text of the video's captions. -->
+    <string name="bar_transcript">Transkrip</string>
+
+    <!-- Message when the phone's settings don't allow picture-in-picture for the app. -->
+    <string name="bar_pip_off">Picture-in-picture dinonaktifkan untuk Skipii di Setelan.</string>
+
+    <!-- Pill above the scrub preview: let go here to not jump. Short. -->
+    <string name="bar_cancel">Batal</string>
+
+    <!-- Speed panel. Under the big speed number: whether the speed applies to every video or only this one. -->
+    <string name="bar_speed_every_video">Setiap video</string>
+    <string name="bar_speed_this_video">Video ini saja</string>
+    <!-- Checkbox: keep this speed for every video. -->
+    <string name="bar_speed_remember">Ingat untuk setiap video</string>
+    <!-- Under the checkbox: remembering ends when the speed is set back to normal (1×). -->
+    <string name="bar_speed_remember_note">Sampai Anda mengembalikannya ke 1×</string>
+</resources>

@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube no ofreció ningún Short en este momento.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Este Short no se puede reproducir ahora.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Este Short no se puede reproducir</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Reintentar</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Inicia sesión para dar me gusta a los Shorts.</string>
+    <string name="shorts_like_failed">No se pudo actualizar tu me gusta.</string>
+    <string name="shorts_sign_in_to_subscribe">Inicia sesión para suscribirte.</string>
+    <string name="shorts_subscription_failed">No se pudo actualizar tu suscripción.</string>
+    <string name="shorts_channel_unavailable">No se puede abrir este canal.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Atrás</string>
+    <string name="shorts_like">Me gusta</string>
+    <string name="shorts_comments">Comentarios</string>
+    <string name="shorts_share">Compartir</string>
+    <string name="shorts_channel">Canal</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Suscribirse</string>
+    <string name="shorts_unsubscribe">Anular suscripción</string>
+    <string name="shorts_go_to_channel">Ir al canal</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Campana activada: todos los videos nuevos. Toca para desactivarla</string>
+    <string name="shorts_bell_off">Campana: recibe una notificación de cada video nuevo</string>
+</resources>

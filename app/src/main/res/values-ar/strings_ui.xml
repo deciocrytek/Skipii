@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">إعادة المحاولة</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">رجوع</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">إغلاق</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">تسجيل الدخول عبر Google</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">المشاهدة لاحقًا</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">الفيديوهات التي أعجبتني</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">تشغيل تاليًا</string>
+    <string name="ui_add_to_queue">إضافة إلى قائمة الانتظار</string>
+    <string name="ui_save_to_watch_later">حفظ في قائمة المشاهدة لاحقًا</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">حفظ في قائمة تشغيل</string>
+    <string name="ui_share">مشاركة</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">محفوظ</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">خاص</string>
+    <string name="ui_privacy_unlisted">غير مدرج</string>
+    <string name="ui_privacy_public">عام</string>
+    <string name="ui_new_playlist">قائمة تشغيل جديدة</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">اسم قائمة التشغيل</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">إنشاء</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="zero">قائمة الانتظار · %1$s</item>
+        <item quantity="one">قائمة الانتظار · %1$s</item>
+        <item quantity="two">قائمة الانتظار · %1$s</item>
+        <item quantity="few">قائمة الانتظار · %1$s</item>
+        <item quantity="many">قائمة الانتظار · %1$s</item>
+        <item quantity="other">قائمة الانتظار · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">محو</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">قائمة الانتظار</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">إزالة من قائمة الانتظار</string>
+    <string name="ui_queue_empty">قائمة الانتظار فارغة. اضغط مع الاستمرار على فيديو لإضافته.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">تخطي فقرات الرعاية والمقاطع الأخرى</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">المقاطع من SponsorBlock (sponsor.ajay.app)، وهو مشروع مجتمعي. البيانات مرخّصة بموجب CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">عناصر التحكم في المشغّل</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">في شريط التشغيل أسفل المشغّل</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">على الفيديو؛ اسحب المؤشر على حافته السفلية للتنقّل</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">شريط التشغيل</string>
+    <string name="ui_player_controls_on_video">على الفيديو</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">عرض علامة تبويب Shorts</string>
+    <string name="ui_shorts_off_line">علامة تبويب Shorts مخفية ولا يتم تحميل أي فيديوهات Shorts</string>
+    <string name="ui_appearance">المظهر</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">النظام</string>
+    <string name="ui_mode_light">فاتح</string>
+    <string name="ui_mode_dark">داكن</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">الخلفية</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">محدّد</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">إلغاء</string>
+    <string name="ui_sign_in_title">تسجيل الدخول إلى YouTube</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · محفوظة ومشفّرة على هذا الهاتف</string>
+    <string name="ui_sign_in_error">تم تسجيل الدخول، لكن YouTube لم يستجب. تحقّق من اتصالك وحاول مرة أخرى.</string>
+    <string name="ui_finishing_sign_in">جارٍ إكمال تسجيل الدخول…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">تسجيل الدخول</string>
+    <string name="ui_account_pitch_title">YouTube الخاص بك، بلا إعلانات</string>
+    <string name="ui_account_pitch_body">سجّل الدخول للحصول على اقتراحاتك واشتراكاتك وسجلّ المشاهدة وقوائم التشغيل. تتم مزامنة الإعجابات والاشتراكات وقائمة المشاهدة لاحقًا وسجلّ المشاهدة مع حسابك.\n\nتَعتبر Google التطبيقات غير الرسمية مخالفة لبنودها، وقد تعلّق الحسابات التي تستخدمها. استخدام حساب Google ثانوي يُبعد هذا الخطر عن حسابك الرئيسي.</string>
+    <string name="ui_sign_out">تسجيل الخروج</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">اقتراحاتك، بلا إعلانات</string>
+    <string name="ui_home_signed_out_body">سجّل الدخول عبر Google لعرض صفحتك الرئيسية على YouTube، أو ابحث مباشرةً.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">البحث بدلاً من ذلك</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">الاشتراكات</string>
+    <string name="ui_subscriptions_signed_out_title">اشتراكاتك</string>
+    <string name="ui_subscriptions_signed_out_body">سجّل الدخول عبر Google لعرض الفيديوهات الجديدة من القنوات التي تتابعها.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">المكتبة</string>
+    <string name="ui_library_signed_out_title">مكتبتك</string>
+    <string name="ui_library_signed_out_body">سجّل الدخول عبر Google لعرض السجلّ والمشاهدة لاحقًا والفيديوهات التي أعجبتك وقوائم التشغيل.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">السجلّ</string>
+    <string name="ui_history_empty">لم تشاهد أي شيء بعد.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">قوائم التشغيل</string>
+    <string name="ui_playlist_empty_title">لا شيء هنا بعد</string>
+    <string name="ui_playlist_empty_body">ستظهر هنا الفيديوهات التي تضيفها إلى قائمة التشغيل هذه.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">بحث</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">البحث في YouTube</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">محو</string>
+    <string name="ui_search_error_title">تعذّر تحميل البحث</string>
+    <string name="ui_search_intro_title">ابحث بلا إعلانات</string>
+    <string name="ui_search_intro_body">تُشغَّل النتائج فورًا، بلا إعلانات وبلا تسجيل دخول.</string>
+    <string name="ui_search_nothing_found">لم يتم العثور على شيء</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">لا توجد فيديوهات تطابق «%1$s».</string>
+    <string name="ui_recent_searches">عمليات البحث الأخيرة</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">محو الكل</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">إزالة</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">تعذّر تعديل اشتراكك.</string>
+    <string name="ui_channel_error_title">تعذّر تحميل هذه القناة</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">الفيديوهات</string>
+    <string name="ui_feed_error_title">تعذّر تحميل هذا المحتوى</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">لقد سجّلت الخروج.</string>
+</resources>

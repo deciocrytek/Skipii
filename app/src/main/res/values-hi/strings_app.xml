@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">होम</string>
+    <string name="app_tab_subscriptions">सदस्यताएं</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">Shorts</string>
+    <string name="app_tab_search">खोजें</string>
+    <string name="app_tab_library">लाइब्रेरी</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">अपडेट</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">इंस्टॉल हो रहा</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">फिर कोशिश</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). -->
+    <string name="app_update_percent">%1$s%%</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">नया क्या है</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s MB</string>
+    <string name="app_update_no_notes">इस वर्शन के साथ कोई नोट पब्लिश नहीं किए गए.</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">अपडेट करें</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">डाउनलोड हो रहा है %1$s%%</string>
+    <string name="app_update_installing">इंस्टॉल हो रहा है…</string>
+    <string name="app_update_try_again">फिर से कोशिश करें</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">ऐप अपडेट</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Skipii को %1$s पर अपडेट किया गया</string>
+    <string name="app_updated_text">खोलने के लिए टैप करें</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">सदस्यता लें</string>
+    <string name="app_subscribed">सदस्यता ली गई</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">घंटी चालू: हर नया वीडियो. बंद करने के लिए टैप करें</string>
+    <string name="app_bell_off_description">घंटी: हर नए वीडियो की सूचना पाएं</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">%1$s का हर नया वीडियो</string>
+    <string name="app_bell_off_message">%1$s की सूचनाएं बंद हैं</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">इस चैनल का हर नया वीडियो</string>
+    <string name="app_bell_off_message_unnamed">इस चैनल की सूचनाएं बंद हैं</string>
+    <string name="app_bell_failed">घंटी की सेटिंग नहीं बदली जा सकी.</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">घंटी इस्तेमाल करने के लिए Skipii की सूचनाओं को अनुमति दें.</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">घंटी इस्तेमाल करने के लिए Skipii की सूचनाएं चालू करें.</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">नए वीडियो</string>
+    <string name="app_new_videos_channel_description">जिन चैनलों की घंटी चालू है, उनका हर नया वीडियो</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">नया वीडियो</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">YouTube खाता</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube ने सेशन अस्वीकार कर दिया (%1$s). फिर से साइन इन करके देखें.</string>
+    <string name="app_error_youtube_returned">YouTube ने %1$s लौटाया</string>
+</resources>

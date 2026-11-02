@@ -1,0 +1,4 @@
+<resources>
+    <!-- Counts grouped by 10,000 (万) and 100,000,000 (億) instead of thousands / millions (formatCount). -->
+    <bool name="count_in_ten_thousands">false</bool>
+</resources>

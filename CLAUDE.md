@@ -557,6 +557,24 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   subscribed state, never shipped). Test the worker: delete `no_backup/androidx.work.workdb*` (run-as) and relaunch —
   WorkManager won't run periodic work early even with `cmd jobscheduler run -f`. NOT verified (needs Derek's account):
   bells read from his pages / FEchannels, `setBell` accepted, the Subscriptions-feed fallback, the Shorts card's key.
+- 0.5.79 languages (2026-11-02, Derek; GitHub #23, Spanish users): Skipii in English + Spanish, Portuguese (BR, `values-pt`),
+  French, German, Italian, Indonesian (`values-in`), Turkish, Vietnamese, Russian, Arabic, Hindi, Japanese. `AppLanguage`
+  (Language.kt): the phone's language or a pick from the account sheet's Language card (first card; a drop-down, 0.5.80, each language
+  named in itself). Android 13+ = the system per-app language (`LocaleManager`, `res/xml/locales_config.xml`, also in Settings ›
+  Apps › Skipii › Language; Android recreates the window); below = prefs "language" + `attachBaseContext` wrap + `recreate()`.
+  YouTube is ALWAYS asked in English (`hl=en`): parsers, the movie / members-only filters and bot-check detection read its
+  English words; only Google's sign-in page follows the app (`AppLanguage.webTag`). Skipii translates at DISPLAY: `formatCount`
+  (suffixes from count_thousands…, the language's decimal mark, Latin digits; Japanese 万/億 via bool count_in_ten_thousands),
+  `viewsLine` / `subscribersLine` (plurals by `compactQuantity`: a compacted count stands in as 1,000 / 1,000,000 so the noun
+  agrees with "1,2 M" — French/Spanish "de", Russian "просмотров"), `displayAge` (YouTube's English "3 days ago" → ICU
+  RelativeDateTimeFormatter; data stays English, NewVideos parses it). Strings live in `res/values/strings_<area>.xml` (prefix
+  per area: video_, shorts_, bar_, player_, comments_/captions_, ui_, app_) and `strings.xml` (shared). In a composition use
+  `stringResource`; elsewhere `str(R.string.x)` / `plural(R.plurals.x, n)` (Language.kt, the app's current language). Never keep
+  translated text in something built once (enums, objects): keep a `@StringRes` and resolve where shown. Placeholders are
+  always `%N$s`, never `%d` (Resources format %d with Arabic-Indic digits). New strings need all 12 translations (same names,
+  same placeholders; check with a script). Caption "Foreign" mode and language names follow the app's language. Verified on
+  skipii_qa (Android 16): picker → Spanish, feeds/player/bar/tabs, Arabic search line, release (R8) playback in Spanish.
+  NOT verified: Android 12 and below (the prefs path), signed-in screens in other languages, every translation on screen.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -660,6 +678,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.
+- `Language.kt` — `AppLanguage` (phone's or picked language, per-app locale), `str()` / `plural()` for code outside a composition.
 - `Theme.kt` (wallpaper color, seed fallback), `Motion.kt` (curves, `pressable`), `Net.kt`.
 
 ## Roadmap

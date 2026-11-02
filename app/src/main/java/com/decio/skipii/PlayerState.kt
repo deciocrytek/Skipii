@@ -200,7 +200,7 @@ class PlayerState(private val scope: CoroutineScope) {
                     comments.load(item.id)
                     known[item.id] = d.item
                     captions.useTracks(d.captions)
-                    if (!d.playable) error = "No playable stream was found for this video."
+                    if (!d.playable) error = str(R.string.player_error_no_stream)
                     else if (startPlayback) startPlayback(d.item)
                 }
                 .onFailure {
@@ -264,7 +264,7 @@ class PlayerState(private val scope: CoroutineScope) {
         known[item.id] = item
         if (current == null || player.mediaItemCount == 0) { open(item, expand = false); return }
         player.addMediaItem(player.currentMediaItemIndex + 1, mediaItemFor(item))
-        actionMessage = "Playing next"
+        actionMessage = str(R.string.player_playing_next)
         continueIfEnded(player)
     }
 
@@ -281,7 +281,7 @@ class PlayerState(private val scope: CoroutineScope) {
         known[item.id] = item
         if (current == null || player.mediaItemCount == 0) { open(item, expand = false); return }
         player.addMediaItem(mediaItemFor(item))
-        actionMessage = "Added to queue"
+        actionMessage = str(R.string.player_added_to_queue)
         continueIfEnded(player)
     }
 
@@ -390,7 +390,7 @@ class PlayerState(private val scope: CoroutineScope) {
         accountState = before.copy(like = next)
         scope.launch {
             runCatching { InnerTube.setLike(id, next) }
-                .onFailure { accountState = before; actionMessage = "Couldn't update your like." }
+                .onFailure { accountState = before; actionMessage = str(R.string.player_like_failed) }
         }
     }
 
@@ -404,7 +404,7 @@ class PlayerState(private val scope: CoroutineScope) {
         scope.launch {
             runCatching { InnerTube.setSubscribed(channelId, subscribe) }
                 .onSuccess { if (!subscribe) Bells.forget(channelId) }
-                .onFailure { accountState = before; actionMessage = "Couldn't update your subscription." }
+                .onFailure { accountState = before; actionMessage = str(R.string.player_subscribe_failed) }
         }
     }
 
@@ -412,8 +412,8 @@ class PlayerState(private val scope: CoroutineScope) {
     fun saveToWatchLater(video: VideoItem) {
         scope.launch {
             runCatching { InnerTube.setInWatchLater(video.id, true) }
-                .onSuccess { actionMessage = "Saved to Watch later" }
-                .onFailure { actionMessage = "Couldn't save to Watch later."; Log.w(TAG, "watch later ${video.id}", it) }
+                .onSuccess { actionMessage = str(R.string.player_saved_watch_later) }
+                .onFailure { actionMessage = str(R.string.player_watch_later_failed); Log.w(TAG, "watch later ${video.id}", it) }
         }
     }
 
@@ -457,10 +457,10 @@ class PlayerState(private val scope: CoroutineScope) {
         mark(add)
         scope.launch {
             runCatching { InnerTube.setInPlaylist(choice.id, video.id, add) }
-                .onSuccess { actionMessage = if (add) "Saved to ${choice.title}" else "Removed from ${choice.title}" }
+                .onSuccess { actionMessage = if (add) str(R.string.player_saved_to, choice.title) else str(R.string.player_removed_from, choice.title) }
                 .onFailure {
                     mark(choice.contains)
-                    actionMessage = "Couldn't update ${choice.title}."
+                    actionMessage = str(R.string.player_playlist_update_failed, choice.title)
                     Log.w(TAG, "playlist ${choice.id} ${video.id}", it)
                 }
         }
@@ -475,9 +475,9 @@ class PlayerState(private val scope: CoroutineScope) {
                         val wl = list.takeWhile { it.id == "WL" }
                         wl + made + list.drop(wl.size)
                     }
-                    actionMessage = "Saved to $title"
+                    actionMessage = str(R.string.player_saved_to, title)
                 }
-                .onFailure { actionMessage = "Couldn't create the playlist."; Log.w(TAG, "create playlist", it) }
+                .onFailure { actionMessage = str(R.string.player_create_playlist_failed); Log.w(TAG, "create playlist", it) }
         }
     }
 
@@ -732,9 +732,9 @@ class PlayerState(private val scope: CoroutineScope) {
             if (e.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && StreamRecovery.recovering == current?.id) return
             error = when (e.errorCode) {
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
-                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> "Lost the connection. Check your network and try again."
-                PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> "YouTube refused the stream. Try again."
-                else -> "This video couldn't be played."
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> str(R.string.player_error_connection)
+                PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> str(R.string.player_error_refused)
+                else -> str(R.string.player_error_unplayable)
             }
         }
     }
@@ -763,7 +763,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 format.codecs?.startsWith("av01") == true -> "AV1"
                 else -> format.codecs ?: format.sampleMimeType ?: "?"
             }
-            val auto = if (formats.size > 1) "Auto" else null
+            val auto = if (formats.size > 1) str(R.string.player_quality_auto) else null
             playingFormat = listOfNotNull(auto, "${format.width}×${format.height}", codec, format.id?.substringAfterLast(":")?.let { "itag $it" }).joinToString(" · ")
         }
     }

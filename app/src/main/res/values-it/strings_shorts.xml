@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">Al momento YouTube non ha proposto nessuno Short.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Al momento non è possibile riprodurre questo Short.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Impossibile riprodurre lo Short</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Riprova</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Accedi per mettere Mi piace agli Shorts.</string>
+    <string name="shorts_like_failed">Impossibile aggiornare il tuo Mi piace.</string>
+    <string name="shorts_sign_in_to_subscribe">Accedi per iscriverti.</string>
+    <string name="shorts_subscription_failed">Impossibile aggiornare la tua iscrizione.</string>
+    <string name="shorts_channel_unavailable">Impossibile aprire questo canale.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Indietro</string>
+    <string name="shorts_like">Mi piace</string>
+    <string name="shorts_comments">Commenti</string>
+    <string name="shorts_share">Condividi</string>
+    <string name="shorts_channel">Canale</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Iscriviti</string>
+    <string name="shorts_unsubscribe">Annulla iscrizione</string>
+    <string name="shorts_go_to_channel">Vai al canale</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Campanella attiva: ogni nuovo video. Tocca per disattivarla</string>
+    <string name="shorts_bell_off">Campanella: ricevi una notifica per ogni nuovo video</string>
+</resources>

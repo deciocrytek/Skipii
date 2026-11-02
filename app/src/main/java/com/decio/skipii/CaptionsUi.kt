@@ -82,6 +82,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -154,8 +155,8 @@ private fun CaptionStatus(cap: CaptionsState, choice: CaptionChoice, px: Float) 
     val text = when {
         error != null -> error.takeIf { showError }
         choice.translateTo == null -> null
-        CaptionTranslator.downloading.isNotEmpty() -> "Downloading ${choice.label} for translating…"
-        cap.loading -> "Translating into ${choice.label}…"
+        CaptionTranslator.downloading.isNotEmpty() -> stringResource(R.string.captions_downloading_language, choice.label)
+        cap.loading -> stringResource(R.string.captions_translating_into, choice.label)
         else -> null
     } ?: return
     Text(
@@ -295,16 +296,16 @@ sealed interface CaptionOption {
 }
 
 /**
- * The video's tracks (your language first), then translations: into the phone's language, the last one
+ * The video's tracks (your language first), then translations: into the app's language, the last one
  * picked and any already downloaded; with [all], every language. Languages the creator already has a
  * track in aren't offered as translations.
  */
 fun captionOptions(cap: CaptionsState, all: Boolean): List<CaptionOption> = buildList {
-    cap.tracks.forEach { add(CaptionOption.Pick(CaptionChoice(it), it.title(cap.tracks), if (it.auto) "auto-generated" else null)) }
+    cap.tracks.forEach { add(CaptionOption.Pick(CaptionChoice(it), it.title(cap.tracks), if (it.auto) str(R.string.captions_auto_generated) else null)) }
     val source = cap.translationSource ?: return@buildList
     val from = CaptionTranslator.code(source.base) ?: return@buildList
     val covered = cap.tracks.filter { !it.auto }.mapNotNull { CaptionTranslator.code(it.base) }.toSet() + from
-    val likely = (listOfNotNull(CaptionTranslator.code(CaptionSettings.phoneLanguage), CaptionTranslator.code(CaptionSettings.language), cap.choice?.translateTo) +
+    val likely = (listOfNotNull(CaptionTranslator.code(CaptionSettings.appLanguage), CaptionTranslator.code(CaptionSettings.language), cap.choice?.translateTo) +
         CaptionTranslator.downloaded.sortedBy { CaptionNames.language(it) }).distinct()
     val targets = (if (all) likely + CaptionTranslator.all.sortedBy { CaptionNames.language(it) } else likely).distinct().filter { it !in covered }
     val more = !all && CaptionTranslator.all.any { it !in covered && it !in likely }
@@ -316,7 +317,11 @@ fun captionOptions(cap: CaptionsState, all: Boolean): List<CaptionOption> = buil
         add(
             CaptionOption.Pick(
                 CaptionChoice(source, lang), CaptionNames.language(lang),
-                when { busy -> "downloading…"; ready -> "from ${CaptionNames.language(source.base)}"; else -> "~30 MB download" },
+                when {
+                    busy -> str(R.string.captions_note_downloading)
+                    ready -> str(R.string.captions_note_from, CaptionNames.language(source.base))
+                    else -> str(R.string.captions_note_download_size)
+                },
                 ready = ready, busy = busy,
             ),
         )
@@ -343,20 +348,20 @@ fun CaptionsSheet(state: PlayerState, onDismiss: () -> Unit, onTranscript: () ->
     ) {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
             Row(Modifier.padding(start = 4.dp, end = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Captions", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.captions_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
                 Switch(cap.on, onCheckedChange = cap::turn, enabled = cap.choice != null, colors = SwitchDefaults.colors(checkedTrackColor = c.primary))
             }
             if (cap.tracks.isEmpty()) {
-                Text("This video has no captions.", color = c.onSurfaceVariant, fontSize = 14.sp, modifier = Modifier.padding(4.dp))
+                Text(stringResource(R.string.captions_none), color = c.onSurfaceVariant, fontSize = 14.sp, modifier = Modifier.padding(4.dp))
             }
             captionOptions(cap, all).forEach { option ->
                 when (option) {
                     is CaptionOption.Pick -> CaptionSheetRow(option.title, option.note, cap.shows(option)) { cap.pick(option.choice); onDismiss() }
                     CaptionOption.Section -> Text(
-                        "TRANSLATED ON YOUR PHONE", color = c.onSurfaceVariant, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.8.sp,
+                        stringResource(R.string.captions_translated_on_phone), color = c.onSurfaceVariant, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.8.sp,
                         modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 6.dp),
                     )
-                    CaptionOption.More -> CaptionSheetRow("More languages", null, false) { all = true }
+                    CaptionOption.More -> CaptionSheetRow(stringResource(R.string.captions_more_languages), null, false) { all = true }
                 }
             }
             if (cap.tracks.isNotEmpty()) {
@@ -368,7 +373,7 @@ fun CaptionsSheet(state: PlayerState, onDismiss: () -> Unit, onTranscript: () ->
                 ) {
                     Icon(Icons.Rounded.Subtitles, null, tint = c.onSurface, modifier = Modifier.size(19.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Transcript", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(stringResource(R.string.captions_transcript), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
             Spacer(Modifier.height(28.dp))
@@ -394,7 +399,7 @@ private fun CaptionSheetRow(title: String, note: String?, selected: Boolean, onC
             Text(" · $note", color = if (selected) c.onPrimary.copy(alpha = 0.8f) else c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
         }
         Spacer(Modifier.weight(1f))
-        if (selected) Icon(Icons.Rounded.Check, "Selected", tint = c.onPrimary, modifier = Modifier.size(20.dp))
+        if (selected) Icon(Icons.Rounded.Check, stringResource(R.string.captions_selected), tint = c.onPrimary, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -417,13 +422,13 @@ fun TranscriptPanel(state: PlayerState, partialTop: Dp, onClose: () -> Unit) {
     PlayerPanel(
         partialTop = partialTop,
         onClose = onClose,
-        closeLabel = "Close transcript",
+        closeLabel = stringResource(R.string.captions_close_transcript),
         title = {
-            Text("Transcript", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
+            Text(stringResource(R.string.captions_transcript), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
             cap.choice?.let { choice ->
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    choice.label + if (choice.track.auto && choice.translateTo == null) " · auto" else "",
+                    choice.label + if (choice.track.auto && choice.translateTo == null) " · " + stringResource(R.string.captions_auto) else "",
                     color = c.onSurfaceVariant, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, maxLines = 1,
                     modifier = Modifier.clip(CircleShape).background(c.surfaceContainerHigh).padding(horizontal = 11.dp, vertical = 6.dp),
                 )
@@ -434,12 +439,12 @@ fun TranscriptPanel(state: PlayerState, partialTop: Dp, onClose: () -> Unit) {
         val cues = cap.cues
         Box(listModifier) {
             when {
-                cap.tracks.isEmpty() -> TranscriptNote("This video has no captions, so there's no transcript.")
+                cap.tracks.isEmpty() -> TranscriptNote(stringResource(R.string.captions_no_transcript))
                 cues == null && cap.error != null -> TranscriptNote(cap.error.orEmpty())
                 cues == null -> Box(Modifier.fillMaxWidth().padding(24.dp), Alignment.TopCenter) {
                     CircularProgressIndicator(color = c.primary, strokeWidth = 3.dp, modifier = Modifier.size(26.dp))
                 }
-                cues.isEmpty() -> TranscriptNote("No lines yet.")
+                cues.isEmpty() -> TranscriptNote(stringResource(R.string.captions_no_lines))
                 else -> TranscriptList(state, cues, query.trim()) { query = "" }
             }
         }
@@ -464,7 +469,7 @@ private fun TranscriptSearch(query: String, onChange: (String) -> Unit) {
         Icon(Icons.Rounded.Search, null, tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(10.dp))
         Box(Modifier.weight(1f)) {
-            if (query.isEmpty()) Text("Search the transcript", color = c.onSurfaceVariant, fontSize = 15.sp)
+            if (query.isEmpty()) Text(stringResource(R.string.captions_search_transcript), color = c.onSurfaceVariant, fontSize = 15.sp)
             BasicTextField(
                 value = query,
                 onValueChange = onChange,
@@ -479,7 +484,7 @@ private fun TranscriptSearch(query: String, onChange: (String) -> Unit) {
         }
         if (query.isNotEmpty()) {
             Box(Modifier.size(36.dp).pressable { onChange("") }, contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.Close, "Clear search", tint = c.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                Icon(Icons.Rounded.Close, stringResource(R.string.captions_clear_search), tint = c.onSurfaceVariant, modifier = Modifier.size(18.dp))
             }
         }
     }
@@ -511,7 +516,7 @@ private fun TranscriptList(state: PlayerState, cues: List<CaptionCue>, query: St
         list.animateScrollToItem((at - 2).coerceAtLeast(0))
     }
     Box(Modifier.fillMaxSize()) {
-        if (shown.isEmpty()) TranscriptNote("Nothing matches \"$query\".")
+        if (shown.isEmpty()) TranscriptNote(stringResource(R.string.captions_nothing_matches, query))
         LazyColumn(
             state = list,
             modifier = Modifier.fillMaxSize().nestedScroll(dragged),
@@ -543,7 +548,7 @@ private fun TranscriptList(state: PlayerState, cues: List<CaptionCue>, query: St
             ) {
                 Icon(Icons.Rounded.KeyboardArrowDown, null, tint = c.onPrimary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Back to now", color = c.onPrimary, fontWeight = FontWeight.ExtraBold, fontSize = 13.5.sp)
+                Text(stringResource(R.string.captions_back_to_now), color = c.onPrimary, fontWeight = FontWeight.ExtraBold, fontSize = 13.5.sp)
             }
         }
     }
@@ -616,8 +621,8 @@ private fun transcriptText(cue: CaptionCue, playing: Boolean, now: Long, query: 
 fun CaptionSettingsCard() {
     val c = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth()) {
-        Text("Captions", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
-        Text("Pick a language or turn them off in the player", color = c.onSurfaceVariant, fontSize = 13.sp)
+        Text(stringResource(R.string.captions_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+        Text(stringResource(R.string.captions_settings_subtitle), color = c.onSurfaceVariant, fontSize = 13.sp)
         // A still with a sample line in the chosen look and size.
         Box(
             Modifier
@@ -632,28 +637,32 @@ fun CaptionSettingsCard() {
                 // As big as on the portrait video, whatever this box's height.
                 val px = 15f * CaptionSettings.size * look.scale
                 Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp).widthIn(max = maxWidth * 0.92f)) {
-                    CaptionText(listOf(CaptionLine("This is how captions", false), CaptionLine("will look on the video.", false)), look, px)
+                    val sample = listOf(
+                        CaptionLine(stringResource(R.string.captions_sample_line_1), false),
+                        CaptionLine(stringResource(R.string.captions_sample_line_2), false),
+                    )
+                    CaptionText(sample, look, px)
                 }
             }
         }
-        SettingLabel("Show captions")
+        SettingLabel(stringResource(R.string.captions_show))
         SettingChips(
             CaptionSettings.Show.entries.map {
                 it to when (it) {
-                    CaptionSettings.Show.Never -> "Never"
-                    CaptionSettings.Show.Always -> "Always"
-                    CaptionSettings.Show.Foreign -> "When it isn't in ${CaptionNames.language(CaptionSettings.phoneLanguage)}"
+                    CaptionSettings.Show.Never -> stringResource(R.string.captions_show_never)
+                    CaptionSettings.Show.Always -> stringResource(R.string.captions_show_always)
+                    CaptionSettings.Show.Foreign -> stringResource(R.string.captions_show_foreign, CaptionNames.language(CaptionSettings.appLanguage))
                 }
             },
             CaptionSettings.show, CaptionSettings::chooseShow,
         )
-        SettingLabel("Look")
-        SettingChips(CaptionSettings.Look.entries.map { it to it.label }, CaptionSettings.look, CaptionSettings::chooseLook)
-        SettingLabel("Size")
-        SettingChips(CaptionSettings.sizes.map { it.first to it.second }, CaptionSettings.size, CaptionSettings::chooseSize)
+        SettingLabel(stringResource(R.string.captions_look))
+        SettingChips(CaptionSettings.Look.entries.map { it to stringResource(it.labelRes) }, CaptionSettings.look, CaptionSettings::chooseLook)
+        SettingLabel(stringResource(R.string.captions_size))
+        SettingChips(CaptionSettings.sizes.map { it.first to stringResource(it.second) }, CaptionSettings.size, CaptionSettings::chooseSize)
         val kept = CaptionTranslator.downloaded.filter { it != "en" }.sortedBy { CaptionNames.language(it) }
         if (kept.isNotEmpty()) {
-            SettingLabel("Translation languages on this phone")
+            SettingLabel(stringResource(R.string.captions_kept_languages))
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 kept.forEach { lang ->
                     Row(
@@ -662,7 +671,7 @@ fun CaptionSettingsCard() {
                     ) {
                         Text(CaptionNames.language(lang), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false)
                         Box(Modifier.size(34.dp).pressable { CaptionTranslator.delete(lang) }, contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.Close, "Remove ${CaptionNames.language(lang)}", tint = c.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Rounded.Close, stringResource(R.string.captions_remove_language, CaptionNames.language(lang)), tint = c.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
                     }
                 }

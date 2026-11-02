@@ -1,0 +1,65 @@
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">Inicio</string>
+    <string name="app_tab_subscriptions">Suscripciones</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">Shorts</string>
+    <string name="app_tab_search">Buscar</string>
+    <string name="app_tab_library">Biblioteca</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">Actualizar</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">Instalando</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">Reintentar</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). -->
+    <string name="app_update_percent">%1$s%%</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">Novedades</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s MB</string>
+    <string name="app_update_no_notes">No se publicaron notas con esta versión.</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">Actualizar</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">Descargando %1$s%%</string>
+    <string name="app_update_installing">Instalando…</string>
+    <string name="app_update_try_again">Reintentar</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">Actualizaciones de la app</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Skipii se actualizó a la versión %1$s</string>
+    <string name="app_updated_text">Toca para abrir</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">Suscribirse</string>
+    <string name="app_subscribed">Suscrito</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">Campana activada: todos los videos nuevos. Toca para desactivarla</string>
+    <string name="app_bell_off_description">Campana: recibe una notificación de cada video nuevo</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">Todos los videos nuevos de %1$s</string>
+    <string name="app_bell_off_message">Notificaciones desactivadas para %1$s</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">Todos los videos nuevos de este canal</string>
+    <string name="app_bell_off_message_unnamed">Notificaciones desactivadas para este canal</string>
+    <string name="app_bell_failed">No se pudo cambiar la campana.</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">Permite las notificaciones de Skipii para usar la campana.</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">Activa las notificaciones de Skipii para usar la campana.</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">Videos nuevos</string>
+    <string name="app_new_videos_channel_description">Todos los videos nuevos de los canales con la campana activada</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">Video nuevo</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">Cuenta de YouTube</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube rechazó la sesión (%1$s). Vuelve a iniciar sesión.</string>
+    <string name="app_error_youtube_returned">YouTube devolvió %1$s</string>
+</resources>

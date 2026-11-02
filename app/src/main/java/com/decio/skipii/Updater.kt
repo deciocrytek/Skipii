@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -249,12 +250,12 @@ object AppUpdate {
         // A silent update closed the app with no word; Android's own dialog already offered Open.
         if (prompted || !NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        manager.createNotificationChannel(NotificationChannel(CHANNEL, "App updates", NotificationManager.IMPORTANCE_DEFAULT))
+        manager.createNotificationChannel(NotificationChannel(CHANNEL, str(R.string.app_update_channel), NotificationManager.IMPORTANCE_DEFAULT))
         val open = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("Skipii updated to ${BuildConfig.VERSION_NAME}")
-            .setContentText("Tap to open")
+            .setContentTitle(str(R.string.app_updated_title, BuildConfig.VERSION_NAME))
+            .setContentText(str(R.string.app_updated_text))
             .setContentIntent(PendingIntent.getActivity(context, 0, open, PendingIntent.FLAG_IMMUTABLE))
             .setAutoCancel(true)
             .setSilent(true)
@@ -516,10 +517,10 @@ fun UpdateAction() {
             )
             Text(
                 when (phase) {
-                    AppUpdate.Phase.Ready -> "Update"
-                    AppUpdate.Phase.Downloading -> "${(AppUpdate.progress * 100).toInt()}%"
-                    AppUpdate.Phase.Installing -> "Installing"
-                    AppUpdate.Phase.Failed -> "Retry"
+                    AppUpdate.Phase.Ready -> stringResource(R.string.app_update_pill)
+                    AppUpdate.Phase.Downloading -> stringResource(R.string.app_update_percent, (AppUpdate.progress * 100).toInt().toString())
+                    AppUpdate.Phase.Installing -> stringResource(R.string.app_update_pill_installing)
+                    AppUpdate.Phase.Failed -> stringResource(R.string.app_update_pill_retry)
                 },
                 color = c.onPrimary,
                 fontFamily = RoundedHeavy,
@@ -550,12 +551,15 @@ private fun WhatsNewSheet(release: AppUpdate.Release, onDismiss: () -> Unit) {
         containerColor = c.surfaceContainerLow,
     ) {
         Text(
-            "What's new",
+            stringResource(R.string.app_update_whats_new),
             fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
             modifier = Modifier.padding(horizontal = 24.dp),
         )
         Text(
-            listOfNotNull("Skipii ${release.version}", release.size.takeIf { it > 0 }?.let { "%.1f MB".format(Locale.US, it / 1_048_576.0) }).joinDots(),
+            listOfNotNull(
+                "Skipii ${release.version}",
+                release.size.takeIf { it > 0 }?.let { stringResource(R.string.app_update_size_mb, "%.1f".format(Locale.US, it / 1_048_576.0)) },
+            ).joinDots(),
             color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 2.dp, bottom = 14.dp),
         )
@@ -564,7 +568,7 @@ private fun WhatsNewSheet(release: AppUpdate.Release, onDismiss: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             if (release.notes.isEmpty()) {
-                Text("No notes were published with this version.", color = c.onSurfaceVariant, fontSize = 15.sp, lineHeight = 21.sp)
+                Text(stringResource(R.string.app_update_no_notes), color = c.onSurfaceVariant, fontSize = 15.sp, lineHeight = 21.sp)
             }
             val several = release.notes.size > 1
             release.notes.forEach { notes ->
@@ -594,10 +598,10 @@ private fun WhatsNewSheet(release: AppUpdate.Release, onDismiss: () -> Unit) {
         ) {
             Text(
                 when (phase) {
-                    AppUpdate.Phase.Ready -> "Update"
-                    AppUpdate.Phase.Downloading -> "Downloading ${(AppUpdate.progress * 100).toInt()}%"
-                    AppUpdate.Phase.Installing -> "Installing…"
-                    AppUpdate.Phase.Failed -> "Try again"
+                    AppUpdate.Phase.Ready -> stringResource(R.string.app_update_button)
+                    AppUpdate.Phase.Downloading -> stringResource(R.string.app_update_downloading, (AppUpdate.progress * 100).toInt().toString())
+                    AppUpdate.Phase.Installing -> stringResource(R.string.app_update_installing)
+                    AppUpdate.Phase.Failed -> stringResource(R.string.app_update_try_again)
                 },
                 color = c.onPrimary,
                 fontFamily = RoundedHeavy,

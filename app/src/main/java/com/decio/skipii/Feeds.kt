@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
@@ -134,7 +135,8 @@ class FeedState(
     }
 
     private fun friendly(t: Throwable) = when (t) {
-        is NotSignedInException -> "You're signed out."
+        is NotSignedInException -> str(R.string.ui_signed_out_error)
+        is YouTubeRefusedException -> t.localizedMessage
         else -> t.message?.takeIf { it.startsWith("YouTube") } ?: YouTube.friendlyError(t)
     }
 }
@@ -208,9 +210,9 @@ fun FeedList(
             feed.error != null && feed.videos.isEmpty() -> item {
                 EmptyState(
                     icon = Icons.Rounded.CloudOff,
-                    title = "Couldn't load this",
+                    title = stringResource(R.string.ui_feed_error_title),
                     body = feed.error.orEmpty(),
-                    action = { PillButton("Try again", { feed.refresh() }) },
+                    action = { PillButton(stringResource(R.string.ui_try_again), { feed.refresh() }) },
                 )
             }
             feed.loading || feed.hasMore -> item {

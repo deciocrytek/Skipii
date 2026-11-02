@@ -1,0 +1,119 @@
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">Komentar</string>
+    <string name="comments_turned_off">Komentar dinonaktifkan untuk video ini.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">Belum ada komentar. Jadilah yang pertama.</string>
+    <string name="comments_none">Belum ada komentar.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">Tutup komentar</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">Login untuk berkomentar.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">Membalas %1$s</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">Batalkan balasan</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">Tambahkan balasan…</string>
+    <string name="comments_add_comment">Tambahkan komentar…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">Kirim</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">Disematkan</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">Suka</string>
+    <string name="comments_unlike">Batal suka</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">Disukai oleh kreator</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">Balas</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">Sembunyikan balasan</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="other">%1$s balasan</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">Anda</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">Tidak dapat menyukai komentar itu.</string>
+    <string name="comments_error_post">Tidak dapat mengirim komentar Anda.</string>
+    <string name="comments_error_cant_post">Komentar dinonaktifkan atau tidak dapat dikirim di video ini.</string>
+    <string name="comments_error_reply_not_found">Komentar yang ingin dibalas tidak ditemukan. Coba lagi.</string>
+    <string name="comments_error_like_not_found">Komentar yang ingin disukai tidak ditemukan. Coba lagi.</string>
+    <string name="comments_error_not_accepted">YouTube tidak menerima komentar ini.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">Subtitel</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">Transkrip</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">Mendownload %1$s untuk terjemahan…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">Menerjemahkan ke %1$s…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">Tidak dapat mendownload %1$s untuk terjemahan.</string>
+    <string name="captions_error_load">Tidak dapat memuat subtitel ini.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">dibuat otomatis</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">otomatis</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">mendownload…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">dari %1$s</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">download ~30 MB</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">DITERJEMAHKAN DI PONSEL ANDA</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">Bahasa lainnya</string>
+    <string name="captions_none">Video ini tidak memiliki subtitel.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">Dipilih</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">Tutup transkrip</string>
+    <string name="captions_no_transcript">Video ini tidak memiliki subtitel, jadi tidak ada transkrip.</string>
+    <string name="captions_no_lines">Belum ada baris.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">Tidak ada yang cocok dengan \"%1$s\".</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">Kembali ke sekarang</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">Telusuri transkrip</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">Hapus penelusuran</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">Pilih bahasa atau nonaktifkan subtitel di pemutar</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">Seperti inilah subtitel</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">akan terlihat di video.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">Tampilkan subtitel</string>
+    <string name="captions_show_never">Tidak pernah</string>
+    <string name="captions_show_always">Selalu</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">Jika bukan %1$s</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">Tampilan</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">Klasik</string>
+    <string name="captions_look_outline">Garis tepi</string>
+    <string name="captions_look_system">Android</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">Ukuran</string>
+    <string name="captions_size_small">Kecil</string>
+    <string name="captions_size_medium">Sedang</string>
+    <string name="captions_size_large">Besar</string>
+    <string name="captions_size_huge">Sangat besar</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">Bahasa terjemahan di ponsel ini</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">Hapus %1$s</string>
+</resources>

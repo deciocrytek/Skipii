@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">Сейчас YouTube не предложил ни одного видео Shorts.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Сейчас это видео Shorts нельзя воспроизвести.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Не удалось воспроизвести Shorts</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Повторить</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Войдите, чтобы ставить лайки Shorts.</string>
+    <string name="shorts_like_failed">Не удалось обновить отметку «Нравится».</string>
+    <string name="shorts_sign_in_to_subscribe">Войдите, чтобы подписаться.</string>
+    <string name="shorts_subscription_failed">Не удалось обновить подписку.</string>
+    <string name="shorts_channel_unavailable">Не удалось открыть этот канал.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Назад</string>
+    <string name="shorts_like">Нравится</string>
+    <string name="shorts_comments">Комментарии</string>
+    <string name="shorts_share">Поделиться</string>
+    <string name="shorts_channel">Канал</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Подписаться</string>
+    <string name="shorts_unsubscribe">Отменить подписку</string>
+    <string name="shorts_go_to_channel">Перейти на канал</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Колокольчик включён: все новые видео. Нажмите, чтобы отключить</string>
+    <string name="shorts_bell_off">Колокольчик: уведомления о каждом новом видео</string>
+</resources>

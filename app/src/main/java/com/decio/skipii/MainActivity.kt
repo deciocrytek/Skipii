@@ -2,12 +2,14 @@ package com.decio.skipii
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
+import androidx.annotation.StringRes
 import java.lang.ref.WeakReference
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -114,8 +116,15 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
+    /** Below Android 13 the picked language is applied per window (AppLanguage). */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Android 13+ rebuilds the window after a change in Settings › Apps › Skipii › Language too.
+        AppLanguage.refresh()
         // One window at a time (one player, one video texture): a newer one closes the one before.
         // That's a bubble opened while the app is open, or the app opened from Home while it sits
         // in a bubble (the bubble then goes away). Its task goes too, so Recents keeps no stale card;
@@ -162,12 +171,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-enum class Tab(val label: String, val icon: ImageVector, val selectedIcon: ImageVector) {
-    Home("Home", Icons.Outlined.Home, Icons.Rounded.Home),
-    Subscriptions("Subscriptions", Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions),
-    Shorts("Shorts", Icons.Outlined.SlowMotionVideo, Icons.Rounded.SlowMotionVideo),
-    Search("Search", Icons.Rounded.Search, Icons.Rounded.Search),
-    Library("Library", Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary),
+enum class Tab(@StringRes val labelRes: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
+    Home(R.string.app_tab_home, Icons.Outlined.Home, Icons.Rounded.Home),
+    Subscriptions(R.string.app_tab_subscriptions, Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions),
+    Shorts(R.string.app_tab_shorts, Icons.Outlined.SlowMotionVideo, Icons.Rounded.SlowMotionVideo),
+    Search(R.string.app_tab_search, Icons.Rounded.Search, Icons.Rounded.Search),
+    Library(R.string.app_tab_library, Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary);
+
+    /** The label in the app's current language (resolved on each read, never kept). */
+    val label: String get() = str(labelRes)
 }
 
 // The mini-player floats 8 dp above the nav pill (NavBar.kt), capped at 368 dp, centered.

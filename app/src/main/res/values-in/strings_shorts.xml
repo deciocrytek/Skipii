@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube tidak menawarkan Shorts saat ini.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Short ini tidak dapat diputar saat ini.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Short ini tidak dapat diputar</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Coba lagi</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Login untuk menyukai Shorts.</string>
+    <string name="shorts_like_failed">Tidak dapat memperbarui suka Anda.</string>
+    <string name="shorts_sign_in_to_subscribe">Login untuk subscribe.</string>
+    <string name="shorts_subscription_failed">Tidak dapat memperbarui langganan Anda.</string>
+    <string name="shorts_channel_unavailable">Channel ini tidak dapat dibuka.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Kembali</string>
+    <string name="shorts_like">Suka</string>
+    <string name="shorts_comments">Komentar</string>
+    <string name="shorts_share">Bagikan</string>
+    <string name="shorts_channel">Channel</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Subscribe</string>
+    <string name="shorts_unsubscribe">Berhenti subscribe</string>
+    <string name="shorts_go_to_channel">Buka channel</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Lonceng aktif: setiap video baru. Ketuk untuk menonaktifkan</string>
+    <string name="shorts_bell_off">Lonceng: dapatkan notifikasi untuk setiap video baru</string>
+</resources>

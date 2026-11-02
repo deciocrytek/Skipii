@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">Комментарии</string>
+    <string name="comments_turned_off">Комментарии к этому видео отключены.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">Комментариев пока нет. Оставьте первый.</string>
+    <string name="comments_none">Комментариев пока нет.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">Закрыть комментарии</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">Войдите, чтобы оставить комментарий.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">Ответ пользователю %1$s</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">Отменить ответ</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">Введите ответ…</string>
+    <string name="comments_add_comment">Введите комментарий…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">Отправить</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">Закреплён</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">Нравится</string>
+    <string name="comments_unlike">Убрать отметку «Нравится»</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">Понравилось автору</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">Ответить</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">Скрыть ответы</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="one">%1$s ответ</item>
+        <item quantity="few">%1$s ответа</item>
+        <item quantity="many">%1$s ответов</item>
+        <item quantity="other">%1$s ответа</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">Вы</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">Не удалось поставить отметку «Нравится».</string>
+    <string name="comments_error_post">Не удалось опубликовать комментарий.</string>
+    <string name="comments_error_cant_post">Комментарии к этому видео отключены или их нельзя публиковать.</string>
+    <string name="comments_error_reply_not_found">Не удалось найти комментарий, на который вы отвечаете. Повторите попытку.</string>
+    <string name="comments_error_like_not_found">Не удалось найти комментарий, чтобы отметить его. Повторите попытку.</string>
+    <string name="comments_error_not_accepted">YouTube не принял комментарий.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">Субтитры</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">Расшифровка</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">Скачивание модели перевода: %1$s…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">Перевод: %1$s…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">Не удалось скачать модель перевода: %1$s.</string>
+    <string name="captions_error_load">Не удалось загрузить субтитры.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">созданы автоматически</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">авто</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">скачивание…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">оригинал: %1$s</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">скачать ~30 МБ</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">ПЕРЕВОД НА ТЕЛЕФОНЕ</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">Другие языки</string>
+    <string name="captions_none">У этого видео нет субтитров.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">Выбрано</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">Закрыть расшифровку</string>
+    <string name="captions_no_transcript">У этого видео нет субтитров, поэтому нет и расшифровки.</string>
+    <string name="captions_no_lines">Строк пока нет.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">Ничего не найдено по запросу «%1$s».</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">К текущему моменту</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">Поиск по расшифровке</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">Очистить поиск</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">Выбрать язык или отключить субтитры можно в плеере</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">Так будут выглядеть</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">субтитры на видео.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">Показывать субтитры</string>
+    <string name="captions_show_never">Никогда</string>
+    <string name="captions_show_always">Всегда</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">Если язык не %1$s</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">Вид</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">Классика</string>
+    <string name="captions_look_outline">Контур</string>
+    <string name="captions_look_system">Как в Android</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">Размер</string>
+    <string name="captions_size_small">Маленький</string>
+    <string name="captions_size_medium">Средний</string>
+    <string name="captions_size_large">Большой</string>
+    <string name="captions_size_huge">Огромный</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">Языки перевода на этом телефоне</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">Удалить: %1$s</string>
+</resources>

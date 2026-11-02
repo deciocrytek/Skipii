@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube şu anda hiç Shorts sunmadı.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Bu Shorts videosu şu anda oynatılamıyor.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Bu Shorts videosu oynatılamıyor</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Tekrar dene</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Shorts videolarını beğenmek için oturum açın.</string>
+    <string name="shorts_like_failed">Beğeniniz güncellenemedi.</string>
+    <string name="shorts_sign_in_to_subscribe">Abone olmak için oturum açın.</string>
+    <string name="shorts_subscription_failed">Aboneliğiniz güncellenemedi.</string>
+    <string name="shorts_channel_unavailable">Bu kanal açılamıyor.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Geri</string>
+    <string name="shorts_like">Beğen</string>
+    <string name="shorts_comments">Yorumlar</string>
+    <string name="shorts_share">Paylaş</string>
+    <string name="shorts_channel">Kanal</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Abone ol</string>
+    <string name="shorts_unsubscribe">Abonelikten çık</string>
+    <string name="shorts_go_to_channel">Kanala git</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Zil açık: her yeni video. Kapatmak için dokunun</string>
+    <string name="shorts_bell_off">Zil: her yeni video için bildirim alın</string>
+</resources>

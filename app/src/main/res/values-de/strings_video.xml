@@ -1,0 +1,73 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube prüft diese Verbindung. Neuer Versuch…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">Nur Audio</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">Nur Audio ist an</string>
+    <string name="video_playback_speed">Wiedergabegeschwindigkeit</string>
+    <string name="video_captions">Untertitel</string>
+    <string name="video_quality">Qualität</string>
+    <string name="video_pip">Bild-im-Bild</string>
+    <string name="video_next">Nächstes Video</string>
+    <string name="video_fullscreen">Vollbild</string>
+    <string name="video_exit_fullscreen">Vollbild beenden</string>
+    <string name="video_back_10">10 Sekunden zurück</string>
+    <string name="video_forward_10">10 Sekunden vor</string>
+    <string name="video_play">Wiedergeben</string>
+    <string name="video_pause">Pausieren</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">Ausgewählt</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">Bild-im-Bild ist für Skipii in den Einstellungen deaktiviert.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">Auto</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">Beste bis 1080p</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">aktuell %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">Wiedergabe: %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">Datensparmodus</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">Geschwindigkeit</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">UNTERTITEL</string>
+    <string name="video_drop_quality">QUALITÄT</string>
+    <string name="video_drop_speed">TEMPO</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">Aus</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">auto</string>
+    <string name="video_captions_tag_downloading">wird geladen</string>
+    <string name="video_captions_tag_translated">übersetzt</string>
+    <string name="video_captions_tag_download">laden</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">Normal</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">Eigene</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">Jedes Video</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("Sponsor", "Intro", …). Keep short. -->
+    <string name="video_skip_segment">%1$s überspringen</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("Sponsor"). -->
+    <string name="video_skipped_segment">%1$s %2$s übersprungen</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">Rückgängig</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">Erneut versuchen</string>
+</resources>

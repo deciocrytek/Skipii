@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Try again</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Back</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Close</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Sign in with Google</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Watch later</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Liked videos</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Play next</string>
+    <string name="ui_add_to_queue">Add to queue</string>
+    <string name="ui_save_to_watch_later">Save to Watch later</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">Save to playlist</string>
+    <string name="ui_share">Share</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Saved</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Private</string>
+    <string name="ui_privacy_unlisted">Unlisted</string>
+    <string name="ui_privacy_public">Public</string>
+    <string name="ui_new_playlist">New playlist</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Playlist name</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Create</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="one">Queue · %1$s</item>
+        <item quantity="other">Queue · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Clear</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Queue</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Remove from queue</string>
+    <string name="ui_queue_empty">Nothing queued. Press and hold a video to add it.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Skip sponsor reads and other segments</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Segments from SponsorBlock (sponsor.ajay.app), a community project. Data licensed CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">Player controls</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">In the playback pill at the bottom of the player</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">On the video; drag the knob on its bottom edge to scrub</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Playback pill</string>
+    <string name="ui_player_controls_on_video">On the video</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Show the Shorts tab</string>
+    <string name="ui_shorts_off_line">The Shorts tab is hidden and no Shorts are loaded</string>
+    <string name="ui_appearance">Appearance</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">System</string>
+    <string name="ui_mode_light">Light</string>
+    <string name="ui_mode_dark">Dark</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Wallpaper</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Selected</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_sign_in_title">Sign in to YouTube</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · kept encrypted on this phone</string>
+    <string name="ui_sign_in_error">Signed in, but YouTube didn\'t answer. Check your connection and try again.</string>
+    <string name="ui_finishing_sign_in">Finishing sign-in…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Sign in</string>
+    <string name="ui_account_pitch_title">Your YouTube, without the ads</string>
+    <string name="ui_account_pitch_body">Sign in to get your recommendations, subscriptions, history and playlists. Likes, subscribes, Watch later and watch history sync back to your account.\n\nGoogle treats unofficial apps as against its terms and can suspend accounts that use them. A secondary Google account keeps that risk away from your main one.</string>
+    <string name="ui_sign_out">Sign out</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Your recommendations, minus the ads</string>
+    <string name="ui_home_signed_out_body">Sign in with Google to see your own YouTube home feed, or just search.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Search instead</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Subscriptions</string>
+    <string name="ui_subscriptions_signed_out_title">Your subscriptions</string>
+    <string name="ui_subscriptions_signed_out_body">Sign in with Google to see new videos from the channels you follow.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Library</string>
+    <string name="ui_library_signed_out_title">Your library</string>
+    <string name="ui_library_signed_out_body">Sign in with Google for your history, Watch later, liked videos and playlists.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">History</string>
+    <string name="ui_history_empty">Nothing watched yet.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Playlists</string>
+    <string name="ui_playlist_empty_title">Nothing here yet</string>
+    <string name="ui_playlist_empty_body">Videos you add to this playlist will show up here.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Search</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">Search YouTube</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Clear</string>
+    <string name="ui_search_error_title">Search didn\'t load</string>
+    <string name="ui_search_intro_title">Search without the ads</string>
+    <string name="ui_search_intro_body">Results play straight away, with no ads and no sign-in.</string>
+    <string name="ui_search_nothing_found">Nothing found</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">No videos matched “%1$s”.</string>
+    <string name="ui_recent_searches">Recent searches</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Clear all</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Remove</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Couldn\'t update your subscription.</string>
+    <string name="ui_channel_error_title">Couldn\'t load this channel</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Videos</string>
+    <string name="ui_feed_error_title">Couldn\'t load this</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">You\'re signed out.</string>
+</resources>

@@ -1,0 +1,125 @@
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">التعليقات</string>
+    <string name="comments_turned_off">التعليقات غير مفعّلة لهذا الفيديو.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">لا توجد تعليقات بعد. أضِف أول تعليق.</string>
+    <string name="comments_none">لا توجد تعليقات بعد.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">إغلاق التعليقات</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">سجّل الدخول للتعليق.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">الرد على %1$s</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">إلغاء الرد</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">إضافة رد…</string>
+    <string name="comments_add_comment">إضافة تعليق…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">نشر</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">مثبّت</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">إعجاب</string>
+    <string name="comments_unlike">إلغاء الإعجاب</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">أعجب به صاحب القناة</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">رد</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">إخفاء الردود</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="zero">%1$s رد</item>
+        <item quantity="one">%1$s رد</item>
+        <item quantity="two">%1$s رد</item>
+        <item quantity="few">%1$s ردود</item>
+        <item quantity="many">%1$s ردًا</item>
+        <item quantity="other">%1$s رد</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">أنت</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">تعذّر الإعجاب بهذا التعليق.</string>
+    <string name="comments_error_post">تعذّر نشر تعليقك.</string>
+    <string name="comments_error_cant_post">التعليقات غير مفعّلة أو لا يمكن نشرها على هذا الفيديو.</string>
+    <string name="comments_error_reply_not_found">تعذّر العثور على التعليق للرد عليه. حاول مرة أخرى.</string>
+    <string name="comments_error_like_not_found">تعذّر العثور على التعليق للإعجاب به. حاول مرة أخرى.</string>
+    <string name="comments_error_not_accepted">لم يقبل YouTube التعليق.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">الترجمة</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">نص الفيديو</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">جارٍ تنزيل اللغة %1$s للترجمة…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">جارٍ الترجمة إلى %1$s…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">تعذّر تنزيل اللغة %1$s للترجمة.</string>
+    <string name="captions_error_load">تعذّر تحميل هذه الترجمة.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">منشأة تلقائيًا</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">تلقائية</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">جارٍ التنزيل…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">من %1$s</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">تنزيل ~30 ميغابايت</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself.
+         (Arabic has no capitals.) -->
+    <string name="captions_translated_on_phone">مترجمة على هاتفك</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">لغات أخرى</string>
+    <string name="captions_none">لا تتوفر ترجمة لهذا الفيديو.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">محدّدة</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">إغلاق نص الفيديو</string>
+    <string name="captions_no_transcript">لا تتوفر ترجمة لهذا الفيديو، لذا لا يوجد نص.</string>
+    <string name="captions_no_lines">لا توجد سطور بعد.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">لا شيء يطابق «%1$s».</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">العودة إلى الآن</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">البحث في النص</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">محو البحث</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">اختر لغة أو أوقفها من المشغّل</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">بهذا الشكل ستظهر</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">الترجمة على الفيديو.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">عرض الترجمة</string>
+    <string name="captions_show_never">أبدًا</string>
+    <string name="captions_show_always">دائمًا</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">عندما لا يكون باللغة %1$s</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">المظهر</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">كلاسيكي</string>
+    <string name="captions_look_outline">بحواف</string>
+    <string name="captions_look_system">من Android</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">الحجم</string>
+    <string name="captions_size_small">صغير</string>
+    <string name="captions_size_medium">متوسط</string>
+    <string name="captions_size_large">كبير</string>
+    <string name="captions_size_huge">ضخم</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">لغات الترجمة على هذا الهاتف</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">إزالة %1$s</string>
+</resources>

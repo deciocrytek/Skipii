@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube bietet gerade keine Shorts an.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Dieser Short kann gerade nicht abgespielt werden.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Dieser Short kann nicht abgespielt werden</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Erneut versuchen</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Melde dich an, um Shorts mit „Mag ich“ zu bewerten.</string>
+    <string name="shorts_like_failed">Deine Bewertung konnte nicht aktualisiert werden.</string>
+    <string name="shorts_sign_in_to_subscribe">Melde dich an, um zu abonnieren.</string>
+    <string name="shorts_subscription_failed">Dein Abo konnte nicht aktualisiert werden.</string>
+    <string name="shorts_channel_unavailable">Dieser Kanal kann nicht geöffnet werden.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Zurück</string>
+    <string name="shorts_like">Mag ich</string>
+    <string name="shorts_comments">Kommentare</string>
+    <string name="shorts_share">Teilen</string>
+    <string name="shorts_channel">Kanal</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Abonnieren</string>
+    <string name="shorts_unsubscribe">Abo beenden</string>
+    <string name="shorts_go_to_channel">Zum Kanal</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Glocke an: jedes neue Video. Zum Ausschalten tippen</string>
+    <string name="shorts_bell_off">Glocke: bei jedem neuen Video benachrichtigt werden</string>
+</resources>

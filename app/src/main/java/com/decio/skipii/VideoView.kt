@@ -114,6 +114,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -344,7 +345,7 @@ fun VideoContent(
         )
         if (botWait > 0f) {
             Text(
-                "YouTube is checking this connection. Trying again…",
+                stringResource(R.string.video_bot_check_waiting),
                 color = Color.White,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -412,13 +413,13 @@ fun VideoContent(
                     } else {
                         Spacer(Modifier.weight(1f))
                         // Audio only has no fullscreen, so it's offered in portrait only.
-                        OverlayTile("Audio only", enabled, tool, filled = AudioOnly.enabled, onClick = { touched(); state.setAudioOnly(!AudioOnly.enabled) }) { ink ->
+                        OverlayTile(stringResource(R.string.video_audio_only), enabled, tool, filled = AudioOnly.enabled, onClick = { touched(); state.setAudioOnly(!AudioOnly.enabled) }) { ink ->
                             Icon(Icons.Outlined.Headphones, null, tint = ink, modifier = Modifier.size(tool * 0.5f))
                         }
                     }
                     val stickySpeed = PlaybackSpeed.remember && !PlaybackSpeed.isNormal(state.speed)
                     OverlayPill(
-                        PlaybackSpeed.label(state.speed) + "×", "Playback speed", enabled, tool, filled = stickySpeed,
+                        PlaybackSpeed.label(state.speed) + "×", stringResource(R.string.video_playback_speed), enabled, tool, filled = stickySpeed,
                         modifier = Modifier.onGloballyPositioned { dropAnchors[2] = it },
                     ) {
                         touched()
@@ -427,7 +428,7 @@ fun VideoContent(
                     // Captions (filled while on): fullscreen's card, or the sheet.
                     if (state.captions.tracks.isNotEmpty()) {
                         OverlayTile(
-                            "Captions", enabled, tool, filled = state.captions.on,
+                            stringResource(R.string.video_captions), enabled, tool, filled = state.captions.on,
                             modifier = Modifier.onGloballyPositioned { dropAnchors[3] = it },
                             onClick = {
                                 touched()
@@ -440,7 +441,7 @@ fun VideoContent(
                     // The label is the resolution actually decoded; the requested one until known.
                     (state.decodedHeight?.let { "${it}p" } ?: state.details?.quality)?.let { quality ->
                         OverlayPill(
-                            if (QualityPreference.height == null) "Auto · $quality" else quality, "Quality", enabled, tool,
+                            if (QualityPreference.height == null) stringResource(R.string.video_quality_auto) + " · $quality" else quality, stringResource(R.string.video_quality), enabled, tool,
                             modifier = Modifier.onGloballyPositioned { dropAnchors[1] = it },
                         ) {
                             touched()
@@ -448,9 +449,9 @@ fun VideoContent(
                         }
                     }
                     if (pip?.supported == true) {
-                        OverlayTile("Picture-in-picture", enabled, tool, onClick = {
+                        OverlayTile(stringResource(R.string.video_pip), enabled, tool, onClick = {
                             controlsVisible = false
-                            if (!pip.enter(state.videoAspect)) state.actionMessage = "Picture-in-picture is turned off for Skipii in Settings."
+                            if (!pip.enter(state.videoAspect)) state.actionMessage = str(R.string.video_pip_off)
                         }) { ink -> Icon(Icons.Rounded.PictureInPictureAlt, null, tint = ink, modifier = Modifier.size(tool * 0.5f)) }
                     }
                 }
@@ -496,11 +497,11 @@ fun VideoContent(
                             SkipSegmentPill(segment, enabled = true) { touched(); state.skipSegment(segment) }
                         }
                         if (state.queue.isNotEmpty()) {
-                            OverlayTile("Next", enabled, 34.dp, onClick = { touched(); state.playNextUp() }) { ink ->
+                            OverlayTile(stringResource(R.string.video_next), enabled, 34.dp, onClick = { touched(); state.playNextUp() }) { ink ->
                                 Icon(Icons.Rounded.SkipNext, null, tint = ink, modifier = Modifier.size(20.dp))
                             }
                         }
-                        OverlayTile(if (fullscreen) "Exit fullscreen" else "Fullscreen", enabled, 34.dp, onClick = onToggleFullscreen) { ink ->
+                        OverlayTile(stringResource(if (fullscreen) R.string.video_exit_fullscreen else R.string.video_fullscreen), enabled, 34.dp, onClick = onToggleFullscreen) { ink ->
                             Icon(if (fullscreen) Icons.Rounded.FullscreenExit else Icons.Rounded.Fullscreen, null, tint = ink, modifier = Modifier.size(21.dp))
                         }
                     }
@@ -588,11 +589,11 @@ fun AudioOnlyStage(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val tile = c.surfaceContainerHighest
-                    OverlayTile("Audio only is on", interactive, 36.dp, filled = true, onClick = { state.setAudioOnly(false) }) { ink ->
+                    OverlayTile(stringResource(R.string.video_audio_only_on), interactive, 36.dp, filled = true, onClick = { state.setAudioOnly(false) }) { ink ->
                         Icon(Icons.Rounded.Headphones, null, tint = ink, modifier = Modifier.size(18.dp))
                     }
                     val stickySpeed = PlaybackSpeed.remember && !PlaybackSpeed.isNormal(state.speed)
-                    OverlayPill(PlaybackSpeed.label(state.speed) + "×", "Playback speed", interactive, 36.dp, filled = stickySpeed, tile = tile) {
+                    OverlayPill(PlaybackSpeed.label(state.speed) + "×", stringResource(R.string.video_playback_speed), interactive, 36.dp, filled = stickySpeed, tile = tile) {
                         state.sheet = PlayerSheet.Speed
                     }
                 }
@@ -741,7 +742,7 @@ private fun OverlaySeek(side: Int, enabled: Boolean, size: Dp, tile: Color = Mat
     ) {
         Icon(
             if (side < 0) Icons.Rounded.Replay10 else Icons.Rounded.Forward10,
-            contentDescription = if (side < 0) "Back 10 seconds" else "Forward 10 seconds",
+            contentDescription = stringResource(if (side < 0) R.string.video_back_10 else R.string.video_forward_10),
             tint = c.onSurface,
             modifier = Modifier.size(size * 0.51f).graphicsLayer { rotationZ = spin.value },
         )
@@ -766,7 +767,7 @@ private fun OverlayPlay(playing: Boolean, buffering: Boolean, size: Dp, enabled:
         } else {
             Icon(
                 if (playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                if (playing) "Pause" else "Play",
+                stringResource(if (playing) R.string.video_pause else R.string.video_play),
                 tint = c.onPrimary,
                 modifier = Modifier.size(size * 0.46f).squishOn(playing),
             )
@@ -1024,7 +1025,7 @@ private fun SkipSegmentPill(segment: SponsorBlock.Segment, enabled: Boolean, mod
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val ink = if (segment.category.color.luminance() > 0.45f) Color(0xFF151515) else Color.White
-        Text("Skip ${segment.category.short}", color = ink, fontSize = 12.sp, fontWeight = FontWeight.Black)
+        Text(stringResource(R.string.video_skip_segment, segment.category.short), color = ink, fontSize = 12.sp, fontWeight = FontWeight.Black)
         Icon(Icons.Rounded.SkipNext, null, tint = ink, modifier = Modifier.size(18.dp))
     }
 }
@@ -1045,11 +1046,11 @@ private fun SkippedNote(state: PlayerState, modifier: Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "Skipped ${formatDuration(skip.segment.lengthMs)} ${skip.segment.category.short}",
+            stringResource(R.string.video_skipped_segment, formatDuration(skip.segment.lengthMs), skip.segment.category.short),
             color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold,
         )
         Text(
-            "Undo",
+            stringResource(R.string.video_undo),
             color = skip.segment.category.color, fontSize = 12.sp, fontWeight = FontWeight.Black,
             modifier = Modifier.pressable { state.undoSkip(skip) }.padding(horizontal = 10.dp, vertical = 8.dp),
         )
@@ -1070,18 +1071,19 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
         // Scrolls: in fullscreen (landscape) only the first few rows fit (GitHub issue #1).
         Column(Modifier.verticalScroll(rememberScrollState())) {
         Text(
-            "Quality",
+            stringResource(R.string.video_quality),
             fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
         )
         state.playingFormat?.let {
             Text(
-                "Playing $it",
+                stringResource(R.string.video_quality_playing, it),
                 color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
             )
         }
-        QualityRow("Auto", "Best up to 1080p" + ((state.decodedHeight?.let { "${it}p" } ?: details.quality)?.let { " · playing $it" } ?: ""), chosen == null) {
+        val playingNow = (state.decodedHeight?.let { "${it}p" } ?: details.quality)?.let { " · " + stringResource(R.string.video_quality_auto_playing, it) }.orEmpty()
+        QualityRow(stringResource(R.string.video_quality_auto), stringResource(R.string.video_quality_auto_best) + playingNow, chosen == null) {
             state.setQuality(null); onDismiss()
         }
         details.qualities.forEach { h ->
@@ -1108,8 +1110,8 @@ private fun BoxScope.CaptionsDrop(state: PlayerState, open: Boolean, anchor: Rec
     val cap = state.captions
     // Fixed while the card is up, so a pick never reshuffles the rows under the finger.
     val options = remember { captionOptions(cap, all = false).filterIsInstance<CaptionOption.Pick>() }
-    OverlayDrop(open, shown, anchor, boxHeight, "CAPTIONS", openAt = { if (!cap.on) 0 else 1 + options.indexOfFirst { cap.shows(it) } }, onClose = onClose) { scope ->
-        DropRow(title = "Off", tag = null, selected = !cap.on) {
+    OverlayDrop(open, shown, anchor, boxHeight, stringResource(R.string.video_drop_captions), openAt = { if (!cap.on) 0 else 1 + options.indexOfFirst { cap.shows(it) } }, onClose = onClose) { scope ->
+        DropRow(title = stringResource(R.string.video_captions_off), tag = null, selected = !cap.on) {
             if (!open) return@DropRow
             cap.turn(false)
             scope.launch { delay(420); currentClose() }
@@ -1118,10 +1120,10 @@ private fun BoxScope.CaptionsDrop(state: PlayerState, open: Boolean, anchor: Rec
             DropRow(
                 title = option.title,
                 tag = when {
-                    option.choice.translateTo == null -> if (option.choice.track.auto) "auto" else null
-                    option.busy -> "downloading"
-                    option.ready -> "translated"
-                    else -> "download"
+                    option.choice.translateTo == null -> if (option.choice.track.auto) stringResource(R.string.video_captions_tag_auto) else null
+                    option.busy -> stringResource(R.string.video_captions_tag_downloading)
+                    option.ready -> stringResource(R.string.video_captions_tag_translated)
+                    else -> stringResource(R.string.video_captions_tag_download)
                 },
                 selected = cap.shows(option),
             ) {
@@ -1146,11 +1148,11 @@ private fun BoxScope.QualityDrop(state: PlayerState, open: Boolean, anchor: Rect
     val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
     val rows = remember(details) { listOf<Int?>(null) + details.qualities }
     var picked by remember { mutableStateOf(QualityPreference.height) }
-    OverlayDrop(open, shown, anchor, boxHeight, "QUALITY", openAt = { rows.indexOf(picked) }, onClose = onClose) { scope ->
+    OverlayDrop(open, shown, anchor, boxHeight, stringResource(R.string.video_drop_quality), openAt = { rows.indexOf(picked) }, onClose = onClose) { scope ->
         val playing = state.decodedHeight?.let { "${it}p" } ?: details.quality
         rows.forEach { h ->
             DropRow(
-                title = if (h == null) "Auto" else "${h}p",
+                title = if (h == null) stringResource(R.string.video_quality_auto) else "${h}p",
                 tag = if (h == null) playing else qualityTag(h),
                 selected = picked == h,
             ) {
@@ -1180,13 +1182,13 @@ private fun BoxScope.SpeedDrop(state: PlayerState, open: Boolean, anchor: Rect, 
         (SpeedPresets + listOfNotNull(custom)).sorted()
     }
     fun same(a: Float, b: Float) = abs(a - b) < PlaybackSpeed.STEP / 2
-    OverlayDrop(open, shown, anchor, boxHeight, "SPEED", openAt = { rows.indexOfFirst { same(it, picked) } }, onClose = onClose) { scope ->
+    OverlayDrop(open, shown, anchor, boxHeight, stringResource(R.string.video_drop_speed), openAt = { rows.indexOfFirst { same(it, picked) } }, onClose = onClose) { scope ->
         rows.forEach { s ->
             DropRow(
                 title = PlaybackSpeed.label(s) + "×",
                 tag = when {
-                    PlaybackSpeed.isNormal(s) -> "Normal"
-                    SpeedPresets.none { same(it, s) } -> "Custom"
+                    PlaybackSpeed.isNormal(s) -> stringResource(R.string.video_speed_normal)
+                    SpeedPresets.none { same(it, s) } -> stringResource(R.string.video_speed_custom)
                     else -> null
                 },
                 selected = same(picked, s),
@@ -1198,7 +1200,7 @@ private fun BoxScope.SpeedDrop(state: PlayerState, open: Boolean, anchor: Rect, 
             }
         }
         Spacer(Modifier.height(5.dp))
-        DropRow(title = "Every video", tag = null, selected = PlaybackSpeed.remember) { if (open) state.toggleRememberSpeed() }
+        DropRow(title = stringResource(R.string.video_speed_every_video), tag = null, selected = PlaybackSpeed.remember) { if (open) state.toggleRememberSpeed() }
     }
 }
 
@@ -1323,7 +1325,7 @@ private fun DropRow(title: String, tag: String?, selected: Boolean, onClick: () 
             modifier = Modifier.weight(1f),
         )
         Icon(
-            Icons.Rounded.Check, if (selected) "Selected" else null, tint = Color.White,
+            Icons.Rounded.Check, if (selected) stringResource(R.string.video_selected) else null, tint = Color.White,
             modifier = Modifier.size(18.dp).graphicsLayer {
                 scaleX = 0.3f + 0.7f * check
                 scaleY = 0.3f + 0.7f * check
@@ -1353,7 +1355,7 @@ fun SpeedSheet(state: PlayerState, onDismiss: () -> Unit) {
         // Scrolls: in fullscreen (landscape) the sheet is short.
         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
             Text(
-                "Speed",
+                stringResource(R.string.video_speed),
                 fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
                 modifier = Modifier.padding(start = 4.dp, end = 4.dp),
             )
@@ -1366,9 +1368,9 @@ fun SpeedSheet(state: PlayerState, onDismiss: () -> Unit) {
 private fun qualityTag(height: Int): String? = when {
     height >= 2160 -> "4K"
     height >= 1440 -> "QHD"
-    height >= 1080 -> "Full HD"
+    height >= 1080 -> str(R.string.video_quality_full_hd)
     height >= 720 -> "HD"
-    height <= 240 -> "Data saver"
+    height <= 240 -> str(R.string.video_quality_data_saver)
     else -> null
 }
 
@@ -1391,7 +1393,7 @@ private fun QualityRow(title: String, subtitle: String?, selected: Boolean, onCl
                 Text(subtitle, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = if (selected) c.onPrimaryContainer.copy(alpha = 0.75f) else c.onSurfaceVariant)
             }
         }
-        if (selected) Icon(Icons.Rounded.Check, "Selected", tint = c.onPrimaryContainer)
+        if (selected) Icon(Icons.Rounded.Check, stringResource(R.string.video_selected), tint = c.onPrimaryContainer)
     }
 }
 
@@ -1408,7 +1410,7 @@ private fun BoxScope.ErrorPanel(message: String, onRetry: () -> Unit, onCollapse
         Spacer(Modifier.height(12.dp))
         Box(
             Modifier.pressable(onClick = onRetry).clip(CircleShape).background(Color.White).padding(horizontal = 18.dp, vertical = 9.dp),
-        ) { Text("Try again", color = Color(0xFF141414), fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+        ) { Text(stringResource(R.string.video_try_again), color = Color(0xFF141414), fontWeight = FontWeight.Bold, fontSize = 13.sp) }
     }
 }
 
@@ -1579,7 +1581,7 @@ fun MorphPlayButton(
         } else {
             Icon(
                 if (playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                if (playing) "Pause" else "Play",
+                stringResource(if (playing) R.string.video_pause else R.string.video_play),
                 tint = content,
                 modifier = Modifier.size(size * 0.46f),
             )

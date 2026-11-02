@@ -1,3 +1,33 @@
 <resources>
-    <string name="app_name">Skipii</string>
+    <string name="app_name" translatable="false">Skipii</string>
+
+    <!-- Compact counts (formatCount): %1$s is the number, already with the language's decimal mark ("1,2"). -->
+    <string name="count_thousands">%1$sK</string>
+    <string name="count_millions">%1$sM</string>
+    <string name="count_billions">%1$sB</string>
+    <!-- Only used where count_in_ten_thousands is true (Japanese): 万 and 億. -->
+    <string name="count_ten_thousands">%1$s万</string>
+    <string name="count_hundred_millions">%1$s億</string>
+
+    <!-- %1$s is a compact count from formatCount ("1.2M"); the quantity is the exact count. -->
+    <plurals name="views_count">
+        <item quantity="one">%1$s view</item>
+        <item quantity="other">%1$s views</item>
+    </plurals>
+    <plurals name="subscribers_count">
+        <item quantity="one">%1$s subscriber</item>
+        <item quantity="other">%1$s subscribers</item>
+    </plurals>
+
+    <!-- Ages (displayAge). %1$s is a relative time already in the app's language ("3 days ago"). -->
+    <string name="age_just_now">just now</string>
+    <string name="age_streamed">Streamed %1$s</string>
+    <string name="age_premiered">Premiered %1$s</string>
+
+    <!-- The account sheet's Language card (LanguageSettings). -->
+    <string name="language_title">Language</string>
+    <string name="language_phone">Phone\'s language</string>
+    <!-- %1$s is the language's own name ("Español"). -->
+    <string name="language_phone_named">Phone\'s language (%1$s)</string>
+    <string name="language_line">The app\'s own words. Videos, titles and comments stay as their creators wrote them.</string>
 </resources>

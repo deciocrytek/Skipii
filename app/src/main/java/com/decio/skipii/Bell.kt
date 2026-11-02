@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -134,20 +135,23 @@ object Bells {
 
     /** Turns [channel]'s bell on or off on the account; shows at once, undone if YouTube says no. */
     fun set(context: Context, channel: BellChannel, value: Boolean, onMessage: (String) -> Unit) {
-        val name = channel.name ?: "this channel"
+        val name = channel.name
         setLocal(channel, value)
         scope.launch {
             runCatching { InnerTube.setBell(channel.id, value) }
                 .onSuccess {
                     Log.i(TAG, "bells: ${if (value) "on" else "off"} for ${channel.id}")
-                    onMessage(if (value) "Every new video from $name" else "Notifications off for $name")
+                    onMessage(
+                        if (name == null) str(if (value) R.string.app_bell_on_message_unnamed else R.string.app_bell_off_message_unnamed)
+                        else str(if (value) R.string.app_bell_on_message else R.string.app_bell_off_message, name),
+                    )
                     if (value) NewVideos.schedule(context)
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
                     Log.w(TAG, "bells: couldn't turn ${if (value) "on" else "off"} ${channel.id}", it)
                     setLocal(channel, !value)
-                    onMessage("Couldn't change the bell.")
+                    onMessage(str(R.string.app_bell_failed))
                 }
         }
     }
@@ -198,7 +202,7 @@ fun rememberBellToggle(onMessage: (String) -> Unit): (BellChannel) -> Unit {
         val channel = waiting ?: return@rememberLauncherForActivityResult
         waiting = null
         if (granted && NewVideos.canNotify(context)) Bells.set(context, channel, true, onMessage)
-        else onMessage("Allow Skipii's notifications to use the bell.")
+        else onMessage(str(R.string.app_bell_allow_notifications))
     }
     return { channel ->
         val turnOn = !Bells.isOn(channel.id)
@@ -210,7 +214,7 @@ fun rememberBellToggle(onMessage: (String) -> Unit): (BellChannel) -> Unit {
                 permission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             else -> {
-                onMessage("Turn on Skipii's notifications to use the bell.")
+                onMessage(str(R.string.app_bell_turn_on_notifications))
                 NewVideos.openSettings(context)
             }
         }
@@ -263,7 +267,7 @@ fun SubscribeWithBell(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                if (subscribed) "Subscribed" else "Subscribe",
+                stringResource(if (subscribed) R.string.app_subscribed else R.string.app_subscribe),
                 color = if (subscribed) c.onSecondaryContainer else c.surface,
                 fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1,
             )
@@ -289,7 +293,7 @@ fun SubscribeWithBell(
             ) {
                 FlourishIcon(
                     if (bell) Icons.Rounded.NotificationsActive else Icons.Rounded.NotificationsNone,
-                    if (bell) "Bell on: every new video. Tap to turn off" else "Bell: get a notification for every new video",
+                    stringResource(if (bell) R.string.app_bell_on_description else R.string.app_bell_off_description),
                     active = bell, kind = Flourish.Ring, tint = keyInk, size = 21.dp,
                 )
             }

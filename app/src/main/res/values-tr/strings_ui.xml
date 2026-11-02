@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Tekrar dene</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Geri</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Kapat</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Google ile oturum aç</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Daha sonra izle</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Beğenilen videolar</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Sıradaki olarak oynat</string>
+    <string name="ui_add_to_queue">Sıraya ekle</string>
+    <string name="ui_save_to_watch_later">Daha sonra izle listesine kaydet</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">Oynatma listesine kaydet</string>
+    <string name="ui_share">Paylaş</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Kaydedildi</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Gizli</string>
+    <string name="ui_privacy_unlisted">Liste dışı</string>
+    <string name="ui_privacy_public">Herkese açık</string>
+    <string name="ui_new_playlist">Yeni oynatma listesi</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Oynatma listesi adı</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Oluştur</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="one">Sıra · %1$s</item>
+        <item quantity="other">Sıra · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Temizle</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Sıra</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Sıradan kaldır</string>
+    <string name="ui_queue_empty">Sırada video yok. Eklemek için bir videoyu basılı tutun.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Sponsor bölümlerini ve diğer kısımları atla</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Bölümler, bir topluluk projesi olan SponsorBlock\'tan (sponsor.ajay.app) gelir. Veriler CC BY-NC-SA 4.0 ile lisanslıdır.</string>
+    <string name="ui_player_controls">Oynatıcı kontrolleri</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">Oynatıcının altındaki oynatma kapsülünde</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">Videonun üzerinde; ileri geri sarmak için alt kenarındaki düğmeyi sürükleyin</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Oynatma kapsülü</string>
+    <string name="ui_player_controls_on_video">Videonun üstünde</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Shorts sekmesini göster</string>
+    <string name="ui_shorts_off_line">Shorts sekmesi gizli ve hiç Shorts yüklenmiyor</string>
+    <string name="ui_appearance">Görünüm</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">Sistem</string>
+    <string name="ui_mode_light">Açık</string>
+    <string name="ui_mode_dark">Koyu</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Duvar kağıdı</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Seçili</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">İptal</string>
+    <string name="ui_sign_in_title">YouTube\'da oturum açın</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · bu telefonda şifreli saklanır</string>
+    <string name="ui_sign_in_error">Oturum açıldı ancak YouTube yanıt vermedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="ui_finishing_sign_in">Oturum açma tamamlanıyor…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Oturum aç</string>
+    <string name="ui_account_pitch_title">Reklamsız YouTube\'unuz</string>
+    <string name="ui_account_pitch_body">Önerilerinizi, aboneliklerinizi, geçmişinizi ve oynatma listelerinizi görmek için oturum açın. Beğeniler, abonelikler, Daha sonra izle ve izleme geçmişi hesabınızla senkronize edilir.\n\nGoogle, resmi olmayan uygulamaları şartlarına aykırı sayar ve bunları kullanan hesapları askıya alabilir. İkinci bir Google hesabı kullanmak bu riski ana hesabınızdan uzak tutar.</string>
+    <string name="ui_sign_out">Oturumu kapat</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Önerileriniz, reklamlar olmadan</string>
+    <string name="ui_home_signed_out_body">Kendi YouTube ana sayfa akışınızı görmek için Google ile oturum açın ya da yalnızca arama yapın.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Bunun yerine ara</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Abonelikler</string>
+    <string name="ui_subscriptions_signed_out_title">Abonelikleriniz</string>
+    <string name="ui_subscriptions_signed_out_body">Takip ettiğiniz kanalların yeni videolarını görmek için Google ile oturum açın.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Kitaplık</string>
+    <string name="ui_library_signed_out_title">Kitaplığınız</string>
+    <string name="ui_library_signed_out_body">Geçmişiniz, Daha sonra izle listeniz, beğendiğiniz videolar ve oynatma listeleriniz için Google ile oturum açın.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">Geçmiş</string>
+    <string name="ui_history_empty">Henüz hiçbir şey izlenmedi.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Oynatma listeleri</string>
+    <string name="ui_playlist_empty_title">Burada henüz bir şey yok</string>
+    <string name="ui_playlist_empty_body">Bu oynatma listesine eklediğiniz videolar burada görünür.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Ara</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">YouTube\'da ara</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Temizle</string>
+    <string name="ui_search_error_title">Arama yüklenemedi</string>
+    <string name="ui_search_intro_title">Reklamsız arama</string>
+    <string name="ui_search_intro_body">Sonuçlar reklamsız ve oturum açmadan hemen oynatılır.</string>
+    <string name="ui_search_nothing_found">Hiçbir şey bulunamadı</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">“%1$s” ile eşleşen video yok.</string>
+    <string name="ui_recent_searches">Son aramalar</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Tümünü temizle</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Kaldır</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Aboneliğiniz güncellenemedi.</string>
+    <string name="ui_channel_error_title">Bu kanal yüklenemedi</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Videolar</string>
+    <string name="ui_feed_error_title">Bu yüklenemedi</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">Oturumunuz kapalı.</string>
+</resources>

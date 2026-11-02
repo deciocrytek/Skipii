@@ -1,0 +1,121 @@
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">Commentaires</string>
+    <string name="comments_turned_off">Les commentaires sont désactivés pour cette vidéo.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">Aucun commentaire pour l\'instant. Ajoutez le premier.</string>
+    <string name="comments_none">Aucun commentaire pour l\'instant.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">Fermer les commentaires</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">Connectez-vous pour commenter.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">Réponse à %1$s</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">Annuler la réponse</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">Ajouter une réponse…</string>
+    <string name="comments_add_comment">Ajouter un commentaire…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">Publier</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">Épinglé</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">J\'aime</string>
+    <string name="comments_unlike">Je n\'aime plus</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">Cœur du créateur</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">Répondre</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">Masquer les réponses</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="one">%1$s réponse</item>
+        <item quantity="many">%1$s de réponses</item>
+        <item quantity="other">%1$s réponses</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">Vous</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">Impossible d\'aimer ce commentaire.</string>
+    <string name="comments_error_post">Impossible de publier votre commentaire.</string>
+    <string name="comments_error_cant_post">Les commentaires sont désactivés ou ne peuvent pas être publiés sur cette vidéo.</string>
+    <string name="comments_error_reply_not_found">Impossible de trouver le commentaire auquel répondre. Réessayez.</string>
+    <string name="comments_error_like_not_found">Impossible de trouver le commentaire à aimer. Réessayez.</string>
+    <string name="comments_error_not_accepted">YouTube n\'a pas accepté le commentaire.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">Sous-titres</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">Transcription</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">Téléchargement du modèle de traduction (%1$s)…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">Traduction en %1$s…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">Impossible de télécharger le modèle de traduction (%1$s).</string>
+    <string name="captions_error_load">Impossible de charger ces sous-titres.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">générés automatiquement</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">auto</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">téléchargement…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">source : %1$s</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">~30 Mo à télécharger</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">TRADUITS SUR VOTRE TÉLÉPHONE</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">Autres langues</string>
+    <string name="captions_none">Cette vidéo n\'a pas de sous-titres.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">Sélectionné</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">Fermer la transcription</string>
+    <string name="captions_no_transcript">Cette vidéo n\'a pas de sous-titres, donc pas de transcription.</string>
+    <string name="captions_no_lines">Aucune ligne pour l\'instant.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">Aucun résultat pour « %1$s ».</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">Revenir au passage actuel</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">Rechercher dans la transcription</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">Effacer la recherche</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">Choisissez une langue ou désactivez-les dans le lecteur</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">Voici comment les sous-titres</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">s\'afficheront sur la vidéo.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">Afficher les sous-titres</string>
+    <string name="captions_show_never">Jamais</string>
+    <string name="captions_show_always">Toujours</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">Si la vidéo n\'est pas en %1$s</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">Style</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">Classique</string>
+    <string name="captions_look_outline">Contour</string>
+    <string name="captions_look_system">Android</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">Taille</string>
+    <string name="captions_size_small">Petite</string>
+    <string name="captions_size_medium">Moyenne</string>
+    <string name="captions_size_large">Grande</string>
+    <string name="captions_size_huge">Très grande</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">Langues de traduction sur ce téléphone</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">Supprimer %1$s</string>
+</resources>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">टिप्पणियां</string>
+    <string name="comments_turned_off">इस वीडियो पर टिप्पणियां बंद हैं.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">अभी तक कोई टिप्पणी नहीं है. पहली टिप्पणी आप करें.</string>
+    <string name="comments_none">अभी तक कोई टिप्पणी नहीं है.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">टिप्पणियां बंद करें</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">टिप्पणी करने के लिए साइन इन करें.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">%1$s को जवाब दे रहे हैं</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">जवाब रद्द करें</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">जवाब जोड़ें…</string>
+    <string name="comments_add_comment">टिप्पणी जोड़ें…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">पोस्ट करें</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">पिन की गई</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">पसंद करें</string>
+    <string name="comments_unlike">पसंद हटाएं</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">क्रिएटर ने दिल दिया</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">जवाब दें</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">जवाब छिपाएं</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="one">%1$s जवाब</item>
+        <item quantity="other">%1$s जवाब</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">आप</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">यह टिप्पणी पसंद नहीं की जा सकी.</string>
+    <string name="comments_error_post">आपकी टिप्पणी पोस्ट नहीं हो सकी.</string>
+    <string name="comments_error_cant_post">इस वीडियो पर टिप्पणियां बंद हैं या पोस्ट नहीं की जा सकतीं.</string>
+    <string name="comments_error_reply_not_found">जिस टिप्पणी का जवाब देना है, वह नहीं मिली. फिर से कोशिश करें.</string>
+    <string name="comments_error_like_not_found">जिस टिप्पणी को पसंद करना है, वह नहीं मिली. फिर से कोशिश करें.</string>
+    <string name="comments_error_not_accepted">YouTube ने टिप्पणी स्वीकार नहीं की.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">कैप्शन</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">ट्रांसक्रिप्ट</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">अनुवाद के लिए %1$s डाउनलोड हो रही है…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">%1$s में अनुवाद हो रहा है…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">अनुवाद के लिए %1$s डाउनलोड नहीं हो सकी.</string>
+    <string name="captions_error_load">ये कैप्शन लोड नहीं हो सके.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">अपने-आप जनरेट हुए</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">ऑटो</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">डाउनलोड हो रही है…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">%1$s से</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">~30 MB डाउनलोड</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">आपके फ़ोन पर अनुवाद</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">और भाषाएं</string>
+    <string name="captions_none">इस वीडियो में कोई कैप्शन नहीं है.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">चुना गया</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">ट्रांसक्रिप्ट बंद करें</string>
+    <string name="captions_no_transcript">इस वीडियो में कैप्शन नहीं हैं, इसलिए कोई ट्रांसक्रिप्ट नहीं है.</string>
+    <string name="captions_no_lines">अभी कोई लाइन नहीं है.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">\"%1$s\" से कुछ मेल नहीं खाता.</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">अभी वाली लाइन पर जाएं</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">ट्रांसक्रिप्ट में खोजें</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">खोज साफ़ करें</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">प्लेयर में भाषा चुनें या कैप्शन बंद करें</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">वीडियो पर कैप्शन</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">कुछ ऐसे दिखेंगे.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">कैप्शन दिखाएं</string>
+    <string name="captions_show_never">कभी नहीं</string>
+    <string name="captions_show_always">हमेशा</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">जब %1$s में न हो</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">स्टाइल</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">क्लासिक</string>
+    <string name="captions_look_outline">आउटलाइन</string>
+    <string name="captions_look_system">Android का</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">साइज़</string>
+    <string name="captions_size_small">छोटा</string>
+    <string name="captions_size_medium">मध्यम</string>
+    <string name="captions_size_large">बड़ा</string>
+    <string name="captions_size_huge">बहुत बड़ा</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">इस फ़ोन पर अनुवाद की भाषाएं</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">%1$s हटाएं</string>
+</resources>

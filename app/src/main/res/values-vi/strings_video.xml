@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube đang kiểm tra kết nối này. Đang thử lại…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">Chỉ âm thanh</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">Đang bật chỉ âm thanh</string>
+    <string name="video_playback_speed">Tốc độ phát</string>
+    <string name="video_captions">Phụ đề</string>
+    <string name="video_quality">Chất lượng</string>
+    <string name="video_pip">Hình trong hình</string>
+    <string name="video_next">Tiếp theo</string>
+    <string name="video_fullscreen">Toàn màn hình</string>
+    <string name="video_exit_fullscreen">Thoát toàn màn hình</string>
+    <string name="video_back_10">Lùi 10 giây</string>
+    <string name="video_forward_10">Tua đi 10 giây</string>
+    <string name="video_play">Phát</string>
+    <string name="video_pause">Tạm dừng</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">Đã chọn</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">Chế độ hình trong hình đang tắt cho Skipii trong Cài đặt.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">Tự động</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">Tốt nhất, tối đa 1080p</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">đang phát %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">Đang phát %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">Tiết kiệm dữ liệu</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">Tốc độ</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">PHỤ ĐỀ</string>
+    <string name="video_drop_quality">CHẤT LƯỢNG</string>
+    <string name="video_drop_speed">TỐC ĐỘ</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">Tắt</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">tự động</string>
+    <string name="video_captions_tag_downloading">đang tải</string>
+    <string name="video_captions_tag_translated">đã dịch</string>
+    <string name="video_captions_tag_download">tải xuống</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">Bình thường</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">Tùy chỉnh</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">Mọi video</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short. -->
+    <string name="video_skip_segment">Bỏ qua %1$s</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">Đã bỏ qua %2$s %1$s</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">Hoàn tác</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">Thử lại</string>
+</resources>

@@ -1,0 +1,92 @@
+<resources>
+    <!-- ── Portrait player page (PlayerUi.kt) ── -->
+
+    <!-- Tappable word after the video's stats line ("1.2M views · 3 days ago"), opens / closes the description. Keep short. -->
+    <string name="player_description_more">…المزيد</string>
+    <string name="player_description_less">عرض أقل</string>
+    <!-- Part of the stats line under the title. %1$s is a compact count ("1.2M"); the quantity is the exact count.
+         "few" keeps the singular form, which reads right after ألف / مليون (see views_count). -->
+    <plurals name="player_likes">
+        <item quantity="zero">%1$s إعجاب</item>
+        <item quantity="one">%1$s إعجاب</item>
+        <item quantity="two">إعجابان</item>
+        <item quantity="few">%1$s إعجابات</item>
+        <item quantity="many">%1$s إعجابًا</item>
+        <item quantity="other">%1$s إعجاب</item>
+    </plurals>
+    <!-- Section title above the related videos list under the player. -->
+    <string name="player_more_videos">فيديوهات أخرى</string>
+    <!-- Pill button in the player's action row (label and accessibility label). Keep short. -->
+    <string name="player_share">مشاركة</string>
+    <!-- Pill button in the player's action row: opens every line of the captions. Keep short. -->
+    <string name="player_transcript">نص الفيديو</string>
+    <!-- Pill button in the player's action row: opens the "Save to playlist" sheet. Keep short. -->
+    <string name="player_playlist">قائمة تشغيل</string>
+    <!-- Accessibility labels of the action row's buttons. -->
+    <string name="player_like">إعجاب</string>
+    <string name="player_dislike">عدم إعجاب</string>
+    <string name="player_save_to_playlist">حفظ في قائمة تشغيل</string>
+    <!-- Accessibility label of the mini-player's close (X) button. -->
+    <string name="player_close">إغلاق</string>
+
+    <!-- ── Short notes shown at the bottom of the player after an action (PlayerState.kt) ── -->
+    <string name="player_playing_next">سيتم تشغيله تاليًا</string>
+    <string name="player_added_to_queue">تمت الإضافة إلى قائمة الانتظار</string>
+    <string name="player_like_failed">تعذّر تعديل إعجابك.</string>
+    <string name="player_subscribe_failed">تعذّر تعديل اشتراكك.</string>
+    <!-- "Watch later" is YouTube's own playlist name. -->
+    <string name="player_saved_watch_later">تم الحفظ في قائمة المشاهدة لاحقًا</string>
+    <string name="player_watch_later_failed">تعذّر الحفظ في قائمة المشاهدة لاحقًا.</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_saved_to">تم الحفظ في %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_removed_from">تمت الإزالة من %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_playlist_update_failed">تعذّر تعديل %1$s.</string>
+    <string name="player_create_playlist_failed">تعذّر إنشاء قائمة التشغيل.</string>
+
+    <!-- ── Errors shown over the video ── -->
+    <string name="player_error_no_stream">لم يتم العثور على بث قابل للتشغيل لهذا الفيديو.</string>
+    <string name="player_error_connection">انقطع الاتصال. تحقّق من الشبكة وحاول مرة أخرى.</string>
+    <string name="player_error_refused">رفض YouTube البث. حاول مرة أخرى.</string>
+    <string name="player_error_unplayable">تعذّر تشغيل هذا الفيديو.</string>
+    <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
+    <string name="player_error_age_restricted">هذا الفيديو مقيّد بالفئة العمرية ويتطلب حساب YouTube لمشاهدته.</string>
+    <string name="player_error_geo">هذا الفيديو غير متاح في بلدك.</string>
+    <string name="player_error_bot_check">يطلب YouTube تأكيد أنك لست روبوتًا. حاول مرة أخرى بعد بضع دقائق.</string>
+    <string name="player_error_private">هذا الفيديو خاص.</string>
+    <string name="player_error_members_only">هذا الفيديو مخصّص للأعضاء فقط. لا يمكن لـ Skipii تشغيل فيديوهات الأعضاء بعد.</string>
+    <string name="player_error_unavailable">هذا الفيديو غير متاح.</string>
+    <string name="player_error_rate_limited">يحدّ YouTube من عدد الطلبات الآن. حاول مرة أخرى بعد دقيقة.</string>
+    <string name="player_error_offline">تعذّر الوصول إلى YouTube. تحقّق من اتصالك.</string>
+    <string name="player_error_generic">حدث خطأ أثناء التحميل. حاول مرة أخرى.</string>
+
+    <!-- First part of the quality sheet's technical "Playing …" line ("Auto · 1920×1080 · H.264 · itag 299"):
+         the quality is chosen automatically. Keep short. -->
+    <string name="player_quality_auto">تلقائي</string>
+
+    <!-- ── SponsorBlock segment categories (SponsorBlock settings in the account sheet) ── -->
+    <string name="player_sb_sponsor">رعاية</string>
+    <string name="player_sb_selfpromo">ترويج ذاتي</string>
+    <string name="player_sb_interaction">تذكير بالإعجاب والاشتراك</string>
+    <string name="player_sb_intro">مقدمة</string>
+    <string name="player_sb_outro">الخاتمة وشارة النهاية</string>
+    <string name="player_sb_preview">معاينة وملخص</string>
+    <string name="player_sb_music_offtopic">جزء غير موسيقي في فيديو موسيقي</string>
+    <string name="player_sb_filler">استطراد</string>
+    <!-- Short lowercase category names, put into the player's "Skip …" pill and "Skipped 0:30 …" note
+         ("Skip sponsor", "Skipped 0:30 self-promo"). Keep very short. -->
+    <string name="player_sb_short_sponsor">الرعاية</string>
+    <string name="player_sb_short_selfpromo">الترويج</string>
+    <string name="player_sb_short_interaction">التذكير</string>
+    <string name="player_sb_short_intro">المقدمة</string>
+    <string name="player_sb_short_outro">الخاتمة</string>
+    <string name="player_sb_short_preview">المعاينة</string>
+    <string name="player_sb_short_music_offtopic">غير الموسيقي</string>
+    <string name="player_sb_short_filler">الاستطراد</string>
+    <!-- What happens at a category's segments: chips in the SponsorBlock settings, four side by side. Keep very short (~6 characters). -->
+    <string name="player_sb_action_skip">تخطٍّ</string>
+    <string name="player_sb_action_ask">اسأل</string>
+    <string name="player_sb_action_show">عرض</string>
+    <string name="player_sb_action_off">إيقاف</string>
+</resources>

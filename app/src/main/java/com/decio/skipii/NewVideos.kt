@@ -91,10 +91,11 @@ object NewVideos {
 
     private fun ensureChannel(context: Context): NotificationChannel? {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return null
-        manager.getNotificationChannel(CHANNEL)?.let { return it }
+        // Created again every time: that only renames an existing channel (to the app's current language),
+        // the importance the person chose stays.
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "New videos", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Every new video from channels with the bell on"
+            NotificationChannel(CHANNEL, str(R.string.app_new_videos_channel), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = str(R.string.app_new_videos_channel_description)
             },
         )
         return manager.getNotificationChannel(CHANNEL)
@@ -182,7 +183,7 @@ object NewVideos {
             // A channel's first look: only what went up after the bell did.
             .filter { stored != null || it.publishedMs > ch.since }
         val announce = fresh.filter { !it.short || ShortsSetting.enabled }.take(MAX_PER_CHANNEL).reversed()
-        val name = ch.name ?: feedName ?: "New video"
+        val name = ch.name ?: feedName ?: str(R.string.app_new_video_unnamed)
         announce.forEach { notify(context, ch, name, it) }
         val newSeen = (entries.map { it.id } + seen).distinct().take(KEEP_SEEN)
         if (newSeen != seen) prefs.edit().putString(key, newSeen.joinToString(",")).apply()

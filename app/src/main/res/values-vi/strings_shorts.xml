@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">Hiện YouTube không đề xuất video Shorts nào.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Hiện không thể phát video Shorts này.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Không thể phát video Shorts này</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Thử lại</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Đăng nhập để thích video Shorts.</string>
+    <string name="shorts_like_failed">Không thể cập nhật lượt thích của bạn.</string>
+    <string name="shorts_sign_in_to_subscribe">Đăng nhập để đăng ký kênh.</string>
+    <string name="shorts_subscription_failed">Không thể cập nhật gói đăng ký của bạn.</string>
+    <string name="shorts_channel_unavailable">Không thể mở kênh này.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Quay lại</string>
+    <string name="shorts_like">Thích</string>
+    <string name="shorts_comments">Bình luận</string>
+    <string name="shorts_share">Chia sẻ</string>
+    <string name="shorts_channel">Kênh</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">Đăng ký</string>
+    <string name="shorts_unsubscribe">Hủy đăng ký</string>
+    <string name="shorts_go_to_channel">Đi tới kênh</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Chuông đang bật: mọi video mới. Nhấn để tắt</string>
+    <string name="shorts_bell_off">Chuông: nhận thông báo cho mọi video mới</string>
+</resources>

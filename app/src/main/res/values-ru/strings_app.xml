@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">Главная</string>
+    <string name="app_tab_subscriptions">Подписки</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">Shorts</string>
+    <string name="app_tab_search">Поиск</string>
+    <string name="app_tab_library">Библиотека</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">Обновить</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">Установка</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">Повторить</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). -->
+    <string name="app_update_percent">%1$s%%</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">Что нового</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s МБ</string>
+    <string name="app_update_no_notes">Для этой версии описание изменений не опубликовано.</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">Обновить</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">Скачивание %1$s%%</string>
+    <string name="app_update_installing">Установка…</string>
+    <string name="app_update_try_again">Повторить попытку</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">Обновления приложения</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Skipii обновлено до версии %1$s</string>
+    <string name="app_updated_text">Нажмите, чтобы открыть</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">Подписаться</string>
+    <string name="app_subscribed">Вы подписаны</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">Колокольчик включён: все новые видео. Нажмите, чтобы отключить</string>
+    <string name="app_bell_off_description">Колокольчик: уведомления о каждом новом видео</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">Все новые видео с канала %1$s</string>
+    <string name="app_bell_off_message">Уведомления от канала %1$s отключены</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">Все новые видео с этого канала</string>
+    <string name="app_bell_off_message_unnamed">Уведомления от этого канала отключены</string>
+    <string name="app_bell_failed">Не удалось изменить настройку колокольчика.</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">Разрешите Skipii отправлять уведомления, чтобы пользоваться колокольчиком.</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">Включите уведомления Skipii, чтобы пользоваться колокольчиком.</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">Новые видео</string>
+    <string name="app_new_videos_channel_description">Все новые видео с каналов, где включён колокольчик</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">Новое видео</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">Аккаунт YouTube</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube отклонил сеанс (%1$s). Попробуйте войти снова.</string>
+    <string name="app_error_youtube_returned">YouTube вернул ошибку %1$s</string>
+</resources>

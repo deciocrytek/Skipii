@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">لم يقدّم YouTube أي فيديوهات Shorts الآن.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">يتعذّر تشغيل فيديو Shorts هذا الآن.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">يتعذّر تشغيل فيديو Shorts هذا</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">إعادة المحاولة</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">سجّل الدخول للإعجاب بفيديوهات Shorts.</string>
+    <string name="shorts_like_failed">تعذّر تعديل إعجابك.</string>
+    <string name="shorts_sign_in_to_subscribe">سجّل الدخول للاشتراك.</string>
+    <string name="shorts_subscription_failed">تعذّر تعديل اشتراكك.</string>
+    <string name="shorts_channel_unavailable">يتعذّر فتح هذه القناة.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">رجوع</string>
+    <string name="shorts_like">إعجاب</string>
+    <string name="shorts_comments">التعليقات</string>
+    <string name="shorts_share">مشاركة</string>
+    <string name="shorts_channel">القناة</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">اشتراك</string>
+    <string name="shorts_unsubscribe">إلغاء الاشتراك</string>
+    <string name="shorts_go_to_channel">الانتقال إلى القناة</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">الجرس مفعّل: كل فيديو جديد. انقر لإيقافه</string>
+    <string name="shorts_bell_off">الجرس: تلقَّ إشعارًا بكل فيديو جديد</string>
+</resources>

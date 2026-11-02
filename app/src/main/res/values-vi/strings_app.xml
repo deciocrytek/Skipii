@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">Trang chủ</string>
+    <string name="app_tab_subscriptions">Kênh đăng ký</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">Shorts</string>
+    <string name="app_tab_search">Tìm kiếm</string>
+    <string name="app_tab_library">Thư viện</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">Cập nhật</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">Đang cài</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">Thử lại</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). -->
+    <string name="app_update_percent">%1$s%%</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">Có gì mới</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s MB</string>
+    <string name="app_update_no_notes">Phiên bản này không kèm ghi chú nào.</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">Cập nhật</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">Đang tải xuống %1$s%%</string>
+    <string name="app_update_installing">Đang cài đặt…</string>
+    <string name="app_update_try_again">Thử lại</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">Bản cập nhật ứng dụng</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Đã cập nhật Skipii lên %1$s</string>
+    <string name="app_updated_text">Nhấn để mở</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">Đăng ký</string>
+    <string name="app_subscribed">Đã đăng ký</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">Chuông đang bật: mọi video mới. Nhấn để tắt</string>
+    <string name="app_bell_off_description">Chuông: nhận thông báo cho mọi video mới</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">Mọi video mới từ %1$s</string>
+    <string name="app_bell_off_message">Đã tắt thông báo của %1$s</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">Mọi video mới từ kênh này</string>
+    <string name="app_bell_off_message_unnamed">Đã tắt thông báo của kênh này</string>
+    <string name="app_bell_failed">Không thể thay đổi chuông.</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">Hãy cho phép Skipii gửi thông báo để dùng chuông.</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">Hãy bật thông báo của Skipii để dùng chuông.</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">Video mới</string>
+    <string name="app_new_videos_channel_description">Mọi video mới từ các kênh đã bật chuông</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">Video mới</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">Tài khoản YouTube</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube đã từ chối phiên đăng nhập (%1$s). Hãy thử đăng nhập lại.</string>
+    <string name="app_error_youtube_returned">YouTube trả về %1$s</string>
+</resources>

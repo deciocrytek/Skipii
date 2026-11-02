@@ -40,7 +40,7 @@ object CommentPosting {
             val vp = cache.getOrPut(videoId) { VideoParams() }
             if (!vp.started) loadFirstPage(videoId, vp)
             vp.createComment
-        } ?: throw IOException("Comments are turned off or can't be posted on this video.")
+        } ?: throw IOException(str(R.string.comments_error_cant_post))
         checkPosted(
             InnerTube.post("comment/create_comment", JSONObject().put("commentText", text).put("createCommentParams", params)),
         )
@@ -56,7 +56,7 @@ object CommentPosting {
                 pages++
             }
             vp.reply[threadId]
-        } ?: throw IOException("Couldn't find that comment to reply to. Try again.")
+        } ?: throw IOException(str(R.string.comments_error_reply_not_found))
         checkPosted(
             InnerTube.post("comment/create_comment_reply", JSONObject().put("commentText", text).put("createReplyParams", params)),
         )
@@ -74,7 +74,7 @@ object CommentPosting {
             }
             val (likeAction, unlikeAction) = vp.like[commentId] ?: (null to null)
             if (liked) likeAction else unlikeAction
-        } ?: throw IOException("Couldn't find that comment to like. Try again.")
+        } ?: throw IOException(str(R.string.comments_error_like_not_found))
         InnerTube.post("comment/perform_comment_action", JSONObject().put("actions", JSONArray().put(action)))
         Unit
     }
@@ -155,7 +155,7 @@ object CommentPosting {
         val text = response.toString()
         if ("STATUS_FAILED" in text || !(text.contains("createCommentAction") || text.contains("createCommentReplyAction") || text.contains("STATUS_SUCCEEDED"))) {
             Log.w("Skipii", "comment post response: ${text.take(600)}")
-            throw IOException("YouTube didn't accept the comment.")
+            throw IOException(str(R.string.comments_error_not_accepted))
         }
     }
 }

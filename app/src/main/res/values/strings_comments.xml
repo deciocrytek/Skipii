@@ -1,0 +1,121 @@
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">Comments</string>
+    <string name="comments_turned_off">Comments are turned off for this video.</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">No comments yet. Add the first one.</string>
+    <string name="comments_none">No comments yet.</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">Close comments</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">Sign in to comment.</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">Replying to %1$s</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">Cancel reply</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">Add a reply…</string>
+    <string name="comments_add_comment">Add a comment…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">Post</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">Pinned</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">Like</string>
+    <string name="comments_unlike">Unlike</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">Hearted by creator</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">Reply</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">Hide replies</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="one">%1$s reply</item>
+        <item quantity="other">%1$s replies</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">You</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">Couldn\'t like that comment.</string>
+    <string name="comments_error_post">Couldn\'t post your comment.</string>
+    <string name="comments_error_cant_post">Comments are turned off or can\'t be posted on this video.</string>
+    <string name="comments_error_reply_not_found">Couldn\'t find that comment to reply to. Try again.</string>
+    <string name="comments_error_like_not_found">Couldn\'t find that comment to like. Try again.</string>
+    <string name="comments_error_not_accepted">YouTube didn\'t accept the comment.</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">Captions</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">Transcript</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">Downloading %1$s for translating…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">Translating into %1$s…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">Couldn\'t download %1$s for translating.</string>
+    <string name="captions_error_load">Couldn\'t load these captions.</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">auto-generated</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">auto</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">downloading…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">from %1$s</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">~30 MB download</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">TRANSLATED ON YOUR PHONE</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">More languages</string>
+    <string name="captions_none">This video has no captions.</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">Selected</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">Close transcript</string>
+    <string name="captions_no_transcript">This video has no captions, so there\'s no transcript.</string>
+    <string name="captions_no_lines">No lines yet.</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">Nothing matches \"%1$s\".</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">Back to now</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">Search the transcript</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">Clear search</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">Pick a language or turn them off in the player</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">This is how captions</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">will look on the video.</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">Show captions</string>
+    <string name="captions_show_never">Never</string>
+    <string name="captions_show_always">Always</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">When it isn\'t in %1$s</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">Look</string>
+    <string name="captions_look_skipii" translatable="false">Skipii</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">Classic</string>
+    <string name="captions_look_outline">Outline</string>
+    <string name="captions_look_system">Android\'s</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">Size</string>
+    <string name="captions_size_small">Small</string>
+    <string name="captions_size_medium">Medium</string>
+    <string name="captions_size_large">Large</string>
+    <string name="captions_size_huge">Huge</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">Translation languages on this phone</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">Remove %1$s</string>
+</resources>

@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">現在 YouTube から表示できるショートがありません。</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">このショートは現在再生できません。</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">このショートを再生できません</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">再試行</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">ショートを高く評価するにはログインしてください。</string>
+    <string name="shorts_like_failed">評価を更新できませんでした。</string>
+    <string name="shorts_sign_in_to_subscribe">チャンネル登録するにはログインしてください。</string>
+    <string name="shorts_subscription_failed">チャンネル登録を更新できませんでした。</string>
+    <string name="shorts_channel_unavailable">このチャンネルを開けません。</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">戻る</string>
+    <string name="shorts_like">高く評価</string>
+    <string name="shorts_comments">コメント</string>
+    <string name="shorts_share">共有</string>
+    <string name="shorts_channel">チャンネル</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">チャンネル登録</string>
+    <string name="shorts_unsubscribe">登録解除</string>
+    <string name="shorts_go_to_channel">チャンネルに移動</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">通知オン: すべての新しい動画。タップでオフ</string>
+    <string name="shorts_bell_off">通知: 新しい動画ごとに通知を受け取る</string>
+</resources>

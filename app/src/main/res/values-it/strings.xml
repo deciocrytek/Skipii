@@ -1,0 +1,33 @@
+<resources>
+    <!-- Compact counts (formatCount): %1$s is the number, already with the language's decimal mark ("1,2"). -->
+    <string name="count_thousands">%1$s K</string>
+    <string name="count_millions">%1$s Mln</string>
+    <string name="count_billions">%1$s Mrd</string>
+    <!-- Only used where count_in_ten_thousands is true (Japanese): 万 and 億. -->
+    <string name="count_ten_thousands">%1$s万</string>
+    <string name="count_hundred_millions">%1$s億</string>
+
+    <!-- %1$s is a compact count from formatCount ("1.2M"); the quantity is the exact count. -->
+    <plurals name="views_count">
+        <item quantity="one">%1$s visualizzazione</item>
+        <item quantity="many">%1$s visualizzazioni</item>
+        <item quantity="other">%1$s visualizzazioni</item>
+    </plurals>
+    <plurals name="subscribers_count">
+        <item quantity="one">%1$s iscritto</item>
+        <item quantity="many">%1$s iscritti</item>
+        <item quantity="other">%1$s iscritti</item>
+    </plurals>
+
+    <!-- Ages (displayAge). %1$s is a relative time already in the app's language ("3 days ago"). -->
+    <string name="age_just_now">proprio ora</string>
+    <string name="age_streamed">Trasmesso in streaming %1$s</string>
+    <string name="age_premiered">Presentato in anteprima %1$s</string>
+
+    <!-- The account sheet's Language card (LanguageSettings). -->
+    <string name="language_title">Lingua</string>
+    <string name="language_phone">Lingua del telefono</string>
+    <!-- %1$s is the language's own name ("Español"). -->
+    <string name="language_phone_named">Lingua del telefono (%1$s)</string>
+    <string name="language_line">Le parole dell\'app. Video, titoli e commenti restano come li hanno scritti i loro autori.</string>
+</resources>

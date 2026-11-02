@@ -81,6 +81,7 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -461,7 +462,7 @@ private fun PlaySlot(
     val view = LocalView.current
     val playing = player.isPlaying
     val painter = rememberVectorPainter(if (playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow)
-    val label = if (playing) "Pause" else "Play"
+    val label = stringResource(if (playing) R.string.bar_pause else R.string.bar_play)
     Box(
         modifier
             .fillMaxHeight()
@@ -517,7 +518,7 @@ private fun SeekButton(
     ) {
         Icon(
             if (side < 0) Icons.Rounded.Replay10 else Icons.Rounded.Forward10,
-            contentDescription = if (side < 0) "Back 10 seconds" else "Forward 10 seconds",
+            contentDescription = stringResource(if (side < 0) R.string.bar_back_10 else R.string.bar_forward_10),
             tint = c.onSurface,
             modifier = Modifier.size(PlayerIconSize).graphicsLayer { rotationZ = spin.value },
         )

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Coba lagi</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Kembali</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Tutup</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Login dengan Google</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Tonton Nanti</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Video yang disukai</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Putar berikutnya</string>
+    <string name="ui_add_to_queue">Tambahkan ke antrean</string>
+    <string name="ui_save_to_watch_later">Simpan ke Tonton Nanti</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">Simpan ke playlist</string>
+    <string name="ui_share">Bagikan</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Disimpan</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Pribadi</string>
+    <string name="ui_privacy_unlisted">Tidak publik</string>
+    <string name="ui_privacy_public">Publik</string>
+    <string name="ui_new_playlist">Playlist baru</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Nama playlist</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Buat</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="other">Antrean · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Hapus</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Antrean</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Hapus dari antrean</string>
+    <string name="ui_queue_empty">Antrean kosong. Tekan lama video untuk menambahkannya.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Lewati promosi sponsor dan segmen lainnya</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Segmen dari SponsorBlock (sponsor.ajay.app), proyek komunitas. Data berlisensi CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">Kontrol pemutar</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">Di pil pemutaran di bagian bawah pemutar</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">Di atas video; geser kenop di tepi bawahnya untuk menggulir</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Pil pemutaran</string>
+    <string name="ui_player_controls_on_video">Di atas video</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Tampilkan tab Shorts</string>
+    <string name="ui_shorts_off_line">Tab Shorts disembunyikan dan Shorts tidak dimuat</string>
+    <string name="ui_appearance">Tampilan</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">Sistem</string>
+    <string name="ui_mode_light">Terang</string>
+    <string name="ui_mode_dark">Gelap</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Wallpaper</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Dipilih</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">Batal</string>
+    <string name="ui_sign_in_title">Login ke YouTube</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · disimpan terenkripsi di ponsel ini</string>
+    <string name="ui_sign_in_error">Sudah login, tetapi YouTube tidak merespons. Periksa koneksi Anda, lalu coba lagi.</string>
+    <string name="ui_finishing_sign_in">Menyelesaikan login…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Login</string>
+    <string name="ui_account_pitch_title">YouTube Anda, tanpa iklan</string>
+    <string name="ui_account_pitch_body">Login untuk mendapatkan rekomendasi, langganan, histori, dan playlist Anda. Suka, subscribe, Tonton Nanti, dan histori tontonan disinkronkan kembali ke akun Anda.\n\nGoogle menganggap aplikasi tidak resmi melanggar persyaratannya dan dapat menangguhkan akun yang menggunakannya. Akun Google kedua menjauhkan risiko itu dari akun utama Anda.</string>
+    <string name="ui_sign_out">Logout</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Rekomendasi Anda, tanpa iklan</string>
+    <string name="ui_home_signed_out_body">Login dengan Google untuk melihat feed beranda YouTube Anda sendiri, atau langsung telusuri.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Telusuri saja</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Langganan</string>
+    <string name="ui_subscriptions_signed_out_title">Langganan Anda</string>
+    <string name="ui_subscriptions_signed_out_body">Login dengan Google untuk melihat video baru dari channel yang Anda ikuti.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Koleksi</string>
+    <string name="ui_library_signed_out_title">Koleksi Anda</string>
+    <string name="ui_library_signed_out_body">Login dengan Google untuk histori, Tonton Nanti, video yang disukai, dan playlist Anda.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">Histori</string>
+    <string name="ui_history_empty">Belum ada yang ditonton.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Playlist</string>
+    <string name="ui_playlist_empty_title">Belum ada apa-apa di sini</string>
+    <string name="ui_playlist_empty_body">Video yang Anda tambahkan ke playlist ini akan muncul di sini.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Telusuri</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">Telusuri YouTube</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Hapus</string>
+    <string name="ui_search_error_title">Penelusuran gagal dimuat</string>
+    <string name="ui_search_intro_title">Telusuri tanpa iklan</string>
+    <string name="ui_search_intro_body">Hasil langsung diputar, tanpa iklan dan tanpa login.</string>
+    <string name="ui_search_nothing_found">Tidak ada hasil</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">Tidak ada video yang cocok dengan “%1$s”.</string>
+    <string name="ui_recent_searches">Penelusuran terbaru</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Hapus semua</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Hapus</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Tidak dapat memperbarui langganan Anda.</string>
+    <string name="ui_channel_error_title">Tidak dapat memuat channel ini</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Video</string>
+    <string name="ui_feed_error_title">Tidak dapat memuat ini</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">Anda sudah logout.</string>
+</resources>

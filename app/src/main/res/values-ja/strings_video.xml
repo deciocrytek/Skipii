@@ -1,0 +1,73 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube がこの接続を確認しています。再試行中…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">音声のみ</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">音声のみ: オン</string>
+    <string name="video_playback_speed">再生速度</string>
+    <string name="video_captions">字幕</string>
+    <string name="video_quality">画質</string>
+    <string name="video_pip">ピクチャー イン ピクチャー</string>
+    <string name="video_next">次へ</string>
+    <string name="video_fullscreen">全画面</string>
+    <string name="video_exit_fullscreen">全画面を終了</string>
+    <string name="video_back_10">10 秒戻る</string>
+    <string name="video_forward_10">10 秒進む</string>
+    <string name="video_play">再生</string>
+    <string name="video_pause">一時停止</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">選択済み</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">設定で Skipii のピクチャー イン ピクチャーがオフになっています。</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">自動</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">最大 1080p で最高画質</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">%1$s で再生中</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">再生中: %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">データ節約</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">フル HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">再生速度</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">字幕</string>
+    <string name="video_drop_quality">画質</string>
+    <string name="video_drop_speed">速度</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">オフ</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">自動</string>
+    <string name="video_captions_tag_downloading">ダウンロード中</string>
+    <string name="video_captions_tag_translated">翻訳</string>
+    <string name="video_captions_tag_download">ダウンロード</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">標準</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">カスタム</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">すべての動画</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short. -->
+    <string name="video_skip_segment">%1$sをスキップ</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">%2$s（%1$s）をスキップしました</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">元に戻す</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">再試行</string>
+</resources>

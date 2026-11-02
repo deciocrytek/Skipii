@@ -1,0 +1,3 @@
+<resources>
+    <bool name="count_in_ten_thousands">true</bool>
+</resources>

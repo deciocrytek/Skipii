@@ -1,0 +1,74 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">يتحقّق YouTube من هذا الاتصال. جارٍ إعادة المحاولة…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">الصوت فقط</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">وضع الصوت فقط مفعّل</string>
+    <string name="video_playback_speed">سرعة التشغيل</string>
+    <string name="video_captions">الترجمة</string>
+    <string name="video_quality">الجودة</string>
+    <string name="video_pip">نافذة ضمن النافذة</string>
+    <string name="video_next">التالي</string>
+    <string name="video_fullscreen">ملء الشاشة</string>
+    <string name="video_exit_fullscreen">الخروج من ملء الشاشة</string>
+    <string name="video_back_10">رجوع 10 ثوانٍ</string>
+    <string name="video_forward_10">تقديم 10 ثوانٍ</string>
+    <string name="video_play">تشغيل</string>
+    <string name="video_pause">إيقاف مؤقت</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">محدّد</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">ميزة نافذة ضمن النافذة غير مفعّلة لتطبيق Skipii في الإعدادات.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">تلقائي</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">الأفضل حتى 1080p</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">يتم تشغيل %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">يتم تشغيل %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">توفير البيانات</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">السرعة</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them).
+         Arabic has no capitals. -->
+    <string name="video_drop_captions">الترجمة</string>
+    <string name="video_drop_quality">الجودة</string>
+    <string name="video_drop_speed">السرعة</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">إيقاف</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">تلقائية</string>
+    <string name="video_captions_tag_downloading">جارٍ التنزيل</string>
+    <string name="video_captions_tag_translated">مترجمة</string>
+    <string name="video_captions_tag_download">تنزيل</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">عادية</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">مخصّصة</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">كل الفيديوهات</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short. -->
+    <string name="video_skip_segment">تخطي %1$s</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">تم تخطي %2$s (%1$s)</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">تراجع</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">إعادة المحاولة</string>
+</resources>

@@ -354,7 +354,7 @@ fun VideoRow(video: VideoItem, onClick: () -> Unit, trailing: (@Composable () ->
             Text(video.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 18.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(4.dp))
             Text(
-                listOfNotNull(video.channel.ifBlank { null }, video.views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" }).joinDots(),
+                listOfNotNull(video.channel.ifBlank { null }, video.views.takeIf { it >= 0 }?.let { viewsLine(it) }).joinDots(),
                 color = c.onSurfaceVariant,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -440,22 +440,89 @@ fun formatDuration(ms: Long): String {
     return if (h > 0) "%d:%02d:%02d".format(Locale.US, h, m, s) else "%d:%02d".format(Locale.US, m, s)
 }
 
-fun formatCount(n: Long): String = when {
-    n < 1_000 -> n.toString()
-    n < 1_000_000 -> trimmed(n / 1_000.0) + "K"
-    n < 1_000_000_000 -> trimmed(n / 1_000_000.0) + "M"
-    else -> trimmed(n / 1_000_000_000.0) + "B"
+/**
+ * "1.2M" in the app's language ("1,2 M", "1,2 Mio.", "120万"), always in Latin digits: the default locale
+ * gave an Arabic phone "١,٢M". The suffixes are strings (count_thousands …); Japanese counts in 万 / 億 (count_in_ten_thousands).
+ */
+fun formatCount(n: Long): String {
+    if (n < 1_000) return n.toString()
+    return if (AppLanguage.resources.getBoolean(R.bool.count_in_ten_thousands)) when {
+        n < 10_000 -> n.toString()
+        n < 100_000_000 -> str(R.string.count_ten_thousands, trimmed(n / 10_000.0))
+        else -> str(R.string.count_hundred_millions, trimmed(n / 100_000_000.0))
+    } else when {
+        n < 1_000_000 -> str(R.string.count_thousands, trimmed(n / 1_000.0))
+        n < 1_000_000_000 -> str(R.string.count_millions, trimmed(n / 1_000_000.0))
+        else -> str(R.string.count_billions, trimmed(n / 1_000_000_000.0))
+    }
 }
 
 private fun trimmed(v: Double): String =
-    if (v >= 100 || v == Math.floor(v)) v.toLong().toString() else "%.1f".format(Locale.US, v).removeSuffix(".0")
+    if (v >= 100 || v == Math.floor(v)) v.toLong().toString()
+    else "%.1f".format(Locale.US, v).removeSuffix(".0").replace('.', decimalSeparator())
+
+/** The app language's decimal mark with Latin digits ("1,2" in Spanish, "1.2" in Arabic as written with Latin digits). */
+private fun decimalSeparator(): Char =
+    android.icu.text.DecimalFormatSymbols.getInstance(latinDigits(AppLanguage.locale)).decimalSeparator
+
+private fun latinDigits(locale: Locale): android.icu.util.ULocale =
+    android.icu.util.ULocale.forLocale(locale).setKeywordValue("numbers", "latn")
+
+/** "1.2M views" in the app's language. */
+fun viewsLine(views: Long): String = plural(R.plurals.views_count, compactQuantity(views), formatCount(views))
+
+/** "1.2M subscribers" in the app's language. */
+fun subscribersLine(subscribers: Long): String = plural(R.plurals.subscribers_count, compactQuantity(subscribers), formatCount(subscribers))
+
+/**
+ * The plural form for a count shown by [formatCount]: the noun agrees with what's on screen ("1,2 M"), not
+ * with the exact count. Russian takes "просмотров" after any "тыс." / "млн" (the exact 1,201 picked
+ * "просмотр"); French, Spanish, Italian and Portuguese take "de" after a million ("1,2 M de vues"). So a
+ * compacted count stands in as 1,000 or 1,000,000, which every language's rules read that way.
+ */
+fun compactQuantity(n: Long): Long = when {
+    n < 1_000 -> n
+    n < 1_000_000 -> 1_000
+    else -> 1_000_000
+}
 
 fun metaLine(channel: String, views: Long, uploaded: String?): String =
     listOfNotNull(
         channel.ifBlank { null },
-        views.takeIf { it >= 0 }?.let { "${formatCount(it)} views" },
-        uploaded?.ifBlank { null },
+        views.takeIf { it >= 0 }?.let { viewsLine(it) },
+        displayAge(uploaded)?.ifBlank { null },
     ).joinDots()
+
+private val ENGLISH_AGE = Regex("^(?:(streamed(?: live)?|premiered)\\s+)?(\\d+)\\s+(second|minute|hour|day|week|month|year)s?\\s+ago$", RegexOption.IGNORE_CASE)
+
+/**
+ * An age as YouTube writes it in English ("3 days ago", "Streamed 2 hours ago", "just now" — Skipii asks for
+ * English and keeps it so: NewVideos reads those ages) in the app's language ("hace 3 días"). Anything else
+ * (a date) is shown as it came.
+ */
+fun displayAge(english: String?): String? {
+    if (english == null) return null
+    val text = english.trim()
+    if (AppLanguage.locale.language == "en") return text
+    if (text.equals("just now", ignoreCase = true)) return str(R.string.age_just_now)
+    val m = ENGLISH_AGE.matchEntire(text) ?: return text
+    val unit = when (m.groupValues[3].lowercase()) {
+        "second" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.SECONDS
+        "minute" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.MINUTES
+        "hour" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.HOURS
+        "day" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.DAYS
+        "week" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.WEEKS
+        "month" -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.MONTHS
+        else -> android.icu.text.RelativeDateTimeFormatter.RelativeUnit.YEARS
+    }
+    val age = android.icu.text.RelativeDateTimeFormatter.getInstance(latinDigits(AppLanguage.locale))
+        .format(m.groupValues[2].toDouble(), android.icu.text.RelativeDateTimeFormatter.Direction.LAST, unit)
+    return when {
+        m.groupValues[1].startsWith("streamed", ignoreCase = true) -> str(R.string.age_streamed, age)
+        m.groupValues[1].isNotEmpty() -> str(R.string.age_premiered, age)
+        else -> age
+    }
+}
 
 /**
  * "Channel · 2.4M views · 5 years ago" with each part a bidi isolate (FSI … PDI), so one part's

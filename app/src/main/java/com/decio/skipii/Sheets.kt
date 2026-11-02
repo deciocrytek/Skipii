@@ -23,6 +23,8 @@ import kotlin.math.roundToInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,12 +43,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.WatchLater
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,6 +70,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
@@ -117,13 +123,13 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
                 Text(video.channel, color = c.onSurfaceVariant, fontSize = 13.sp, maxLines = 1)
             }
         }
-        OptionRow(Icons.Rounded.PlaylistPlay, "Play next") { player.playNext(video); onDismiss() }
-        OptionRow(Icons.AutoMirrored.Rounded.PlaylistAdd, "Add to queue") { player.addToQueue(video); onDismiss() }
+        OptionRow(Icons.Rounded.PlaylistPlay, stringResource(R.string.ui_play_next)) { player.playNext(video); onDismiss() }
+        OptionRow(Icons.AutoMirrored.Rounded.PlaylistAdd, stringResource(R.string.ui_add_to_queue)) { player.addToQueue(video); onDismiss() }
         if (Account.signedIn) {
-            OptionRow(Icons.Rounded.WatchLater, "Save to Watch later") { player.saveToWatchLater(video); onDismiss() }
-            OptionRow(Icons.Rounded.LibraryAdd, "Save to playlist") { onDismiss(); player.openPlaylists(video) }
+            OptionRow(Icons.Rounded.WatchLater, stringResource(R.string.ui_save_to_watch_later)) { player.saveToWatchLater(video); onDismiss() }
+            OptionRow(Icons.Rounded.LibraryAdd, stringResource(R.string.ui_save_to_playlist)) { onDismiss(); player.openPlaylists(video) }
         }
-        OptionRow(Icons.Rounded.Share, "Share") {
+        OptionRow(Icons.Rounded.Share, stringResource(R.string.ui_share)) {
             shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
         }
@@ -159,7 +165,7 @@ fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem, maxHeight: Dp) {
         Box(Modifier.height(listHeight)) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
             Text(
-                "Save to playlist",
+                stringResource(R.string.ui_save_to_playlist),
                 fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
                 modifier = Modifier.padding(horizontal = 20.dp),
             )
@@ -174,7 +180,7 @@ fun SaveToPlaylistSheet(player: PlayerState, video: VideoItem, maxHeight: Dp) {
                 error != null -> Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(error, color = c.onSurfaceVariant, fontSize = 14.sp, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(12.dp))
-                    PillButton("Try again", { player.openPlaylists(video) })
+                    PillButton(stringResource(R.string.ui_try_again), { player.openPlaylists(video) })
                 }
                 choices == null -> Box(Modifier.fillMaxWidth().padding(28.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(28.dp))
@@ -242,7 +248,7 @@ private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
         Spacer(Modifier.width(18.dp))
         Column(Modifier.weight(1f)) {
             Text(choice.title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            privacyLabel(choice.privacy)?.let { Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
+            privacyLabel(choice.privacy)?.let { Text(stringResource(it), color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
         }
         Spacer(Modifier.width(12.dp))
         // Filled check when the video is in it; an empty tonal circle when it isn't. Picking
@@ -261,7 +267,7 @@ private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             if (check > 0f) Icon(
-                Icons.Rounded.Check, if (on) "Saved" else null, tint = c.onPrimary,
+                Icons.Rounded.Check, if (on) stringResource(R.string.ui_saved) else null, tint = c.onPrimary,
                 modifier = Modifier.size(18.dp).graphicsLayer {
                     scaleX = check; scaleY = check
                     alpha = check.coerceIn(0f, 1f)
@@ -272,10 +278,11 @@ private fun PlaylistChoiceRow(choice: PlaylistChoice, onClick: () -> Unit) {
     }
 }
 
-private fun privacyLabel(privacy: String?) = when (privacy) {
-    "PRIVATE" -> "Private"
-    "UNLISTED" -> "Unlisted"
-    "PUBLIC" -> "Public"
+@StringRes
+private fun privacyLabel(privacy: String?): Int? = when (privacy) {
+    "PRIVATE" -> R.string.ui_privacy_private
+    "UNLISTED" -> R.string.ui_privacy_unlisted
+    "PUBLIC" -> R.string.ui_privacy_public
     else -> null
 }
 
@@ -284,7 +291,7 @@ private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
     val c = MaterialTheme.colorScheme
     var open by remember { mutableStateOf(false) }
     if (!open) {
-        OptionRow(Icons.Rounded.Add, "New playlist") { open = true }
+        OptionRow(Icons.Rounded.Add, stringResource(R.string.ui_new_playlist)) { open = true }
         return
     }
     var title by remember { mutableStateOf("") }
@@ -309,7 +316,7 @@ private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
             Modifier.fillMaxWidth().height(56.dp).clip(CircleShape).background(c.surfaceContainerHigh).padding(horizontal = 20.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
-            if (title.isEmpty()) Text("Playlist name", color = c.onSurfaceVariant, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            if (title.isEmpty()) Text(stringResource(R.string.ui_playlist_name), color = c.onSurfaceVariant, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             BasicTextField(
                 value = title,
                 onValueChange = { title = it.take(150) },
@@ -337,7 +344,7 @@ private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
                             .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
                             .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
                             .padding(horizontal = 14.dp, vertical = 8.dp),
-                    ) { Text(privacyLabel(key)!!, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+                    ) { Text(stringResource(privacyLabel(key)!!), color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
                 }
             }
             Spacer(Modifier.width(8.dp))
@@ -349,7 +356,7 @@ private fun NewPlaylistRow(onCreate: (title: String, privacy: String) -> Unit) {
                     .background(c.primary)
                     .graphicsLayer { alpha = if (ready) 1f else 0.4f }
                     .padding(horizontal = 18.dp, vertical = 9.dp),
-            ) { Text("Create", color = c.onPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+            ) { Text(stringResource(R.string.ui_create), color = c.onPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp) }
         }
     }
 }
@@ -403,7 +410,7 @@ fun QueueCard(player: PlayerState, onOpen: () -> Unit) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    "Queue · $count",
+                    plural(R.plurals.ui_queue_count, count.toLong(), count),
                     color = c.onSecondaryContainer, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp,
                 )
                 Text(next.title, color = c.onSecondaryContainer, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -420,7 +427,7 @@ fun QueueCard(player: PlayerState, onOpen: () -> Unit) {
             ) {
                 Icon(Icons.Rounded.ClearAll, null, tint = c.onSecondary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("Clear", color = c.onSecondary, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+                Text(stringResource(R.string.ui_clear), color = c.onSecondary, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
             }
         }
     }
@@ -445,9 +452,9 @@ fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
     val clearAlpha by animateFloatAsState(if (leavingRows == null && player.queue.isNotEmpty()) 1f else 0f, label = "clearAlpha")
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = c.surfaceContainerLow) {
         Row(Modifier.padding(horizontal = 20.dp).padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Queue", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.ui_queue), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
             Text(
-                "Clear", color = c.primary, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
+                stringResource(R.string.ui_clear), color = c.primary, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
                 modifier = Modifier
                     .graphicsLayer { alpha = clearAlpha }
                     .pressable(enabled = leavingRows == null && player.queue.isNotEmpty()) {
@@ -476,7 +483,7 @@ fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
                             Box(Modifier.padding(horizontal = 20.dp)) {
                                 VideoRow(video, onClick = { player.playFromQueue(index); onDismiss() }) {
                                     Box(Modifier.size(40.dp).pressable { player.removeFromQueue(index) }, contentAlignment = Alignment.Center) {
-                                        Icon(Icons.Rounded.Close, "Remove from queue", tint = c.onSurfaceVariant)
+                                        Icon(Icons.Rounded.Close, stringResource(R.string.ui_remove_from_queue), tint = c.onSurfaceVariant)
                                     }
                                 }
                             }
@@ -484,7 +491,7 @@ fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
                     }
                 }
                 Text(
-                    "Nothing queued. Press and hold a video to add it.",
+                    stringResource(R.string.ui_queue_empty),
                     color = c.onSurfaceVariant, fontSize = 14.sp,
                     modifier = Modifier.graphicsLayer { alpha = emptied.value }.padding(horizontal = 20.dp, vertical = 24.dp),
                 )
@@ -529,14 +536,14 @@ private fun SlideAway(slide: () -> Float, size: () -> Float = { 1f }, content: @
 fun SponsorBlockSettings() {
     val c = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth()) {
-        SettingSwitchRow("SponsorBlock", "Skip sponsor reads and other segments", SponsorBlock.enabled, SponsorBlock::updateEnabled)
+        SettingSwitchRow("SponsorBlock", stringResource(R.string.ui_sponsorblock_line), SponsorBlock.enabled, SponsorBlock::updateEnabled)
         if (SponsorBlock.enabled) {
             Spacer(Modifier.height(10.dp))
             SponsorBlock.Category.entries.forEach { category -> CategoryRow(category) }
         }
         Spacer(Modifier.height(10.dp))
         Text(
-            "Segments from SponsorBlock (sponsor.ajay.app), a community project. Data licensed CC BY-NC-SA 4.0.",
+            stringResource(R.string.ui_sponsorblock_credit),
             color = c.onSurfaceVariant, fontSize = 11.5.sp, lineHeight = 16.sp,
         )
     }
@@ -577,16 +584,16 @@ private fun CategoryRow(category: SponsorBlock.Category) {
 fun PlayerControlsSettings() {
     val c = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth()) {
-        Text("Player controls", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+        Text(stringResource(R.string.ui_player_controls), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
         Text(
-            if (PlayerControls.inBar) "In the playback pill at the bottom of the player"
-            else "On the video; drag the knob on its bottom edge to scrub",
+            if (PlayerControls.inBar) stringResource(R.string.ui_player_controls_in_bar_line)
+            else stringResource(R.string.ui_player_controls_on_video_line),
             color = c.onSurfaceVariant, fontSize = 13.sp,
         )
         Spacer(Modifier.height(10.dp))
         // Scrolls, as every row of chips does (#24).
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(true to "Playback pill", false to "On the video").forEach { (bar, label) ->
+            listOf(true to stringResource(R.string.ui_player_controls_pill), false to stringResource(R.string.ui_player_controls_on_video)).forEach { (bar, label) ->
                 val on = PlayerControls.inBar == bar
                 Box(
                     Modifier
@@ -607,8 +614,8 @@ fun PlayerControlsSettings() {
 fun ShortsSettings() {
     val context = LocalContext.current
     SettingSwitchRow(
-        "Shorts",
-        if (ShortsSetting.enabled) "Show the Shorts tab" else "The Shorts tab is hidden and no Shorts are loaded",
+        stringResource(R.string.ui_shorts),
+        if (ShortsSetting.enabled) stringResource(R.string.ui_shorts_on_line) else stringResource(R.string.ui_shorts_off_line),
         ShortsSetting.enabled,
     ) { ShortsSetting.set(context, it) }
 }
@@ -641,6 +648,75 @@ private fun SettingSwitchRow(title: String, line: String, checked: Boolean, onCh
     }
 }
 
+// ── Language (inside the account sheet) ────────────────────────────────────────
+
+/**
+ * The phone's language or one of Skipii's ([AppLanguage]): a field showing the current one, opening a menu
+ * of the rest. Each language is named in its own language, so one picked by mistake is easy to undo.
+ */
+@Composable
+fun LanguageSettings() {
+    val c = MaterialTheme.colorScheme
+    val context = LocalContext.current
+    val phone = AppLanguage.phoneLocale
+    val phoneName = AppLanguage.choices.firstOrNull { java.util.Locale.forLanguageTag(it.tag).language == phone.language }?.name
+        ?: phone.getDisplayLanguage(phone).replaceFirstChar { it.titlecase(phone) }
+    val chosen = AppLanguage.pickedChoice
+    val options = listOf("" to stringResource(R.string.language_phone_named, phoneName)) + AppLanguage.choices.map { it.tag to it.name }
+    var open by remember { mutableStateOf(false) }
+    var fieldWidth by remember { mutableStateOf(0) }
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    Column(Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.language_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+        Text(stringResource(R.string.language_line), color = c.onSurfaceVariant, fontSize = 13.sp, lineHeight = 18.sp)
+        Spacer(Modifier.height(10.dp))
+        Box {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged { fieldWidth = it.width }
+                    .pressable(pressedScale = 0.98f) { open = true }
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(c.surfaceContainerHighest)
+                    .padding(start = 16.dp, end = 10.dp, top = 12.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    options.first { it.first == chosen }.second, Modifier.weight(1f),
+                    fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+                Icon(Icons.Rounded.ArrowDropDown, null, tint = c.onSurfaceVariant)
+            }
+            DropdownMenu(
+                expanded = open,
+                onDismissRequest = { open = false },
+                // As wide as the field it opens from.
+                modifier = Modifier.width(with(density) { fieldWidth.toDp() }),
+                shape = RoundedCornerShape(16.dp),
+                containerColor = c.surfaceContainerHigh,
+            ) {
+                options.forEach { (tag, label) ->
+                    val on = chosen == tag
+                    DropdownMenuItem(
+                        text = { Text(label, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold, fontSize = 14.sp) },
+                        trailingIcon = if (on) ({ Icon(Icons.Rounded.Check, null, tint = c.primary) }) else null,
+                        onClick = {
+                            open = false
+                            context.findActivity()?.let { AppLanguage.pick(it, tag) }
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+private tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
+    is android.app.Activity -> this
+    is android.content.ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
 // ── Appearance (inside the account sheet) ──────────────────────────────────────
 
 /** Light/dark/AMOLED mode plus every Ledgii theme (and wallpaper colors on Android 12+). */
@@ -650,12 +726,12 @@ fun AppearanceSettings() {
     val context = LocalContext.current
     val dark = isDarkTheme()
     Column(Modifier.fillMaxWidth()) {
-        Text("Appearance", fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+        Text(stringResource(R.string.ui_appearance), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
         Spacer(Modifier.height(10.dp))
         // Scrolls like the rows below: a fixed Row squeezed the last chip to its padding on a big
         // font / display size, and its label wrapped a letter a line into a tall empty bar (#24).
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "amoled" to "AMOLED").forEach { (key, label) ->
+            listOf("system" to stringResource(R.string.ui_mode_system), "light" to stringResource(R.string.ui_mode_light), "dark" to stringResource(R.string.ui_mode_dark), "amoled" to "AMOLED").forEach { (key, label) ->
                 val on = ThemeSettings.mode == key
                 Box(
                     Modifier
@@ -667,8 +743,9 @@ fun AppearanceSettings() {
             }
         }
         Spacer(Modifier.height(14.dp))
+        val wallpaper = stringResource(R.string.ui_theme_wallpaper)
         val choices = buildList {
-            if (ThemeSettings.wallpaperAvailable) add(null to "Wallpaper")
+            if (ThemeSettings.wallpaperAvailable) add(null to wallpaper)
             SKIPII_THEMES.forEach { add(it.hex to it.name) }
         }
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -694,7 +771,7 @@ fun AppearanceSettings() {
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        if (selected) Icon(Icons.Rounded.Check, "Selected", tint = scheme.onPrimary, modifier = Modifier.size(22.dp))
+                        if (selected) Icon(Icons.Rounded.Check, stringResource(R.string.ui_selected), tint = scheme.onPrimary, modifier = Modifier.size(22.dp))
                     }
                     Spacer(Modifier.height(6.dp))
                     Text(

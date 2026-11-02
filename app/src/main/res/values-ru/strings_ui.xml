@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Повторить попытку</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Назад</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Закрыть</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Войти через Google</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Смотреть позже</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Понравившиеся</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Воспроизвести следующим</string>
+    <string name="ui_add_to_queue">Добавить в очередь</string>
+    <string name="ui_save_to_watch_later">Добавить в «Смотреть позже»</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">Сохранить в плейлист</string>
+    <string name="ui_share">Поделиться</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Сохранено</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Закрытый</string>
+    <string name="ui_privacy_unlisted">По ссылке</string>
+    <string name="ui_privacy_public">Открытый</string>
+    <string name="ui_new_playlist">Новый плейлист</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Название плейлиста</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Создать</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="one">Очередь · %1$s</item>
+        <item quantity="few">Очередь · %1$s</item>
+        <item quantity="many">Очередь · %1$s</item>
+        <item quantity="other">Очередь · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Очистить</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Очередь</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Удалить из очереди</string>
+    <string name="ui_queue_empty">Очередь пуста. Нажмите и удерживайте видео, чтобы добавить его.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Пропуск спонсорских вставок и других фрагментов</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Фрагменты от SponsorBlock (sponsor.ajay.app), проекта сообщества. Данные доступны по лицензии CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">Управление плеером</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">На панели воспроизведения внизу плеера</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">На видео; для перемотки перетащите ползунок у его нижнего края</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Панель внизу</string>
+    <string name="ui_player_controls_on_video">На видео</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Показывать вкладку Shorts</string>
+    <string name="ui_shorts_off_line">Вкладка Shorts скрыта, Shorts не загружаются</string>
+    <string name="ui_appearance">Оформление</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">Системная</string>
+    <string name="ui_mode_light">Светлая</string>
+    <string name="ui_mode_dark">Тёмная</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Обои</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Выбрано</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">Отмена</string>
+    <string name="ui_sign_in_title">Вход в YouTube</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · хранится в зашифрованном виде на этом телефоне</string>
+    <string name="ui_sign_in_error">Вход выполнен, но YouTube не отвечает. Проверьте соединение и повторите попытку.</string>
+    <string name="ui_finishing_sign_in">Завершение входа…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Войти</string>
+    <string name="ui_account_pitch_title">Ваш YouTube без рекламы</string>
+    <string name="ui_account_pitch_body">Войдите, чтобы видеть свои рекомендации, подписки, историю и плейлисты. Лайки, подписки, «Смотреть позже» и история просмотра синхронизируются с вашим аккаунтом.\n\nGoogle считает неофициальные приложения нарушением своих условий и может заблокировать аккаунты, которые ими пользуются. Дополнительный аккаунт Google убережёт от этого риска основной.</string>
+    <string name="ui_sign_out">Выйти</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Ваши рекомендации без рекламы</string>
+    <string name="ui_home_signed_out_body">Войдите через Google, чтобы видеть свою главную страницу YouTube, или просто воспользуйтесь поиском.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Перейти к поиску</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Подписки</string>
+    <string name="ui_subscriptions_signed_out_title">Ваши подписки</string>
+    <string name="ui_subscriptions_signed_out_body">Войдите через Google, чтобы видеть новые видео с каналов, на которые вы подписаны.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Библиотека</string>
+    <string name="ui_library_signed_out_title">Ваша библиотека</string>
+    <string name="ui_library_signed_out_body">Войдите через Google, чтобы видеть историю, «Смотреть позже», понравившиеся видео и плейлисты.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">История</string>
+    <string name="ui_history_empty">Вы ещё ничего не смотрели.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Плейлисты</string>
+    <string name="ui_playlist_empty_title">Здесь пока ничего нет</string>
+    <string name="ui_playlist_empty_body">Здесь появятся видео, которые вы добавите в этот плейлист.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Поиск</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">Поиск на YouTube</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Очистить</string>
+    <string name="ui_search_error_title">Не удалось выполнить поиск</string>
+    <string name="ui_search_intro_title">Поиск без рекламы</string>
+    <string name="ui_search_intro_body">Результаты воспроизводятся сразу, без рекламы и без входа в аккаунт.</string>
+    <string name="ui_search_nothing_found">Ничего не найдено</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">По запросу «%1$s» видео не найдены.</string>
+    <string name="ui_recent_searches">Недавние запросы</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Очистить всё</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Удалить</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Не удалось обновить подписку.</string>
+    <string name="ui_channel_error_title">Не удалось загрузить канал</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Видео</string>
+    <string name="ui_feed_error_title">Не удалось загрузить</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">Вы вышли из аккаунта.</string>
+</resources>

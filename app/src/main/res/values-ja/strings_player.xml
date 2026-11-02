@@ -1,0 +1,86 @@
+<resources>
+    <!-- ── Portrait player page (PlayerUi.kt) ── -->
+
+    <!-- Tappable word after the video's stats line ("1.2M views · 3 days ago"), opens / closes the description. Keep short. -->
+    <string name="player_description_more">…もっと見る</string>
+    <string name="player_description_less">一部を表示</string>
+    <!-- Part of the stats line under the title. %1$s is a compact count ("1.2M"); the quantity is the exact count. -->
+    <plurals name="player_likes">
+        <item quantity="other">高評価 %1$s 件</item>
+    </plurals>
+    <!-- Section title above the related videos list under the player. -->
+    <string name="player_more_videos">その他の動画</string>
+    <!-- Pill button in the player's action row (label and accessibility label). Keep short. -->
+    <string name="player_share">共有</string>
+    <!-- Pill button in the player's action row: opens every line of the captions. Keep short. -->
+    <string name="player_transcript">文字起こし</string>
+    <!-- Pill button in the player's action row: opens the "Save to playlist" sheet. Keep short. -->
+    <string name="player_playlist">再生リスト</string>
+    <!-- Accessibility labels of the action row's buttons. -->
+    <string name="player_like">高く評価</string>
+    <string name="player_dislike">低く評価</string>
+    <string name="player_save_to_playlist">再生リストに保存</string>
+    <!-- Accessibility label of the mini-player's close (X) button. -->
+    <string name="player_close">閉じる</string>
+
+    <!-- ── Short notes shown at the bottom of the player after an action (PlayerState.kt) ── -->
+    <string name="player_playing_next">次に再生</string>
+    <string name="player_added_to_queue">キューに追加しました</string>
+    <string name="player_like_failed">評価を更新できませんでした。</string>
+    <string name="player_subscribe_failed">チャンネル登録を更新できませんでした。</string>
+    <!-- "Watch later" is YouTube's own playlist name. -->
+    <string name="player_saved_watch_later">後で見るに保存しました</string>
+    <string name="player_watch_later_failed">後で見るに保存できませんでした。</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_saved_to">%1$s に保存しました</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_removed_from">%1$s から削除しました</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_playlist_update_failed">%1$s を更新できませんでした。</string>
+    <string name="player_create_playlist_failed">再生リストを作成できませんでした。</string>
+
+    <!-- ── Errors shown over the video ── -->
+    <string name="player_error_no_stream">この動画の再生可能なストリームが見つかりませんでした。</string>
+    <string name="player_error_connection">接続が切れました。ネットワークを確認して、もう一度お試しください。</string>
+    <string name="player_error_refused">YouTube がストリームを拒否しました。もう一度お試しください。</string>
+    <string name="player_error_unplayable">この動画を再生できませんでした。</string>
+    <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
+    <string name="player_error_age_restricted">この動画は年齢制限があり、視聴するには YouTube アカウントが必要です。</string>
+    <string name="player_error_geo">この動画はお住まいの国では利用できません。</string>
+    <string name="player_error_bot_check">YouTube がロボットでないことの確認を求めています。数分後にもう一度お試しください。</string>
+    <string name="player_error_private">この動画は非公開です。</string>
+    <string name="player_error_members_only">この動画はメンバー限定です。Skipii はまだメンバー限定動画を再生できません。</string>
+    <string name="player_error_unavailable">この動画は利用できません。</string>
+    <string name="player_error_rate_limited">現在 YouTube がリクエストを制限しています。1 分後にもう一度お試しください。</string>
+    <string name="player_error_offline">YouTube に接続できませんでした。接続を確認してください。</string>
+    <string name="player_error_generic">読み込み中に問題が発生しました。もう一度お試しください。</string>
+
+    <!-- First part of the quality sheet's technical "Playing …" line ("Auto · 1920×1080 · H.264 · itag 299"):
+         the quality is chosen automatically. Keep short. -->
+    <string name="player_quality_auto">自動</string>
+
+    <!-- ── SponsorBlock segment categories (SponsorBlock settings in the account sheet) ── -->
+    <string name="player_sb_sponsor">スポンサー</string>
+    <string name="player_sb_selfpromo">自己宣伝</string>
+    <string name="player_sb_interaction">高評価・チャンネル登録のお願い</string>
+    <string name="player_sb_intro">イントロ</string>
+    <string name="player_sb_outro">エンディング・クレジット</string>
+    <string name="player_sb_preview">プレビュー・振り返り</string>
+    <string name="player_sb_music_offtopic">音楽動画の音楽以外の部分</string>
+    <string name="player_sb_filler">本題から外れた雑談</string>
+    <!-- Short lowercase category names, put into the player's "Skip …" pill and "Skipped 0:30 …" note
+         ("Skip sponsor", "Skipped 0:30 self-promo"). Keep very short. -->
+    <string name="player_sb_short_sponsor">スポンサー</string>
+    <string name="player_sb_short_selfpromo">自己宣伝</string>
+    <string name="player_sb_short_interaction">お願い</string>
+    <string name="player_sb_short_intro">イントロ</string>
+    <string name="player_sb_short_outro">エンディング</string>
+    <string name="player_sb_short_preview">プレビュー</string>
+    <string name="player_sb_short_music_offtopic">音楽以外</string>
+    <string name="player_sb_short_filler">雑談</string>
+    <!-- What happens at a category's segments: chips in the SponsorBlock settings, four side by side. Keep very short (~6 characters). -->
+    <string name="player_sb_action_skip">スキップ</string>
+    <string name="player_sb_action_ask">確認</string>
+    <string name="player_sb_action_show">表示</string>
+    <string name="player_sb_action_off">オフ</string>
+</resources>

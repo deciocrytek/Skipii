@@ -1,0 +1,65 @@
+<resources>
+    <!-- Bottom tab bar labels (MainActivity Tab, drawn by NavBar). Tight: the selected tab shows its label
+         beside the icon in a shared pill; keep as short as possible (~12 characters). -->
+    <string name="app_tab_home">Ana Sayfa</string>
+    <string name="app_tab_subscriptions">Abonelikler</string>
+    <!-- YouTube's name for its short vertical videos; most languages keep "Shorts". -->
+    <string name="app_tab_shorts">Shorts</string>
+    <string name="app_tab_search">Ara</string>
+    <string name="app_tab_library">Kitaplık</string>
+
+    <!-- Self-update: the Update pill in Home's header, beside the profile picture. Short (~10 characters). -->
+    <string name="app_update_pill">Güncelle</string>
+    <!-- Update pill while installing. Short (~10 characters). -->
+    <string name="app_update_pill_installing">Yükleniyor</string>
+    <!-- Update pill after a failed download/install. Short (~10 characters). -->
+    <string name="app_update_pill_retry">Tekrar dene</string>
+    <!-- Download progress, %1$s is a whole number 0-100 ("42%"). Turkish puts the sign first ("%42"). -->
+    <string name="app_update_percent">%%%1$s</string>
+    <!-- Title of the "What's new" sheet listing the release notes of a new version. -->
+    <string name="app_update_whats_new">Yenilikler</string>
+    <!-- Download size of the new version, %1$s is a number with one decimal ("16.8"). -->
+    <string name="app_update_size_mb">%1$s MB</string>
+    <string name="app_update_no_notes">Bu sürümle birlikte not yayınlanmadı.</string>
+    <!-- The What's new sheet's full-width button. -->
+    <string name="app_update_button">Güncelle</string>
+    <!-- The sheet's button while downloading, %1$s is a whole number 0-100. -->
+    <string name="app_update_downloading">İndiriliyor %%%1$s</string>
+    <string name="app_update_installing">Yükleniyor…</string>
+    <string name="app_update_try_again">Tekrar dene</string>
+    <!-- Notification channel name (Android Settings › Notifications). -->
+    <string name="app_update_channel">Uygulama güncellemeleri</string>
+    <!-- Notification after the app updated itself, %1$s is the version ("0.5.79"). -->
+    <string name="app_updated_title">Skipii güncellendi: %1$s</string>
+    <string name="app_updated_text">Açmak için dokunun</string>
+
+    <!-- The Subscribe button (player and channel page). Short: shares a row with the bell key. -->
+    <string name="app_subscribe">Abone ol</string>
+    <string name="app_subscribed">Abone olundu</string>
+    <!-- Accessibility labels of the bell key next to Subscribed. -->
+    <string name="app_bell_on_description">Zil açık: her yeni video. Kapatmak için dokunun</string>
+    <string name="app_bell_off_description">Zil: her yeni video için bildirim alın</string>
+    <!-- Messages after turning a channel's bell on/off. %1$s is the channel's name. -->
+    <string name="app_bell_on_message">%1$s kanalından her yeni video</string>
+    <string name="app_bell_off_message">%1$s kanalı için bildirimler kapalı</string>
+    <!-- Same, when the channel's name isn't known. -->
+    <string name="app_bell_on_message_unnamed">Bu kanaldan her yeni video</string>
+    <string name="app_bell_off_message_unnamed">Bu kanal için bildirimler kapalı</string>
+    <string name="app_bell_failed">Zil değiştirilemedi.</string>
+    <!-- Notifications were refused when asked (Android 13+). -->
+    <string name="app_bell_allow_notifications">Zili kullanmak için Skipii\'nin bildirimlerine izin verin.</string>
+    <!-- Notifications are off in Android's settings; the settings page opens next. -->
+    <string name="app_bell_turn_on_notifications">Zili kullanmak için Skipii\'nin bildirimlerini açın.</string>
+
+    <!-- Notification channel for new videos from channels with the bell on (Android Settings › Notifications). -->
+    <string name="app_new_videos_channel">Yeni videolar</string>
+    <string name="app_new_videos_channel_description">Zili açık kanallardan her yeni video</string>
+    <!-- A new-video notification's title when the channel's name isn't known. -->
+    <string name="app_new_video_unnamed">Yeni video</string>
+
+    <!-- The signed-in account's name when Google's page didn't give one. -->
+    <string name="app_account_fallback_name">YouTube hesabı</string>
+    <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
+    <string name="app_error_session_rejected">YouTube oturumu reddetti (%1$s). Tekrar oturum açmayı deneyin.</string>
+    <string name="app_error_youtube_returned">YouTube şu yanıtı verdi: %1$s</string>
+</resources>

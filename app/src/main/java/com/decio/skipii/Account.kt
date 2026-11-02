@@ -45,6 +45,18 @@ data class SubscribedChannel(val ref: ChannelRef, val bell: Boolean?)
 class NotSignedInException : IOException("Not signed in")
 
 /**
+ * YouTube answered a signed-in request with an error status. [message] stays English (it's logged, and
+ * Feeds shows messages that start with "YouTube"); [getLocalizedMessage] is the same in the app's language.
+ */
+class YouTubeRefusedException(val code: Int) : IOException(
+    if (code == 401 || code == 403) "YouTube rejected the session ($code). Try signing in again." else "YouTube returned $code",
+) {
+    override fun getLocalizedMessage(): String =
+        if (code == 401 || code == 403) str(R.string.app_error_session_rejected, code.toString())
+        else str(R.string.app_error_youtube_returned, code.toString())
+}
+
+/**
  * The signed-in Google session (user chose full sync, 2026-10-04).
  *
  * Sign-in happens on Google's own page in a WebView; afterwards only the youtube.com
@@ -89,16 +101,18 @@ object Account {
         refreshClientConfig()
         val menu = InnerTube.post("account/account_menu", JSONObject())
         var found: Profile? = null
+        // A fallback name is stored with the session, so it stays in the language of the sign-in.
+        val fallbackName = str(R.string.app_account_fallback_name)
         menu.walk { key, obj ->
             if (key == "activeAccountHeaderRenderer" && found == null) {
                 found = Profile(
-                    name = obj.text("accountName") ?: "YouTube account",
+                    name = obj.text("accountName") ?: fallbackName,
                     handle = obj.text("channelHandle"),
                     avatar = obj.optJSONObject("accountPhoto")?.thumbnails()?.lastOrNull(),
                 )
             }
         }
-        val p = found ?: Profile("YouTube account", null, null)
+        val p = found ?: Profile(fallbackName, null, null)
         store?.apply {
             put(KEY_NAME, p.name); put(KEY_HANDLE, p.handle); put(KEY_AVATAR, p.avatar)
         }
@@ -233,8 +247,7 @@ object InnerTube {
         Net.client.newCall(request).execute().use { r ->
             if (auth != null) Account.absorbSetCookies(r.headers("Set-Cookie"))
             val text = r.body?.string().orEmpty()
-            if (r.code == 401 || r.code == 403) throw IOException("YouTube rejected the session (${r.code}). Try signing in again.")
-            if (!r.isSuccessful) throw IOException("YouTube returned ${r.code}")
+            if (!r.isSuccessful) throw YouTubeRefusedException(r.code)
             return JSONObject(text)
         }
     }

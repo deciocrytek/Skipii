@@ -1,0 +1,70 @@
+<resources>
+    <!-- The open player's bar (the tab bar turns into it): play, -10 / +10, audio only, the ⋮ key. -->
+    <!-- Accessibility labels of the bar's play button. -->
+    <string name="bar_play">Reproducir</string>
+    <string name="bar_pause">Pausar</string>
+    <!-- Accessibility labels of the bar's seek buttons. -->
+    <string name="bar_back_10">Retroceder 10 segundos</string>
+    <string name="bar_forward_10">Avanzar 10 segundos</string>
+    <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
+    <string name="bar_more_controls">Más controles</string>
+    <!-- Accessibility label of the ✕ the ⋮ key turns into. -->
+    <string name="bar_close">Cerrar</string>
+    <!-- Accessibility labels of the audio only button (plays sound without the picture). -->
+    <string name="bar_audio_only">Solo audio</string>
+    <string name="bar_audio_only_on">Solo audio activado</string>
+
+    <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
+    <string name="bar_tool_speed">Velocidad</string>
+    <string name="bar_tool_quality">Calidad</string>
+    <!-- Picture-in-picture, abbreviated. -->
+    <string name="bar_tool_pip">PiP</string>
+    <string name="bar_tool_captions">Subtítulos</string>
+    <!-- "Ampliar" (enlarge): "Pantalla completa" is far too long for this label. -->
+    <string name="bar_tool_fullscreen">Ampliar</string>
+    <!-- Plays the next video. -->
+    <string name="bar_tool_next">Siguiente</string>
+
+    <!-- Title of the chapter list, and the accessibility label of the button that opens it. -->
+    <string name="bar_chapters">Capítulos</string>
+    <!-- Above the chapter list: which chapter is playing, e.g. "3 of 12". -->
+    <string name="bar_chapter_position">%1$s de %2$s</string>
+    <!-- A chapter with no title: "Chapter 3". -->
+    <string name="bar_chapter_untitled">Capítulo %1$s</string>
+
+    <!-- Quality list title. -->
+    <string name="bar_quality">Calidad</string>
+    <!-- The quality that picks itself from the connection. Short, shown on a small round button too. -->
+    <string name="bar_quality_auto">Auto</string>
+    <!-- Next to the quality list's title: the quality playing now. %1$s = "720p". -->
+    <string name="bar_quality_playing">Reproduciendo %1$s</string>
+    <!-- After "Auto" in the quality list: the height it plays right now. %1$s = 720 (shown as "720p now"). -->
+    <string name="bar_quality_now">%1$sp ahora</string>
+    <!-- Note after the lowest qualities (240p and below): uses little mobile data. -->
+    <string name="bar_quality_data_saver">Ahorro de datos</string>
+    <!-- Accessibility label of the check on the chosen row of a list. -->
+    <string name="bar_selected">Seleccionado</string>
+
+    <!-- Captions list title (next to an on/off switch). -->
+    <string name="bar_captions">Subtítulos</string>
+    <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into. -->
+    <string name="bar_captions_translated">TRADUCIDOS EN TU TELÉFONO</string>
+    <!-- Captions list row that shows every language. -->
+    <string name="bar_captions_more_languages">Más idiomas</string>
+    <!-- Captions list button that opens the full text of the video's captions. -->
+    <string name="bar_transcript">Transcripción</string>
+
+    <!-- Message when the phone's settings don't allow picture-in-picture for the app. -->
+    <string name="bar_pip_off">Pantalla en pantalla está desactivado para Skipii en Ajustes.</string>
+
+    <!-- Pill above the scrub preview: let go here to not jump. Short. -->
+    <string name="bar_cancel">Cancelar</string>
+
+    <!-- Speed panel. Under the big speed number: whether the speed applies to every video or only this one. -->
+    <string name="bar_speed_every_video">Todos los videos</string>
+    <string name="bar_speed_this_video">Solo este video</string>
+    <!-- Checkbox: keep this speed for every video. -->
+    <string name="bar_speed_remember">Recordar para todos los videos</string>
+    <!-- Under the checkbox: remembering ends when the speed is set back to normal (1×). -->
+    <string name="bar_speed_remember_note">Hasta que vuelvas a 1×</string>
+</resources>

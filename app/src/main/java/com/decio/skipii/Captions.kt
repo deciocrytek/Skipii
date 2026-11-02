@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.util.LruCache
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -182,19 +183,19 @@ object Srv3 {
     }
 }
 
-/** Language names as people read them in that language: "English", "Español", "Deutsch". */
+/** Language names in the app's language: "German", "Alemán", "ドイツ語". */
 object CaptionNames {
     fun language(tag: String): String {
-        val locale = Locale.forLanguageTag(tag)
-        val name = locale.getDisplayLanguage(locale).ifBlank { tag }
-        return name.replaceFirstChar { it.titlecase(locale) }
+        val app = AppLanguage.locale
+        val name = Locale.forLanguageTag(tag).getDisplayLanguage(app).ifBlank { tag }
+        return name.replaceFirstChar { it.titlecase(app) }
     }
 
-    /** With the country when it tells two tracks apart: "Português (Brasil)". */
+    /** With the country when it tells two tracks apart: "Portuguese (Brazil)". */
     fun full(tag: String): String {
-        val locale = Locale.forLanguageTag(tag)
-        val name = locale.getDisplayName(locale).ifBlank { tag }
-        return name.replaceFirstChar { it.titlecase(locale) }
+        val app = AppLanguage.locale
+        val name = Locale.forLanguageTag(tag).getDisplayName(app).ifBlank { tag }
+        return name.replaceFirstChar { it.titlecase(app) }
     }
 }
 
@@ -205,8 +206,15 @@ fun CaptionTrack.title(all: List<CaptionTrack>): String =
 /** The captions' settings (account sheet), and the language last picked (YouTube remembers it too). */
 object CaptionSettings {
     enum class Show { Never, Always, Foreign }
-    enum class Look(val label: String) { Skipii("Skipii"), Classic("Classic"), Outline("Outline"), System("Android's") }
-    val sizes = listOf(0.85f to "Small", 1f to "Medium", 1.22f to "Large", 1.5f to "Huge")
+    enum class Look(@StringRes val labelRes: Int) {
+        Skipii(R.string.captions_look_skipii), Classic(R.string.captions_look_classic),
+        Outline(R.string.captions_look_outline), System(R.string.captions_look_system),
+    }
+    /** Each size and its label (a string resource). */
+    val sizes = listOf(
+        0.85f to R.string.captions_size_small, 1f to R.string.captions_size_medium,
+        1.22f to R.string.captions_size_large, 1.5f to R.string.captions_size_huge,
+    )
 
     private const val KEY_SHOW = "show"
     private const val KEY_LOOK = "look"
@@ -220,25 +228,26 @@ object CaptionSettings {
         private set
     var size by mutableFloatStateOf(1f)
         private set
-    /** The language captions are shown in when the video has it (or it can be translated into). */
-    var language by mutableStateOf(phoneLanguage)
-        private set
+    /** The language last picked, if one was. */
+    private var pickedLanguage by mutableStateOf<String?>(null)
+    /** The language captions are shown in when the video has it (or it can be translated into): the last picked, else the app's. */
+    val language: String get() = pickedLanguage ?: appLanguage
 
-    /** The phone's own language: "When it isn't in English" compares the video's with this. */
-    val phoneLanguage: String get() = Locale.getDefault().language.ifBlank { "en" }
+    /** The app's language (the one picked in Skipii, else the phone's): "When it isn't in English" compares the video's with this. */
+    val appLanguage: String get() = AppLanguage.locale.language.ifBlank { "en" }
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences("captions", Context.MODE_PRIVATE)
         show = prefs?.getString(KEY_SHOW, null)?.let { s -> Show.entries.firstOrNull { it.name == s } } ?: Show.Foreign
         look = prefs?.getString(KEY_LOOK, null)?.let { s -> Look.entries.firstOrNull { it.name == s } } ?: Look.Skipii
         size = prefs?.getFloat(KEY_SIZE, 1f) ?: 1f
-        language = prefs?.getString(KEY_LANGUAGE, null) ?: phoneLanguage
+        pickedLanguage = prefs?.getString(KEY_LANGUAGE, null)
     }
 
     fun chooseShow(value: Show) { show = value; prefs?.edit()?.putString(KEY_SHOW, value.name)?.apply() }
     fun chooseLook(value: Look) { look = value; prefs?.edit()?.putString(KEY_LOOK, value.name)?.apply() }
     fun chooseSize(value: Float) { size = value; prefs?.edit()?.putFloat(KEY_SIZE, value)?.apply() }
-    fun rememberLanguage(value: String) { language = value; prefs?.edit()?.putString(KEY_LANGUAGE, value)?.apply() }
+    fun rememberLanguage(value: String) { pickedLanguage = value; prefs?.edit()?.putString(KEY_LANGUAGE, value)?.apply() }
 }
 
 /** Caption files, fetched once per track and kept for the last few videos. */
@@ -274,8 +283,14 @@ object CaptionTranslator {
     var downloading by mutableStateOf(emptySet<String>())
         private set
 
-    /** ML Kit's code for a language tag, or null if it can't translate that language. */
-    fun code(tag: String): String? = TranslateLanguage.fromLanguageTag(Locale.forLanguageTag(tag).language)
+    /**
+     * ML Kit's code for a language tag, or null if it can't translate that language. Java's old codes
+     * (Indonesian "in", Hebrew "iw" — what Locale.language gives below Android 14) are mapped to ML Kit's.
+     */
+    fun code(tag: String): String? {
+        val language = when (val l = Locale.forLanguageTag(tag).language) { "in" -> "id"; "iw" -> "he"; "ji" -> "yi"; else -> l }
+        return TranslateLanguage.fromLanguageTag(language)
+    }
 
     val all: List<String> get() = TranslateLanguage.getAllLanguages()
 
@@ -382,17 +397,17 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
     fun useTracks(list: List<CaptionTrack>) {
         clear()
         Log.i(TAG, "captions: ${list.size} tracks ${list.map { it.language + if (it.auto) " (auto)" else "" }}")
-        // The language last picked, then the phone's, then the rest by name; auto-generated after the creator's in each.
+        // The language last picked, then the app's, then the rest by name; auto-generated after the creator's in each.
         tracks = list.sortedWith(
             compareBy<CaptionTrack>(
-                { it.base != CaptionSettings.language }, { it.base != CaptionSettings.phoneLanguage },
+                { it.base != CaptionSettings.language }, { it.base != CaptionSettings.appLanguage },
                 { CaptionNames.full(it.language) }, { it.auto },
             ),
         )
         if (tracks.isEmpty()) return
         val best = bestFor(CaptionSettings.language)
         val spoken = videoLanguage
-        val foreign = spoken != null && spoken != CaptionSettings.phoneLanguage
+        val foreign = spoken != null && spoken != CaptionSettings.appLanguage
         on = when (CaptionSettings.show) {
             CaptionSettings.Show.Never -> false
             CaptionSettings.Show.Always -> true
@@ -462,8 +477,8 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
             } catch (e: Exception) {
                 Log.w(TAG, "captions: ${c.track.language} → ${c.translateTo ?: "-"} failed", e)
                 if (loadedFor == c) {
-                    error = if (c.translateTo != null && c.translateTo !in CaptionTranslator.downloaded) "Couldn't download ${c.label} for translating."
-                    else "Couldn't load these captions."
+                    error = if (c.translateTo != null && c.translateTo !in CaptionTranslator.downloaded) str(R.string.captions_error_download, c.label)
+                    else str(R.string.captions_error_load)
                     loadedFor = null
                 }
             } finally {

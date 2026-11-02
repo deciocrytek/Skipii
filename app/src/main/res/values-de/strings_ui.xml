@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Erneut versuchen</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Zurück</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Schließen</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Mit Google anmelden</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Später ansehen</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Videos mit „Mag ich“</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Als Nächstes abspielen</string>
+    <string name="ui_add_to_queue">Zur Wiedergabeliste hinzufügen</string>
+    <string name="ui_save_to_watch_later">In „Später ansehen“ speichern</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">In Playlist speichern</string>
+    <string name="ui_share">Teilen</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Gespeichert</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Privat</string>
+    <string name="ui_privacy_unlisted">Nicht gelistet</string>
+    <string name="ui_privacy_public">Öffentlich</string>
+    <string name="ui_new_playlist">Neue Playlist</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Name der Playlist</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Erstellen</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short.
+         "Wiedergabeliste" is YouTube's German word for the queue. -->
+    <plurals name="ui_queue_count">
+        <item quantity="one">Wiedergabeliste · %1$s</item>
+        <item quantity="other">Wiedergabeliste · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Leeren</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Wiedergabeliste</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Aus Wiedergabeliste entfernen</string>
+    <string name="ui_queue_empty">Die Wiedergabeliste ist leer. Halte ein Video gedrückt, um es hinzuzufügen.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Sponsorenhinweise und andere Abschnitte überspringen</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Abschnitte von SponsorBlock (sponsor.ajay.app), einem Community-Projekt. Daten lizenziert unter CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">Player-Steuerung</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">In der Steuerleiste unten im Player</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">Auf dem Video; zum Spulen den Regler am unteren Rand ziehen</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Steuerleiste</string>
+    <string name="ui_player_controls_on_video">Auf dem Video</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Shorts-Tab anzeigen</string>
+    <string name="ui_shorts_off_line">Der Shorts-Tab ist ausgeblendet und es werden keine Shorts geladen</string>
+    <string name="ui_appearance">Darstellung</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">System</string>
+    <string name="ui_mode_light">Hell</string>
+    <string name="ui_mode_dark">Dunkel</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Hintergrund</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Ausgewählt</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">Abbrechen</string>
+    <string name="ui_sign_in_title">Bei YouTube anmelden</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · verschlüsselt auf diesem Smartphone gespeichert</string>
+    <string name="ui_sign_in_error">Angemeldet, aber YouTube hat nicht geantwortet. Prüfe deine Verbindung und versuch es noch einmal.</string>
+    <string name="ui_finishing_sign_in">Anmeldung wird abgeschlossen…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Anmelden</string>
+    <string name="ui_account_pitch_title">Dein YouTube, ohne Werbung</string>
+    <string name="ui_account_pitch_body">Melde dich an, um deine Empfehlungen, Abos, deinen Verlauf und deine Playlists zu sehen. „Mag ich“-Bewertungen, Abos, „Später ansehen“ und der Wiedergabeverlauf werden mit deinem Konto synchronisiert.\n\nGoogle sieht inoffizielle Apps als Verstoß gegen seine Nutzungsbedingungen und kann Konten sperren, die sie verwenden. Mit einem zweiten Google-Konto hältst du dieses Risiko von deinem Hauptkonto fern.</string>
+    <string name="ui_sign_out">Abmelden</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Deine Empfehlungen, ohne Werbung</string>
+    <string name="ui_home_signed_out_body">Melde dich mit Google an, um deine eigene YouTube-Startseite zu sehen, oder such einfach.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Stattdessen suchen</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Abos</string>
+    <string name="ui_subscriptions_signed_out_title">Deine Abos</string>
+    <string name="ui_subscriptions_signed_out_body">Melde dich mit Google an, um neue Videos von deinen abonnierten Kanälen zu sehen.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Mediathek</string>
+    <string name="ui_library_signed_out_title">Deine Mediathek</string>
+    <string name="ui_library_signed_out_body">Melde dich mit Google an für deinen Verlauf, „Später ansehen“, Videos mit „Mag ich“ und Playlists.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">Verlauf</string>
+    <string name="ui_history_empty">Noch nichts angesehen.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Playlists</string>
+    <string name="ui_playlist_empty_title">Hier ist noch nichts</string>
+    <string name="ui_playlist_empty_body">Videos, die du dieser Playlist hinzufügst, werden hier angezeigt.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Suche</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">Auf YouTube suchen</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Löschen</string>
+    <string name="ui_search_error_title">Suche konnte nicht geladen werden</string>
+    <string name="ui_search_intro_title">Suchen ohne Werbung</string>
+    <string name="ui_search_intro_body">Ergebnisse werden sofort abgespielt, ohne Werbung und ohne Anmeldung.</string>
+    <string name="ui_search_nothing_found">Nichts gefunden</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">Keine Videos zu „%1$s“ gefunden.</string>
+    <string name="ui_recent_searches">Letzte Suchanfragen</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Alle löschen</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Entfernen</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Dein Abo konnte nicht aktualisiert werden.</string>
+    <string name="ui_channel_error_title">Dieser Kanal konnte nicht geladen werden</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Videos</string>
+    <string name="ui_feed_error_title">Konnte nicht geladen werden</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">Du bist abgemeldet.</string>
+</resources>

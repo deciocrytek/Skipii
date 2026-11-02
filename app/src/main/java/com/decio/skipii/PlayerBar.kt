@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import coil.imageLoader
@@ -570,7 +571,7 @@ internal fun BarKey(bar: PlayerBarState, enabled: Boolean, modifier: Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            Icons.Rounded.MoreVert, "More controls", tint = c.onSurface,
+            Icons.Rounded.MoreVert, stringResource(R.string.bar_more_controls), tint = c.onSurface,
             modifier = Modifier.size(21.dp).graphicsLayer {
                 val t = open()
                 alpha = 1f - t
@@ -579,7 +580,7 @@ internal fun BarKey(bar: PlayerBarState, enabled: Boolean, modifier: Modifier) {
             },
         )
         Icon(
-            Icons.Rounded.Close, "Close", tint = c.onSurface,
+            Icons.Rounded.Close, stringResource(R.string.bar_close), tint = c.onSurface,
             modifier = Modifier.size(21.dp).graphicsLayer {
                 val t = open()
                 alpha = t
@@ -610,7 +611,7 @@ internal fun BarAudioOnly(player: PlayerState, enabled: Boolean, modifier: Modif
     ) {
         Icon(
             if (on) Icons.Rounded.Headphones else Icons.Outlined.Headphones,
-            if (on) "Audio only is on" else "Audio only",
+            stringResource(if (on) R.string.bar_audio_only_on else R.string.bar_audio_only),
             tint = if (on) c.onPrimary else c.onSurface, modifier = Modifier.size(19.dp),
         )
     }
@@ -674,7 +675,7 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                 )
                 if (chapters) {
                     Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Rounded.ExpandLess, "Chapters", tint = c.onSurface, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Rounded.ExpandLess, stringResource(R.string.bar_chapters), tint = c.onSurface, modifier = Modifier.size(20.dp))
                 }
             }
         }
@@ -699,7 +700,7 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                         val glyph = Modifier.size(21.dp)
                         when (tool) {
                             BarTool.Speed -> Text(PlaybackSpeed.label(player.speed) + "×", color = ink, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.height(21.dp))
-                            BarTool.Quality -> Text(QualityPreference.height?.let { "${it}p" } ?: "Auto", color = ink, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.height(21.dp))
+                            BarTool.Quality -> Text(QualityPreference.height?.let { "${it}p" } ?: stringResource(R.string.bar_quality_auto), color = ink, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.height(21.dp))
                             BarTool.Captions -> Icon(Icons.Rounded.ClosedCaption, null, tint = ink, modifier = glyph)
                             BarTool.Pip -> Icon(Icons.Rounded.PictureInPictureAlt, null, tint = ink, modifier = glyph)
                             BarTool.Fullscreen -> Icon(Icons.Rounded.Fullscreen, null, tint = ink, modifier = glyph)
@@ -707,9 +708,12 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                         }
                         Text(
                             when (tool) {
-                                BarTool.Speed -> "Speed"; BarTool.Quality -> "Quality"; BarTool.Pip -> "PiP"
-                                BarTool.Captions -> player.captions.choice?.takeIf { player.captions.on }?.label ?: "Captions"
-                                BarTool.Fullscreen -> "Fullscreen"; BarTool.Next -> "Next"
+                                BarTool.Speed -> stringResource(R.string.bar_tool_speed)
+                                BarTool.Quality -> stringResource(R.string.bar_tool_quality)
+                                BarTool.Pip -> stringResource(R.string.bar_tool_pip)
+                                BarTool.Captions -> player.captions.choice?.takeIf { player.captions.on }?.label ?: stringResource(R.string.bar_tool_captions)
+                                BarTool.Fullscreen -> stringResource(R.string.bar_tool_fullscreen)
+                                BarTool.Next -> stringResource(R.string.bar_tool_next)
                             },
                             color = sub, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 3.dp),
@@ -906,8 +910,8 @@ private fun BarQualityList(bar: PlayerBarState, player: PlayerState, gate: () ->
                 },
             verticalAlignment = Alignment.Bottom,
         ) {
-            Text("Quality", color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
-            (player.decodedHeight?.let { "Playing ${it}p" } ?: details.quality?.let { "Playing $it" })?.let {
+            Text(stringResource(R.string.bar_quality), color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            (player.decodedHeight?.let { stringResource(R.string.bar_quality_playing, "${it}p") } ?: details.quality?.let { stringResource(R.string.bar_quality_playing, it) })?.let {
                 Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
@@ -945,15 +949,15 @@ private fun BarQualityList(bar: PlayerBarState, player: PlayerState, gate: () ->
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val ink = if (selected) c.onPrimary else c.onSurface
-                    Text(h?.let { "${it}p" } ?: "Auto", color = ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
-                    val note = if (h == null) (player.decodedHeight ?: details.quality?.removeSuffix("p")?.toIntOrNull())?.let { " · ${it}p now" }
+                    Text(h?.let { "${it}p" } ?: stringResource(R.string.bar_quality_auto), color = ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+                    val note = if (h == null) (player.decodedHeight ?: details.quality?.removeSuffix("p")?.toIntOrNull())?.let { " · " + stringResource(R.string.bar_quality_now, it) }
                     else qualityNote(h)?.let { " · $it" }
                     if (note != null) {
                         Text(note, color = if (selected) c.onPrimary.copy(alpha = 0.8f) else c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.weight(1f))
                     Icon(
-                        Icons.Rounded.Check, if (selected) "Selected" else null, tint = c.onPrimary,
+                        Icons.Rounded.Check, if (selected) stringResource(R.string.bar_selected) else null, tint = c.onPrimary,
                         modifier = Modifier.size(20.dp).graphicsLayer { alpha = if (selected) 1f else 0f },
                     )
                 }
@@ -995,8 +999,8 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
                 },
             verticalAlignment = Alignment.Bottom,
         ) {
-            Text("Chapters", color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
-            Text("${current + 1} of ${chapters.size}", color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.bar_chapters), color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.bar_chapter_position, current + 1, chapters.size), color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
         LazyColumn(
             state = state,
@@ -1036,7 +1040,7 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
                     )
                     Column(Modifier.weight(1f).padding(start = 12.dp, end = 6.dp)) {
                         Text(
-                            chapter.title.ifBlank { "Chapter ${index + 1}" }, color = if (selected) c.onPrimary else c.onSurface,
+                            chapter.title.ifBlank { stringResource(R.string.bar_chapter_untitled, index + 1) }, color = if (selected) c.onPrimary else c.onSurface,
                             fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         )
                         Text(
@@ -1081,7 +1085,7 @@ private fun BarCaptionsList(bar: PlayerBarState, player: PlayerState, gate: () -
                 },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Captions", color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.bar_captions), color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
             Switch(
                 checked = cap.on,
                 onCheckedChange = { on -> if (live) { haptic(view, HapticFeedbackConstants.CONTEXT_CLICK); cap.turn(on); fold() } },
@@ -1140,16 +1144,16 @@ private fun BarCaptionsList(bar: PlayerBarState, player: PlayerState, gate: () -
                             Spacer(Modifier.weight(1f))
                             if (option.busy) CircularProgressIndicator(color = c.primary, strokeWidth = 2.dp, modifier = Modifier.size(16.dp))
                             else Icon(
-                                Icons.Rounded.Check, if (selected) "Selected" else null, tint = c.onPrimary,
+                                Icons.Rounded.Check, if (selected) stringResource(R.string.bar_selected) else null, tint = c.onPrimary,
                                 modifier = Modifier.size(20.dp).graphicsLayer { alpha = if (selected) 1f else 0f },
                             )
                         }
                         CaptionOption.Section -> Text(
-                            "TRANSLATED ON YOUR PHONE", color = c.onSurfaceVariant, fontSize = 10.5.sp,
+                            stringResource(R.string.bar_captions_translated), color = c.onSurfaceVariant, fontSize = 10.5.sp,
                             fontWeight = FontWeight.ExtraBold, letterSpacing = 0.8.sp, maxLines = 1,
                         )
                         CaptionOption.More -> {
-                            Text("More languages", color = c.onSurface, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+                            Text(stringResource(R.string.bar_captions_more_languages), color = c.onSurface, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
                             Spacer(Modifier.weight(1f))
                             Icon(Icons.Rounded.ExpandMore, null, tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         }
@@ -1157,7 +1161,7 @@ private fun BarCaptionsList(bar: PlayerBarState, player: PlayerState, gate: () -
                             Spacer(Modifier.weight(1f))
                             Icon(Icons.Rounded.Subtitles, null, tint = c.onSurface, modifier = Modifier.size(19.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Transcript", color = c.onSurface, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
+                            Text(stringResource(R.string.bar_transcript), color = c.onSurface, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
                             Spacer(Modifier.weight(1f))
                         }
                     }
@@ -1167,12 +1171,13 @@ private fun BarCaptionsList(bar: PlayerBarState, player: PlayerState, gate: () -
     }
 }
 
+@Composable
 private fun qualityNote(height: Int): String? = when {
     height >= 2160 -> "4K"
     height >= 1440 -> "QHD"
     height >= 1080 -> "Full HD"
     height >= 720 -> "HD"
-    height <= 240 -> "Data saver"
+    height <= 240 -> stringResource(R.string.bar_quality_data_saver)
     else -> null
 }
 
@@ -1185,7 +1190,7 @@ internal fun pickTool(tool: BarTool, bar: PlayerBarState, player: PlayerState, p
         BarTool.Captions -> { player.captions.turn(true); bar.openPanel(BarPanel.Captions) }
         BarTool.Pip -> {
             bar.closeAll()
-            if (pip?.enter(player.videoAspect) != true) player.actionMessage = "Picture-in-picture is turned off for Skipii in Settings."
+            if (pip?.enter(player.videoAspect) != true) player.actionMessage = str(R.string.bar_pip_off)
         }
         BarTool.Fullscreen -> { bar.closeAll(); onFullscreen() }
         BarTool.Next -> { bar.closeAll(); player.playNextUp() }
@@ -1386,6 +1391,6 @@ internal fun ScrubOverlay(bar: PlayerBarState, player: PlayerState, sheets: Stor
     ) {
         Icon(Icons.Rounded.Close, null, tint = ink, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(6.dp))
-        Text("Cancel", color = ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        Text(stringResource(R.string.bar_cancel), color = ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
     }
 }

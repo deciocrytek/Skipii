@@ -1,0 +1,88 @@
+<resources>
+    <!-- ── Portrait player page (PlayerUi.kt) ── -->
+
+    <!-- Tappable word after the video's stats line ("1,2 mi de visualizações · há 3 dias"), opens / closes the description. Keep short. -->
+    <string name="player_description_more">…mais</string>
+    <string name="player_description_less">menos</string>
+    <!-- Part of the stats line under the title. %1$s is a compact count ("1,2 mi"); the quantity is the exact count. -->
+    <plurals name="player_likes">
+        <item quantity="one">%1$s curtida</item>
+        <item quantity="many">%1$s de curtidas</item>
+        <item quantity="other">%1$s curtidas</item>
+    </plurals>
+    <!-- Section title above the related videos list under the player. -->
+    <string name="player_more_videos">Mais vídeos</string>
+    <!-- Pill button in the player's action row (label and accessibility label). Keep short. -->
+    <string name="player_share">Compartilhar</string>
+    <!-- Pill button in the player's action row: opens every line of the captions. Keep short. -->
+    <string name="player_transcript">Transcrição</string>
+    <!-- Pill button in the player's action row: opens the "Save to playlist" sheet. Keep short. -->
+    <string name="player_playlist">Playlist</string>
+    <!-- Accessibility labels of the action row's buttons. -->
+    <string name="player_like">Gostei</string>
+    <string name="player_dislike">Não gostei</string>
+    <string name="player_save_to_playlist">Salvar na playlist</string>
+    <!-- Accessibility label of the mini-player's close (X) button. -->
+    <string name="player_close">Fechar</string>
+
+    <!-- ── Short notes shown at the bottom of the player after an action (PlayerState.kt) ── -->
+    <string name="player_playing_next">Tocando a seguir</string>
+    <string name="player_added_to_queue">Adicionado à fila</string>
+    <string name="player_like_failed">Não foi possível atualizar sua curtida.</string>
+    <string name="player_subscribe_failed">Não foi possível atualizar sua inscrição.</string>
+    <!-- "Watch later" is YouTube's own playlist name ("Assistir mais tarde"). -->
+    <string name="player_saved_watch_later">Salvo em Assistir mais tarde</string>
+    <string name="player_watch_later_failed">Não foi possível salvar em Assistir mais tarde.</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_saved_to">Salvo em %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_removed_from">Removido de %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_playlist_update_failed">Não foi possível atualizar %1$s.</string>
+    <string name="player_create_playlist_failed">Não foi possível criar a playlist.</string>
+
+    <!-- ── Errors shown over the video ── -->
+    <string name="player_error_no_stream">Nenhum stream reproduzível foi encontrado para este vídeo.</string>
+    <string name="player_error_connection">A conexão caiu. Verifique sua rede e tente de novo.</string>
+    <string name="player_error_refused">O YouTube recusou o stream. Tente de novo.</string>
+    <string name="player_error_unplayable">Não foi possível reproduzir este vídeo.</string>
+    <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
+    <string name="player_error_age_restricted">Este vídeo tem restrição de idade e precisa de uma conta do YouTube para ser assistido.</string>
+    <string name="player_error_geo">Este vídeo não está disponível no seu país.</string>
+    <string name="player_error_bot_check">O YouTube está pedindo para confirmar que você não é um robô. Tente de novo em alguns minutos.</string>
+    <string name="player_error_private">Este vídeo é privado.</string>
+    <string name="player_error_members_only">Este vídeo é exclusivo para membros. O Skipii ainda não consegue reproduzir vídeos exclusivos para membros.</string>
+    <string name="player_error_unavailable">Este vídeo não está disponível.</string>
+    <string name="player_error_rate_limited">O YouTube está limitando as solicitações agora. Tente de novo em um minuto.</string>
+    <string name="player_error_offline">Não foi possível acessar o YouTube. Verifique sua conexão.</string>
+    <string name="player_error_generic">Algo deu errado ao carregar isto. Tente de novo.</string>
+
+    <!-- First part of the quality sheet's technical "Playing …" line ("Auto · 1920×1080 · H.264 · itag 299"):
+         the quality is chosen automatically. Keep short. -->
+    <string name="player_quality_auto">Auto</string>
+
+    <!-- ── SponsorBlock segment categories (SponsorBlock settings in the account sheet) ── -->
+    <string name="player_sb_sponsor">Patrocínio</string>
+    <string name="player_sb_selfpromo">Autopromoção</string>
+    <string name="player_sb_interaction">Lembrete de curtir e se inscrever</string>
+    <string name="player_sb_intro">Introdução</string>
+    <string name="player_sb_outro">Encerramento e créditos</string>
+    <string name="player_sb_preview">Prévia e recapitulação</string>
+    <string name="player_sb_music_offtopic">Parte sem música de um videoclipe</string>
+    <string name="player_sb_filler">Enrolação</string>
+    <!-- Short lowercase category names, put into the player's "Skip …" pill and "Skipped 0:30 …" note
+         ("Pular patrocínio", "Pulou 0:30 de autopromoção"). Keep very short. -->
+    <string name="player_sb_short_sponsor">patrocínio</string>
+    <string name="player_sb_short_selfpromo">autopromoção</string>
+    <string name="player_sb_short_interaction">lembrete</string>
+    <string name="player_sb_short_intro">introdução</string>
+    <string name="player_sb_short_outro">encerramento</string>
+    <string name="player_sb_short_preview">prévia</string>
+    <string name="player_sb_short_music_offtopic">sem música</string>
+    <string name="player_sb_short_filler">enrolação</string>
+    <!-- What happens at a category's segments: chips in the SponsorBlock settings, four side by side. Keep very short (~6 characters). -->
+    <string name="player_sb_action_skip">Pular</string>
+    <string name="player_sb_action_ask">Avisar</string>
+    <string name="player_sb_action_show">Mostrar</string>
+    <string name="player_sb_action_off">Ignorar</string>
+</resources>

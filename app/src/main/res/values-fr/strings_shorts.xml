@@ -1,0 +1,32 @@
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube ne propose aucun Short pour le moment.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">Ce Short ne peut pas être lu pour le moment.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">Impossible de lire ce Short</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">Réessayer</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Connectez-vous pour aimer des Shorts.</string>
+    <string name="shorts_like_failed">Impossible de mettre à jour votre J\'aime.</string>
+    <string name="shorts_sign_in_to_subscribe">Connectez-vous pour vous abonner.</string>
+    <string name="shorts_subscription_failed">Impossible de mettre à jour votre abonnement.</string>
+    <string name="shorts_channel_unavailable">Impossible d\'ouvrir cette chaîne.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">Retour</string>
+    <string name="shorts_like">J\'aime</string>
+    <string name="shorts_comments">Commentaires</string>
+    <string name="shorts_share">Partager</string>
+    <string name="shorts_channel">Chaîne</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">S\'abonner</string>
+    <string name="shorts_unsubscribe">Se désabonner</string>
+    <string name="shorts_go_to_channel">Accéder à la chaîne</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">Cloche activée : chaque nouvelle vidéo. Appuyez pour la désactiver</string>
+    <string name="shorts_bell_off">Cloche : recevoir une notification pour chaque nouvelle vidéo</string>
+</resources>

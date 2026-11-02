@@ -13,6 +13,8 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        // First: everything below may already word something (str()).
+        AppLanguage.init(this)
         NewPipe.init(NewPipeDownloader.instance)
         // The iOS client only adds HLS livestream formats; Skipii plays VOD, so skip that request.
         org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor.setFetchIosClient(false)

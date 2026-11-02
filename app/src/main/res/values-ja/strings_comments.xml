@@ -1,0 +1,119 @@
+<resources>
+    <!-- ── Comments ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the comments card under the video and of the comments panel. -->
+    <string name="comments_title">コメント</string>
+    <string name="comments_turned_off">この動画のコメントはオフになっています。</string>
+    <!-- Comments card, signed in, when the video has no comments yet. -->
+    <string name="comments_none_add_first">まだコメントはありません。最初のコメントを追加しましょう。</string>
+    <string name="comments_none">まだコメントはありません。</string>
+    <!-- Accessibility label of the panel's close (X) button. -->
+    <string name="comments_close">コメントを閉じる</string>
+    <!-- Shown at the bottom of the comments panel instead of the comment box when signed out. -->
+    <string name="comments_sign_in_to_comment">コメントするにはログインしてください。</string>
+    <!-- Above the comment box while replying. %1$s = the name of the person replied to. -->
+    <string name="comments_replying_to">%1$s さんに返信</string>
+    <!-- Accessibility label of the X that stops replying. -->
+    <string name="comments_cancel_reply">返信をキャンセル</string>
+    <!-- Placeholder in the comment box. -->
+    <string name="comments_add_reply">返信を追加…</string>
+    <string name="comments_add_comment">コメントを追加…</string>
+    <!-- Accessibility label of the send button (posts the comment). -->
+    <string name="comments_post">投稿</string>
+    <!-- Accessibility label of the pin icon on a pinned comment. -->
+    <string name="comments_pinned">固定済み</string>
+    <!-- Accessibility labels of a comment's thumbs-up button. -->
+    <string name="comments_like">高く評価</string>
+    <string name="comments_unlike">高評価を取り消す</string>
+    <!-- Accessibility label of the heart the video's creator gave a comment. -->
+    <string name="comments_hearted">クリエイターがハートを付けました</string>
+    <!-- Small text button under a comment, keep short. -->
+    <string name="comments_reply">返信</string>
+    <!-- Text button that folds a comment's replies away. -->
+    <string name="comments_hide_replies">返信を非表示</string>
+    <!-- Text button that opens a comment's replies. %1$s = how many. -->
+    <plurals name="comments_replies">
+        <item quantity="other">%1$s 件の返信</item>
+    </plurals>
+    <!-- Author shown on a comment the person just posted, until the page reloads. -->
+    <string name="comments_you">あなた</string>
+    <!-- Errors shown under the comment box. -->
+    <string name="comments_error_like">コメントを高く評価できませんでした。</string>
+    <string name="comments_error_post">コメントを投稿できませんでした。</string>
+    <string name="comments_error_cant_post">この動画ではコメントがオフになっているか、投稿できません。</string>
+    <string name="comments_error_reply_not_found">返信先のコメントが見つかりませんでした。もう一度お試しください。</string>
+    <string name="comments_error_like_not_found">高く評価するコメントが見つかりませんでした。もう一度お試しください。</string>
+    <string name="comments_error_not_accepted">YouTube がコメントを受け付けませんでした。</string>
+
+    <!-- ── Captions ─────────────────────────────────────────────────────────── -->
+
+    <!-- Title of the captions sheet and of the captions card in settings. -->
+    <string name="captions_title">字幕</string>
+    <!-- Title of the transcript panel and the button that opens it. -->
+    <string name="captions_transcript">文字起こし</string>
+    <!-- Shown over the video while a translation model downloads. %1$s = a language name ("German"). -->
+    <string name="captions_downloading_language">翻訳用に%1$sをダウンロードしています…</string>
+    <!-- Shown over the video while captions are being translated. %1$s = a language name. -->
+    <string name="captions_translating_into">%1$sに翻訳しています…</string>
+    <!-- Error over the video / in the transcript. %1$s = a language name. -->
+    <string name="captions_error_download">翻訳用の%1$sをダウンロードできませんでした。</string>
+    <string name="captions_error_load">この字幕を読み込めませんでした。</string>
+    <!-- Note after a caption track's language in the list: captions YouTube made itself from speech. -->
+    <string name="captions_auto_generated">自動生成</string>
+    <!-- Short form of "auto-generated", in a small chip next to the transcript's title, keep short. -->
+    <string name="captions_auto">自動</string>
+    <!-- Notes after a translation language in the list. -->
+    <string name="captions_note_downloading">ダウンロード中…</string>
+    <!-- %1$s = the language translated from ("from English"). -->
+    <string name="captions_note_from">%1$sから翻訳</string>
+    <!-- The translation model still has to be downloaded; "MB" = megabytes. -->
+    <string name="captions_note_download_size">約 30 MB のダウンロード</string>
+    <!-- Section heading in the captions list (shown in capitals): the languages that are translated by the phone itself. -->
+    <string name="captions_translated_on_phone">スマートフォンで翻訳</string>
+    <!-- Row at the end of the captions list that shows every language. -->
+    <string name="captions_more_languages">その他の言語</string>
+    <string name="captions_none">この動画には字幕がありません。</string>
+    <!-- Accessibility label of the check on the chosen row. -->
+    <string name="captions_selected">選択済み</string>
+    <!-- Accessibility label of the transcript panel's close (X) button. -->
+    <string name="captions_close_transcript">文字起こしを閉じる</string>
+    <string name="captions_no_transcript">この動画には字幕がないため、文字起こしはありません。</string>
+    <string name="captions_no_lines">まだ行がありません。</string>
+    <!-- Transcript search found nothing. %1$s = what was typed. -->
+    <string name="captions_nothing_matches">「%1$s」に一致する結果はありません。</string>
+    <!-- Button that scrolls the transcript back to the line being said. -->
+    <string name="captions_back_to_now">現在の位置に戻る</string>
+    <!-- Placeholder of the transcript's search field. -->
+    <string name="captions_search_transcript">文字起こしを検索</string>
+    <!-- Accessibility label of the X that clears the search. -->
+    <string name="captions_clear_search">検索をクリア</string>
+
+    <!-- Settings card (account sheet). -->
+    <string name="captions_settings_subtitle">プレーヤーで言語を選んだりオフにしたりできます</string>
+    <!-- A sample caption in the settings preview, shown as two lines over a picture: this is the first line… -->
+    <string name="captions_sample_line_1">字幕は動画の上に</string>
+    <!-- …and this the second. Split the sentence about evenly. -->
+    <string name="captions_sample_line_2">このように表示されます。</string>
+    <!-- Setting label, then its choice chips. -->
+    <string name="captions_show">字幕を表示</string>
+    <string name="captions_show_never">表示しない</string>
+    <string name="captions_show_always">常に表示</string>
+    <!-- Chip: show captions only when the video's language differs from the app's. %1$s = the app's language ("English"). -->
+    <string name="captions_show_foreign">%1$s以外のとき</string>
+    <!-- Setting label: the style captions are drawn in. -->
+    <string name="captions_look">スタイル</string>
+    <!-- Caption style chips: a plain black box, white text with a black outline, and Android's own caption settings. -->
+    <string name="captions_look_classic">クラシック</string>
+    <string name="captions_look_outline">縁取り</string>
+    <string name="captions_look_system">Android の設定</string>
+    <!-- Setting label: caption text size, then its chips. -->
+    <string name="captions_size">サイズ</string>
+    <string name="captions_size_small">小</string>
+    <string name="captions_size_medium">中</string>
+    <string name="captions_size_large">大</string>
+    <string name="captions_size_huge">特大</string>
+    <!-- Setting label over the downloaded translation languages (each with an X to delete it). -->
+    <string name="captions_kept_languages">このスマートフォンにある翻訳言語</string>
+    <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
+    <string name="captions_remove_language">%1$sを削除</string>
+</resources>

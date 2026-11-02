@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Shared ─────────────────────────────────────────────────────────── -->
+    <!-- Button after an error (a feed, a search, a channel, the playlists list). -->
+    <string name="ui_try_again">Thử lại</string>
+    <!-- Accessibility label of a round back-arrow button at the top of a page. -->
+    <string name="ui_back">Quay lại</string>
+    <!-- Button that closes a page or message. -->
+    <string name="ui_close">Đóng</string>
+    <!-- Button, ~20 characters: opens Google's sign-in page. -->
+    <string name="ui_sign_in_with_google">Đăng nhập bằng Google</string>
+    <!-- Name of the account's built-in playlist of videos saved for later (YouTube's "Watch later"). -->
+    <string name="ui_watch_later">Xem sau</string>
+    <!-- Name of the account's built-in playlist of liked videos. -->
+    <string name="ui_liked_videos">Video đã thích</string>
+
+    <!-- ── Long-press options on a video ──────────────────────────────────── -->
+    <string name="ui_play_next">Phát tiếp theo</string>
+    <string name="ui_add_to_queue">Thêm vào hàng đợi</string>
+    <string name="ui_save_to_watch_later">Lưu vào Xem sau</string>
+    <!-- Option and the title of the sheet listing the account's playlists. -->
+    <string name="ui_save_to_playlist">Lưu vào danh sách phát</string>
+    <string name="ui_share">Chia sẻ</string>
+
+    <!-- ── Save to playlist sheet ─────────────────────────────────────────── -->
+    <!-- Accessibility label of the check on a playlist that holds the video. -->
+    <string name="ui_saved">Đã lưu</string>
+    <!-- Playlist privacy, a small chip (~10 characters) and the line under a playlist's name. -->
+    <string name="ui_privacy_private">Riêng tư</string>
+    <string name="ui_privacy_unlisted">Không công khai</string>
+    <string name="ui_privacy_public">Công khai</string>
+    <string name="ui_new_playlist">Danh sách phát mới</string>
+    <!-- Hint inside the empty name field of a new playlist. -->
+    <string name="ui_playlist_name">Tên danh sách phát</string>
+    <!-- Small button (~10 characters) that creates the new playlist. -->
+    <string name="ui_create">Tạo</string>
+
+    <!-- ── Queue ──────────────────────────────────────────────────────────── -->
+    <!-- Card under the player: "Queue · 3" = 3 videos queued (%1$s). Keep short. -->
+    <plurals name="ui_queue_count">
+        <item quantity="other">Hàng đợi · %1$s</item>
+    </plurals>
+    <!-- Small button (~8 characters) that empties the queue. -->
+    <string name="ui_clear">Xóa</string>
+    <!-- Title of the queue sheet. -->
+    <string name="ui_queue">Hàng đợi</string>
+    <!-- Accessibility label of the X on a queued video. -->
+    <string name="ui_remove_from_queue">Xóa khỏi hàng đợi</string>
+    <string name="ui_queue_empty">Hàng đợi trống. Nhấn và giữ một video để thêm.</string>
+
+    <!-- ── Account sheet: settings ────────────────────────────────────────── -->
+    <!-- Line under the SponsorBlock switch. -->
+    <string name="ui_sponsorblock_line">Bỏ qua đoạn quảng cáo tài trợ và các đoạn khác</string>
+    <!-- Required credit under the SponsorBlock settings; keep "sponsor.ajay.app" and "CC BY-NC-SA 4.0" as they are. -->
+    <string name="ui_sponsorblock_credit">Các đoạn lấy từ SponsorBlock (sponsor.ajay.app), một dự án cộng đồng. Dữ liệu được cấp phép CC BY-NC-SA 4.0.</string>
+    <string name="ui_player_controls">Nút điều khiển trình phát</string>
+    <!-- Line under "Player controls" when the controls live in the bottom pill. -->
+    <string name="ui_player_controls_in_bar_line">Trong thanh phát ở cuối trình phát</string>
+    <!-- Line under "Player controls" when the controls are drawn over the video. -->
+    <string name="ui_player_controls_on_video_line">Trên video; kéo nút tròn ở cạnh dưới để tua</string>
+    <!-- Chips (~14 characters): where the player's controls live. -->
+    <string name="ui_player_controls_pill">Thanh phát</string>
+    <string name="ui_player_controls_on_video">Trên video</string>
+    <!-- Title of the Shorts setting (YouTube's short vertical videos; use YouTube's own name for them in your language). -->
+    <string name="ui_shorts">Shorts</string>
+    <string name="ui_shorts_on_line">Hiện thẻ Shorts</string>
+    <string name="ui_shorts_off_line">Thẻ Shorts bị ẩn và không tải video Shorts nào</string>
+    <string name="ui_appearance">Giao diện</string>
+    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <string name="ui_mode_system">Hệ thống</string>
+    <string name="ui_mode_light">Sáng</string>
+    <string name="ui_mode_dark">Tối</string>
+    <!-- Theme taken from the phone's wallpaper colours; label under a 56 dp swatch, keep short (~10 characters). -->
+    <string name="ui_theme_wallpaper">Hình nền</string>
+    <!-- Accessibility label of the check on the selected theme. -->
+    <string name="ui_selected">Đã chọn</string>
+
+    <!-- ── Sign-in ────────────────────────────────────────────────────────── -->
+    <!-- Accessibility label of the X that leaves the sign-in page. -->
+    <string name="ui_cancel">Hủy</string>
+    <string name="ui_sign_in_title">Đăng nhập YouTube</string>
+    <!-- Under the title of the sign-in page; keep "accounts.google.com" as it is. -->
+    <string name="ui_sign_in_line">accounts.google.com · được mã hóa trên điện thoại này</string>
+    <string name="ui_sign_in_error">Đã đăng nhập nhưng YouTube không phản hồi. Hãy kiểm tra kết nối rồi thử lại.</string>
+    <string name="ui_finishing_sign_in">Đang hoàn tất đăng nhập…</string>
+    <!-- Accessibility label of the account button when signed out. -->
+    <string name="ui_sign_in">Đăng nhập</string>
+    <string name="ui_account_pitch_title">YouTube của bạn, không quảng cáo</string>
+    <string name="ui_account_pitch_body">Đăng nhập để xem nội dung đề xuất, kênh đăng ký, nhật ký xem và danh sách phát của bạn. Lượt thích, đăng ký, Xem sau và nhật ký xem được đồng bộ về tài khoản của bạn.\n\nGoogle coi ứng dụng không chính thức là vi phạm điều khoản và có thể tạm ngưng tài khoản dùng chúng. Dùng một tài khoản Google phụ sẽ giúp tài khoản chính tránh được rủi ro đó.</string>
+    <string name="ui_sign_out">Đăng xuất</string>
+
+    <!-- ── Home / Subscriptions / Library ─────────────────────────────────── -->
+    <string name="ui_home_signed_out_title">Nội dung đề xuất cho bạn, không quảng cáo</string>
+    <string name="ui_home_signed_out_body">Đăng nhập bằng Google để xem trang chủ YouTube của riêng bạn, hoặc chỉ cần tìm kiếm.</string>
+    <!-- Text link under "Sign in with Google" on Home when signed out. -->
+    <string name="ui_search_instead">Tìm kiếm thay vào đó</string>
+    <!-- Page title (large header). -->
+    <string name="ui_subscriptions_title">Kênh đăng ký</string>
+    <string name="ui_subscriptions_signed_out_title">Kênh đăng ký của bạn</string>
+    <string name="ui_subscriptions_signed_out_body">Đăng nhập bằng Google để xem video mới từ các kênh bạn theo dõi.</string>
+    <!-- Page title (large header). -->
+    <string name="ui_library_title">Thư viện</string>
+    <string name="ui_library_signed_out_title">Thư viện của bạn</string>
+    <string name="ui_library_signed_out_body">Đăng nhập bằng Google để xem nhật ký xem, Xem sau, video đã thích và danh sách phát.</string>
+    <!-- Section title in Library: videos watched. -->
+    <string name="ui_history">Nhật ký xem</string>
+    <string name="ui_history_empty">Bạn chưa xem video nào.</string>
+    <!-- Section title in Library. -->
+    <string name="ui_playlists">Danh sách phát</string>
+    <string name="ui_playlist_empty_title">Chưa có gì ở đây</string>
+    <string name="ui_playlist_empty_body">Video bạn thêm vào danh sách phát này sẽ hiện ở đây.</string>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <!-- Page title (large header). -->
+    <string name="ui_search_title">Tìm kiếm</string>
+    <!-- Hint inside the empty search field. -->
+    <string name="ui_search_hint">Tìm kiếm trên YouTube</string>
+    <!-- Accessibility label of the X that empties the search field. -->
+    <string name="ui_clear_search">Xóa</string>
+    <string name="ui_search_error_title">Không tải được kết quả tìm kiếm</string>
+    <string name="ui_search_intro_title">Tìm kiếm không quảng cáo</string>
+    <string name="ui_search_intro_body">Kết quả phát ngay, không quảng cáo và không cần đăng nhập.</string>
+    <string name="ui_search_nothing_found">Không tìm thấy gì</string>
+    <!-- %1$s = what was searched for. -->
+    <string name="ui_search_no_match">Không có video nào khớp với “%1$s”.</string>
+    <string name="ui_recent_searches">Tìm kiếm gần đây</string>
+    <!-- Text link beside "Recent searches". -->
+    <string name="ui_clear_all">Xóa tất cả</string>
+    <!-- Accessibility label of the X on a past search. -->
+    <string name="ui_remove_search">Xóa</string>
+
+    <!-- ── Channel page and feeds ─────────────────────────────────────────── -->
+    <string name="ui_subscription_error">Không thể cập nhật gói đăng ký của bạn.</string>
+    <string name="ui_channel_error_title">Không thể tải kênh này</string>
+    <!-- Section title on a channel page: its uploads. -->
+    <string name="ui_videos">Video</string>
+    <string name="ui_feed_error_title">Không thể tải nội dung này</string>
+    <!-- Shown when an account feed fails because the session ended. -->
+    <string name="ui_signed_out_error">Bạn đã đăng xuất.</string>
+</resources>

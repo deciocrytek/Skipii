@@ -1,0 +1,87 @@
+<resources>
+    <!-- ── Portrait player page (PlayerUi.kt) ── -->
+
+    <!-- Tappable word after the video's stats line ("1.2M views · 3 days ago"), opens / closes the description. Keep short. -->
+    <string name="player_description_more">…more</string>
+    <string name="player_description_less">less</string>
+    <!-- Part of the stats line under the title. %1$s is a compact count ("1.2M"); the quantity is the exact count. -->
+    <plurals name="player_likes">
+        <item quantity="one">%1$s like</item>
+        <item quantity="other">%1$s likes</item>
+    </plurals>
+    <!-- Section title above the related videos list under the player. -->
+    <string name="player_more_videos">More videos</string>
+    <!-- Pill button in the player's action row (label and accessibility label). Keep short. -->
+    <string name="player_share">Share</string>
+    <!-- Pill button in the player's action row: opens every line of the captions. Keep short. -->
+    <string name="player_transcript">Transcript</string>
+    <!-- Pill button in the player's action row: opens the "Save to playlist" sheet. Keep short. -->
+    <string name="player_playlist">Playlist</string>
+    <!-- Accessibility labels of the action row's buttons. -->
+    <string name="player_like">Like</string>
+    <string name="player_dislike">Dislike</string>
+    <string name="player_save_to_playlist">Save to playlist</string>
+    <!-- Accessibility label of the mini-player's close (X) button. -->
+    <string name="player_close">Close</string>
+
+    <!-- ── Short notes shown at the bottom of the player after an action (PlayerState.kt) ── -->
+    <string name="player_playing_next">Playing next</string>
+    <string name="player_added_to_queue">Added to queue</string>
+    <string name="player_like_failed">Couldn\'t update your like.</string>
+    <string name="player_subscribe_failed">Couldn\'t update your subscription.</string>
+    <!-- "Watch later" is YouTube's own playlist name. -->
+    <string name="player_saved_watch_later">Saved to Watch later</string>
+    <string name="player_watch_later_failed">Couldn\'t save to Watch later.</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_saved_to">Saved to %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_removed_from">Removed from %1$s</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_playlist_update_failed">Couldn\'t update %1$s.</string>
+    <string name="player_create_playlist_failed">Couldn\'t create the playlist.</string>
+
+    <!-- ── Errors shown over the video ── -->
+    <string name="player_error_no_stream">No playable stream was found for this video.</string>
+    <string name="player_error_connection">Lost the connection. Check your network and try again.</string>
+    <string name="player_error_refused">YouTube refused the stream. Try again.</string>
+    <string name="player_error_unplayable">This video couldn\'t be played.</string>
+    <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
+    <string name="player_error_age_restricted">This video is age-restricted and needs a YouTube account to watch.</string>
+    <string name="player_error_geo">This video isn\'t available in your country.</string>
+    <string name="player_error_bot_check">YouTube is asking to confirm you\'re not a bot. Try again in a few minutes.</string>
+    <string name="player_error_private">This video is private.</string>
+    <string name="player_error_members_only">This is a members-only video. Skipii can\'t play members-only videos yet.</string>
+    <string name="player_error_unavailable">This video isn\'t available.</string>
+    <string name="player_error_rate_limited">YouTube is rate-limiting requests right now. Try again in a minute.</string>
+    <string name="player_error_offline">Couldn\'t reach YouTube. Check your connection.</string>
+    <string name="player_error_generic">Something went wrong loading this. Try again.</string>
+
+    <!-- First part of the quality sheet's technical "Playing …" line ("Auto · 1920×1080 · H.264 · itag 299"):
+         the quality is chosen automatically. Keep short. -->
+    <string name="player_quality_auto">Auto</string>
+
+    <!-- ── SponsorBlock segment categories (SponsorBlock settings in the account sheet) ── -->
+    <string name="player_sb_sponsor">Sponsor</string>
+    <string name="player_sb_selfpromo">Self-promotion</string>
+    <string name="player_sb_interaction">Like and subscribe reminder</string>
+    <string name="player_sb_intro">Intro</string>
+    <string name="player_sb_outro">Outro and credits</string>
+    <string name="player_sb_preview">Preview and recap</string>
+    <string name="player_sb_music_offtopic">Non-music part of a music video</string>
+    <string name="player_sb_filler">Filler tangent</string>
+    <!-- Short lowercase category names, put into the player's "Skip …" pill and "Skipped 0:30 …" note
+         ("Skip sponsor", "Skipped 0:30 self-promo"). Keep very short. -->
+    <string name="player_sb_short_sponsor">sponsor</string>
+    <string name="player_sb_short_selfpromo">self-promo</string>
+    <string name="player_sb_short_interaction">reminder</string>
+    <string name="player_sb_short_intro">intro</string>
+    <string name="player_sb_short_outro">outro</string>
+    <string name="player_sb_short_preview">preview</string>
+    <string name="player_sb_short_music_offtopic">non-music</string>
+    <string name="player_sb_short_filler">filler</string>
+    <!-- What happens at a category's segments: chips in the SponsorBlock settings, four side by side. Keep very short (~6 characters). -->
+    <string name="player_sb_action_skip">Skip</string>
+    <string name="player_sb_action_ask">Ask</string>
+    <string name="player_sb_action_show">Show</string>
+    <string name="player_sb_action_off">Off</string>
+</resources>

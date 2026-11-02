@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shorts tab: shown instead of the feed when YouTube sent no Shorts at all. -->
+    <string name="shorts_none_offered">YouTube ने अभी कोई Shorts नहीं दिए.</string>
+    <!-- Shorts tab: shown on a short that failed to load or play (under shorts_cant_play_title). -->
+    <string name="shorts_cant_play_now">यह Short अभी नहीं चल सकता.</string>
+    <!-- Shorts tab: bold heading over the reason a short failed. -->
+    <string name="shorts_cant_play_title">यह Short नहीं चल सकता</string>
+    <!-- Shorts tab: button under a load error, pill-shaped, keep short. -->
+    <string name="shorts_try_again">फिर कोशिश करें</string>
+
+    <!-- Short notes shown at the bottom of the Shorts tab. -->
+    <string name="shorts_sign_in_to_like">Shorts पसंद करने के लिए साइन इन करें.</string>
+    <string name="shorts_like_failed">आपकी पसंद अपडेट नहीं हो सकी.</string>
+    <string name="shorts_sign_in_to_subscribe">सदस्यता लेने के लिए साइन इन करें.</string>
+    <string name="shorts_subscription_failed">आपकी सदस्यता अपडेट नहीं हो सकी.</string>
+    <string name="shorts_channel_unavailable">यह चैनल नहीं खोला जा सकता.</string>
+
+    <!-- Accessibility labels (read by screen readers) of the Shorts glass bar's icon buttons. -->
+    <string name="shorts_back">वापस जाएं</string>
+    <string name="shorts_like">पसंद करें</string>
+    <string name="shorts_comments">टिप्पणियां</string>
+    <string name="shorts_share">शेयर करें</string>
+    <string name="shorts_channel">चैनल</string>
+
+    <!-- Channel card over a short (228 dp wide card, one line each). -->
+    <string name="shorts_subscribe">सदस्यता लें</string>
+    <string name="shorts_unsubscribe">सदस्यता छोड़ें</string>
+    <string name="shorts_go_to_channel">चैनल पर जाएं</string>
+    <!-- Accessibility labels of the channel card's bell button. -->
+    <string name="shorts_bell_on">घंटी चालू: हर नया वीडियो. बंद करने के लिए टैप करें</string>
+    <string name="shorts_bell_off">घंटी: हर नए वीडियो की सूचना पाएं</string>
+</resources>

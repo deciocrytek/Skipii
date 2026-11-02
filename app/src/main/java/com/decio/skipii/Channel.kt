@@ -38,6 +38,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -106,7 +107,7 @@ class ChannelState(val url: String, private val scope: CoroutineScope) {
         scope.launch {
             runCatching { InnerTube.setSubscribed(id, !before) }
                 .onSuccess { if (before) Bells.forget(id) }
-                .onFailure { subscribed = before; onError("Couldn't update your subscription.") }
+                .onFailure { subscribed = before; onError(str(R.string.ui_subscription_error)) }
         }
     }
 }
@@ -126,7 +127,7 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
             Modifier.fillMaxWidth().statusBarsPadding().padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircleAction(Icons.AutoMirrored.Rounded.ArrowBack, "Back", onBack)
+            CircleAction(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.ui_back), onBack)
             Spacer(Modifier.width(12.dp))
             Text(
                 state.details?.name.orEmpty(),
@@ -139,8 +140,8 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
         val d = state.details
         when {
             d == null && state.error != null -> Box(Modifier.padding(top = top)) { EmptyState(
-                Icons.Rounded.CloudOff, "Couldn't load this channel", state.error.orEmpty(),
-                action = { PillButton("Try again", state::load) },
+                Icons.Rounded.CloudOff, stringResource(R.string.ui_channel_error_title), state.error.orEmpty(),
+                action = { PillButton(stringResource(R.string.ui_try_again), state::load) },
             ) }
             d == null -> Box(Modifier.fillMaxWidth().padding(top = top + 60.dp), Alignment.Center) {
                 CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(36.dp))
@@ -157,7 +158,7 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
                             Spacer(Modifier.width(14.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(d.name, fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                if (d.subscribers > 0) Text("${formatCount(d.subscribers)} subscribers", color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                if (d.subscribers > 0) Text(subscribersLine(d.subscribers), color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                         state.subscribed?.let { subscribed ->
@@ -177,7 +178,7 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
                         }
                     }
                 }
-                item(key = "videosTitle") { SectionTitle("Videos") }
+                item(key = "videosTitle") { SectionTitle(stringResource(R.string.ui_videos)) }
                 items(state.videos, key = { it.id }) { video -> VideoCard(video, onClick = { onOpen(video) }) }
                 if (state.loading || state.hasMore) item {
                     Box(Modifier.fillMaxWidth().padding(28.dp), Alignment.Center) {

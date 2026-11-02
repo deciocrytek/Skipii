@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Portrait player page (PlayerUi.kt) ── -->
+
+    <!-- Tappable word after the video's stats line ("1.2M views · 3 days ago"), opens / closes the description. Keep short. -->
+    <string name="player_description_more">…ज़्यादा</string>
+    <string name="player_description_less">कम</string>
+    <!-- Part of the stats line under the title. %1$s is a compact count ("1.2M"); the quantity is the exact count. -->
+    <plurals name="player_likes">
+        <item quantity="one">%1$s लाइक</item>
+        <item quantity="other">%1$s लाइक</item>
+    </plurals>
+    <!-- Section title above the related videos list under the player. -->
+    <string name="player_more_videos">और वीडियो</string>
+    <!-- Pill button in the player's action row (label and accessibility label). Keep short. -->
+    <string name="player_share">शेयर करें</string>
+    <!-- Pill button in the player's action row: opens every line of the captions. Keep short. -->
+    <string name="player_transcript">ट्रांसक्रिप्ट</string>
+    <!-- Pill button in the player's action row: opens the "Save to playlist" sheet. Keep short. -->
+    <string name="player_playlist">प्लेलिस्ट</string>
+    <!-- Accessibility labels of the action row's buttons. -->
+    <string name="player_like">पसंद करें</string>
+    <string name="player_dislike">नापसंद करें</string>
+    <string name="player_save_to_playlist">प्लेलिस्ट में सेव करें</string>
+    <!-- Accessibility label of the mini-player's close (X) button. -->
+    <string name="player_close">बंद करें</string>
+
+    <!-- ── Short notes shown at the bottom of the player after an action (PlayerState.kt) ── -->
+    <string name="player_playing_next">अगला चलेगा</string>
+    <string name="player_added_to_queue">सूची में जोड़ा गया</string>
+    <string name="player_like_failed">आपकी पसंद अपडेट नहीं हो सकी.</string>
+    <string name="player_subscribe_failed">आपकी सदस्यता अपडेट नहीं हो सकी.</string>
+    <!-- "Watch later" is YouTube's own playlist name. -->
+    <string name="player_saved_watch_later">बाद में देखें में सेव किया गया</string>
+    <string name="player_watch_later_failed">बाद में देखें में सेव नहीं हो सका.</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_saved_to">%1$s में सेव किया गया</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_removed_from">%1$s से हटाया गया</string>
+    <!-- %1$s is a playlist's name. -->
+    <string name="player_playlist_update_failed">%1$s अपडेट नहीं हो सकी.</string>
+    <string name="player_create_playlist_failed">प्लेलिस्ट नहीं बन सकी.</string>
+
+    <!-- ── Errors shown over the video ── -->
+    <string name="player_error_no_stream">इस वीडियो के लिए चलाने लायक कोई स्ट्रीम नहीं मिली.</string>
+    <string name="player_error_connection">कनेक्शन टूट गया. अपना नेटवर्क देखें और फिर से कोशिश करें.</string>
+    <string name="player_error_refused">YouTube ने स्ट्रीम देने से मना कर दिया. फिर से कोशिश करें.</string>
+    <string name="player_error_unplayable">यह वीडियो नहीं चल सका.</string>
+    <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
+    <string name="player_error_age_restricted">इस वीडियो पर उम्र की पाबंदी है. इसे देखने के लिए YouTube खाता चाहिए.</string>
+    <string name="player_error_geo">यह वीडियो आपके देश में उपलब्ध नहीं है.</string>
+    <string name="player_error_bot_check">YouTube पुष्टि करना चाहता है कि आप बॉट नहीं हैं. कुछ मिनट बाद फिर से कोशिश करें.</string>
+    <string name="player_error_private">यह वीडियो निजी है.</string>
+    <string name="player_error_members_only">यह वीडियो सिर्फ़ सदस्यों के लिए है. Skipii अभी ऐसे वीडियो नहीं चला सकता.</string>
+    <string name="player_error_unavailable">यह वीडियो उपलब्ध नहीं है.</string>
+    <string name="player_error_rate_limited">YouTube अभी अनुरोधों को सीमित कर रहा है. एक मिनट बाद फिर से कोशिश करें.</string>
+    <string name="player_error_offline">YouTube से कनेक्ट नहीं हो सका. अपना कनेक्शन देखें.</string>
+    <string name="player_error_generic">इसे लोड करते समय कुछ गड़बड़ हो गई. फिर से कोशिश करें.</string>
+
+    <!-- First part of the quality sheet's technical "Playing …" line ("Auto · 1920×1080 · H.264 · itag 299"):
+         the quality is chosen automatically. Keep short. -->
+    <string name="player_quality_auto">ऑटो</string>
+
+    <!-- ── SponsorBlock segment categories (SponsorBlock settings in the account sheet) ── -->
+    <string name="player_sb_sponsor">स्पॉन्सर</string>
+    <string name="player_sb_selfpromo">सेल्फ़-प्रमोशन</string>
+    <string name="player_sb_interaction">पसंद करने और सदस्यता लेने का रिमाइंडर</string>
+    <string name="player_sb_intro">इंट्रो</string>
+    <string name="player_sb_outro">आउटरो और क्रेडिट</string>
+    <string name="player_sb_preview">प्रीव्यू और रीकैप</string>
+    <string name="player_sb_music_offtopic">म्यूज़िक वीडियो का बिना म्यूज़िक वाला हिस्सा</string>
+    <string name="player_sb_filler">विषय से हटकर बातें</string>
+    <!-- Short lowercase category names, put into the player's "Skip …" pill and "Skipped 0:30 …" note
+         ("Skip sponsor", "Skipped 0:30 self-promo"). Keep very short. -->
+    <string name="player_sb_short_sponsor">स्पॉन्सर</string>
+    <string name="player_sb_short_selfpromo">सेल्फ़-प्रमो</string>
+    <string name="player_sb_short_interaction">रिमाइंडर</string>
+    <string name="player_sb_short_intro">इंट्रो</string>
+    <string name="player_sb_short_outro">आउटरो</string>
+    <string name="player_sb_short_preview">प्रीव्यू</string>
+    <string name="player_sb_short_music_offtopic">बिना म्यूज़िक</string>
+    <string name="player_sb_short_filler">फ़िलर</string>
+    <!-- What happens at a category's segments: chips in the SponsorBlock settings, four side by side. Keep very short (~6 characters). -->
+    <string name="player_sb_action_skip">स्किप</string>
+    <string name="player_sb_action_ask">पूछें</string>
+    <string name="player_sb_action_show">दिखाएं</string>
+    <string name="player_sb_action_off">बंद</string>
+</resources>

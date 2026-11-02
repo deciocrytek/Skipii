@@ -293,20 +293,20 @@ object YouTube {
 
     /** Turns extractor failures into a sentence a person can act on. */
     fun friendlyError(t: Throwable): String = when (t) {
-        is AgeRestrictedContentException -> "This video is age-restricted and needs a YouTube account to watch."
-        is GeographicRestrictionException -> "This video isn't available in your country."
+        is AgeRestrictedContentException -> str(R.string.player_error_age_restricted)
+        is GeographicRestrictionException -> str(R.string.player_error_geo)
         is SignInConfirmNotBotException ->
-            "YouTube is asking to confirm you're not a bot. Try again in a few minutes."
-        is org.schabi.newpipe.extractor.exceptions.PrivateContentException -> "This video is private."
+            str(R.string.player_error_bot_check)
+        is org.schabi.newpipe.extractor.exceptions.PrivateContentException -> str(R.string.player_error_private)
         // Members-only videos (e.g. "Insider Edition") need a channel membership; Skipii's
         // stream extraction is anonymous, so it can't play them even when you're a member.
         is ContentNotAvailableException ->
             if (t.message.orEmpty().contains("member", ignoreCase = true) || t is org.schabi.newpipe.extractor.exceptions.PaidContentException)
-                "This is a members-only video. Skipii can't play members-only videos yet."
-            else "This video isn't available."
-        is ReCaptchaException -> "YouTube is rate-limiting requests right now. Try again in a minute."
-        is IOException -> "Couldn't reach YouTube. Check your connection."
-        else -> "Something went wrong loading this. Try again."
+                str(R.string.player_error_members_only)
+            else str(R.string.player_error_unavailable)
+        is ReCaptchaException -> str(R.string.player_error_rate_limited)
+        is IOException -> str(R.string.player_error_offline)
+        else -> str(R.string.player_error_generic)
     }
 }
 

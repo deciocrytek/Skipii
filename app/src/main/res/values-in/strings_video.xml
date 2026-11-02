@@ -1,0 +1,73 @@
+<resources>
+    <!-- Video player overlay (portrait "on the video" controls and fullscreen), quality/speed pickers, errors. -->
+
+    <!-- Small note under the loading spinner while YouTube runs a bot check on this connection. -->
+    <string name="video_bot_check_waiting">YouTube sedang memeriksa koneksi ini. Mencoba lagi…</string>
+
+    <!-- Accessibility labels of the round buttons on the video. -->
+    <string name="video_audio_only">Audio saja</string>
+    <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
+    <string name="video_audio_only_on">Audio saja aktif</string>
+    <string name="video_playback_speed">Kecepatan pemutaran</string>
+    <string name="video_captions">Subtitel</string>
+    <string name="video_quality">Kualitas</string>
+    <string name="video_pip">Picture-in-picture</string>
+    <string name="video_next">Berikutnya</string>
+    <string name="video_fullscreen">Layar penuh</string>
+    <string name="video_exit_fullscreen">Keluar dari layar penuh</string>
+    <string name="video_back_10">Mundur 10 detik</string>
+    <string name="video_forward_10">Maju 10 detik</string>
+    <string name="video_play">Putar</string>
+    <string name="video_pause">Jeda</string>
+    <!-- Accessibility label of the check mark on the chosen row of a picker. -->
+    <string name="video_selected">Dipilih</string>
+
+    <!-- Message shown when picture-in-picture can't start because the user turned it off in Android's settings. -->
+    <string name="video_pip_off">Picture-in-picture dinonaktifkan untuk Skipii di Setelan.</string>
+
+    <!-- Quality: automatic. Also the start of the quality pill on the video ("Auto · 720p"): small pill, keep short. -->
+    <string name="video_quality_auto">Otomatis</string>
+    <!-- Subtitle of the Auto row in the quality sheet. -->
+    <string name="video_quality_auto_best">Terbaik hingga 1080p</string>
+    <!-- Appended to the Auto row's subtitle after " · "; %1$s = a resolution like "720p". -->
+    <string name="video_quality_auto_playing">memutar %1$s</string>
+    <!-- Under the quality sheet's title; %1$s = the format being played, like "1080p60 H.264". -->
+    <string name="video_quality_playing">Memutar %1$s</string>
+    <!-- Quality tag for the lowest resolutions (240p and below). -->
+    <string name="video_quality_data_saver">Hemat data</string>
+    <!-- Quality tag for 1080p. -->
+    <string name="video_quality_full_hd">Full HD</string>
+
+    <!-- Title of the speed sheet. -->
+    <string name="video_speed">Kecepatan</string>
+
+    <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
+    <string name="video_drop_captions">SUBTITEL</string>
+    <string name="video_drop_quality">KUALITAS</string>
+    <string name="video_drop_speed">KECEPATAN</string>
+
+    <!-- Captions card: row that turns captions off. -->
+    <string name="video_captions_off">Nonaktif</string>
+    <!-- Captions card: small grey tags after a language name. -->
+    <string name="video_captions_tag_auto">otomatis</string>
+    <string name="video_captions_tag_downloading">mendownload</string>
+    <string name="video_captions_tag_translated">diterjemahkan</string>
+    <string name="video_captions_tag_download">download</string>
+
+    <!-- Speed card: tag after 1× -->
+    <string name="video_speed_normal">Normal</string>
+    <!-- Speed card: tag after a speed set on the ruler that isn't one of the presets. -->
+    <string name="video_speed_custom">Kustom</string>
+    <!-- Speed card: row that keeps the speed for every video (toggle). -->
+    <string name="video_speed_every_video">Setiap video</string>
+
+    <!-- SponsorBlock pill, small: %1$s = the segment kind ("sponsor", "intro", …). Keep short. -->
+    <string name="video_skip_segment">Lewati %1$s</string>
+    <!-- After an automatic skip: %1$s = length ("1:12"), %2$s = the segment kind ("sponsor"). -->
+    <string name="video_skipped_segment">Melewati %1$s %2$s</string>
+    <!-- Button after the "Skipped …" note. -->
+    <string name="video_undo">Urungkan</string>
+
+    <!-- Button on the playback error panel. -->
+    <string name="video_try_again">Coba lagi</string>
+</resources>
