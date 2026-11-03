@@ -43,4 +43,8 @@
     <string name="settings_say_hi">Passa a salutare</string>
     <string name="settings_email_developer">Scrivi allo sviluppatore</string>
     <string name="settings_no_app">Nessuna app di questo telefono può aprirlo</string>
+    <string name="settings_zoom_fill_title">Zoom per riempire a schermo intero</string>
+    <string name="settings_zoom_fill_on">Ogni video riempie lo schermo; i bordi in eccesso vengono tagliati. Avvicina due dita per vedere un video intero.</string>
+    <string name="settings_zoom_fill_off">I video si vedono interi, con bande nere. Allarga due dita a schermo intero per riempire lo schermo.</string>
+    <string name="settings_zoom_fill_summary">zoom per riempire</string>
 </resources>

@@ -118,3 +118,28 @@ object PlayerControls {
         prefs?.edit()?.putBoolean(KEY, bar)?.apply()
     }
 }
+
+/**
+ * Zoom to fill in fullscreen (2026-11-02, Derek; asked for by many users), as YouTube's app does it:
+ * pinch out on the fullscreen video and it fills the screen (the edges past the screen are cropped),
+ * pinch in and the whole picture is back with black bars. A pinch only changes that video
+ * ([PlayerState.zoomedToFill]); this setting (Settings › Playback) is where every video starts.
+ */
+object FullscreenZoom {
+    private const val KEY = "zoom_fill"
+    private var prefs: SharedPreferences? = null
+
+    /** True: every video fills the screen in fullscreen until pinched back. */
+    var fill by mutableStateOf(false)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        fill = prefs?.getBoolean(KEY, false) == true
+    }
+
+    fun set(on: Boolean) {
+        fill = on
+        prefs?.edit()?.putBoolean(KEY, on)?.apply()
+    }
+}

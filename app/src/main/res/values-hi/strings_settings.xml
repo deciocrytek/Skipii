@@ -42,4 +42,8 @@
     <string name="settings_say_hi">आइए, नमस्ते कहिए</string>
     <string name="settings_email_developer">डेवलपर को ईमेल करें</string>
     <string name="settings_no_app">इस फ़ोन पर कोई ऐप इसे नहीं खोल सकता</string>
+    <string name="settings_zoom_fill_title">फ़ुलस्क्रीन में भरने के लिए ज़ूम करें</string>
+    <string name="settings_zoom_fill_on">हर वीडियो स्क्रीन भर देता है; बाहर निकले किनारे कट जाते हैं। पूरा वीडियो देखने के लिए उंगलियाँ पास लाएँ।</string>
+    <string name="settings_zoom_fill_off">वीडियो पूरे दिखते हैं, काली पट्टियों के साथ। फ़ुलस्क्रीन में स्क्रीन भरने के लिए उंगलियाँ फैलाएँ।</string>
+    <string name="settings_zoom_fill_summary">भरने के लिए ज़ूम</string>
 </resources>

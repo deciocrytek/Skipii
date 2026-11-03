@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — large screens and foldables, five directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --emph:cubic-bezier(.2,.85,.22,1);
+  --s:.56;
+  --background:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;
+}
+html.dark{--background:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2}
+body{font-family:var(--font);background:var(--background);color:var(--ink);min-height:100vh;transition:background .4s}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input{font:inherit}
+svg{display:block;fill:currentColor;flex:none}
+.wrap{max-width:1560px;margin:0 auto;padding:40px 28px 80px}
+
+/* ── page chrome ─────────────────────────────────────────────── */
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:26px}
+.intro h1{font-size:40px;font-weight:850;letter-spacing:-1.4px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--ink-2);font-size:16px;font-weight:550;max-width:820px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;max-width:620px}
+.tools .sp{font-size:13px;font-weight:750;color:var(--ink-2);margin:0 2px 0 8px}
+.chip{height:40px;padding:0 15px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:13.5px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop);white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--background)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.chip i{width:14px;height:14px;border-radius:50%;display:block}
+.size{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;background:var(--chrome);font-size:13px;font-weight:750;color:var(--ink-2)}
+.size input{width:110px;accent-color:var(--ink)}
+
+.blk{background:var(--chrome);border-radius:24px;padding:20px 22px;margin-bottom:14px}
+.blk h3{font-size:12px;font-weight:850;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink-2);margin-bottom:12px}
+.study{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.study>div{background:var(--chrome);border-radius:24px;padding:18px 18px 20px;display:flex;flex-direction:column;gap:14px}
+.study .pic{display:flex;align-items:center;justify-content:center;gap:14px;min-height:280px;border-radius:18px;background:var(--background);padding:16px}
+.study b{font-size:15px;font-weight:850}
+.study p{font-size:13.5px;line-height:1.5;color:var(--ink-2);font-weight:540;margin-top:4px}
+.study p em{font-style:normal;color:var(--ink);font-weight:750}
+.arrow{font-size:22px;font-weight:800;color:var(--ink-2);flex:none}
+.bad{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;background:#E5002E;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:.2px}
+
+.common{display:grid;grid-template-columns:1.05fr 1.4fr;gap:22px}
+.common ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.common li{font-size:13.5px;line-height:1.5;color:var(--ink-2);font-weight:540;padding-left:16px;position:relative}
+.common li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:3px;background:var(--ink-2);opacity:.6}
+.common li b{color:var(--ink);font-weight:800}
+table.cls{width:100%;border-collapse:separate;border-spacing:3px;font-size:12.5px;line-height:1.4}
+.cls th{font-size:12px;font-weight:850;text-align:left;padding:9px 11px;background:var(--background);border-radius:8px;vertical-align:bottom}
+.cls th small{display:block;font-weight:600;color:var(--ink-2);font-size:11px;margin-top:2px}
+.cls td{padding:8px 11px;background:var(--background);border-radius:6px;color:var(--ink-2);font-weight:540;vertical-align:top}
+.cls td:first-child{color:var(--ink);font-weight:800;white-space:nowrap}
+.cls tr:first-child th:first-child{background:transparent}
+
+.cbar{position:sticky;top:0;z-index:100;background:var(--background);padding:14px 0 14px;margin:34px 0 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;transition:background .4s}
+.cbar .lbl{font-size:13px;font-weight:800;color:var(--ink-2);margin-right:6px}
+.cbar .chip b{font-weight:900;color:inherit}
+.concept{display:none;margin-bottom:70px}
+body[data-show="all"] .concept,.concept.on{display:block}
+.chead{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-bottom:26px;align-items:stretch}
+.chead .t{display:flex;align-items:center;gap:12px}
+.chead .t i{font-style:normal;width:42px;height:42px;border-radius:14px;background:var(--ink);color:var(--background);display:grid;place-items:center;font-size:20px;font-weight:900}
+.chead .t b{font-size:30px;font-weight:850;letter-spacing:-.8px}
+.chead .t em{font-style:normal;font-size:15px;font-weight:650;color:var(--ink-2);margin-left:4px}
+.chead .pitch p{margin-top:12px;font-size:15px;line-height:1.55;color:var(--ink-2);font-weight:540}
+.chead .pitch p b{color:var(--ink)}
+.trade{background:var(--chrome);border-radius:24px;padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.trade h4{font-size:12px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.trade ul{padding-left:16px}
+.trade li{font-size:13px;line-height:1.48;font-weight:540;margin-bottom:5px}
+.rowh{display:flex;align-items:baseline;gap:10px;margin:34px 0 14px}
+.rowh i{font-style:normal;font-size:12px;font-weight:850;width:24px;height:24px;border-radius:8px;background:var(--chrome);display:grid;place-items:center;transform:translateY(-3px)}
+.rowh b{font-size:19px;font-weight:850;letter-spacing:-.3px}
+.rowh span{font-size:13.5px;color:var(--ink-2);font-weight:550}
+.shots{display:flex;flex-wrap:wrap;gap:30px 26px;align-items:flex-start}
+.shot{display:flex;flex-direction:column;gap:10px}
+.shot .lab{font-size:11.5px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-2)}
+.shot .cap{font-size:13px;line-height:1.48;color:var(--ink-2);font-weight:540}
+.shot .cap b{color:var(--ink);font-weight:750}
+.story{display:flex;align-items:center;gap:14px;background:var(--chrome);border-radius:26px;padding:18px 20px}
+.story .st{display:flex;flex-direction:column;align-items:center;gap:9px}
+.story .st small{font-size:11.5px;font-weight:750;color:var(--ink-2);text-align:center;line-height:1.35;max-width:220px}
+.story .st small b{color:var(--ink)}
+.stories{display:flex;flex-wrap:wrap;gap:18px}
+.pick{background:var(--chrome);border-radius:24px;padding:22px 24px;font-size:15px;line-height:1.55;font-weight:540;margin-top:10px}
+.pick b{font-weight:850}
+
+/* ── devices ─────────────────────────────────────────────────── */
+.dv{position:relative;flex:none;width:calc(var(--W) * var(--k) * 1px);height:calc(var(--H) * var(--k) * 1px)}
+.dv>.bd{position:absolute;left:0;top:0;width:calc(var(--W) * 1px);height:calc(var(--H) * 1px);transform:scale(var(--k));transform-origin:0 0;background:#121214;box-shadow:0 0 0 2px #2b2b2b inset,0 30px 60px -24px rgba(0,0,0,.45)}
+.scrw{position:relative;width:100%;height:100%;overflow:hidden;isolation:isolate}
+.crease{position:absolute;z-index:200;pointer-events:none}
+.crease.v{top:0;bottom:0;left:343px;width:14px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.05) 40%,rgba(255,255,255,.06) 55%,transparent)}
+.crease.h{left:0;right:0;top:343px;height:14px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.06) 40%,rgba(255,255,255,.06) 55%,transparent)}
+.bd3{position:absolute;left:0;top:0;transform:scale(var(--k));transform-origin:0 0;perspective:1700px;transform-style:preserve-3d}
+.hp{position:absolute;top:0;width:360px;height:860px;background:#121214;padding:10px 0;box-shadow:0 0 0 2px #2b2b2b inset}
+.hp.l{left:0;border-radius:30px 0 0 30px;padding-left:10px;transform-origin:100% 50%;transform:rotateY(-38deg)}
+.hp.r{left:360px;border-radius:0 30px 30px 0;padding-right:10px}
+.hs{position:relative;width:350px;height:840px;overflow:hidden}
+.hp.l .hs{border-radius:20px 0 0 20px}.hp.r .hs{border-radius:0 20px 20px 0}
+.hin{position:absolute;top:0;left:0;width:700px;height:840px}
+.shade{position:absolute;inset:10px 0 10px 10px;border-radius:20px 0 0 20px;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.14));pointer-events:none}
+.tp{position:absolute;left:0;width:860px;height:360px;background:#121214;padding:0 10px;box-shadow:0 0 0 2px #2b2b2b inset}
+.tp.t{top:0;border-radius:30px 30px 0 0;padding-top:10px;transform-origin:50% 100%;transform:rotateX(6deg)}
+.tp.b{top:360px;border-radius:0 0 30px 30px;padding-bottom:10px;transform-origin:50% 0;transform:rotateX(34deg)}
+.ts{position:relative;width:840px;height:350px;overflow:hidden}
+.tp.t .ts{border-radius:20px 20px 0 0}.tp.b .ts{border-radius:0 0 20px 20px}
+.tin{position:absolute;left:0;top:0;width:840px;height:700px}
+.shade2{position:absolute;inset:0 10px 10px;border-radius:0 0 20px 20px;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,0) 60%);pointer-events:none}
+
+/* ── app (dp = px, scaled by the device) ─────────────────────── */
+.scr{position:relative;width:100%;height:100%;overflow:hidden;background:var(--surf);color:var(--on);font-size:14px;line-height:1.3;transition:background .4s,color .4s}
+.ab{position:absolute}
+.sbr{position:absolute;left:0;right:0;top:0;height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700;z-index:60;color:var(--on);pointer-events:none}
+.sbr.w{color:#fff}
+.sbr span{display:flex;gap:6px;align-items:center}
+.sbr.blk{background:#000;color:#fff}
+.gh{position:absolute;left:50%;bottom:7px;width:108px;height:4px;margin-left:-54px;border-radius:4px;background:var(--on);opacity:.4;z-index:61}
+.gh.w{background:#fff;opacity:.6}
+.bm{width:36px;height:27px;border-radius:9px;background:#E5002E;display:grid;place-items:center;color:#fff;flex:none}
+.av{border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none;letter-spacing:-.3px}
+.me{background:linear-gradient(135deg,#f0a35e,#d0507e)}
+.hd{display:flex;align-items:center;gap:12px;height:64px;padding:0 16px;flex:none}
+.hd h1{font-size:28px;font-weight:850;letter-spacing:-.6px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srch{height:46px;border-radius:23px;background:var(--schh);display:flex;align-items:center;gap:10px;padding:0 16px;color:var(--onv);font-size:14px;font-weight:550;flex:none;white-space:nowrap}
+.ibt{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--on)}
+.ibt.t{background:var(--sch)}
+.chs{display:flex;gap:8px;padding:2px 16px 12px;overflow:hidden;flex:none}
+.ch{height:34px;padding:0 14px;border-radius:12px;background:var(--sch);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none}
+.ch.on{background:var(--p);color:var(--onp)}
+.ch.dk{background:rgba(255,255,255,.14);color:#fff}
+.ch.dk.on{background:#fff;color:#111}
+
+/* thumbnails + scenes */
+.th{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;container-type:inline-size;flex:none}
+.th .tw{position:absolute;left:7%;bottom:13%;font-size:12cqw;font-weight:900;color:#fff;letter-spacing:-.04em;line-height:.92;text-shadow:0 2px 12px rgba(0,0,0,.35);max-width:78%}
+.du{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.66);color:#fff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:7px;z-index:2}
+.du.live{background:#E5002E}
+.pg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.4);z-index:2}
+.pg b{display:block;height:100%;background:var(--p)}
+.s0{background:radial-gradient(26% 40% at 70% 36%,#ffd9a0 0,#ffb76b 40%,rgba(255,150,80,0) 72%),linear-gradient(180deg,#2b2350 0%,#7b3f6e 38%,#e07a5f 60%,#f2b880 67%,#3a2a3f 75%,#1d1a2c 100%)}
+.s1{background:radial-gradient(40% 55% at 30% 60%,#46c2cb 0,rgba(70,194,203,0) 70%),linear-gradient(135deg,#0f2027,#203a43 50%,#2c5364)}
+.s2{background:radial-gradient(30% 35% at 78% 26%,#f6f1d1 0,rgba(246,241,209,0) 70%),linear-gradient(170deg,#a7c957 0%,#6a994e 45%,#386641 46%,#1d3b2a 100%)}
+.s3{background:radial-gradient(45% 50% at 70% 40%,#ff6d00 0,rgba(255,109,0,0) 70%),linear-gradient(135deg,#240046,#5a189a 50%,#9d4edd)}
+.s4{background:radial-gradient(22% 30% at 25% 30%,#fff3b0 0,rgba(255,243,176,0) 70%),linear-gradient(180deg,#f6bd60 0,#f7d6a8 48%,#e09f3e 49%,#9e2a2b 100%)}
+.s5{background:radial-gradient(16% 28% at 36% 44%,#e9ecef 0,#adb5bd 70%,rgba(173,181,189,0) 72%),radial-gradient(circle at 80% 75%,#7209b7 0,rgba(114,9,183,0) 45%),radial-gradient(circle at 15% 20%,#4361ee 0,rgba(67,97,238,0) 35%),#0b0d21}
+.s6{background:radial-gradient(35% 45% at 50% 60%,#fff1d6 0,rgba(255,241,214,0) 70%),linear-gradient(135deg,#e9c46a,#f4a261 50%,#e76f51)}
+.s7{background:radial-gradient(24% 46% at 62% 50%,#3c3c46 0,#1d1d22 70%,rgba(0,0,0,0) 72%),linear-gradient(135deg,#dfe2e6,#a5adb8)}
+.s8{background:radial-gradient(20% 26% at 72% 28%,#fff 0,rgba(255,255,255,0) 70%),linear-gradient(180deg,#bde0fe 0%,#a2d2ff 44%,#457b9d 45%,#1d3557 100%)}
+.s9{background:radial-gradient(50% 40% at 50% 100%,#e9f5db 0,rgba(233,245,219,0) 70%),linear-gradient(135deg,#06d6a0,#118ab2 60%,#073b4c)}
+.s10{background:radial-gradient(30% 40% at 40% 55%,#ff8fab 0,rgba(255,143,171,0) 70%),linear-gradient(135deg,#ffafcc,#cdb4db 50%,#a2d2ff)}
+.s11{background:linear-gradient(135deg,#1a1a1a 0,#3d3d3d 47%,#e63946 48%,#e63946 53%,#222 54%)}
+.fr{position:absolute;inset:0;overflow:hidden}
+.amb{position:absolute;inset:-60px;filter:blur(46px) saturate(1.3);opacity:.75}
+.vh{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.32);z-index:3}
+.vh b{position:absolute;left:0;top:0;bottom:0;background:var(--p)}
+.vh.k b::after{content:"";position:absolute;right:-5px;top:-3.5px;width:10px;height:10px;border-radius:50%;background:var(--p)}
+.ccap{position:absolute;left:0;right:0;bottom:9%;display:flex;justify-content:center;z-index:2}
+.ccap span{background:rgba(8,8,10,.74);color:#fff;font-weight:600;padding:2px 9px;border-radius:7px;font-size:var(--cf,15px)}
+
+/* cards and rows */
+.gd{display:grid;padding:0 16px}
+.vc{background:var(--scl);border-radius:28px;padding:5px;transition:background .4s}
+.vc.sel{background:var(--pc);color:var(--onpc)}
+.vc>.th{border-radius:23px}
+.vm{display:flex;gap:10px;padding:10px 8px 9px 6px;align-items:flex-start}
+.vm>div{flex:1;min-width:0}
+.vm b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;font-weight:750;line-height:1.28}
+.vm span,.vr span{display:block;font-size:12px;color:var(--onv);font-weight:550;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc.sel .vm span{color:var(--onpc);opacity:.75}
+.rs{display:flex;flex-direction:column}
+.vr{display:flex;gap:12px;align-items:flex-start;border-radius:20px}
+.vr.sel{background:var(--pc);color:var(--onpc);padding:6px;margin:-6px}
+.vr.sel span{color:var(--onpc);opacity:.75}
+.vr .th{width:var(--tw);border-radius:14px}
+.vr>div{flex:1;min-width:0;padding-top:1px}
+.vr b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;font-weight:750;line-height:1.27}
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:0 2px;margin:0 0 10px}
+.sec b{font-size:17px;font-weight:850;letter-spacing:-.2px}
+.sec span{font-size:12.5px;font-weight:750;color:var(--p)}
+.panel{background:var(--scl);border-radius:28px;padding:16px;overflow:hidden;transition:background .4s}
+.cstrip{display:flex;gap:14px;padding:4px 16px 14px;overflow:hidden;flex:none}
+.cstrip>div{display:flex;flex-direction:column;align-items:center;gap:6px;width:64px;flex:none;font-size:11.5px;font-weight:650;color:var(--onv);position:relative}
+.cstrip>div span{max-width:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cstrip .all{width:56px;height:56px;border-radius:50%;background:var(--p);color:var(--onp);display:grid;place-items:center;font-size:13px;font-weight:800}
+.cstrip .nd::after{content:"";position:absolute;top:2px;right:6px;width:12px;height:12px;border-radius:50%;background:var(--p);box-shadow:0 0 0 3px var(--surf)}
+.stl{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:9/16;color:#fff;flex:none}
+.stl::after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.stl p{position:absolute;left:10px;right:10px;bottom:10px;font-size:12.5px;font-weight:800;line-height:1.22;z-index:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stl em{position:absolute;left:8px;top:8px;font-style:normal;font-size:10.5px;font-weight:800;height:20px;padding:0 7px;border-radius:999px;background:rgba(0,0,0,.35);display:flex;align-items:center;z-index:1}
+.stl.on{box-shadow:0 0 0 3px var(--surf),0 0 0 6px var(--p)}
+
+/* navigation */
+.np{display:flex;align-items:center;gap:4px;height:62px;padding:6px;border-radius:999px;background:var(--sch);box-shadow:var(--sh);transition:background .4s}
+.np i{flex:1;height:50px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:7px;color:var(--onv);font-style:normal;font-size:13.5px;font-weight:750;white-space:nowrap;overflow:hidden}
+.np i.on{flex:3.4;background:var(--p);color:var(--onp)}
+.np.all i{flex:1 1 auto;padding:0 12px}
+.np.all i.on{flex:1.3 1 auto}
+.rl{position:absolute;left:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding:46px 0 18px;background:var(--surf);z-index:5;transition:background .4s}
+.rl .bm{margin-bottom:30px}
+.rl .it{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--onv);margin-bottom:14px}
+.rl .it u{width:56px;height:32px;border-radius:16px;display:grid;place-items:center;text-decoration:none;color:var(--onv)}
+.rl .it.on{color:var(--on)}
+.rl .it.on u{background:var(--p);color:var(--onp)}
+.rl .gap{flex:1}
+.rl .meb{border-radius:50%;padding:3px}
+.rl .meb.on{background:var(--p)}
+
+/* player */
+.pb{position:relative;width:316px;height:83px;border-radius:42px;background:var(--sch);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;gap:5px;padding:0 5px 8px;color:var(--on);transition:background .4s}
+.pb .sd{width:41px;height:41px;border-radius:50%;background:var(--schh);display:grid;place-items:center}
+.pb .sk,.sk2{width:51px;height:51px;display:grid;place-items:center;position:relative}
+.sk small,.sk2 small{position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:850;padding-top:3px}
+.sk .f,.sk2 .f{transform:scaleX(-1)}
+.pb .pl{width:102px;height:51px;border-radius:26px;background:var(--p);color:var(--onp);display:grid;place-items:center}
+.pb .hl{position:absolute;left:34px;right:34px;bottom:9px;height:2.7px;display:flex;gap:3px}
+.hl>i{border-radius:2px;background:color-mix(in srgb,var(--p) 28%,var(--schh));position:relative;overflow:hidden}
+.hl>i b{position:absolute;left:0;top:0;bottom:0;background:var(--p)}
+.mp{display:flex;align-items:center;gap:12px;height:70px;border-radius:24px;background:var(--sch);padding:7px 8px 7px 7px;box-shadow:var(--sh);transition:background .4s}
+.mp .th{width:92px;border-radius:17px}
+.mp>div{flex:1;min-width:0}
+.mp b{display:block;font-size:13.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp span{font-size:12px;color:var(--onv);font-weight:550}
+.mp .pp{width:46px;height:46px;border-radius:16px;background:var(--p);color:var(--onp);display:grid;place-items:center;flex:none}
+.mp .x{width:34px;height:34px;display:grid;place-items:center;color:var(--onv);flex:none}
+.dt h2{font-size:20px;font-weight:800;line-height:1.22;letter-spacing:-.3px}
+.dt .mt{font-size:13px;color:var(--onv);font-weight:600;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt .mt b{color:var(--p);font-weight:750}
+.cr{display:flex;align-items:center;gap:11px;margin-top:14px}
+.cr .nm{flex:1;min-width:0}
+.cr .nm b{display:block;font-size:15px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr .nm span{font-size:12px;color:var(--onv);font-weight:550;white-space:nowrap}
+.swb{display:flex;gap:3px;flex:none}
+.swb .s{height:40px;padding:0 14px;border-radius:20px 7px 7px 20px;background:var(--sec);color:var(--onsec);font-size:13.5px;font-weight:750;display:flex;align-items:center}
+.swb .b{width:44px;height:40px;border-radius:7px 20px 20px 7px;background:var(--p);color:var(--onp);display:grid;place-items:center}
+.acts{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.ap{height:40px;padding:0 14px;border-radius:16px;background:var(--sch);display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:750;flex:none;transition:background .4s}
+.ap.lk{border-radius:16px 7px 7px 16px}
+.ap.dl{border-radius:7px 16px 16px 7px;padding:0 12px;margin-left:-3px}
+.ccard{background:var(--scl);border-radius:22px;padding:13px 16px;margin-top:14px;transition:background .4s}
+.ccard .h{display:flex;gap:8px;font-size:14.5px;font-weight:750}
+.ccard .h span{color:var(--onv)}
+.ccard p{display:flex;gap:10px;align-items:center;margin-top:9px;font-size:13px;font-weight:550;color:var(--onv);line-height:1.35}
+.ccard p span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.desc{margin-top:14px;background:var(--scl);border-radius:22px;padding:13px 16px;font-size:13px;line-height:1.45;color:var(--onv);font-weight:550}
+.desc b{color:var(--on);font-weight:750;display:block;margin-bottom:4px}
+.tb{display:flex;gap:4px;background:var(--sch);border-radius:999px;padding:4px;flex:none;transition:background .4s}
+.tb i{flex:1;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:750;font-style:normal;color:var(--onv);white-space:nowrap;padding:0 8px}
+.tb i.on{background:var(--p);color:var(--onp)}
+.tb i small{font-size:11.5px;opacity:.75;font-weight:700}
+.cm{display:flex;gap:10px;padding:9px 0}
+.cm>div{flex:1;min-width:0}
+.cm .n{font-size:12px;color:var(--onv);font-weight:650}
+.cm .n b{color:var(--on);font-weight:750;margin-right:4px}
+.cm p{font-size:13.5px;line-height:1.38;font-weight:520;margin-top:2px}
+.cm .l{display:flex;gap:14px;align-items:center;margin-top:6px;font-size:12px;color:var(--onv);font-weight:700}
+.cm .l span{display:flex;gap:5px;align-items:center}
+.cmp{height:48px;border-radius:24px;background:var(--sch);display:flex;align-items:center;gap:10px;padding:0 6px;font-size:13.5px;color:var(--onv);font-weight:550}
+.chl{display:flex;flex-direction:column;gap:3px}
+.chl>div{display:flex;align-items:center;gap:12px;padding:8px 10px 8px 8px;background:var(--sc);border-radius:7px}
+.chl>div:first-child{border-radius:18px 18px 7px 7px}.chl>div:last-child{border-radius:7px 7px 18px 18px}
+.chl>div.on{background:var(--p);color:var(--onp)}
+.chl .th{width:84px;border-radius:10px}
+.chl b{font-size:13px;font-weight:750;display:block}
+.chl span{font-size:11.5px;opacity:.7;font-weight:650}
+.vig{position:absolute;left:0;right:0;bottom:0;pointer-events:none;z-index:8;background:linear-gradient(color-mix(in srgb,var(--surf) 0%,transparent),color-mix(in srgb,var(--surf) 30%,transparent) 30%,color-mix(in srgb,var(--surf) 66%,transparent) 62%,color-mix(in srgb,var(--surf) 78%,transparent))}
+.vigc{position:absolute;left:0;right:0;bottom:0;pointer-events:none;z-index:8}
+.hand{width:36px;height:4px;border-radius:4px;background:var(--onv);opacity:.45;margin:10px auto 0}
+.grip{position:absolute;width:5px;height:48px;border-radius:4px;background:var(--onv);opacity:.5;z-index:9}
+.grip.h{width:48px;height:5px}
+
+/* overlay controls (the "on the video" option) */
+.ov{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.08) 30%,rgba(0,0,0,.08) 62%,rgba(0,0,0,.5));z-index:4;color:var(--on)}
+.ovt{position:absolute;top:12px;right:12px;display:flex;gap:6px}
+.ot{width:40px;height:40px;border-radius:14px;background:var(--sch);display:grid;place-items:center;font-size:12.5px;font-weight:800}
+.ot.w{width:auto;padding:0 11px}
+.ovm{position:absolute;left:0;right:0;top:50%;transform:translateY(-55%);display:flex;justify-content:center;align-items:center;gap:22px}
+.ovm .sk2{width:54px;height:54px;border-radius:18px;background:var(--sch)}
+.opl{width:70px;height:70px;border-radius:50%;background:var(--p);color:var(--onp);display:grid;place-items:center}
+.ovb{position:absolute;left:12px;right:12px;bottom:14px;display:flex;gap:6px;align-items:center}
+.ovb .tm{height:32px;padding:0 11px;border-radius:12px;background:var(--sch);font-size:12.5px;font-weight:800;display:flex;align-items:center;white-space:nowrap}
+
+/* shorts */
+.shv{position:absolute;inset:0;overflow:hidden;color:#fff}
+.shv::after{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.6));z-index:1}
+.shc{position:absolute;left:16px;right:20px;z-index:2}
+.shc .cn{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:750}
+.shc .cn em{font-style:normal;height:28px;padding:0 12px;border-radius:999px;background:#fff;color:#111;display:flex;align-items:center;font-size:12.5px;font-weight:800;margin-left:4px}
+.shc p{font-size:15px;font-weight:650;line-height:1.3;margin-top:8px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.shp{position:absolute;left:14px;right:14px;bottom:5px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.3);z-index:3}
+.shp b{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:#fff}
+.glass{background:rgba(37,37,37,.38);-webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);color:#fff}
+.gbar{display:flex;gap:8px;align-items:center;z-index:5}
+.gk{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;flex:none}
+.gp{width:236px;height:50px;border-radius:25px;display:flex;justify-content:space-around;align-items:center;padding:0 6px;flex:none}
+.gp i{display:flex;align-items:center;gap:5px;font-style:normal;font-size:12px;font-weight:750}
+.gp .ga{position:relative}
+.gp .ga u{position:absolute;right:-4px;bottom:-3px;width:15px;height:15px;border-radius:50%;background:#fff;color:#111;font-size:12px;font-weight:900;display:grid;place-items:center;text-decoration:none;line-height:1}
+.vp{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:34px;align-items:center}
+.vp i{width:52px;display:flex;flex-direction:column;align-items:center;gap:3px;font-style:normal;font-size:11.5px;font-weight:750;padding:6px 0}
+.dark-sheet{background:#141317;color:#ece8f0}
+
+/* settings */
+.big{font-size:38px;font-weight:600;letter-spacing:-.8px;line-height:1.08}
+.ssum{font-size:13.5px;color:var(--onv);font-weight:550;margin-top:4px}
+.srch2{height:52px;border-radius:26px;background:var(--schh);display:flex;align-items:center;gap:12px;padding:0 18px;color:var(--onv);font-size:15px;font-weight:550;margin-top:14px}
+.acc{display:flex;align-items:center;gap:14px;padding:18px;border-radius:21px;background:var(--pc);color:var(--onpc);margin-top:12px}
+.acc>div{flex:1;min-width:0}
+.acc b{display:block;font-size:16px;font-weight:750}
+.acc span{font-size:12px;opacity:.75}
+.qg{display:grid;gap:8px;margin-top:12px}
+.qt{display:flex;align-items:center;gap:11px;height:64px;border-radius:22px;padding:0 14px;background:var(--sch)}
+.qt>span{display:flex;flex-direction:column;gap:1px;min-width:0}
+.qt b{font-size:14px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qt small{font-size:12px;opacity:.75}
+.qt.on{background:var(--p);color:var(--onp)}
+.gl{font-size:14px;font-weight:700;color:var(--p);margin:20px 14px 9px}
+.jl{display:flex;flex-direction:column;gap:3px}
+.jl>*{border-radius:7px;background:var(--sc);transition:background .4s}
+.jl>:first-child{border-top-left-radius:21px;border-top-right-radius:21px}
+.jl>:last-child{border-bottom-left-radius:21px;border-bottom-right-radius:21px}
+.tl{display:flex;align-items:center;gap:14px;padding:13px 16px;min-height:72px}
+.tl .ic{width:40px;height:40px;border-radius:13px;background:var(--sec);color:var(--p);display:grid;place-items:center;flex:none}
+.tl>div{flex:1;min-width:0}
+.tl b{display:block;font-size:15.5px;font-weight:750}
+.tl span{display:block;font-size:12px;color:var(--onv);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.tl>svg{color:var(--onv)}
+.jl>.tl.sel{background:var(--pc);color:var(--onpc)}
+.tl.sel span,.tl.sel>svg{color:var(--onpc);opacity:.8}
+.rw{display:flex;align-items:center;gap:14px;padding:14px 18px}
+.rw.col{flex-direction:column;align-items:stretch;gap:12px}
+.rw .rt{flex:1;min-width:0}
+.rw .rt b{display:block;font-size:15px;font-weight:700}
+.rw .rt span{display:block;font-size:12.5px;color:var(--onv);margin-top:3px;line-height:1.35}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--schh);position:relative;flex:none;box-shadow:inset 0 0 0 2px var(--outline)}
+.sw::after{content:"";position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--outline)}
+.sw.on{background:var(--p);box-shadow:none}
+.sw.on::after{left:24px;top:4px;width:24px;height:24px;background:var(--onp)}
+.sg{display:flex;height:44px;border-radius:14px;background:var(--sec);padding:4px}
+.sg i{flex:1;display:grid;place-items:center;border-radius:11px;font-style:normal;font-size:13px;font-weight:700;color:var(--onv);white-space:nowrap}
+.sg i.on{background:var(--p);color:var(--onp)}
+.sbs{display:flex;gap:2px;background:var(--sec);border-radius:12px;padding:3px;flex:none}
+.sbs i{width:42px;height:30px;border-radius:9px;font-style:normal;font-size:11.5px;font-weight:750;color:var(--onv);display:grid;place-items:center}
+.sbs i.on{background:var(--p);color:var(--onp)}
+.dot{width:12px;height:12px;border-radius:4px;flex:none}
+.capbox{height:170px;border-radius:16px;position:relative;overflow:hidden}
+.note{font-size:12.5px;line-height:1.45;color:var(--onv);font-weight:500;padding:10px 6px}
+.rd{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--onv);flex:none}
+.rd.on{box-shadow:inset 0 0 0 2px var(--p),inset 0 0 0 6px var(--sc),inset 0 0 0 12px var(--p)}
+
+/* annotations on frames */
+.tag{position:absolute;z-index:150;height:30px;padding:0 12px;border-radius:999px;background:var(--ink);color:var(--background);font-size:12.5px;font-weight:800;display:flex;align-items:center;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.4)}
+
+@media (max-width:1100px){
+  :root{--s:.42}
+  .study{grid-template-columns:1fr}
+  .common,.chead{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-show="one">
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>Skipii on big screens: five directions</h1>
+      <p>Skipii is a phone app today: portrait-locked, one column, and <b>letterboxed</b> on tablets and the Fold's inner screen. Here are <b>five whole-app concepts</b> for tablets and foldables, from the most standard Android layout (A) to the most unusual (E). Each concept shows Home on the unfolded Fold and on a landscape tablet, then Subscriptions, Shorts, Settings, watching a video, the <b>fold ↔ unfold</b> handoff, and (in A, C and D) the half-folded tabletop posture. Devices are drawn to scale in dp: Fold inner 700×840, Fold cover 373×904, tablet 1280×800. Video titles and channels are made up for the mockup.</p>
+    </div>
+    <div class="tools">
+      <button class="chip" data-mode="light">Light</button><button class="chip" data-mode="dark">Dark</button>
+      <span class="sp">Theme</span>
+      <span id="themes"></span>
+      <label class="size">Size <input type="range" id="zoom" min="0.36" max="0.9" step="0.02" value="0.56"></label>
+    </div>
+  </div>
+
+  <div class="study" id="study"></div>
+  <div class="blk common" id="common"></div>
+
+  <div class="cbar" id="cbar"><span class="lbl">Concept</span></div>
+  <div id="concepts"></div>
+  <div class="pick" id="pick"></div>
+</div>
+
+<script>
+/* ── icons ─────────────────────────────────────────────────────── */
+const P={
+ home:"M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z",
+ subs:"M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2zm-6 4-6-3.27v6.53L16 16z",
+ shorts:"M17 2H7a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3zm-7 13.5v-7l5.5 3.5-5.5 3.5z",
+ search:"M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+ lib:"M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z",
+ play:"M8 5v14l11-7z",
+ pause:"M6 19h4V5H6v14zm8-14v14h4V5h-4z",
+ rew:"M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z",
+ dots:"M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
+ head:"M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z",
+ up:"M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z",
+ down:"M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z",
+ share:"M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z",
+ pl:"M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z",
+ cmt:"M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z",
+ bell:"M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z",
+ fs:"M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z",
+ close:"M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+ chev:"M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z",
+ lt:"M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z",
+ back:"M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+ check:"M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z",
+ exu:"M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
+ exd:"M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z",
+ open:"M21 11V3h-8l3.29 3.29-10 10L3 13v8h8l-3.29-3.29 10-10z",
+ shut:"M22 3.41 16.71 8.7 20 12h-8V4l3.29 3.29L20.59 2 22 3.41zM3.41 22l5.29-5.29L12 20v-8H4l3.29 3.29L2 20.59 3.41 22z",
+ grip:"M22 22h-2v-2h2v2zm0-4h-2v-2h2v2zm-4 4h-2v-2h2v2zm0-4h-2v-2h2v2zm-4 4h-2v-2h2v2zm8-8h-2v-2h2v2z",
+ list:"M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z",
+ cc:"M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z",
+ pip:"M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z",
+ speed:"m20.38 8.57-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z",
+ skip:"M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z",
+ tune:"M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z",
+ palette:"M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z",
+ translate:"m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7 1.62-4.33L19.12 17h-3.24z",
+ info:"M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z",
+ cplay:"M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 14.5v-9l6 4.5-6 4.5z",
+ queue:"M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm13-1v8l6-4z",
+ later:"M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z",
+ hist:"M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z",
+ side:"M3 5v14h18V5H3zm11 12H5V7h9v10zm5 0h-3V7h3v10z",
+ send:"M2.01 21 23 12 2.01 3 2 10l15 2-15 2z",
+};
+const ic=(n,s=24,st="")=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}"${st?` style="${st}"`:""}><path d="${P[n]}"/></svg>`;
+const SIG=`<svg width="16" height="12" viewBox="0 0 16 12"><path d="M0 12h3V8H0zm4.5 0h3V5.5h-3zM9 12h3V3H9zm4.5 0H16V0h-2.5z"/></svg>`;
+const BAT=`<svg width="22" height="12" viewBox="0 0 22 12"><rect x=".65" y=".65" width="18" height="10.7" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="2.4" y="2.4" width="11.5" height="7.2" rx="1.5"/><rect x="20" y="4" width="2" height="4" rx="1"/></svg>`;
+
+/* ── content (made up for the mockup) ─────────────────────────── */
+const CH=[["Veritasium","#c2410c","17.2M"],["Kurzgesagt","#0e7490","23.9M"],["Marques Brownlee","#be185d","19.6M"],["Tom Scott","#7c3aed","6.4M"],["Wendover Productions","#2563eb","4.6M"],["Babish Culinary Universe","#b45309","10.3M"],["Lofi Girl","#db2777","14.8M"],["Practical Engineering","#15803d","4.1M"],["Hank Green","#0f766e","2.2M"],["Mark Rober","#ea580c","61.5M"]];
+const VID=[
+ {t:"Why the sky turns purple just after sunset",c:0,v:"2.1M views",a:"3 days ago",d:"18:42",s:0},
+ {t:"What if the Moon had a ring of its own?",c:1,v:"4.8M views",a:"1 week ago",d:"11:07",s:5,w:"RING?"},
+ {t:"I used a foldable for a whole year",c:2,v:"3.3M views",a:"5 days ago",d:"16:20",s:7,w:"1 YEAR"},
+ {t:"The shortest railway in the world",c:3,v:"1.2M views",a:"2 weeks ago",d:"7:31",s:2},
+ {t:"How airlines really price your seat",c:4,v:"2.7M views",a:"6 days ago",d:"24:15",s:8,w:"$89 vs $890"},
+ {t:"Making the perfect diner pancake",c:5,v:"980K views",a:"1 day ago",d:"12:03",s:6,p:35},
+ {t:"beats to fold laundry to",c:6,v:"31K watching",a:"",d:"LIVE",s:3,live:1},
+ {t:"Why this dam has a hole in it",c:7,v:"1.9M views",a:"4 days ago",d:"15:48",s:9,w:"WHY?"},
+ {t:"Ask me anything about octopuses",c:8,v:"640K views",a:"8 hours ago",d:"21:30",s:10},
+ {t:"Squirrel obstacle course 4.0",c:9,v:"18M views",a:"3 weeks ago",d:"20:11",s:4,w:"4.0",p:80},
+ {t:"The colour nobody could name",c:0,v:"3.9M views",a:"1 month ago",d:"22:05",s:11},
+ {t:"Inside the quietest room on Earth",c:3,v:"2.2M views",a:"2 months ago",d:"9:12",s:1,w:"−20 dB"},
+];
+const SH=[
+ {t:"Folding a fitted sheet in 9 seconds",c:5,s:6,l:"212K",m:"1.4K"},
+ {t:"This bridge sings when it's windy",c:7,s:9,l:"96K",m:"870"},
+ {t:"Octopus opens a jar from the inside",c:8,s:10,l:"1.1M",m:"5.2K"},
+ {t:"Rain on a tin roof, 4K",c:6,s:3,l:"44K",m:"310"},
+ {t:"The fastest way to peel garlic",c:5,s:4,l:"380K",m:"2.9K"},
+ {t:"Why trains sometimes have flat wheels",c:3,s:2,l:"150K",m:"1.1K"},
+ {t:"A ring around the Moon, sped up",c:1,s:5,l:"520K",m:"3.3K"},
+ {t:"Foldable vs. the stairs",c:2,s:7,l:"2.4M",m:"9.8K"},
+];
+const CM=[
+ ["Ana Lucía","2 days ago","The bit at 9:40 where the whole horizon shifts colour gave me chills. Never knew it was the ozone.","4.1K","#7c3aed"],
+ ["Sam Okafor","3 days ago","Watched this on the porch at sunset and paused at every chapter to look up. Best homework ever.","1.2K","#0e7490"],
+ ["Priya N.","1 day ago","Can you do one on why sunsets on Mars are blue?","860","#be185d"],
+ ["Jonas Berg","5 hours ago","The spectrometer rig is so clever. Please share the parts list!","312","#15803d"],
+ ["Mei","12 hours ago","My kid asked me this exact question yesterday. Perfect timing.","97","#b45309"],
+ ["Theo","1 hour ago","Chapter 4 alone is worth the whole video.","41","#2563eb"],
+];
+const CHAP=[["0:00","Intro",1],["1:52","Blue all day",2],["5:58","Where purple comes from",9],["11:31","The ozone trick",0],["16:20","Try it tonight",4]];
+const SEGS=[[10,1],[22,1],[30,1],[26,.24],[12,0]];
+const ini=n=>n.split(/\s+/).map(w=>w[0]).join("").slice(0,2);
+const handle=n=>"@"+n.replace(/[^A-Za-z]/g,"").toLowerCase().slice(0,14);
+
+/* ── building blocks ──────────────────────────────────────────── */
+const A=(x,y,w,h,inner,st="",cls="")=>`<div class="ab ${cls}" style="left:${x}px;top:${y}px;${w!=null?`width:${w}px;`:""}${h!=null?`height:${h}px;`:""}${st}">${inner}</div>`;
+const sb=(m="")=>`<div class="sbr ${m}"><b>9:41</b><span>${SIG}${BAT}</span></div>`;
+const gh=(w)=>`<i class="gh ${w?"w":""}"></i>`;
+const bm=(s=1)=>`<span class="bm" style="${s!=1?`transform:scale(${s})`:""}">${ic("skip",15)}</span>`;
+const av=(c,s)=>`<span class="av" style="width:${s}px;height:${s}px;font-size:${Math.round(s*.38)}px;background:${CH[c][1]}">${ini(CH[c][0])}</span>`;
+const me=s=>`<span class="av me" style="width:${s}px;height:${s}px;font-size:${Math.round(s*.42)}px">D</span>`;
+const pav=(col,name,s)=>`<span class="av" style="width:${s}px;height:${s}px;font-size:${Math.round(s*.4)}px;background:${col}">${name[0]}</span>`;
+const scr=(inner,st="")=>`<div class="scr" style="${st}">${inner}</div>`;
+const thumb=(v,{r=16,du=true,prog=v.p||0}={})=>`<div class="th s${v.s}" style="border-radius:${r}px">${v.w?`<span class="tw">${v.w}</span>`:""}${du?`<span class="du ${v.live?"live":""}">${v.d}</span>`:""}${prog?`<i class="pg"><b style="width:${prog}%"></b></i>`:""}</div>`;
+const meta=v=>`${CH[v.c][0]} · ${v.v}${v.a?" · "+v.a:""}`;
+const card=(i,o={})=>{const v=VID[i];return `<div class="vc ${o.sel?"sel":""}">${thumb(v,{r:23})}<div class="vm">${av(v.c,34)}<div><b>${v.t}</b><span>${meta(v)}</span></div></div></div>`};
+const grid=(ids,cols,gap=14,o={})=>`<div class="gd" style="grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;${o.st||""}">${ids.map(i=>card(i,{sel:o.sel===i})).join("")}</div>`;
+const vrow=(i,tw,o={})=>{const v=VID[i];return `<div class="vr ${o.sel?"sel":""}" style="--tw:${tw}px">${thumb(v,{r:14})}<div><b>${v.t}</b><span>${CH[v.c][0]}</span><span style="margin-top:1px">${v.v}${v.a?" · "+v.a:""}</span></div></div>`};
+const rows=(ids,tw,gap=14,o={})=>`<div class="rs" style="gap:${gap}px">${ids.map(i=>vrow(i,tw,{sel:o.sel===i})).join("")}</div>`;
+const chips=(l,on=0,dk)=>`<div class="chs">${l.map((c,i)=>`<span class="ch ${dk?"dk":""} ${i==on?"on":""}">${c}</span>`).join("")}</div>`;
+const HOMECH=["All","New to you","Science","Music","Cooking","Engineering","Podcasts","Gaming","Live"];
+const header=(t,o={})=>`<div class="hd" style="${o.st||""}">${o.brand?bm():""}${o.back?`<span class="ibt">${ic("back")}</span>`:""}<h1 style="${o.size?`font-size:${o.size}px`:""}">${t}</h1>${o.search?`<span class="srch" style="width:${o.search}px">${ic("search",20)}Search YouTube</span>`:""}${o.sicon?`<span class="ibt">${ic("search")}</span>`:""}${o.extra||""}${o.me===false?"":me(o.me||36)}</div>`;
+const TABS=[["home","Home"],["subs","Subscriptions"],["shorts","Shorts"],["search","Search"],["lib","Library"]];
+const navpill=(sel,w,o={})=>`<div class="np ${o.all?"all":""}" style="width:${w}px">${TABS.map(([i,l],k)=>`<i class="${k==sel?"on":""}">${ic(i,22)}${k==sel||o.all?l:""}</i>`).join("")}</div>`;
+const rail=(sel,w=88,o={})=>`<div class="rl" style="width:${w}px;${o.st||""}">${bm()}${TABS.map(([i,l],k)=>`<div class="it ${k==sel?"on":""}"><u>${ic(i,22)}</u>${l=="Subscriptions"?"Subs":l}</div>`).join("")}<span class="gap"></span><span class="meb ${o.me?"on":""}">${me(40)}</span></div>`;
+const seekI=(f)=>`<span class="sk"><span class="${f?"f":""}">${ic("rew",27)}</span><small>10</small></span>`;
+const hairline=()=>`<i class="hl">${SEGS.map(([w,f])=>`<i style="flex:${w}"><b style="width:${f*100}%"></b></i>`).join("")}</i>`;
+const pbar=(st="")=>`<div class="pb" style="${st}"><span class="sd">${ic("head",20)}</span>${seekI(0)}<span class="pl">${ic("pause",26)}</span>${seekI(1)}<span class="sd">${ic("dots",20)}</span>${hairline()}</div>`;
+const picture=(o={})=>`<div class="fr s0">${o.cc?`<div class="ccap" style="--cf:${o.cc}px;${o.ov?"bottom:24%":""}"><span>so the light takes the long way round</span></div>`:""}${o.head===false?"":`<i class="vh ${o.knob?"k":""}"><b style="width:68%"></b></i>`}${o.ov?overlay(o.ov):""}</div>`;
+const vid=(x,y,w,h,o={})=>A(x,y,w,h,picture(o),`border-radius:${o.r||0}px;overflow:hidden;${o.sh?"box-shadow:0 18px 40px -16px rgba(0,0,0,.55);":""}`);
+const ambient=(sc,st="")=>`<div class="amb s${sc}" style="${st}"></div>`;
+const swb=(sm)=>`<span class="swb"><span class="s" style="${sm?"height:36px;padding:0 11px;font-size:12.5px":""}">Subscribed</span><span class="b" style="${sm?"width:38px;height:36px":""}">${ic("bell",sm?18:20)}</span></span>`;
+const acts=(o={})=>`<div class="acts" style="${o.st||""}"><span class="ap lk">${ic("up",18)}41K</span><span class="ap dl">${ic("down",18)}</span><span class="ap">${ic("share",18)}Share</span><span class="ap">${ic("pl",18)}Playlist</span></div>`;
+const ccard=()=>`<div class="ccard"><div class="h">Comments<span>1.2K</span></div><p>${pav(CM[0][4],CM[0][0],28)}<span>${CM[0][2]}</span></p></div>`;
+const details=(o={})=>{const v=VID[0];return `<div class="dt"><h2 style="${o.ts?`font-size:${o.ts}px`:""}">${v.t}</h2><div class="mt">${v.v} · ${v.a} · <b>#science</b></div><div class="cr">${av(0,o.avs||42)}<div class="nm"><b>Veritasium</b><span>17.2M subscribers</span></div>${swb(o.sm)}</div>${o.acts===false?"":acts()}${o.desc?`<div class="desc"><b>12:41 · The ozone trick</b>Sunlight crosses 40 times more air at sunset. Most blue scatters away, but ozone eats the orange in the middle, and what's left is purple.</div>`:""}${o.cc?ccard():""}</div>`};
+const comments=(n,o={})=>CM.slice(o.from||0,(o.from||0)+n).map(c=>`<div class="cm">${pav(c[4],c[0],o.s||32)}<div><div class="n"><b>${c[0]}</b>${c[1]}</div><p>${c[2]}</p><div class="l"><span>${ic("up",15)}${c[3]}</span><span>${ic("down",15)}</span><span>Reply</span></div></div></div>`).join("");
+const tabs=(l,on=0,st="")=>`<div class="tb" style="${st}">${l.map((t,i)=>`<i class="${i==on?"on":""}">${t}</i>`).join("")}</div>`;
+const chapters=(o={})=>`<div class="chl">${CHAP.map((c,i)=>`<div class="${i==3?"on":""}">${o.th===false?"":`<div class="th s${c[2]}" style="width:${o.tw||84}px;border-radius:10px"></div>`}<div><b>${c[1]}</b><span>${c[0]}${i==3?" · now":""}</span></div></div>`).join("")}</div>`;
+const miniBar=(w)=>`<div class="mp" style="width:${w}px">${thumb(VID[0],{r:17,du:false,prog:68})}<div><b>${VID[0].t}</b><span>Veritasium</span></div><span class="pp">${ic("pause",24)}</span><span class="x">${ic("close",20)}</span></div>`;
+const glassBar=(o={})=>`<div class="gbar">${o.back===false?"":`<span class="gk glass">${ic(o.k||"lt",o.k?22:28)}</span>`}<span class="gp glass"><i>${ic("up",20)}${SH[o.i||0].l}</i><i>${ic("cmt",19)}${SH[o.i||0].m}</i><i>${ic("share",19)}</i><i class="ga">${av(SH[o.i||0].c,30)}<u>+</u></i></span></div>`;
+const shortV=(i,o={})=>{const s=SH[i];return `<div class="shv s${s.s}" style="border-radius:${o.r||0}px">${o.cap===false?"":`<div class="shc" style="bottom:${o.cb||90}px"><div class="cn">${av(s.c,28)}${handle(CH[s.c][0])}${o.sub===false?"":"<em>Subscribe</em>"}</div><p>${s.t}</p></div>`}<i class="shp" style="${o.pb!=null?`bottom:${o.pb}px`:""}"><b style="width:${o.prog||38}%"></b></i></div>`};
+const stile=(i,o={})=>{const s=SH[i];return `<div class="stl s${s.s} ${o.on?"on":""}" style="${o.w?`width:${o.w}px`:""}"><em>${s.l} views</em><p>${s.t}</p></div>`};
+const vpill=(i)=>`<div class="vp glass"><i>${ic("up",24)}${SH[i].l}</i><i>${ic("down",24)}</i><i>${ic("cmt",23)}${SH[i].m}</i><i>${ic("share",23)}Share</i><i style="position:relative">${av(SH[i].c,36)}</i></div>`;
+const cstrip=(n,o={})=>`<div class="cstrip" style="${o.st||""}"><div><span class="all">All</span><span style="color:var(--on)">All</span></div>${[0,1,2,3,4,5,7,8,9,6].slice(0,n).map((c,k)=>`<div class="${k<4?"nd":""}">${av(c,56)}<span>${CH[c][0].split(" ")[0]}</span></div>`).join("")}</div>`;
+const overlay=()=>`<div class="ov"><div class="ovt"><span class="ot">${ic("head",20)}</span><span class="ot w">1×</span><span class="ot w">1080p</span><span class="ot">${ic("cc",20)}</span><span class="ot">${ic("pip",20)}</span></div><div class="ovm"><span class="sk2" style="color:var(--on)">${`<span>${ic("rew",28)}</span><small>10</small>`}</span><span class="opl">${ic("pause",34)}</span><span class="sk2" style="color:var(--on)"><span class="f">${ic("rew",28)}</span><small>10</small></span></div><div class="ovb"><span class="tm">12:41 / 18:42</span><span class="tm">The ozone trick ›</span><span style="flex:1"></span><span class="ot">${ic("fs",20)}</span></div></div>`;
+const vig=(h,st="")=>`<div class="vig" style="height:${h}px;${st}"></div>`;
+const cmPanel=(o={})=>`<div style="display:flex;flex-direction:column;height:100%"><div style="display:flex;align-items:center;gap:8px;padding:4px 4px 10px"><b style="font-size:17px;font-weight:850;flex:1">Comments <span style="color:var(--onv);font-weight:650;font-size:14px">${o.n||"2.4K"}</span></b>${o.x?`<span class="ibt" style="width:36px;height:36px">${ic("close",20)}</span>`:""}</div>${o.chips===false?"":`<div style="display:flex;gap:6px;margin-bottom:6px"><span class="ch on" style="height:30px">Top</span><span class="ch" style="height:30px">Newest</span></div>`}<div style="flex:1;overflow:hidden">${comments(o.count||5,{from:o.from||0})}</div><div class="cmp">${me(36)}Add a comment…<span style="flex:1"></span><span class="ibt" style="width:36px;height:36px;color:var(--p)">${ic("send",20)}</span></div></div>`;
+
+/* settings */
+const CATS={playback:["Playback","cplay","Playback pill · speed per video"],captions:["Captions","cc","When it isn't in English · Skipii look"],sponsorblock:["SponsorBlock","skip","On · skips 1, asks about 2"],shorts:["Shorts","shorts","Shorts tab shown"],appearance:["Appearance","palette","Lilac Air · System"],language:["Language","translate","Phone's language · English"],notifications:["Notifications","bell","3 channels with the bell on"],about:["About","info","Skipii 0.5.84 · up to date"]};
+const tile=(id,sel)=>{const c=CATS[id];return `<div class="tl ${sel==id?"sel":""}"><span class="ic">${ic(c[1],22)}</span><div><b>${c[0]}</b><span>${c[2]}</span></div>${ic("chev",20)}</div>`};
+const QT=[["head","Audio only",0],["skip","SponsorBlock",1],["shorts","Shorts tab",1],["speed","Keep speed",0]];
+const setFront=(o={})=>`<div style="padding:${o.pt||44}px ${o.px||16}px 0">${o.back===false?"":`<span class="ibt" style="margin-left:-8px">${ic("back")}</span>`}<h1 class="big" style="margin:${o.back===false?"12px":"8px"} 4px 0">Settings</h1><div class="srch2">${ic("search",22)}Search settings</div><div class="acc">${me(52)}<div><b>Derek</b><span>Signed in with Google · full sync</span></div>${ic("chev",22)}</div><div class="qg" style="grid-template-columns:repeat(${o.qc||2},minmax(0,1fr))">${QT.map(([i,l,on])=>`<div class="qt ${on?"on":""}">${ic(i,22)}<span><b>${l}</b><small>${on?"On":"Off"}</small></span></div>`).join("")}</div>${o.cols?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">`:""}<div><div class="gl">Watching</div><div class="jl">${["playback","captions","sponsorblock","shorts"].map(t=>tile(t,o.sel)).join("")}</div></div><div><div class="gl">Look &amp; language</div><div class="jl">${["appearance","language"].map(t=>tile(t,o.sel)).join("")}</div><div class="gl" style="margin-top:14px"></div><div class="jl">${["notifications","about"].map(t=>tile(t,o.sel)).join("")}</div></div>${o.cols?"</div>":""}</div>`;
+const swRow=(icn,t,s,on)=>`<div class="rw">${icn?`<span class="tl"><span class="ic" style="margin:-13px -16px">${ic(icn,21)}</span></span>`:""}<div class="rt" style="${icn?"margin-left:14px":""}"><b>${t}</b><span>${s}</span></div><span class="sw ${on?"on":""}"></span></div>`;
+const setPage=(id,o={})=>{
+ const head=`<div style="padding:${o.pt||22}px ${o.px||18}px 0"><h1 class="big">${CATS[id][0]}</h1><p class="ssum" style="margin-left:2px">${CATS[id][2]}</p>`;
+ if(id=="playback") return head+`<div class="gl">Controls</div><div class="jl"><div class="rw col"><div class="rt"><b>Player controls</b><span>In the playback pill at the bottom of the player</span></div><div class="sg"><i class="on">Playback pill</i><i>On the video</i></div></div></div><div class="gl">Speed</div><div class="jl">${swRow("speed","Remember speed for every video","Each video starts at 1×",0)}</div><div class="gl">Sound</div><div class="jl">${swRow("head","Audio only","Sound without the picture, in every video",0)}</div><div class="gl">Wide windows</div><div class="jl">${swRow("side","Two-pane player","Comments and More videos beside the video",1)}<div class="rw col"><div class="rt"><b>Beside the video, start with</b></div><div class="sg"><i class="on">Comments</i><i>More videos</i><i>Chapters</i></div></div></div></div>`;
+ if(id=="captions") return head+`<div class="jl" style="margin-top:16px"><div class="rw" style="padding:8px"><div class="capbox s0" style="flex:1"><div class="fr s0"></div><div class="ccap" style="--cf:16px;bottom:16px"><span>so the light takes the long way round</span></div></div></div></div><div class="gl">Show captions</div><div class="jl"><div class="rw col"><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="ch">Never</span><span class="ch">Always</span><span class="ch on">${ic("check",16)}When it isn't in English</span></div></div></div><div class="gl">Look</div><div class="jl"><div class="rw col"><div class="rt"><b>Style</b></div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="ch on">${ic("check",16)}Skipii</span><span class="ch">Classic</span><span class="ch">Outline</span><span class="ch">Android's</span></div></div><div class="rw col"><div class="rt"><b>Size</b></div><div class="sg"><i>Small</i><i class="on">Medium</i><i>Large</i><i>Huge</i></div></div></div><div class="gl">Translated on your phone</div><div class="jl"><div class="rw col"><div class="rt"><b>Kept on this phone</b></div><div style="display:flex;gap:8px"><span class="ch" style="background:var(--sec);color:var(--onsec)">German ${ic("close",16)}</span><span class="ch" style="background:var(--sec);color:var(--onsec)">Spanish ${ic("close",16)}</span></div></div></div></div>`;
+ if(id=="sponsorblock"){const SB=[["Sponsor","#00d400","Skip"],["Self-promotion","#ffff00","Ask"],["Like and subscribe reminder","#cc00ff","Ask"],["Intro","#00ffff","Show"],["Outro and credits","#0202ed","Show"],["Preview and recap","#008fd6","Show"],["Non-music part of a music video","#ff9900","Off"],["Filler tangent","#7300ff","Off"]];
+  const r=x=>`<div class="rw" style="padding:12px 12px 12px 16px"><span class="dot" style="background:${x[1]}"></span><div class="rt"><b style="font-size:14px">${x[0]}</b></div><div class="sbs">${["Skip","Ask","Show","Off"].map(a=>`<i class="${a==x[2]?"on":""}">${a}</i>`).join("")}</div></div>`;
+  return head+`<div class="jl" style="margin-top:16px">${swRow("","SponsorBlock","Skip sponsor reads and other segments",1)}</div><div class="gl">Segments</div><div style="display:grid;grid-template-columns:${o.two?"1fr 1fr":"1fr"};gap:14px"><div class="jl">${SB.slice(0,o.two?4:8).map(r).join("")}</div>${o.two?`<div class="jl">${SB.slice(4).map(r).join("")}</div>`:""}</div><p class="note">Segments from SponsorBlock (sponsor.ajay.app), a community project. Data licensed CC BY-NC-SA 4.0.</p></div>`;}
+ return head+"</div>";
+};
+
+/* ── devices ──────────────────────────────────────────────────── */
+const DEV={tab:[1280,800,16,40,24],fold:[700,840,10,30,20],cover:[373,904,9,40,32],coverL:[904,373,9,40,32],tt:[840,700,10,30,20]};
+const K={big:"var(--s)",mid:"calc(var(--s) * .7)",sm:"calc(var(--s) * .5)",xs:"calc(var(--s) * .42)"};
+function dev(kind,html,k="big",extra=""){
+ const [w,h,p,R,r]=DEV[kind];const W=w+2*p,H=h+2*p;
+ return `<div class="dv" style="--W:${W};--H:${H};--k:${K[k]||k}"><div class="bd" style="border-radius:${R}px;padding:${p}px"><div class="scrw" style="border-radius:${r}px">${html}${kind=="fold"?'<i class="crease v"></i>':""}</div></div>${extra}</div>`;
+}
+function half(html,k="mid"){
+ return `<div class="dv" style="--W:720;--H:860;--k:${K[k]}"><div class="bd3" style="width:720px;height:860px"><div class="hp l"><div class="hs"><div class="hin">${html}</div></div><i class="shade"></i></div><div class="hp r"><div class="hs"><div class="hin" style="left:-350px">${html}</div></div></div></div></div>`;
+}
+function tabletop(html,k="big"){
+ return `<div class="dv" style="--W:860;--H:760;--k:${K[k]}"><div class="bd3" style="width:860px;height:720px;perspective-origin:50% 30%"><div class="tp t"><div class="ts"><div class="tin">${html}</div></div></div><div class="tp b"><div class="ts"><div class="tin" style="top:-350px">${html}</div></div><i class="shade2"></i></div></div></div>`;
+}
+const shot=(lab,d,cap="",st="")=>`<div class="shot" style="${st}"><div class="lab">${lab}</div>${d}${cap?`<div class="cap">${cap}</div>`:""}</div>`;
+const capW=(kind,k="big")=>{const [w,,p]=DEV[kind];return `max-width:calc(${w+2*p}px * ${K[k]})`};
+const story=(title,frames)=>`<div class="story">${frames.map((f,i)=>`${i?'<span class="arrow">→</span>':""}<div class="st">${f[0]}<small>${f[1]}</small></div>`).join("")}</div>`;
+
+/* ── compact (phone) screens, shared ──────────────────────────── */
+function phoneHome(W=373,H=904,o={}){
+ const pw=Math.min(328,W-24);
+ return scr(`${sb()}<div style="padding-top:36px">${header("Home",{me:34})}${chips(HOMECH)}<div style="display:flex;flex-direction:column;gap:14px;padding:0 ${o.px||12}px">${[2,4,7,1].map(i=>card(i)).join("")}</div></div>${vig(200)}${o.mini===false?"":A(12,H-62-26-12-70,W-24,70,miniBar(W-24),"z-index:9")}${A((W-pw)/2,H-62-26,pw,62,navpill(0,pw),"z-index:9")}${gh()}`);
+}
+function coverPlayer(W=373,H=904,o={}){
+ const vh=Math.round(W*9/16);
+ return scr(`${sb("blk")}${vid(0,32,W,vh,{cc:13})}<div style="position:absolute;left:0;right:0;top:${32+vh}px;padding:18px 18px 0">${details({ts:19,sm:1,avs:40})}${ccard()}<div class="sec" style="margin-top:22px"><b>More videos</b></div>${rows([4,7,2],128,12)}</div>${vig(220)}${A((W-316)/2,H-83-24,316,83,pbar(),"z-index:9")}${gh()}`);
+}
+function coverShort(W=373,H=904,i=0){
+ return scr(`${shortV(i,{cb:100,pb:8})}${sb("w")}${A((W-294)/2,H-50-30,294,50,glassBar({i}),"z-index:6")}${gh(1)}`,"background:#000");
+}
+function coverFullL(){ // cover screen turned sideways, stuck in fullscreen
+ return scr(`${vid(126,0,652,373,{ov:1,head:false})}`,"background:#000");
+}
+function letterbox(){
+ return scr(A(458,0,364,800,phoneHome(364,800,{px:10})),"background:#000");
+}
+
+/* ── A · Rail ─────────────────────────────────────────────────── */
+const aHomeFold=()=>scr(`${sb()}${rail(0,80)}${A(80,32,620,808,`${header("Home",{search:230,me:false})}${chips(HOMECH)}${grid([2,4,7,1,9,5],2,14)}`)}${vig(120,"left:80px")}${gh()}`);
+const aMiniCard=(w=400)=>`<div class="mp" style="width:${w}px;height:104px;border-radius:26px;padding:8px 10px 8px 8px">${`<div class="th s0" style="width:156px;border-radius:19px"><div class="fr s0"></div><i class="pg"><b style="width:68%"></b></i></div>`}<div><b style="white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${VID[0].t}</b><span>Veritasium · 12:41</span></div><span class="pp">${ic("pause",24)}</span><span class="x">${ic("close",20)}</span></div>`;
+const aHomeTab=()=>scr(`${sb()}${rail(0)}${A(88,30,1192,770,`${header("Home",{search:380,me:false})}${chips(HOMECH)}${grid([2,4,7,1],4,16)}<div style="padding:22px 16px 0"><div class="sec"><b>Shorts</b><span>See all</span></div><div style="display:flex;gap:14px">${[0,1,2,3,4,5,6].map(i=>stile(i,{w:150})).join("")}</div></div>`)}${A(864,676,400,104,aMiniCard(),"z-index:9")}`);
+const aSubsTab=()=>scr(`${sb()}${rail(1)}${A(88,30,1192,770,`${header("Subscriptions",{search:380,me:false})}${cstrip(13)}${chips(["All","Today","Unwatched","Videos","Live","Posts"])}${grid([0,8,3,10,5,11,9,7],4,16)}`)}${A(864,676,400,104,aMiniCard(),"z-index:9")}`);
+const aShortsTab=()=>scr(`${A(88,0,1192,800,ambient(6,"opacity:.55"),"overflow:hidden;background:#0e0d10")}${sb()}${rail(2)}${A(200,24,424,752,shortV(0,{cb:24,pb:8,r:28}),"border-radius:28px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)")}${A(636,250,68,0,vpill(0))}${A(712,330,44,0,`<span class="gk glass" style="width:44px;height:44px;margin-bottom:10px">${ic("exu",24)}</span><span class="gk glass" style="width:44px;height:44px">${ic("exd",24)}</span>`)}${A(800,24,464,752,cmPanel({x:1}),"background:var(--surf);border-radius:28px;padding:18px 18px 14px")}`);
+const aShortsFold=()=>scr(`${A(80,0,620,840,ambient(6,"opacity:.55"),"overflow:hidden;background:#0e0d10")}${sb()}${rail(2,80)}${A(112,40,436,776,shortV(0,{cb:24,pb:8,r:26}),"border-radius:26px;overflow:hidden")}${A(560,280,68,0,vpill(0))}`);
+const aSetTab=()=>scr(`${sb()}${rail(-1,88,{me:1})}${A(88,0,400,800,setFront({sel:"playback"}),"overflow:hidden")}${A(500,40,768,748,setPage("playback",{pt:26,px:24}),"background:var(--scl);border-radius:28px;overflow:hidden")}`);
+const aPlayTab=()=>scr(`${sb()}${rail(0)}${vid(104,40,688,387,{r:24,cc:15})}${A(112,443,672,260,details({desc:0}))}${vig(120,"left:88px;right:476px")}${A(290,701,316,83,pbar(),"z-index:9")}${A(808,40,460,748,`${tabs([`Comments<small>1.2K</small>`,"More videos","Chapters"],0)}<div style="padding:8px 4px 0;height:640px;overflow:hidden">${comments(6)}</div>`,"","panel")}`);
+const aPlayFold=()=>scr(`${sb("blk")}${vid(0,32,700,394,{cc:15})}${A(18,444,316,380,details({ts:18,sm:1,avs:38}))}${A(354,438,338,394,`${tabs([`Comments`,"More videos"],0)}<div style="padding:6px 2px 0">${comments(3,{s:28})}</div>`,"","panel")}${vig(150)}${A(192,739,316,83,pbar(),"z-index:9")}${gh()}`);
+const aTable=()=>scr(`${A(0,0,840,350,ambient(0,"opacity:.5"),"overflow:hidden;background:#000")}${sb("w")}${vid(137,32,565,318,{cc:14})}${A(0,350,840,350,`<div style="display:flex;justify-content:space-between;padding:20px 52px 6px;font-size:13px;font-weight:750;color:var(--onv)"><span><b style="color:var(--on)">12:41</b> · The ozone trick</span><span>18:42</span></div><div style="margin:0 52px;height:5px;display:flex;gap:4px">${SEGS.map(([w,f])=>`<i style="flex:${w};border-radius:3px;background:color-mix(in srgb,var(--p) 28%,var(--schh));position:relative;overflow:hidden"><b style="position:absolute;inset:0 auto 0 0;width:${f*100}%;background:var(--p)"></b></i>`).join("")}</div><div style="display:flex;justify-content:center;margin-top:18px">${pbar()}</div><div style="display:flex;justify-content:center;margin-top:16px">${tabs(["Comments","More videos","Chapters"],0,"width:420px")}</div>`,"background:var(--surf)")}`);
+
+/* ── B · Sidecar ──────────────────────────────────────────────── */
+const sidecar=(w,h,o={})=>{const vw=w-24,vh=Math.round(vw*9/16);
+ return `<div style="position:relative;width:${w}px;height:${h}px;background:var(--sc);border-radius:28px;overflow:hidden">
+ <div style="display:flex;align-items:center;gap:6px;padding:8px 10px 0 16px;height:44px"><b style="flex:1;font-size:12.5px;font-weight:800;letter-spacing:.6px;color:var(--onv)">NOW PLAYING</b><span class="ibt" style="width:36px;height:36px">${ic("open",19)}</span><span class="ibt" style="width:36px;height:36px">${ic("close",20)}</span></div>
+ <div style="position:relative;margin:4px 12px 0;height:${vh}px;border-radius:20px;overflow:hidden">${picture({cc:o.cc||13})}</div>
+ <div style="padding:14px 14px 0">${details({ts:o.ts||17,sm:1,avs:36,acts:o.acts!==false})}</div>
+ <div style="padding:14px 12px 0">${tabs(o.tabs||["More videos",`Comments<small>1.2K</small>`,"Chapters"],o.on||0)}</div>
+ <div style="padding:14px 14px 0">${o.on==1?comments(3,{s:28}):o.on==2?chapters({tw:72}):rows([2,4,7,9],o.tw||120,12)}</div>
+ <div class="vig" style="height:170px;--surf:var(--sc)"></div>
+ <div class="ab" style="left:${(w-316)/2}px;bottom:12px;z-index:9">${pbar()}</div></div>`};
+const bHomeTab=()=>scr(`${sb()}${A(0,32,828,768,`${header("Home",{search:300})}${chips(HOMECH)}${grid([2,4,7,1,9,5],3,14)}`)}${vig(140,"right:452px")}${A(204,720,420,62,navpill(0,420),"z-index:9")}<i class="grip" style="left:830px;top:390px"></i>${A(836,38,432,754,sidecar(432,754))}`);
+const bHomeFold=()=>scr(`${sb()}${A(0,32,350,808,`${header("Home",{sicon:1,me:34,size:26})}${chips(HOMECH)}<div style="display:flex;flex-direction:column;gap:14px;padding:0 14px">${[2,4,7].map(i=>card(i)).join("")}</div>`)}${vig(140,"right:350px")}${A(12,760,326,62,navpill(0,326),"z-index:9")}${A(354,40,338,792,sidecar(338,792,{ts:16,tw:104,cc:11}))}`);
+const bSubsTab=()=>scr(`${sb()}${A(0,32,828,768,`${header("Subscriptions",{search:280})}${cstrip(9)}${chips(["All","Today","Unwatched","Videos","Live"])}${grid([0,8,3,10,5,11],3,14)}`)}${vig(140,"right:452px")}${A(204,720,420,62,navpill(1,420),"z-index:9")}<i class="grip" style="left:830px;top:390px"></i>${A(836,38,432,754,sidecar(432,754,{on:1}))}`);
+const resumeChip=()=>`<span class="ch" style="height:40px;border-radius:20px;background:var(--sec);color:var(--onsec);padding:0 14px 0 6px;gap:8px">${`<span class="th s0" style="width:48px;border-radius:9px"></span>`}Resume · 12:41${ic("play",18)}</span>`;
+const bShortsTab=()=>scr(`${sb()}${A(0,32,828,768,`${header("Shorts",{me:false,extra:resumeChip()})}${chips(["For you","Subscriptions","Science","Cooking","Music"])}<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:4px 16px">${[1,2,3,4,5,6,7,0,2,3].map((i,k)=>stile(i,{on:k==7})).join("")}</div>`)}${vig(140,"right:452px")}${A(204,720,420,62,navpill(2,420),"z-index:9")}${A(836,38,432,754,`${shortV(0,{cb:96,pb:8})}<div class="ab" style="left:69px;bottom:28px">${glassBar({k:"exd"})}</div><div class="ab" style="right:12px;top:12px;display:flex;gap:6px"><span class="gk glass" style="width:40px;height:40px">${ic("open",18)}</span></div>`,"border-radius:28px;overflow:hidden;background:#000")}`);
+const bShortsFold=()=>scr(`${sb()}${A(0,32,350,808,`${header("Shorts",{me:34,size:26})}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 14px">${[1,2,3,4,5,6].map((i,k)=>stile(i,{on:k==-1})).join("")}</div>`)}${vig(140,"right:350px")}${A(12,760,326,62,navpill(2,326),"z-index:9")}${A(354,40,338,792,`${A(0,0,338,600,shortV(0,{cb:80,pb:6}),"overflow:hidden;border-radius:28px 28px 0 0")}<div style="position:absolute;left:0;right:0;top:600px;padding:14px 16px;color:var(--on)"><div style="display:flex;align-items:center;gap:10px">${av(5,34)}<div style="flex:1"><b style="font-size:14px">${CH[5][0]}</b><div style="font-size:12px;color:var(--onv)">10.3M subscribers</div></div>${swb(1)}</div><div class="ccard" style="background:var(--sch)"><div class="h">Comments<span>1.4K</span></div><p>${pav(CM[4][4],"M",26)}<span>The tuck-the-corners trick changed my life.</span></p></div></div><div class="ab" style="left:22px;top:536px">${glassBar({k:"open"})}</div>`,"border-radius:28px;overflow:hidden;background:var(--sc)")}`);
+const bSetTab=()=>scr(`${sb()}${A(0,0,360,800,setFront({sel:"sponsorblock",px:14}),"overflow:hidden")}${A(368,40,452,748,setPage("sponsorblock",{pt:24}),"background:var(--scl);border-radius:28px;overflow:hidden")}${A(836,38,432,754,sidecar(432,754,{on:2}))}`);
+const bPlayTab=()=>scr(`${sb()}${A(0,32,360,768,`${header("Home",{sicon:1,me:34,size:26})}<div style="padding:0 16px">${rows([2,4,7,1,9,5,3],128,14)}</div>`)}${vig(140,"right:920px")}${A(16,720,328,62,navpill(0,328),"z-index:9")}<i class="grip" style="left:362px;top:390px"></i>${A(368,38,900,754,`<div style="position:relative;width:900px;height:754px;background:var(--sc);border-radius:28px;overflow:hidden"><div style="display:flex;align-items:center;gap:6px;padding:8px 10px 0 16px;height:44px"><b style="flex:1;font-size:12.5px;font-weight:800;letter-spacing:.6px;color:var(--onv)">NOW PLAYING · WIDE</b><span class="ibt" style="width:36px;height:36px">${ic("shut",19)}</span><span class="ibt" style="width:36px;height:36px">${ic("close",20)}</span></div>${vid(12,50,576,324,{r:22,cc:15})}${A(16,390,568,260,details({ts:19,desc:1}))}${A(604,50,284,692,`${tabs(["More videos","Comments"],1)}<div style="padding:10px 4px">${comments(4,{s:28})}</div>`)}<div class="vig" style="height:150px;--surf:var(--sc)"></div>${A(142,659,316,83,pbar(),"z-index:9")}</div>`)}`);
+const bPlayFold=()=>scr(`${sb()}${A(0,32,60,808,`<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:12px">${TABS.map(([i],k)=>`<span class="ibt" style="${k==0?"background:var(--p);color:var(--onp)":"color:var(--onv)"}">${ic(i,22)}</span>`).join("")}</div>`)}${A(64,40,628,792,`<div style="position:relative;width:628px;height:792px;background:var(--sc);border-radius:28px;overflow:hidden">${vid(10,10,608,342,{r:20,cc:14})}${A(16,366,596,240,details({ts:18,sm:1}))}${A(12,560,604,240,`${tabs(["More videos",`Comments<small>1.2K</small>`,"Chapters"],1)}<div style="padding:8px 4px">${comments(2,{s:28})}</div>`)}<div class="vig" style="height:160px;--surf:var(--sc)"></div>${A(156,697,316,83,pbar(),"z-index:9")}</div>`)}`);
+
+/* ── C · Theater ──────────────────────────────────────────────── */
+const cHomeTab=()=>scr(`${sb()}${A(120,32,1040,768,`${header("Home",{brand:1,search:320,me:40})}${chips(HOMECH)}${grid([2,4,7,1,9,5],3,16)}`)}${vig(240)}${A(410,640,460,70,miniBar(460),"z-index:9")}${A(320,722,640,62,navpill(0,640,{all:1}),"z-index:9")}`);
+const cHomeFold=()=>scr(`${sb()}${A(0,32,700,808,`${header("Home",{brand:1,search:220,me:36})}${chips(HOMECH)}${grid([2,4,7,1,9,5],2,14)}`)}${vig(240)}${A(140,664,420,70,miniBar(420),"z-index:9")}${A(140,752,420,62,navpill(0,420),"z-index:9")}${gh()}`);
+const cSubsFold=()=>scr(`${sb()}${A(0,32,700,808,`${header("Subscriptions",{brand:1,sicon:1,me:36})}${cstrip(9)}${chips(["All","Today","Unwatched","Videos","Live"])}${grid([0,8,3,10,5,11],2,14)}`)}${vig(240)}${A(140,664,420,70,miniBar(420),"z-index:9")}${A(140,752,420,62,navpill(1,420),"z-index:9")}${gh()}`);
+const cShortsTab=()=>scr(`${A(0,0,1280,800,ambient(6,"opacity:.5;inset:0 300px"),"overflow:hidden")}${sb("w")}${A(24,44,50,50,`<span class="gk glass">${ic("lt",28)}</span>`)}${A(200,150,190,0,`<div style="color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;opacity:.7;margin-bottom:10px">COMING UP</div><div style="display:flex;flex-direction:column;gap:12px;opacity:.85">${stile(1,{w:150})}${stile(2,{w:150})}</div>`)}${A(426,24,428,752,`${shortV(0,{cb:96,pb:8})}<div class="ab" style="left:67px;bottom:24px">${glassBar({})}</div>`,"border-radius:28px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.7)")}${A(878,96,380,620,cmPanel({x:1,count:4}),"background:var(--surf);border-radius:28px;padding:18px 18px 14px;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)")}`,"background:#0c0b0e");
+const cShortsFold=()=>scr(`${A(0,0,700,840,ambient(6,"opacity:.5"),"overflow:hidden")}${sb("w")}${A(132,40,436,776,`${shortV(0,{cb:96,pb:8})}<div class="ab" style="left:71px;bottom:24px">${glassBar({})}</div>`,"border-radius:26px;overflow:hidden")}${A(584,300,100,0,`<div style="color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.8px;opacity:.7;margin-bottom:8px">NEXT</div><div style="display:flex;flex-direction:column;gap:10px;opacity:.75">${stile(1,{w:100})}${stile(2,{w:100})}</div>`)}`,"background:#0c0b0e");
+const cSetTab=()=>scr(`${sb()}${A(240,0,800,800,setFront({qc:4,cols:1,pt:40}),"overflow:hidden")}<div class="ab" style="inset:0;background:rgba(0,0,0,.32);z-index:10"></div>${A(300,430,680,370,`<div class="hand"></div><div style="overflow:hidden;height:350px">${setPage("playback",{pt:8,px:26})}</div>`,"background:var(--surf);border-radius:32px 32px 0 0;z-index:11;box-shadow:0 -10px 40px rgba(0,0,0,.2)")}`);
+const cPeek=(w)=>`<div style="position:relative;width:${w}px;height:106px;background:var(--surf);border-radius:28px 28px 0 0"><div class="hand" style="margin-top:8px"></div><div class="ab" style="left:24px;top:30px;width:380px"><b style="display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${VID[0].t}</b><span style="font-size:12.5px;color:var(--onv);font-weight:600">Veritasium · 2.1M views · Comments 1.2K · More videos ⌃</span></div><div class="ab" style="right:24px;top:30px;display:flex;gap:8px;align-items:center">${av(0,40)}${swb()}</div></div>`;
+const cPlayTab=()=>scr(`${sb("w")}${vid(50,30,1180,664,{cc:20,r:0})}${A(0,694,1280,106,cPeek(1280),"z-index:5")}${A(482,705,316,83,pbar(),"z-index:9")}`,"background:#000");
+const cPlayTab2=()=>scr(`${sb("w")}${vid(400,38,480,270,{cc:12,r:20})}${A(0,322,1280,478,`<div class="hand"></div><div style="display:grid;grid-template-columns:400px 400px 1fr;gap:24px;padding:12px 24px 0">${`<div>${details({ts:19,desc:1})}</div><div>${cmPanel({count:3,chips:false,n:"1.2K"}).replace('<div class="cmp">','<div class="cmp" style="display:none">')}</div><div><div class="sec" style="padding-top:4px"><b>More videos</b></div>${rows([2,4,7,9],136,12)}</div>`}</div>`,"background:var(--surf);border-radius:32px 32px 0 0;overflow:hidden")}${vig(110)}${A(482,705,316,83,pbar(),"z-index:9")}`,"background:#000");
+const cPlayFold=()=>scr(`${sb("w")}${vid(0,32,700,394,{cc:15})}<div class="ab" style="left:0;right:0;top:432px;text-align:center;color:#fff;font-size:12.5px;font-weight:750;opacity:.75">12:41 · The ozone trick</div>${A(0,462,700,378,`<div class="hand"></div><div style="padding:14px 22px 0">${details({ts:19})}<div style="display:flex;gap:8px;margin-top:14px"><span class="ch" style="height:36px">${ic("cmt",16)}Comments 1.2K</span><span class="ch" style="height:36px">${ic("queue",16)}More videos</span><span class="ch" style="height:36px">${ic("list",16)}Chapters</span></div>${ccard()}</div>`,"background:var(--surf);border-radius:28px 28px 0 0")}${vig(130)}${A(192,739,316,83,pbar(),"z-index:9")}${gh()}`,"background:#000");
+const cTable=()=>scr(`${sb("w")}${vid(137,24,565,318,{cc:14})}${A(0,350,840,350,`<div class="hand" style="margin-top:12px"></div><div style="display:flex;justify-content:center;margin-top:16px;transform:scale(1.12)">${pbar()}</div><div style="display:flex;gap:10px;padding:26px 30px 0">${CHAP.map((c,i)=>`<div style="flex:1;min-width:0"><div class="th s${c[2]}" style="border-radius:12px;${i==3?"box-shadow:0 0 0 3px var(--p)":""}"></div><b style="display:block;font-size:12px;font-weight:750;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${i==3?"color:var(--p)":""}">${c[1]}</b><span style="font-size:11px;color:var(--onv)">${c[0]}</span></div>`).join("")}</div><div style="text-align:center;margin-top:14px;font-size:12.5px;font-weight:750;color:var(--onv)">Comments 1.2K · More videos ⌃</div>`,"background:var(--surf);border-radius:28px 28px 0 0")}`,"background:#000");
+
+/* ── D · Book ─────────────────────────────────────────────────── */
+const page=(x,y,w,h,inner,st="")=>A(x,y,w,h,inner,`background:var(--scl);border-radius:28px;overflow:hidden;${st}`);
+const preview=(w,o={})=>{const v=VID[o.i||2];return `<div style="padding:12px;display:flex;flex-direction:column;height:100%"><div class="th s${v.s}" style="border-radius:20px"><span class="tw">${v.w||""}</span><span class="du">${v.d}</span><span class="ab glass" style="left:10px;top:10px;height:28px;padding:0 11px;border-radius:14px;display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800">${ic("play",14)}Preview · muted</span><i class="pg"><b style="width:22%"></b></i></div><div style="padding:14px 6px 0;flex:1;overflow:hidden"><h2 style="font-size:${o.ts||19}px;font-weight:800;line-height:1.22;letter-spacing:-.3px">${v.t}</h2><div class="cr">${av(v.c,38)}<div class="nm"><b>${CH[v.c][0]}</b><span>${CH[v.c][2]} subscribers</span></div>${swb(1)}</div><div class="desc" style="background:var(--sch)"><b>${v.v} · ${v.a}</b>A year of folding, unfolding and dropping one phone. What lasted, what didn't, and whether the crease still bothers me.</div><div class="gl" style="margin:16px 4px 8px">Chapters</div><div class="chl" style="${o.cols?"display:grid;grid-template-columns:1fr 1fr":""}">${[["0:00","Day one"],["2:10","The crease"],["6:45","Battery, honestly"],["11:02","Drops and repairs"]].map(c=>`<div style="background:var(--sch)"><div><b>${c[1]}</b><span>${c[0]}</span></div></div>`).join("")}</div></div><div style="display:flex;gap:8px;padding-top:10px"><span style="flex:1;height:56px;border-radius:28px;background:var(--p);color:var(--onp);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:800">${ic("play",24)}Play</span><span class="ibt" style="width:56px;height:56px;background:var(--sec);color:var(--onsec)">${ic("queue",22)}</span><span class="ibt" style="width:56px;height:56px;background:var(--sec);color:var(--onsec)">${ic("pl",22)}</span></div></div>`};
+const dHomeFold=()=>scr(`${sb()}${A(0,32,346,808,`${header("Home",{sicon:1,me:34,size:26})}${chips(HOMECH)}<div style="padding:4px 14px">${rows([0,2,4,7,1,9,5,3],124,16,{sel:2})}</div>`)}${vig(130,"right:354px")}${A(10,762,326,62,navpill(0,326),"z-index:9")}${page(354,40,338,792,preview(338))}`);
+const dHomeTab=()=>scr(`${sb()}${A(0,30,636,770,`${header("Home",{search:240,me:36})}${chips(HOMECH)}${grid([0,2,4,7,1,9],2,14,{sel:2})}`)}${vig(140,"right:644px")}${A(108,722,420,62,navpill(0,420),"z-index:9")}${page(644,38,628,754,preview(628,{ts:22,cols:1}))}`);
+const dSubsFold=()=>scr(`${sb()}${A(0,32,346,808,`${header("Subscriptions",{me:34,size:24})}<div style="padding:4px 14px;display:flex;flex-direction:column;gap:4px">${[[-1,"All channels","12 new"],[0,"Veritasium","3 new"],[1,"Kurzgesagt","1 new"],[2,"Marques Brownlee","2 new"],[3,"Tom Scott",""],[4,"Wendover Productions","1 new"],[5,"Babish Culinary Universe",""],[7,"Practical Engineering",""],[8,"Hank Green","4 new"]].map(([c,n,b],k)=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:20px;${k==1?"background:var(--pc);color:var(--onpc)":""}">${c<0?`<span class="av" style="width:42px;height:42px;background:var(--p);color:var(--onp);font-size:13px">All</span>`:av(c,42)}<b style="flex:1;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n}</b>${b?`<span style="height:24px;padding:0 9px;border-radius:12px;background:${k==1?"var(--p)":"var(--sec)"};color:${k==1?"var(--onp)":"var(--onsec)"};font-size:11.5px;font-weight:800;display:flex;align-items:center">${b}</span>`:""}</div>`).join("")}</div>`)}${vig(130,"right:354px")}${A(10,762,326,62,navpill(1,326),"z-index:9")}${page(354,40,338,792,`<div style="padding:12px"><div class="s0" style="height:78px;border-radius:20px"></div><div style="display:flex;align-items:flex-end;gap:12px;margin:-26px 0 0 10px">${`<span style="border-radius:50%;padding:4px;background:var(--scl)">${av(0,64)}</span>`}</div><h2 style="font-size:20px;font-weight:850;margin:8px 6px 0">Veritasium</h2><div style="font-size:12.5px;color:var(--onv);margin:2px 6px 0">@veritasium · 17.2M subscribers · 412 videos</div><div style="margin:12px 6px 0">${swb()}</div><div style="display:flex;gap:8px;margin:16px 0 14px"><span class="ch on">Videos</span><span class="ch">Shorts</span><span class="ch">Live</span><span class="ch">Playlists</span></div>${rows([0,10,1,3],120,14)}</div>`)}`);
+const dShortsFold=()=>scr(`${A(0,0,350,840,"","background:#0c0b0e")}${sb("w")}${A(10,40,330,587,shortV(0,{cb:20,pb:6,r:24}),"border-radius:24px;overflow:hidden")}${A(14,640,322,120,`<div style="color:#fff;font-size:11px;font-weight:800;letter-spacing:.8px;opacity:.6;margin-bottom:8px">COMING UP</div><div style="display:flex;gap:8px">${[1,2,3].map(i=>`<div class="s${SH[i].s}" style="flex:1;height:84px;border-radius:14px"></div>`).join("")}</div>`)}${A(24,770,302,50,glassBar({}),"z-index:6")}${page(354,40,338,792,`<div style="padding:16px 16px 12px;height:100%;color:var(--on)">${cmPanel({x:0,count:5})}</div>`)}`);
+const dShortsTab=()=>scr(`${A(0,0,636,800,ambient(6,"opacity:.45"),"overflow:hidden;background:#0c0b0e")}${sb("w")}${A(110,32,416,740,`${shortV(0,{cb:96,pb:8})}<div class="ab" style="left:61px;bottom:24px">${glassBar({})}</div>`,"border-radius:26px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)")}${A(540,250,84,0,`<div style="color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.8px;opacity:.7;margin-bottom:8px">NEXT</div><div style="display:flex;flex-direction:column;gap:10px;opacity:.8">${stile(1,{w:84})}${stile(2,{w:84})}</div>`)}${page(644,38,628,754,`<div style="padding:18px 20px 14px;height:100%">${cmPanel({x:0,count:6})}</div>`)}`);
+const dSetTab=()=>scr(`${sb()}${A(0,0,636,800,setFront({sel:"captions",qc:4,px:20}),"overflow:hidden")}${page(644,38,628,754,setPage("captions",{pt:24,px:22}))}`);
+const dPlayTab=()=>scr(`${sb()}${vid(16,40,604,340,{r:22,cc:15})}${A(24,394,588,300,details({desc:1}))}${vig(130,"right:644px")}${A(160,701,316,83,pbar(),"z-index:9")}${page(644,38,628,754,`<div style="padding:12px">${tabs([`Comments<small>1.2K</small>`,"More videos","Chapters"],1)}<div style="padding:16px 4px 0;display:grid;grid-template-columns:1fr 1fr;gap:16px 14px">${[2,4,7,1,9,5].map(i=>`<div>${thumb(VID[i],{r:18})}<b style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;font-weight:750;margin-top:8px;line-height:1.26">${VID[i].t}</b><span style="font-size:12px;color:var(--onv)">${meta(VID[i])}</span></div>`).join("")}</div></div>`)}`);
+const dPlayFold=()=>scr(`${sb("blk")}${vid(0,32,700,394,{cc:15})}${A(18,442,312,300,details({ts:18,sm:1,avs:38}))}${vig(140,"right:354px")}${A(15,745,316,83,pbar(),"z-index:9")}${page(354,438,338,394,`<div style="padding:12px">${tabs(["More videos",`Comments`],0)}<div style="padding:14px 4px 0">${rows([2,4,7,9],116,12)}</div></div>`)}`);
+const dTable=()=>scr(`${A(0,0,840,350,ambient(0,"opacity:.5"),"overflow:hidden;background:#000")}${sb("w")}${vid(137,32,565,318,{cc:14})}${A(0,350,416,350,`<div style="display:flex;justify-content:space-between;padding:22px 30px 6px;font-size:13px;font-weight:750;color:var(--onv)"><span><b style="color:var(--on)">12:41</b> · The ozone trick</span><span>18:42</span></div><div style="margin:0 30px;height:5px;display:flex;gap:4px">${SEGS.map(([w,f])=>`<i style="flex:${w};border-radius:3px;background:color-mix(in srgb,var(--p) 28%,var(--schh));position:relative;overflow:hidden"><b style="position:absolute;inset:0 auto 0 0;width:${f*100}%;background:var(--p)"></b></i>`).join("")}</div><div style="display:flex;justify-content:center;margin-top:20px">${pbar()}</div><div style="display:flex;gap:6px;justify-content:center;margin-top:16px"><span class="ch">${ic("list",16)}Chapters</span><span class="ch">${ic("speed",16)}1×</span><span class="ch">${ic("cc",16)}CC</span></div>`,"background:var(--surf)")}${page(424,358,408,334,`<div style="padding:14px 16px">${cmPanel({count:2,chips:false,n:"1.2K"}).replace('<div class="cmp">','<div class="cmp" style="display:none">')}</div>`)}`);
+
+/* ── E · Spaces ───────────────────────────────────────────────── */
+const eTop=(sel,w,o={})=>`<div style="position:absolute;left:0;right:0;top:32px;height:64px;display:flex;align-items:center;padding:0 16px;gap:12px">${o.back?`<span class="ibt">${ic("back")}</span>`:bm()}<b style="font-size:22px;font-weight:850;letter-spacing:-.4px;${o.wide?"width:220px":"flex:1"}">${o.title||""}</b>${o.pill===false?"":`<div style="${o.wide?"flex:1;display:flex;justify-content:center":""}">${navpill(sel,o.pw||540,{all:o.wide})}</div>`}${o.wide?`<div style="width:220px;display:flex;justify-content:flex-end;gap:8px">`:""}<span class="ibt t">${ic("search",22)}</span>${me(40)}${o.wide?"</div>":""}</div>`;
+const eWindow=(w,o={})=>{const h=Math.round(w*9/16);return `<div style="width:${w}px;border-radius:24px;background:var(--sch);box-shadow:0 26px 60px -18px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.12);overflow:hidden"><div style="position:relative;height:${h}px">${picture({cc:o.cc||12})}<span class="ab" style="left:8px;top:8px;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(0,0,0,.35);color:#fff;transform:scaleX(-1)">${ic("grip",18)}</span></div><div style="display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px"><div style="flex:1;min-width:0"><b style="display:block;font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${VID[0].t}</b><span style="font-size:11.5px;color:var(--onv);font-weight:600">12:41 / 18:42</span></div><span class="ibt" style="width:40px;height:40px;border-radius:14px;background:var(--p);color:var(--onp)">${ic("pause",22)}</span><span class="ibt" style="width:36px;height:36px;color:var(--onv)">${ic("open",18)}</span></div></div>`};
+const eHomeTab=()=>scr(`${sb()}${eTop(0,0,{wide:1,title:"Home",pw:560})}${page(16,104,800,262,`<div style="padding:16px"><div class="sec"><b>Pick up where you left off</b><span>History</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">${[5,9,10].map(i=>`<div>${thumb({...VID[i],p:VID[i].p||45},{r:18})}<b style="display:block;font-size:13.5px;font-weight:750;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${VID[i].t}</b><span style="font-size:12px;color:var(--onv)">${CH[VID[i].c][0]}</span></div>`).join("")}</div></div>`)}${page(828,104,436,440,`<div style="padding:16px"><div class="sec"><b>New from subscriptions</b><span>All</span></div>${rows([0,8,3,11],132,14)}</div>`)}${page(16,378,800,300,`<div style="padding:16px"><div class="sec"><b>Shorts</b><span>Open</span></div><div style="display:flex;gap:12px">${[0,1,2,3,4,5].map(i=>stile(i,{w:118})).join("")}</div></div>`)}${page(16,690,800,200,`<div style="padding:16px"><div class="sec"><b>Recommended</b></div>${grid([2,4,7],3,14,{st:"padding:0"})}</div>`)}${page(828,556,436,300,`<div style="padding:16px"><div class="sec"><b>Keep it on</b></div>${rows([6],132)}</div>`)}${A(866,520,384,0,eWindow(384),"z-index:20")}`);
+const eHomeFold=()=>scr(`${sb()}${eTop(0,0,{pw:440})}${page(16,104,668,250,`<div style="padding:16px"><div class="sec"><b>Pick up where you left off</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${[5,9].map(i=>`<div>${thumb({...VID[i]},{r:18})}<b style="display:block;font-size:13.5px;font-weight:750;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${VID[i].t}</b></div>`).join("")}</div></div>`)}${page(16,366,326,470,`<div style="padding:16px"><div class="sec"><b>New for you</b></div>${rows([0,8,3,11],110,14)}</div>`)}${page(358,366,326,470,`<div style="padding:16px"><div class="sec"><b>Shorts</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[0,1].map(i=>stile(i)).join("")}</div></div>`)}${A(376,600,300,0,eWindow(300,{cc:10}),"z-index:20")}`);
+const eSubsTab=()=>scr(`${sb()}${eTop(1,0,{wide:1,title:"Subscriptions",pw:560})}${page(16,104,300,686,`<div style="padding:14px 10px"><div class="sec" style="padding:0 6px"><b>Channels</b><span>Manage</span></div>${[[-1,"All channels"],[0,"Veritasium"],[1,"Kurzgesagt"],[2,"Marques Brownlee"],[3,"Tom Scott"],[4,"Wendover Productions"],[5,"Babish Culinary Universe"],[7,"Practical Engineering"],[8,"Hank Green"],[9,"Mark Rober"]].map(([c,n],k)=>`<div style="display:flex;align-items:center;gap:12px;padding:7px 8px;border-radius:18px;${k==0?"background:var(--p);color:var(--onp)":""}">${c<0?`<span class="av" style="width:38px;height:38px;background:var(--onp);color:var(--p);font-size:12px">All</span>`:av(c,38)}<b style="flex:1;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n}</b></div>`).join("")}</div>`)}${page(328,104,936,686,`<div style="padding:16px 0">${chips(["All","Today","Unwatched","Videos","Live","Posts"])}${grid([8,3,10,5,11,9],3,14)}</div>`)}${A(866,520,384,0,eWindow(384),"z-index:20")}`);
+const eShortsTab=()=>scr(`${A(0,0,1280,800,ambient(6,"opacity:.45;inset:0 200px"),"overflow:hidden")}${sb("w")}${A(24,44,50,50,`<span class="gk glass">${ic("lt",28)}</span>`)}${A(80,124,310,551,shortV(1,{cap:false,r:26}),"border-radius:26px;overflow:hidden;opacity:.45")}${A(890,124,310,551,shortV(2,{cap:false,r:26}),"border-radius:26px;overflow:hidden;opacity:.45")}${A(433,32,414,736,`${shortV(0,{cb:96,pb:8})}<div class="ab" style="left:60px;bottom:24px">${glassBar({back:false}).replace('class="gbar"','class="gbar" style="margin-left:29px"')}</div>`,"border-radius:28px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.7)")}${A(1100,44,160,40,`<span class="glass" style="display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:20px;font-size:13px;font-weight:750">${ic("cmt",16)}Comments</span>`)}`,"background:#0c0b0e");
+const eShortsFold=()=>scr(`${A(0,0,700,840,ambient(6,"opacity:.45"),"overflow:hidden")}${sb("w")}${A(-170,150,290,516,shortV(1,{cap:false,r:24}),"border-radius:24px;overflow:hidden;opacity:.45")}${A(580,150,290,516,shortV(2,{cap:false,r:24}),"border-radius:24px;overflow:hidden;opacity:.45")}${A(150,44,400,711,`${shortV(0,{cb:24,pb:6})}`,"border-radius:26px;overflow:hidden")}${A(203,770,294,50,glassBar({}),"z-index:6")}`,"background:#0c0b0e");
+const eSetTab=()=>scr(`${sb()}${eTop(-1,0,{back:1,title:"Settings",pill:false})}${A(16,104,400,686,`<div style="margin-top:-36px">${setFront({sel:"sponsorblock",back:false,pt:0,px:16}).replace('<h1 class="big" style="margin:12px 4px 0">Settings</h1>','<div style="height:22px"></div>')}</div>`,"background:var(--scl);border-radius:28px;overflow:hidden")}${page(428,104,836,686,setPage("sponsorblock",{pt:22,px:22,two:1}))}`);
+const ePlayTab=()=>scr(`${sb()}<div style="position:absolute;left:0;right:0;top:32px;height:52px;display:flex;align-items:center;gap:8px;padding:0 16px"><span class="ibt">${ic("exd",26)}</span><b style="flex:1;font-size:15px;font-weight:800;color:var(--onv)">Watching</b>${["Details","Comments","More videos"].map(t=>`<span class="ch on" style="height:34px">${ic("check",15)}${t}</span>`).join("")}<span class="ch" style="height:34px">Chapters</span><span class="ch" style="height:34px">Transcript</span><span class="ibt t" style="width:40px;height:40px">${ic("pip",20)}</span></div>${vid(16,90,800,450,{r:24,ov:1,knob:1,cc:16})}<i class="grip h" style="left:392px;top:544px"></i>${page(16,552,800,236,`<div style="padding:16px 18px;display:grid;grid-template-columns:1.25fr 1fr;gap:18px">${details({ts:18,sm:1,avs:38}).replace('<div class="acts"','<div class="acts" style="flex-wrap:nowrap"')}<div class="desc" style="margin:0;background:var(--sch)"><b>12:41 · The ozone trick</b>Sunlight crosses 40 times more air at sunset. Most blue scatters away, but ozone eats the orange in the middle, and what's left is purple.</div></div>`)}<i class="grip" style="left:820px;top:290px"></i>${page(828,90,436,400,`<div style="padding:14px 16px;height:100%">${cmPanel({count:3,chips:false,n:"1.2K"})}</div>`)}<i class="grip h" style="left:1022px;top:494px"></i>${page(828,502,436,286,`<div style="padding:16px"><div class="sec"><b>More videos</b></div>${rows([2,4,7],124,12)}</div>`)}`);
+const ePlayFold=()=>scr(`${sb()}<div style="position:absolute;left:0;right:0;top:32px;height:48px;display:flex;align-items:center;gap:6px;padding:0 12px"><span class="ibt">${ic("exd",26)}</span><b style="flex:1;font-size:15px;font-weight:800;color:var(--onv)">Watching</b><span class="ch on" style="height:32px">Comments</span><span class="ch" style="height:32px">More videos</span><span class="ibt t" style="width:38px;height:38px">${ic("pip",18)}</span></div>${vid(16,84,668,376,{r:22,ov:1,knob:1,cc:14})}<i class="grip h" style="left:326px;top:464px"></i>${page(16,472,326,356,`<div style="padding:16px">${details({ts:17,sm:1,avs:36})}</div>`)}${page(358,472,326,356,`<div style="padding:14px 16px;height:100%">${cmPanel({count:2,chips:false,n:"1.2K"})}</div>`)}`);
+
+/* ── concepts ─────────────────────────────────────────────────── */
+const CONCEPTS=[
+{id:"A",name:"Rail",line:"Android's own large-screen playbook, in Skipii's voice",
+ pitch:`On medium and expanded windows the floating pill becomes a <b>navigation rail</b> down the left (same five tabs, the selected one in full primary; your picture at the foot opens Settings). Feeds turn into <b>adaptive grids</b> (cards at least 260 dp wide: two columns on the Fold, four on a tablet), with a Shorts shelf between rows. Watching becomes <b>two panes</b>: the video, its details and the player bar on the left; Comments / More videos / Chapters beside it. Minimizing docks a <b>floating mini-player card</b> in the bottom-right corner. Settings is list-detail.`,
+ pros:["The most familiar layout: Material's feed, list-detail and supporting-pane layouts, so it feels native next to Google's apps.","Cheapest to build: window size class + a rail; most screens just change column count.","Navigation is always one tap away, even while watching."],
+ cons:["On big screens the pill no longer morphs into the player bar; the bar becomes a fixed pill under the left pane.","Looks the most like every other tablet app.","On the Fold the rail costs 80 dp of a 700 dp screen."],
+ rows:[
+  {h:"Home",sub:"rail + adaptive grid; the floating mini-player card when a video is minimized",shots:[["Fold, unfolded","fold",aHomeFold,"Two columns. The search field moves into the header."],["Tablet, landscape","tab",aHomeTab,"Four columns, a Shorts shelf, the <b>mini-player card</b> bottom-right (tap = back to two panes)."]]},
+  {h:"Subscriptions · Shorts",shots:[["Subscriptions · tablet","tab",aSubsTab,"Channel strip above a four-column feed."],["Shorts · tablet","tab",aShortsTab,"The short in the middle of its own blurred colours; actions in a <b>vertical glass pill</b>; comments always open beside it; ⌃ ⌄ for the previous / next short."]]},
+  {h:"Settings · Shorts on the Fold",shots:[["Settings · tablet","tab",aSetTab,"List-detail: the front page left (category highlighted), the category right. A new <b>Wide windows</b> group sets what sits beside the video."],["Shorts · Fold","fold",aShortsFold,"Same as the tablet, comments open as the usual panel."]]},
+  {h:"Watching",sub:"two panes; the player bar stays a pill under the video's pane",shots:[["Tablet","tab",aPlayTab,"Video + details + bar left, a pane of Comments / More videos / Chapters right. The rail stays; tapping a tab docks the mini-player card."],["Fold","fold",aPlayFold,"The video spans the top; details left of the hinge, Comments / More videos right."]]},
+ ],
+ story:{player:[aPlayFold],shorts:[aShortsFold]},
+ table:aTable,tableCap:"Video on the top half (blurred colours fill the sides). The bottom half becomes the controller: chapter + time, a wide chaptered scrub line, the player bar, and tabs for Comments / More videos / Chapters."},
+{id:"B",name:"Sidecar",line:"watching never interrupts browsing",
+ pitch:`On medium and expanded windows a playing video lives in a <b>docked column on the right</b>, and the left keeps your tabs, pill and all. There's <b>no mini-player and no collapse</b>: tap another thumbnail and the sidecar swaps; drag its edge to make it wide (up to about two thirds) and browsing shrinks to a list, but never goes away. <b>Shorts play in the same column</b> (a tall column fits a vertical video perfectly). On the Fold the split sits exactly on the hinge, so browse is one half and the video is the other.`,
+ pros:["Best for long sessions, queues and music: pick the next thing without leaving the video.","Two pills side by side: the tabs under browse, the player bar under the video.","No morph to get right on big screens; the sidecar just slides in and out."],
+ cons:["The video is small by default on the Fold (338 dp wide) until you widen it.","A different model from the phone (sidecar on big screens, mini-player on the cover screen).","Settings and Library get less room while something plays."],
+ rows:[
+  {h:"Home",sub:"browse left, the sidecar right",shots:[["Fold, unfolded","fold",bHomeFold,"Split on the hinge: one column of cards and the tab pill on the left page, the sidecar on the right with the player bar at its foot."],["Tablet, landscape","tab",bHomeTab,"Three columns of cards. The <b>grip</b> between them resizes the sidecar; ⤢ makes it wide, ✕ stops the video."]]},
+  {h:"Subscriptions · Shorts",shots:[["Subscriptions · tablet","tab",bSubsTab,"Browsing while the sidecar shows the comments."],["Shorts · tablet","tab",bShortsTab,"The Shorts tab browses tiles; the <b>short plays in the sidecar</b>. The paused video waits in a Resume chip."]]},
+  {h:"Settings · Shorts on the Fold",shots:[["Settings · tablet","tab",bSetTab,"Settings is list-detail inside the browse side; the video keeps going next to it."],["Shorts · Fold","fold",bShortsFold,"Tiles left, the short right with its channel and top comment under it."]]},
+  {h:"Watching",sub:"there's no separate player: the sidecar widens",shots:[["Tablet, sidecar wide","tab",bPlayTab,"Dragged wide: video + details, Comments / More videos in the sidecar's own side column. Browse narrows to a list; it never disappears."],["Fold, sidecar wide","fold",bPlayFold,"On the Fold the wide sidecar takes the screen; browse shrinks to a strip of tab icons (tap one to bring it back)."]]},
+ ],
+ story:{player:[bHomeFold,"Unfolded: the page you were on comes back on the left; the video docks on the right"],shorts:[bShortsFold,"Unfolded: the short docks in the sidecar, the Shorts tiles fill the left"]}},
+{id:"C",name:"Theater",line:"Skipii, just bigger",
+ pitch:`Keeps everything that makes Skipii Skipii: the <b>floating pill</b> (now with every tab's label), the mini-player above it, and the pill → player-bar morph. Pages sit on a <b>centered canvas</b> (up to about 1040 dp) with wider grids. Watching goes <b>cinematic</b>: a black stage, the video as large as the window allows, and a details sheet peeking from below; pull it up and it becomes <b>three columns</b> (details · comments · More videos) under a smaller video. Shorts sit centered, with what's coming up and the comments floating beside.`,
+ pros:["The strongest continuity with the phone app: nothing new to learn, every animation survives.","The video gets the most pixels while you watch.","Least new code: max width + column count; the player gains one sheet state."],
+ cons:["Empty margins either side on very wide windows.","On a big tablet the pill is a long reach from the edges.","Details and comments are behind the sheet while watching (one swipe up)."],
+ rows:[
+  {h:"Home",sub:"same pill and mini-player, centered canvas",shots:[["Fold, unfolded","fold",cHomeFold,"Two columns; the pill and mini-player float centered, exactly as on the phone."],["Tablet, landscape","tab",cHomeTab,"Three columns on a 1040 dp canvas; the pill gains every tab's label."]]},
+  {h:"Subscriptions · Shorts",shots:[["Subscriptions · Fold","fold",cSubsFold,"Channel strip + two columns."],["Shorts · tablet","tab",cShortsTab,"The short centered on its own colours, the glass bar under it as on the phone; <b>Coming up</b> on the left, comments floating on the right."]]},
+  {h:"Settings · Shorts on the Fold",shots:[["Settings · tablet","tab",cSetTab,"One centered page: quick toggles in a row of four, groups in two columns. A category opens as a <b>sheet</b> over it."],["Shorts · Fold","fold",cShortsFold,"Centered short, the next two waiting at the side."]]},
+  {h:"Watching",sub:"a black stage, the details in a sheet",shots:[["Tablet, watching","tab",cPlayTab,"The video as big as it goes. The sheet's peek holds the title, the channel and the <b>player bar</b> (still the morphed pill)."],["Tablet, sheet pulled up","tab",cPlayTab2,"The video steps back to the top; details, comments and More videos side by side."],["Fold","fold",cPlayFold,"Video on the stage, the chapter under it, the sheet resting with the details."]]},
+ ],
+ story:{player:[cPlayFold],shorts:[cShortsFold]},
+ table:cTable,tableCap:"Top half: the stage. Bottom half: the player bar a size up, chapters as big thumbnails to jump between, and the sheet's handle for Comments / More videos."},
+{id:"D",name:"Book",line:"two pages, never across the spine",
+ pitch:`Fold-aware: the window splits <b>exactly at the hinge</b> (50/50 on a tablet) into a <b>list page</b> and a <b>detail page</b>. Home: the feed | a muted <b>preview</b> of the video you tapped, with its chapters and a big Play. Subscriptions: channels | that channel. Shorts: the short | its comments. Settings: categories | the category. Watching: the video across the top (the only thing allowed over the spine), details and the player bar | More videos. <b>Half-folded is first class</b>: video on the top half, the bar and comments on the bottom pages.`,
+ pros:["Fits the Fold's shape best; nothing ever sits in the crease.","Look before you play: previews stop wrong taps from wrecking your history and Home.","Tabletop falls out naturally from the same two pages."],
+ cons:["One more tap to play from Home (preview → Play); a setting could skip it.","On a tablet with no hinge the 50/50 split is arbitrary.","Pages are narrow on the Fold (about 330 dp each)."],
+ rows:[
+  {h:"Home",sub:"feed page | preview page",shots:[["Fold, unfolded","fold",dHomeFold,"A tap selects a video and fills the right page with its preview; Play starts it. The tab pill lives on the list page."],["Tablet, landscape","tab",dHomeTab,"The same spread at 50/50: a two-column feed, a big preview with chapters."]]},
+  {h:"Subscriptions · Shorts",shots:[["Subscriptions · Fold","fold",dSubsFold,"Channels with new counts | the channel page."],["Shorts · Fold","fold",dShortsFold,"The short fills the left page (the glass bar under it); its comments always open on the right page."]]},
+  {h:"Settings · Shorts on a tablet",shots:[["Settings · tablet","tab",dSetTab,"Categories | the category page; here Captions with its live preview."],["Shorts · tablet","tab",dShortsTab,"The same spread without a hinge: the short and what's coming up on the left page, comments on the right."]]},
+  {h:"Watching",sub:"the video spans the top, then two pages",shots:[["Tablet","tab",dPlayTab,"Left page: video, details, player bar. Right page: More videos as a grid, Comments, Chapters."],["Fold","fold",dPlayFold,"The video crosses the hinge; the bar stays inside the left page; More videos on the right."]]},
+ ],
+ story:{player:[dPlayFold],shorts:[dShortsFold]},
+ table:dTable,tableCap:"The pages turn sideways: video on top; bottom-left the time, scrub line, bar and quick chips; bottom-right the comments. Propping the Fold up is the default way to watch."},
+{id:"E",name:"Spaces",line:"a desk, not a stack",
+ pitch:`Home becomes a <b>dashboard of panels</b> (Pick up where you left off, New from subscriptions, Shorts, Recommended). The video is a <b>floating window</b> you can drag, resize from its grip and snap to any corner: it <i>is</i> the mini-player. Opening it builds a <b>workspace</b>: video, details, comments and More videos as panels with resize handles, switched on and off from the top bar. The tabs move into a pill at the <b>top</b>, leaving the bottom for windows. Controls sit <b>on the video</b> (0.5.67's option). Settings and Library are list-detail panels; Shorts are a <b>strip of three</b>, the middle one playing.`,
+ pros:["The most powerful on big tablets, keyboards and desktop mode; the layout remembers your panels.","Controls on the video suit panels: nothing floats over the details.","The floating window keeps a video visible on every page."],
+ cons:["The most work and the most new gestures (resize, snap, panel toggles).","The busiest look; can drift from 'calm' toward a desktop app.","The dashboard is cramped on the Fold, and the top pill is far from the thumb."],
+ rows:[
+  {h:"Home",sub:"a dashboard, the video as a floating window",shots:[["Fold, unfolded","fold",eHomeFold,"Panels stack; the window floats bottom-right (grip top-left to resize, ⤢ to open)."],["Tablet, landscape","tab",eHomeTab,"Panels on a grid. The window can be dropped anywhere and snaps to the nearest corner."]]},
+  {h:"Subscriptions · Shorts",shots:[["Subscriptions · tablet","tab",eSubsTab,"A channel panel beside the feed panel."],["Shorts · tablet","tab",eShortsTab,"A strip of three: the middle one plays, its neighbours wait dimmed. Swipe up or sideways. Comments open as a panel."]]},
+  {h:"Settings · Shorts on the Fold",shots:[["Settings · tablet","tab",eSetTab,"List-detail panels; the wide panel puts SponsorBlock's segments in two columns."],["Shorts · Fold","fold",eShortsFold,"The strip of three, neighbours peeking in from the edges."]]},
+  {h:"Watching",sub:"a workspace of panels, controls on the video",shots:[["Tablet","tab",ePlayTab,"Video, details, comments and More videos as panels; grips between them resize. Chips up top switch panels; PiP pops the video out."],["Fold","fold",ePlayFold,"Video on top; Details | Comments below, split on the hinge."]]},
+ ],
+ story:{player:[ePlayFold],shorts:[eShortsFold]}},
+];
+
+/* ── page assembly ────────────────────────────────────────────── */
+function storyRow(c){
+ const pf=c.story.player[0], sf=c.story.shorts[0];
+ const pcap=c.story.player[1]||"Unfolded: <b>12:41, same video, same page</b>, now in this concept's layout";
+ const scap=c.story.shorts[1]||"Unfolded: <b>the same short, same second</b>, laid out wide";
+ return `<div class="stories">${story("Player",[[dev("cover",coverPlayer(),"mid"),"Cover screen: <b>watching at 12:41</b>"],[half(pf(),"mid"),"Opening: the video holds still and keeps playing; the panes grow out from it"],[dev("fold",pf(),"mid"),pcap]])}${story("Shorts",[[dev("cover",coverShort(),"mid"),"Cover screen: <b>a short, 4 s in</b>"],[half(sf(),"mid"),"Opening: the short stays put; the space around it fills in"],[dev("fold",sf(),"mid"),scap]])}</div>`;
+}
+function conceptHTML(c){
+ let h=`<section class="concept" data-c="${c.id}"><div class="chead"><div class="pitch"><div class="t"><i>${c.id}</i><b>${c.name}</b><em>${c.line}</em></div><p>${c.pitch}</p></div><div class="trade"><div><h4>Good</h4><ul>${c.pros.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><h4>Costs</h4><ul>${c.cons.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div>`;
+ c.rows.forEach((r,i)=>{
+  h+=`<div class="rowh"><i>${i+1}</i><b>${r.h}</b>${r.sub?`<span>${r.sub}</span>`:""}</div><div class="shots">${r.shots.map(([lab,kind,fn,cap])=>shot(lab,dev(kind,fn()),cap,capW(kind))).join("")}</div>`;
+ });
+ h+=`<div class="rowh"><i>${c.rows.length+1}</i><b>Fold ↔ unfold</b><span>the cover screen next to the unfolded one; the same video or short keeps playing at the same spot, on the same page</span></div>${storyRow(c)}`;
+ if(c.table) h+=`<div class="rowh"><i>${c.rows.length+2}</i><b>Tabletop</b><span>half-folded, hinge across the middle</span></div><div class="shots">${shot("Fold half-open on a table · 840×700",tabletop(c.table()),c.tableCap,capW("tt"))}</div>`;
+ return h+`</section>`;
+}
+
+function studyHTML(){
+ return `<div><div class="pic">${dev("tab",letterbox(),"calc(var(--s) * .44)")}</div><div><b>Letterboxed on a tablet</b><p>Portrait-locked, so Android shows a <em>phone-shaped column</em> in the middle of a landscape tablet, black on both sides. Every page is one column of phone-sized cards.</p></div></div>
+ <div><div class="pic">${dev("coverL",coverFullL(),"calc(var(--s) * .5)")}</div><div><b>Cover screen stuck in fullscreen</b><p>Fold the phone while watching full screen and the <em>cover screen stays sideways</em> in fullscreen; turning it upright doesn't bring the details back, and the very tall cover screen pillarboxes the video.</p></div></div>
+ <div><div class="pic">${dev("cover",coverPlayer(),"calc(var(--s) * .4)")}<span class="arrow">→</span><div style="position:relative">${dev("fold",phoneHome(700,840,{px:110}),"calc(var(--s) * .4)")}<span class="bad" style="position:absolute;left:50%;top:-12px;transform:translateX(-50%)">Back on Home</span></div></div><div><b>Unfolding loses your place</b><p>Opening the Fold rebuilds the window: you land on <em>Home with a mini-player</em> instead of the video you were watching, and the layout is still one stretched phone column.</p></div></div>`;
+}
+function commonHTML(){
+ return `<div><h3>Common to all five</h3><ul>
+ <li><b>Continuity on fold / unfold.</b> Folding or unfolding never navigates: the same video or short keeps playing at the same second, the page underneath is the page you were on, an open comments panel stays open. Skipii handles the size change itself instead of being recreated, and the video keeps its one shared surface, so there's no flash.</li>
+ <li><b>Rotation unlocked from medium up.</b> Portrait lock stays only for compact windows (phones, the cover screen). Fullscreen is still one tap; the Fold's inner screen and tablets work either way round.</li>
+ <li><b>The hinge is a layout input.</b> A vertical hinge splits panes on it (B and D always; A and E where it falls between panes). Half-folded with a horizontal hinge = tabletop (A, C, D).</li>
+ <li><b>Compact is today's app, untouched.</b> Phones and the cover screen keep the pill, the morphing player and the bar exactly as shipped.</li>
+ <li><b>Same rules:</b> no ripples, tone not outlines, "More videos" (never "Up next"), five tabs, no watch-time stats, the bar is audio only · −10 · play · +10 · ⋮ (or controls on the video).</li></ul></div>
+ <div><h3>Window size classes (width)</h3><table class="cls"><tr><th></th><th>Compact<small>under 600 dp</small></th><th>Medium<small>600–840 dp</small></th><th>Expanded<small>over 840 dp</small></th></tr>
+ <tr><td>Where</td><td>Phones, Fold cover (373), narrow split screen</td><td>Fold inner (700), tablets upright, half-screen splits</td><td>Tablets sideways (1280), Fold inner sideways (840), desktop windows</td></tr>
+ <tr><td>Navigation</td><td>Floating pill</td><td>A rail · B, C, D pill · E top pill</td><td>Same as medium; C's pill shows every label</td></tr>
+ <tr><td>Home, Subs, Search</td><td>1 column</td><td>2 columns (D: list page)</td><td>3–4 columns (cards ≥ 260 dp)</td></tr>
+ <tr><td>Watching</td><td>Portrait player + bar</td><td>Video on top, two panes under it</td><td>Two panes / sidecar / stage / spread / workspace</td></tr>
+ <tr><td>Mini-player</td><td>Above the pill</td><td colspan="2">A corner card · B none (sidecar) · C above the pill · D on the right page · E the floating window</td></tr>
+ <tr><td>Shorts</td><td>Full bleed, glass bar</td><td colspan="2">Centered short; the sides get blur, neighbours or comments; the glass bar stays under the short</td></tr>
+ <tr><td>Settings, Library</td><td>Single column</td><td colspan="2">List-detail (C: a centered page, categories in a sheet)</td></tr>
+ <tr><td>Fullscreen</td><td colspan="3">Unchanged: overlay controls, swipe down / Back to leave. On big screens rotating no longer forces it.</td></tr></table></div>`;
+}
+
+/* ── theme tokens (Ledgii palettes, as settings-merged.html) ───── */
+const THEMES=[["Lilac Air","#7454CE"],["YouTube","#E5002E"],["Wallpaper","#4E6E58"],["Harbor","#3B5BDB"]];
+const S={dark:matchMedia("(prefers-color-scheme: dark)").matches,theme:"Lilac Air"};
+function applyTokens(){
+ const hex=THEMES.find(t=>t[0]==S.theme)[1],dark=S.dark;
+ const k=S.theme=="YouTube"?.35:1;
+ const m=(p,b)=>`color-mix(in oklab, ${hex} ${p}%, ${b})`;
+ const T=dark?{p:m(55,"#fff"),onp:m(65,"#000"),pc:m(42,"#1a1a1e"),onpc:m(18,"#fff"),sec:m(18*k+6,"#2b2a31"),onsec:m(12,"#eeeaf3"),surf:m(4*k,"#131216"),scl:m(5*k,"#1b1a1f"),sc:m(7*k,"#211f25"),sch:m(9*k,"#2a282f"),schh:m(11*k,"#34323a"),on:"#e8e4ee",onv:"#bcb6c6",outline:m(18,"#8f8a98"),sh:"0 12px 30px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.35)"}
+  :{p:hex,onp:"#fff",pc:m(18,"#fff"),onpc:m(75,"#000"),sec:m(12*k+3,"#ebe9ee"),onsec:m(45,"#1b1a1f"),surf:m(3*k,"#fdfcff"),scl:m(4*k,"#f7f5fa"),sc:m(7*k,"#f1eff4"),sch:m(9*k,"#ebe9ee"),schh:m(12*k,"#e4e2e8"),on:"#1c1b20",onv:"#5e5a66",outline:m(18,"#7a7682"),sh:"0 10px 28px rgba(40,20,80,.20),0 2px 6px rgba(40,20,80,.10)"};
+ const st=document.documentElement.style;
+ for(const [n,v] of Object.entries(T)) st.setProperty("--"+n,v);
+ document.documentElement.classList.toggle("dark",dark);
+ document.querySelectorAll("[data-mode]").forEach(c=>c.classList.toggle("on",(c.dataset.mode=="dark")==dark));
+ document.querySelectorAll("[data-theme]").forEach(c=>c.classList.toggle("on",c.dataset.theme==S.theme));
+}
+function show(id){
+ document.body.dataset.show=id=="all"?"all":"one";
+ document.querySelectorAll(".concept").forEach(s=>s.classList.toggle("on",s.dataset.c==id));
+ document.querySelectorAll("[data-show]").forEach(c=>c.classList.toggle("on",c.dataset.show==id));
+ history.replaceState(null,"","#"+id);
+}
+
+document.getElementById("themes").innerHTML=THEMES.map(([n,h])=>`<button class="chip" data-theme="${n}" style="margin-right:6px"><i style="background:${h}"></i>${n}</button>`).join("");
+document.getElementById("study").innerHTML=studyHTML();
+document.getElementById("common").innerHTML=commonHTML();
+document.getElementById("cbar").innerHTML+=CONCEPTS.map(c=>`<button class="chip" data-show="${c.id}"><b>${c.id}</b>· ${c.name}</button>`).join("")+`<button class="chip" data-show="all">All five</button>`;
+document.getElementById("concepts").innerHTML=CONCEPTS.map(conceptHTML).join("");
+document.getElementById("pick").innerHTML=`<b>My lean: A as the base, with D's hinge rule and tabletop.</b> A's rail, grids and two-pane player are the least surprising on every size and the cheapest to build well. D's "nothing in the crease" and the half-folded layout drop straight into it, and B's sidecar could come later as the "wide" state of A's mini-player card. C is the safe choice if keeping the pill everywhere matters most; E is the most fun but the most work.`;
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-mode],[data-theme],[data-show]"); if(!t) return;
+ if(t.dataset.mode){S.dark=t.dataset.mode=="dark";applyTokens()}
+ if(t.dataset.theme){S.theme=t.dataset.theme;applyTokens()}
+ if(t.dataset.show) show(t.dataset.show);
+});
+document.getElementById("zoom").addEventListener("input",e=>document.documentElement.style.setProperty("--s",e.target.value));
+const q=new URLSearchParams(location.search);
+if(q.get("dark")) S.dark=q.get("dark")=="1";
+applyTokens();
+show((location.hash||"#A").slice(1)||"A");
+</script>
+</body>
+</html>

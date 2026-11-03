@@ -1,5 +1,6 @@
 package com.decio.skipii
 
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -73,6 +74,78 @@ class InnerTubeParseTest {
     @Test fun reelSequenceParams() {
         val bytes = java.util.Base64.getDecoder().decode(InnerTube.reelSequenceParams("m7fHuAcbD0A"))
         assertEquals(listOf(0x0A, 11) + "m7fHuAcbD0A".map { it.code } + listOf(0x2A, 0x02, 0x18, 0x05, 0x50, 25), bytes.map { it.toInt() })
+    }
+
+    /**
+     * Home (FEwhat_to_watch) with its category chips, captured 2026-11-02 for an anonymous visitor
+     * with a few watches behind it (a fresh visitor gets only "Try searching to get started"),
+     * trimmed to 8 lockups + the feed's continuation (ads, tracking, visitor data stripped).
+     */
+    @Test fun homeChips() {
+        val root = fixture("home_chips")
+        val chips = InnerTube.parseHomeChips(root)
+        assertEquals("All", chips.first().title)
+        assertEquals("the selected chip is the plain feed", null, chips.first().token)
+        assertEquals("21 captured, Live left out", 20, chips.size)
+        assertTrue(chips.drop(1).all { it.token != null })
+        assertTrue(chips.map { it.title }.containsAll(listOf("Music", "Gaming", "Rhythm & Blues", "Recently uploaded")))
+        assertTrue("live streams can't play", chips.none { it.title == "Live" })
+        val page = InnerTube.parseFeed(root)
+        assertEquals(8, page.videos.size)
+        assertNotNull("feed continuation", page.next)
+        assertTrue("a chip token taken for the next page", chips.none { it.token == page.next })
+        // Search's filter chips (same chipCloudChipRenderer, in searchHeaderRenderer) aren't Home's.
+        assertTrue(InnerTube.parseHomeChips(fixture("search")).isEmpty())
+    }
+
+    /** "Your custom feed" opens a prompt box Skipii can't show (its page had no videos), so it's left out. */
+    @Test fun promptChipDropped() {
+        val root = fixture("home_chips")
+        val bar = root.findObject("feedFilterChipBarRenderer")!!.getJSONArray("contents")
+        bar.put(JSONObject(bar.getJSONObject(1).toString()).apply {
+            getJSONObject("chipCloudChipRenderer").put("text", JSONObject().put("runs", JSONArray().put(JSONObject().put("text", "Your custom feed"))))
+        })
+        val chips = InnerTube.parseHomeChips(root)
+        assertEquals(20, chips.size)
+        assertTrue(chips.none { it.title == "Your custom feed" })
+    }
+
+    /**
+     * Live streams aren't played, so feeds leave them out: the HBO Max lockups badged LIVE /
+     * "Now playing" on their thumbnails (movies.json) are live; a video whose channel is live right
+     * now (`liveData` on the avatar only, home_chip_feed.json) is an ordinary upload and stays.
+     */
+    @Test fun liveDropped() {
+        val lockups = mutableListOf<JSONObject>()
+        fixture("movies").walk { key, o -> if (key == "lockupViewModel") lockups += o }
+        val badged = lockups.filter { "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE" in it.toString() }
+        assertEquals(4, badged.size)
+        assertTrue(badged.all { InnerTube.isLive(it) })
+        val feed = mutableListOf<JSONObject>()
+        fixture("home_chip_feed").walk { key, o -> if (key == "lockupViewModel") feed += o }
+        assertEquals("channel live now, video isn't", 2, feed.count { "liveData" in it.toString() })
+        assertTrue(feed.none { InnerTube.isLive(it) })
+        // Older renderers: the LIVE NOW badge, the time overlay styled LIVE, an upcoming premiere.
+        fun renderer(extra: JSONObject.() -> Unit) = JSONObject().put("videoId", "abcdefghijk")
+            .put("title", JSONObject().put("simpleText", "A stream")).apply(extra)
+        val page = InnerTube.parseFeed(JSONObject().put("items", JSONArray()
+            .put(JSONObject().put("videoRenderer", renderer {
+                put("badges", JSONArray().put(JSONObject().put("metadataBadgeRenderer", JSONObject().put("style", "BADGE_STYLE_TYPE_LIVE_NOW"))))
+            }))
+            .put(JSONObject().put("videoRenderer", renderer {
+                put("thumbnailOverlays", JSONArray().put(JSONObject().put("thumbnailOverlayTimeStatusRenderer", JSONObject().put("style", "LIVE"))))
+            }))
+            .put(JSONObject().put("videoRenderer", renderer { put("upcomingEventData", JSONObject().put("startTime", "1793700000")) }))
+            .put(JSONObject().put("videoRenderer", renderer { put("videoId", "kept_video1") }))))
+        assertEquals(listOf("kept_video1"), page.videos.map { it.id })
+    }
+
+    /** The "Music" chip's answer (same capture): reloadContinuationItemsCommand on the feed's body, its own continuation. */
+    @Test fun homeChipFeed() {
+        val page = InnerTube.parseFeed(fixture("home_chip_feed"))
+        assertEquals(8, page.videos.size)
+        assertTrue(page.next!!.startsWith("4qmFsgK"))
+        page.videos.forEach { assertTrue("title for ${it.id}", it.title.isNotBlank()) }
     }
 
     @Test fun viewCounts() {

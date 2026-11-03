@@ -10,6 +10,25 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- Tablets and foldables get a layout of their own. On a wide screen the tabs move to a rail down the left, feeds become grids, and the mini-player waits in the corner.
+- Watching on a tablet: the video, its details and the comments scroll together on the left, and More videos stays in its own column on the right, with filters for the channel's own videos and the rest.
+- On an open Galaxy Fold or Pixel Fold the video runs across the top, the details and comments sit on the left page, and More videos on the right. The playback controls stay centred, as on a phone.
+- Stand an open foldable half open on a table and the video takes the top half while the controls lie on the bottom half on pure black, with a strip of preview frames you drag across to jump anywhere.
+- Shorts on a big screen play as big as the screen allows, never cropped, with the title and buttons beside them, and the comments open beside the short. On Home they're a single card, not a shelf.
+- Settings on a big screen shows its categories on the left and the one you pick on the right.
+- Home shows YouTube's categories (All, Music, Gaming and more) at the top, on phones too (#35, thanks @risingsword).
+- Zoom to fill in fullscreen, as in YouTube's app: pinch out on the video to fill the whole screen (the edges are cropped), pinch in to see it whole again. A pinch counts for that video only. To have every video fill the screen, turn on Settings › Playback › Zoom to fill in fullscreen (#41, #43, thanks @ganapathi-subramanian and @risingsword).
+
+### Improved
+- Tablets and open foldables are no longer held in portrait: turn them any way you like.
+
+### Fixed
+- Live streams no longer show up in Home, Subscriptions, channels or playlists. Skipii can't play them yet, so they only led to an error (search already left them out).
+- Foldables: folding or unfolding keeps you where you were. The same video or short carries on playing, on the same page, instead of starting over on Home.
+- Galaxy Z Fold: a video no longer gets stuck sideways in fullscreen on the cover screen after you fold the phone. The screen you switch to follows how you're holding it.
+- Coming back to the app while a video plays in the background now loads that video's comments again.
+
 ## 0.5.84
 
 ### New

@@ -138,4 +138,7 @@
     <string name="ui_feed_error_title">Couldn\'t load this</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">You\'re signed out.</string>
+    <!-- Home, a category chip whose page had no videos. %1$s = the chip's name. -->
+    <string name="ui_chip_empty_title">Nothing here</string>
+    <string name="ui_chip_empty_body">YouTube sent no videos for “%1$s”.</string>
 </resources>

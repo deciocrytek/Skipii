@@ -41,4 +41,8 @@
     <string name="settings_say_hi">Ghé qua chào nhé</string>
     <string name="settings_email_developer">Gửi email cho nhà phát triển</string>
     <string name="settings_no_app">Không có ứng dụng nào trên điện thoại này mở được</string>
+    <string name="settings_zoom_fill_title">Thu phóng để lấp đầy khi toàn màn hình</string>
+    <string name="settings_zoom_fill_on">Mọi video lấp đầy màn hình; phần mép thừa bị cắt. Chụm hai ngón tay để xem trọn video.</string>
+    <string name="settings_zoom_fill_off">Video hiển thị trọn vẹn, có viền đen. Tách hai ngón tay khi toàn màn hình để lấp đầy màn hình.</string>
+    <string name="settings_zoom_fill_summary">thu phóng để lấp đầy</string>
 </resources>

@@ -84,4 +84,8 @@
     <string name="player_sb_action_ask">Ask</string>
     <string name="player_sb_action_show">Show</string>
     <string name="player_sb_action_off">Off</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">All</string>
+    <string name="player_more_from">From %1$s</string>
+    <string name="player_more_related">Related</string>
 </resources>

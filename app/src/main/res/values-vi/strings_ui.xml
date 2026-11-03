@@ -137,4 +137,6 @@
     <string name="ui_feed_error_title">Không thể tải nội dung này</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Bạn đã đăng xuất.</string>
+    <string name="ui_chip_empty_title">Không có gì ở đây</string>
+    <string name="ui_chip_empty_body">YouTube không gửi video nào cho “%1$s”.</string>
 </resources>

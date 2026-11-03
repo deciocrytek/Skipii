@@ -23,6 +23,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         PlaybackSpeed.init(this)
         AudioOnly.init(this)
         PlayerControls.init(this)
+        FullscreenZoom.init(this)
         CaptionSettings.init(this)
         CaptionTranslator.refresh()
         SearchHistory.init(this)

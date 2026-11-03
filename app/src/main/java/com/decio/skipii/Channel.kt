@@ -115,6 +115,7 @@ class ChannelState(val url: String, private val scope: CoroutineScope) {
 @Composable
 fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: () -> Unit, onOpen: (VideoItem) -> Unit, onMessage: (String) -> Unit) {
     val c = MaterialTheme.colorScheme
+    val columns = gridColumns()
     val list = rememberLazyListState()
     val nearEnd by remember {
         derivedStateOf { (list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= list.layoutInfo.totalItemsCount - 4 }
@@ -179,7 +180,7 @@ fun ChannelScreen(state: ChannelState, contentPadding: PaddingValues, onBack: ()
                     }
                 }
                 item(key = "videosTitle") { SectionTitle(stringResource(R.string.ui_videos)) }
-                items(state.videos, key = { it.id }) { video -> VideoCard(video, onClick = { onOpen(video) }) }
+                videoCards(state.videos, columns, onOpen)
                 if (state.loading || state.hasMore) item {
                     Box(Modifier.fillMaxWidth().padding(28.dp), Alignment.Center) {
                         CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(32.dp))

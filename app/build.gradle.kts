@@ -12,8 +12,8 @@ android {
         applicationId = "com.skipii"
         minSdk = 26
         targetSdk = 36
-        versionCode = 93
-        versionName = "0.5.84"
+        versionCode = 102
+        versionName = "0.5.93"
     }
 
     buildTypes {
@@ -84,6 +84,8 @@ dependencies {
     implementation("com.google.mlkit:translate:17.0.3")
     // The bell's new-video check runs every 15 minutes with no window open (NewVideos).
     implementation("androidx.work:work-runtime-ktx:2.10.0")
+    // Foldables: where the fold runs and whether the phone is half open (Adaptive.kt).
+    implementation("androidx.window:window:1.3.0")
 
     // Parser tests run on the JVM against real InnerTube responses (src/test/resources).
     testImplementation("junit:junit:4.13.2")

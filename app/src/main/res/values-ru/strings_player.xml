@@ -88,4 +88,8 @@
     <string name="player_sb_action_ask">Спросить</string>
     <string name="player_sb_action_show">Показ</string>
     <string name="player_sb_action_off">Выкл.</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Все</string>
+    <string name="player_more_from">От %1$s</string>
+    <string name="player_more_related">Похожие</string>
 </resources>

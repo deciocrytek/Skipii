@@ -42,4 +42,8 @@
     <string name="settings_say_hi">Gel bir merhaba de</string>
     <string name="settings_email_developer">Geliştiriciye e-posta gönder</string>
     <string name="settings_no_app">Bu telefondaki hiçbir uygulama bunu açamıyor</string>
+    <string name="settings_zoom_fill_title">Tam ekranda doldurmak için yakınlaştır</string>
+    <string name="settings_zoom_fill_on">Her video ekranı doldurur; taşan kenarlar kırpılır. Bir videonun tamamını görmek için parmaklarınızı birleştirin.</string>
+    <string name="settings_zoom_fill_off">Videolar siyah çubuklarla bütün olarak gösterilir. Tam ekranda ekranı doldurmak için parmaklarınızı açın.</string>
+    <string name="settings_zoom_fill_summary">doldurmak için yakınlaştırıldı</string>
 </resources>

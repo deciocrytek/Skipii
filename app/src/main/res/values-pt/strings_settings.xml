@@ -43,4 +43,8 @@
     <string name="settings_say_hi">Vem dar um oi</string>
     <string name="settings_email_developer">Enviar e-mail ao desenvolvedor</string>
     <string name="settings_no_app">Nenhum app deste celular consegue abrir isso</string>
+    <string name="settings_zoom_fill_title">Ampliar para preencher em tela cheia</string>
+    <string name="settings_zoom_fill_on">Todos os vídeos preenchem a tela; as bordas que sobram são cortadas. Faça o gesto de pinça para dentro para ver um vídeo inteiro.</string>
+    <string name="settings_zoom_fill_off">Os vídeos aparecem inteiros, com barras pretas. Faça o gesto de pinça para fora em tela cheia para preencher a tela.</string>
+    <string name="settings_zoom_fill_summary">ampliado para preencher</string>
 </resources>

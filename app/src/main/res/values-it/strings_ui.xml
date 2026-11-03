@@ -139,4 +139,6 @@
     <string name="ui_feed_error_title">Impossibile caricare il contenuto</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Sei uscito dall\'account.</string>
+    <string name="ui_chip_empty_title">Qui non c\'è niente</string>
+    <string name="ui_chip_empty_body">YouTube non ha inviato video per “%1$s”.</string>
 </resources>

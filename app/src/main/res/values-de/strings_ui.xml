@@ -139,4 +139,6 @@
     <string name="ui_feed_error_title">Konnte nicht geladen werden</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Du bist abgemeldet.</string>
+    <string name="ui_chip_empty_title">Hier ist nichts</string>
+    <string name="ui_chip_empty_body">YouTube hat für „%1$s“ keine Videos geschickt.</string>
 </resources>

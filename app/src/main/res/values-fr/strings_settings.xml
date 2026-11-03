@@ -43,4 +43,8 @@
     <string name="settings_say_hi">Venez dire bonjour</string>
     <string name="settings_email_developer">Écrire au développeur</string>
     <string name="settings_no_app">Aucune appli de ce téléphone ne peut l\'ouvrir</string>
+    <string name="settings_zoom_fill_title">Zoom pour remplir en plein écran</string>
+    <string name="settings_zoom_fill_on">Chaque vidéo remplit l\'écran ; les bords qui dépassent sont rognés. Pincez pour voir une vidéo en entier.</string>
+    <string name="settings_zoom_fill_off">Les vidéos s\'affichent en entier, avec des bandes noires. Écartez deux doigts en plein écran pour remplir l\'écran.</string>
+    <string name="settings_zoom_fill_summary">zoom pour remplir</string>
 </resources>

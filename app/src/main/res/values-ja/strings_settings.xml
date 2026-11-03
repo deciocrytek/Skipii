@@ -41,4 +41,8 @@
     <string name="settings_say_hi">気軽に声をかけてください</string>
     <string name="settings_email_developer">開発者にメールする</string>
     <string name="settings_no_app">この端末にはこれを開けるアプリがありません</string>
+    <string name="settings_zoom_fill_title">全画面で画面に合わせてズーム</string>
+    <string name="settings_zoom_fill_on">すべての動画が画面いっぱいに表示され、はみ出す端は切り取られます。ピンチインで動画全体を表示します。</string>
+    <string name="settings_zoom_fill_off">動画は黒帯付きで全体が表示されます。全画面でピンチアウトすると画面いっぱいになります。</string>
+    <string name="settings_zoom_fill_summary">画面に合わせてズーム</string>
 </resources>

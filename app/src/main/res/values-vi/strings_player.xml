@@ -84,4 +84,8 @@
     <string name="player_sb_action_ask">Hỏi</string>
     <string name="player_sb_action_show">Hiện</string>
     <string name="player_sb_action_off">Tắt</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Tất cả</string>
+    <string name="player_more_from">Từ %1$s</string>
+    <string name="player_more_related">Liên quan</string>
 </resources>

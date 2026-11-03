@@ -142,4 +142,6 @@
     <string name="ui_feed_error_title">تعذّر تحميل هذا المحتوى</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">لقد سجّلت الخروج.</string>
+    <string name="ui_chip_empty_title">لا شيء هنا</string>
+    <string name="ui_chip_empty_body">لم يرسل YouTube أي فيديو لـ «%1$s».</string>
 </resources>

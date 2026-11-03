@@ -1,5 +1,26 @@
 package com.decio.skipii
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -90,6 +111,8 @@ fun HomeScreen(
     onSignIn: () -> Unit,
     onAccount: () -> Unit,
     scrollToTop: Int = 0,
+    /** Wide windows (Rail 3): Shorts as one compact card in the grid, never a shelf. */
+    shortsCard: (@Composable (Modifier) -> Unit)? = null,
 ) {
     val signedIn = Account.signedIn
     LaunchedEffect(signedIn) { if (signedIn) lib.home.ensureLoaded() }
@@ -98,7 +121,22 @@ fun HomeScreen(
         header = { ScreenHeader(title = "Skipii", brandMark = true) { UpdateAction(); AccountAction(onAccount) } },
     ) { top ->
         if (signedIn) {
-            FeedList(lib.home, contentPadding.withTop(top), onOpen, scrollToTop = scrollToTop, indicatorTop = top)
+            val home = lib.home
+            FeedList(home, contentPadding.withTop(top), onOpen, header = {
+                // Always present (empty until YouTube sends chips) so their arrival never shifts the list.
+                item(key = "chips") { if (home.chips.isNotEmpty()) HomeChips(home.chips, home.chip, home::selectChip) }
+                // A chip whose page held no videos: say so, never a blank page.
+                val chosen = home.chip
+                val plain = home.chips.firstOrNull { it.token == null }
+                if (chosen != null && home.loadedEmpty) item(key = "chipEmpty") {
+                    EmptyState(
+                        icon = Icons.Rounded.VideoLibrary,
+                        title = stringResource(R.string.ui_chip_empty_title),
+                        body = stringResource(R.string.ui_chip_empty_body, chosen.title),
+                        action = plain?.let { { PillButton(it.title, { home.selectChip(it) }) } },
+                    )
+                }
+            }, scrollToTop = scrollToTop, indicatorTop = top, gridExtra = shortsCard)
         } else {
             LazyColumn(contentPadding = contentPadding.withTop(top)) {
                 item {
@@ -159,6 +197,122 @@ fun SubscriptionsScreen(
         }
     }
 }
+
+/**
+ * Home's category chips as YouTube sent them ("All", "Music", "Gaming"…): plain words in a row
+ * that scrolls (Derek picked B "Underline" in docs/design/home-chips.html). The chosen word is
+ * primary and heavier, and a short rounded bar springs under it from the last pick. The row
+ * fades out at whichever edge has more to scroll to.
+ */
+@Composable
+private fun HomeChips(chips: List<FeedChip>, chosen: FeedChip?, onPick: (FeedChip) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val reduced = rememberReducedMotion()
+    val density = LocalDensity.current
+    val scroll = rememberScrollState()
+    val selected = chips.indexOfFirst { chosen?.let { ch -> ch.title == it.title } ?: (it.token == null) }
+    // Each word's left edge and width in the row, in px (written as they're placed).
+    val spots = remember(chips) { mutableStateMapOf<Int, Pair<Float, Float>>() }
+    val barLeft = remember { Animatable(0f) }
+    val barWidth = remember { Animatable(0f) }
+    var barShown by remember { mutableStateOf(false) }
+    val target = spots[selected]
+    LaunchedEffect(target) {
+        val (left, width) = target ?: return@LaunchedEffect
+        val w = maxOf(width * ChipBarShare, with(density) { ChipBarMin.toPx() })
+        val l = left + (width - w) / 2
+        if (!barShown || reduced) {
+            barLeft.snapTo(l); barWidth.snapTo(w); barShown = true
+            return@LaunchedEffect
+        }
+        val spec = spring<Float>(dampingRatio = 0.62f, stiffness = 450f)
+        launch { barLeft.animateTo(l, spec) }
+        barWidth.animateTo(w, spec)
+    }
+    // A pick near an edge scrolls the row to bring it to the middle.
+    LaunchedEffect(selected) {
+        val (left, width) = spots[selected] ?: return@LaunchedEffect
+        val edge = with(density) { ChipRowPadding.toPx() }
+        val x = left + edge
+        val view = scroll.viewportSize
+        if (x - edge < scroll.value || x + width + edge > scroll.value + view) {
+            val to = (x + width / 2 - view / 2f).toInt()
+            if (reduced) scroll.scrollTo(to) else scroll.animateScrollTo(to)
+        }
+    }
+    val fade = with(density) { ChipRowFade.toPx() }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 2.dp, bottom = 10.dp)
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+            .drawWithContent {
+                drawContent()
+                // Fade only where there's more row to scroll to.
+                val leftFade = (scroll.value / fade).coerceIn(0f, 1f)
+                val rightFade = ((scroll.maxValue - scroll.value) / fade).coerceIn(0f, 1f)
+                val w = size.width
+                drawRect(
+                    Brush.horizontalGradient(
+                        0f to Color.Black.copy(alpha = 1f - leftFade),
+                        (fade / w) to Color.Black,
+                        (1f - fade / w) to Color.Black,
+                        1f to Color.Black.copy(alpha = 1f - rightFade),
+                    ),
+                    blendMode = BlendMode.DstIn,
+                )
+            },
+    ) {
+        Row(
+            Modifier
+                .horizontalScroll(scroll)
+                .padding(horizontal = ChipRowPadding)
+                .drawBehind {
+                    if (!barShown) return@drawBehind
+                    val h = ChipBarHeight.toPx()
+                    drawRoundRect(
+                        c.primary,
+                        topLeft = Offset(barLeft.value, size.height - h),
+                        size = Size(barWidth.value, h),
+                        cornerRadius = CornerRadius(h / 2),
+                    )
+                },
+        ) {
+            chips.forEachIndexed { i, chip ->
+                val on = i == selected
+                val pad = with(density) { ChipWordPadding.toPx() }
+                val fg by animateColorAsState(if (on) c.primary else c.onSurfaceVariant, tween(if (reduced) 0 else 220), label = "chipFg")
+                Box(
+                    Modifier
+                        .onPlaced { spots[i] = it.positionInParent().x + pad to it.size.width - 2 * pad }
+                        .pressable(onClick = { onPick(chip) })
+                        .height(ChipRowHeight)
+                        .padding(horizontal = ChipWordPadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        chip.title,
+                        color = fg,
+                        fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Home's category row: 20 dp in from the edges, words 22 dp apart (11 dp of tap room each side). */
+private val ChipRowPadding = 9.dp
+private val ChipWordPadding = 11.dp
+private val ChipRowHeight = 40.dp
+private val ChipRowFade = 28.dp
+/** The bar under the chosen word: 60% of the word, never under 18 dp, 4 dp tall. */
+private const val ChipBarShare = 0.6f
+private val ChipBarMin = 18.dp
+private val ChipBarHeight = 4.dp
 
 @Composable
 private fun ChannelRail(channels: List<ChannelRef>) {
@@ -382,6 +536,7 @@ class SearchState(private val scope: CoroutineScope) {
 @Composable
 fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (VideoItem) -> Unit, scrollToTop: Int = 0) {
     val c = MaterialTheme.colorScheme
+    val columns = gridColumns()
     val keyboard = LocalSoftwareKeyboardController.current
     val focus = LocalFocusManager.current
     val view = LocalView.current
@@ -485,9 +640,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
                 val list = rememberScrollToTop(scrollToTop)
                 LaunchedEffect(state.generation) { list.scrollToItem(0) }
                 LazyColumn(state = list, contentPadding = contentPadding.withTop(top)) {
-                items(state.results, key = { it.id }) { video ->
-                    VideoCard(video, onClick = { onOpen(video) })
-                }
+                videoCards(state.results, columns, onOpen)
             }
             }
         }

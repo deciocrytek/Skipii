@@ -89,4 +89,8 @@
     <string name="player_sb_action_ask">اسأل</string>
     <string name="player_sb_action_show">عرض</string>
     <string name="player_sb_action_off">إيقاف</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">الكل</string>
+    <string name="player_more_from">من %1$s</string>
+    <string name="player_more_related">ذات صلة</string>
 </resources>

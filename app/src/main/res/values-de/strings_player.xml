@@ -84,4 +84,8 @@
     <string name="player_sb_action_ask">Fragen</string>
     <string name="player_sb_action_show">Zeigen</string>
     <string name="player_sb_action_off">Aus</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Alle</string>
+    <string name="player_more_from">Von %1$s</string>
+    <string name="player_more_related">Ähnliche</string>
 </resources>

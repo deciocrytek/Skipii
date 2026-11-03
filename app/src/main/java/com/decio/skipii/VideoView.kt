@@ -130,6 +130,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.exp
+import androidx.compose.ui.input.pointer.util.VelocityTracker1D
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculateZoom
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -221,9 +228,87 @@ fun VideoContent(
         burstSeconds += ((abs(moved) + 500) / 1000).toInt()
         burstTaps++
     }
+    // Zoom to fill, fullscreen only (FullscreenZoom): 0 = the whole picture, 1 = filling the screen.
+    // The picture's own motion is the feedback (Derek picked "Rubber band", 2026-11-02): a pinch drives it 1:1
+    // under the fingers, past either end it stretches on with resistance ([stretched]), and let go it springs
+    // to the side the pinch went with one bounce past it (below 0 = a moment smaller than the whole picture).
+    val zoomTarget = if (fullscreen && state.zoomedToFill) 1f else 0f
+    val zoom = remember { Animatable(zoomTarget, visibilityThreshold = 0.0005f) }
+    var pinching by remember { mutableStateOf(false) }
+    // How fast the pinch was moving the zoom as it let go, so the spring carries on from it.
+    val zoomFling = remember { floatArrayOf(0f) }
+    LaunchedEffect(zoomTarget, pinching) {
+        if (pinching) return@LaunchedEffect
+        val velocity = zoomFling[0].also { zoomFling[0] = 0f }
+        if (reduced) zoom.snapTo(zoomTarget)
+        else zoom.animateTo(zoomTarget, spring(dampingRatio = 0.5f, stiffness = 380f, visibilityThreshold = 0.0005f), initialVelocity = velocity)
+    }
+    var stage by remember { mutableStateOf(IntSize.Zero) }
+    val zoomScope = rememberCoroutineScope()
     val pip = LocalPictureInPicture.current
     val view = LocalView.current
-    Box(modifier.background(Color.Black).onGloballyPositioned { pip?.videoBounds = it.boundsInWindow() }.pointerInput(state) {
+    Box(
+        modifier.background(Color.Black)
+            .then(if (fullscreen) Modifier.clipToBounds() else Modifier)
+            .onSizeChanged { stage = it }
+            .onGloballyPositioned { pip?.videoBounds = it.boundsInWindow() }
+            .then(if (!fullscreen) Modifier else Modifier.pointerInput(state) {
+                // Initial pass: once two fingers have pinched past touch slop, every change is the pinch's
+                // (the tap handler, the brightness / volume slides and swipe down all see them consumed and back off).
+                // One finger is never taken.
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    var event = awaitPointerEvent(PointerEventPass.Initial)
+                    while (event.changes.count { it.pressed } < 2) {
+                        if (event.changes.none { it.pressed }) return@awaitEachGesture
+                        event = awaitPointerEvent(PointerEventPass.Initial)
+                    }
+                    if (state.holdingFast || state.error != null || !currentInteractive) return@awaitEachGesture
+                    val fill = fillScale(size.width.toFloat(), size.height.toFloat(), state.videoAspect)
+                    val from = 1f + (fill - 1f) * zoom.value
+                    var total = 1f
+                    var started = false
+                    val tracker = VelocityTracker1D(isDataDifferential = false)
+                    try {
+                        do {
+                            total *= event.calculateZoom()
+                            if (!started && abs(1f - total) * event.calculateCentroidSize(useCurrent = false) > viewConfiguration.touchSlop) {
+                                started = true
+                                pinching = true
+                                controlsVisible = false
+                                burstActive = false
+                            }
+                            if (started) {
+                                event.changes.forEach { it.consume() }
+                                if (fill > 1.005f) {
+                                    val to = (stretched(from * total, fill) - 1f) / (fill - 1f)
+                                    tracker.addDataPoint(event.changes.first().uptimeMillis, to)
+                                    zoomScope.launch { zoom.snapTo(to) }
+                                }
+                            }
+                            event = awaitPointerEvent(PointerEventPass.Initial)
+                        } while (event.changes.count { it.pressed } >= 2)
+                        if (!started) return@awaitEachGesture
+                        // As YouTube: out = fill, in = the whole picture; a pinch that came back to where it began changes nothing.
+                        val toFill = when {
+                            total > 1f + ZoomDecide -> true
+                            total < 1f - ZoomDecide -> false
+                            else -> null
+                        }
+                        if (toFill != null && toFill != state.zoomedToFill) view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                        if (toFill != null) state.setZoomedToFill(toFill)
+                        if (fill > 1.005f) zoomFling[0] = tracker.calculateVelocity().coerceIn(-ZoomFlingMax, ZoomFlingMax)
+                    } finally {
+                        pinching = false
+                    }
+                    // The finger left behind is the pinch's too, until it lifts.
+                    while (event.changes.any { it.pressed }) {
+                        event.changes.forEach { it.consume() }
+                        event = awaitPointerEvent(PointerEventPass.Initial)
+                    }
+                }
+            })
+            .pointerInput(state) {
         val doubleTapMs = viewConfiguration.doubleTapTimeoutMillis
         coroutineScope {
             // A lone tap on a side waits out the double-tap timeout before toggling the controls.
@@ -283,21 +368,33 @@ fun VideoContent(
                 // As large as fits in whatever box we're given. The portrait stage already has
                 // the video's shape, so bars appear only past its limits (and in fullscreen).
                 .fillMaxSize()
-                .aspectFit(state.videoAspect)
-                .clipToBounds(),
+                .aspectFit(state.videoAspect),
         ) {
+            // Zoomed, the picture (and its clip) grows past this box to cover the stage; the captions
+            // and the burst line below stay on the unzoomed box.
             Box(
-                Modifier.fillMaxSize().graphicsLayer {
-                    val n = nudge.value
-                    translationX = burstSide * 5.dp.toPx() * n
-                    scaleX = 1f + 0.03f * n
-                    scaleY = 1f + 0.03f * n
-                },
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        val s = 1f + (fillScale(stage.width.toFloat(), stage.height.toFloat(), state.videoAspect) - 1f) * zoom.value
+                        scaleX = s
+                        scaleY = s
+                    }
+                    .clipToBounds(),
             ) {
-                // Under the (transparent until it has a frame) TextureView, so opening or
-                // re-attaching never shows a black void.
-                Thumbnail(state.current?.thumbnail, Modifier.fillMaxSize(), radius = 0)
-                LocalVideoSurface.current(Modifier.fillMaxSize().hideStaleVideo(state))
+                Box(
+                    Modifier.fillMaxSize().graphicsLayer {
+                        val n = nudge.value
+                        translationX = burstSide * 5.dp.toPx() * n
+                        scaleX = 1f + 0.03f * n
+                        scaleY = 1f + 0.03f * n
+                    },
+                ) {
+                    // Under the (transparent until it has a frame) TextureView, so opening or
+                    // re-attaching never shows a black void.
+                    Thumbnail(state.current?.thumbnail, Modifier.fillMaxSize(), radius = 0)
+                    LocalVideoSurface.current(Modifier.fillMaxSize().hideStaleVideo(state))
+                }
             }
             // Captions on the picture, stepping up out of the controls' way while they show (and the Ask pill's).
             if (state.error == null) {
@@ -1504,6 +1601,33 @@ private fun SeekBurstPill(side: Int, seconds: Int, taps: Int, active: Boolean, f
  * "2× ▸▸" at the top of the video while a finger holds it at [PlaybackSpeed.HOLD]: the double-tap
  * pill's glass, springing in; the glyph keeps dashing forward while held. Reduced motion: fade only.
  */
+/** How much the picture grows to cover a [w]×[h] stage when it's laid out to fit it at [aspect]. */
+private fun fillScale(w: Float, h: Float, aspect: Float): Float {
+    if (w <= 0f || h <= 0f || aspect <= 0f) return 1f
+    val stage = w / h
+    return max(stage / aspect, aspect / stage)
+}
+
+/** A pinch must change the span by this share to switch zoom (less springs back). */
+private const val ZoomDecide = 0.04f
+/** Past fill (or under the whole picture) a pinch stretches the picture at most this share further. */
+private const val ZoomStretch = 0.06f
+/** The release speed handed to the spring is capped (zoom fractions per second), so a wild flick still lands softly. */
+private const val ZoomFlingMax = 8f
+
+/**
+ * A pinch's scale [raw] (1 = the whole picture, [fill] = filling the stage), with a rubber band past either end:
+ * at half the fingers' rate at first, easing off toward [ZoomStretch] more.
+ */
+private fun stretched(raw: Float, fill: Float): Float {
+    fun give(over: Float) = ZoomStretch * (1f - exp(-over / (2f * ZoomStretch)))
+    return when {
+        raw > fill -> fill * (1f + give(raw / fill - 1f))
+        raw < 1f -> 1f - give(1f - raw)
+        else -> raw
+    }
+}
+
 @Composable
 private fun FastHoldPill(shown: Boolean, fullscreen: Boolean, modifier: Modifier = Modifier) {
     val reduced = rememberReducedMotion()

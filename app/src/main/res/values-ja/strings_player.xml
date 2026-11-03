@@ -83,4 +83,8 @@
     <string name="player_sb_action_ask">確認</string>
     <string name="player_sb_action_show">表示</string>
     <string name="player_sb_action_off">オフ</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">すべて</string>
+    <string name="player_more_from">%1$s から</string>
+    <string name="player_more_related">関連</string>
 </resources>

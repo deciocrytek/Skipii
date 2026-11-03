@@ -85,4 +85,8 @@
     <string name="player_sb_action_ask">Avisar</string>
     <string name="player_sb_action_show">Mostrar</string>
     <string name="player_sb_action_off">Ignorar</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Todos</string>
+    <string name="player_more_from">De %1$s</string>
+    <string name="player_more_related">Relacionados</string>
 </resources>

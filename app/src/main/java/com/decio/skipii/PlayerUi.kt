@@ -3,6 +3,8 @@ package com.decio.skipii
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -128,6 +130,16 @@ private const val DetailsFadeStart = 0.55f
 
 // ── Full player (portrait) ─────────────────────────────────────────────────────
 
+/** How the open player is laid out on this window (Rail 3 on big screens, 2026-11-02). */
+sealed interface PlayerLayout {
+    /** The phone page: the video pinned on top, details, comments card and More videos under it. */
+    data object Phone : PlayerLayout
+    /** A tablet: video, details and comments in one scroll; More videos in a column [moreWidth] wide on the right. */
+    data class Tablet(val moreWidth: Dp) : PlayerLayout
+    /** An open foldable: the video across the top; details and comments on the left page (up to the fold at [foldX]), More videos on the right. */
+    data class Book(val foldX: Dp) : PlayerLayout
+}
+
 @Composable
 fun PlayerScreen(
     state: PlayerState,
@@ -137,6 +149,10 @@ fun PlayerScreen(
     onFullscreen: () -> Unit,
     /** Room the floating player bar (the nav pill over the player) takes at the bottom. */
     bottomClearance: androidx.compose.ui.unit.Dp,
+    /** The phone page, or Rail 3 on a wide window (Adaptive.kt). */
+    layout: PlayerLayout = PlayerLayout.Phone,
+    /** How far left of the player the black status strip reaches (over the rail beside a tablet's player). */
+    statusBleed: Dp = 0.dp,
 ) {
     val c = MaterialTheme.colorScheme
     val item = state.current ?: return
@@ -211,30 +227,23 @@ fun PlayerScreen(
                 .background(Brush.verticalGradient(listOf(c.primaryContainer.copy(alpha = 0.75f), c.surface))),
         )
         ActionMessage(state, Modifier.align(Alignment.BottomCenter).zIndex(1f).padding(bottom = bottomClearance + 8.dp))
-        Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(top + StageTopGap))
-            // Pinned: the video stays put while the details scroll beneath it.
-            VideoStage(state, morph, fold, onCollapse, onFullscreen, interactive)
-            // While collapsing the details are invisible anyway; leaving them out keeps them
-            // from catching touches meant for the mini-player.
-            if (!showDetails) Spacer(Modifier.weight(1f)) else
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .nestedScroll(morph.nestedScroll)
-                    .graphicsLayer {
-                        // The details ride along under the video's bottom edge (so they never
-                        // overlap it mid-morph) and only fade in for the last stretch.
-                        val p = morph.progress.value
-                        // Under the comments panel they stay hidden while the player moves, so
-                        // the two never show through each other as the panel fades out.
-                        alpha = if (p < 1f && state.sheet.isPanel) 0f else ramp(p, DetailsFadeStart)
-                        val g = morph.geometry
-                        translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
-                    },
-                contentPadding = PaddingValues(bottom = bottomClearance + 16.dp),
-            ) {
-                item(key = "info") {
+        // The details (and on a phone More videos; on a wide window the comments) in one list that
+        // rides along under the video's bottom edge as the player opens and only fades in for the
+        // last stretch, so they never overlap the video mid-morph.
+        val listLook = Modifier.graphicsLayer {
+            val p = morph.progress.value
+            // Under the comments panel they stay hidden while the player moves, so
+            // the two never show through each other as the panel fades out.
+            alpha = if (p < 1f && state.sheet.isPanel) 0f else ramp(p, DetailsFadeStart)
+            val g = morph.geometry
+            translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
+        }
+        @Composable
+        fun DetailsList(modifier: Modifier) = LazyColumn(
+            modifier = modifier.nestedScroll(morph.nestedScroll).then(listLook),
+            contentPadding = PaddingValues(bottom = bottomClearance + 16.dp),
+        ) {
+            item(key = "info") {
                     Column(Modifier.padding(horizontal = 20.dp)) {
                         Spacer(Modifier.height(18.dp))
                         Text(
@@ -308,21 +317,67 @@ fun PlayerScreen(
                         // Speed and audio only live in the player's bar now (PlayerBar.kt).
                         PlayerActions(state)
                         QueueCard(state, onOpen = { state.sheet = PlayerSheet.Queue })
-                        CommentsCard(state.comments, onOpen = { state.sheet = PlayerSheet.Comments })
+                        // Wide windows list the comments under the details instead (inlineComments).
+                        if (layout == PlayerLayout.Phone) CommentsCard(state.comments, onOpen = { state.sheet = PlayerSheet.Comments })
                     }
-                }
-                val related = details?.related.orEmpty()
-                if (related.isNotEmpty()) {
-                    item(key = "moreTitle") { SectionTitle(stringResource(R.string.player_more_videos)) }
-                    items(related, key = { "rel-" + it.id }) { video ->
-                        Box(Modifier.padding(horizontal = 20.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
-                    }
-                } else if (state.loading) {
-                    item(key = "loading") {
-                        Box(Modifier.fillMaxWidth().padding(top = 40.dp), Alignment.Center) {
-                            CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(32.dp))
+            }
+            if (layout == PlayerLayout.Phone) {
+                    val related = details?.related.orEmpty()
+                    if (related.isNotEmpty()) {
+                        item(key = "moreTitle") { SectionTitle(stringResource(R.string.player_more_videos)) }
+                        items(related, key = { "rel-" + it.id }) { video ->
+                            Box(Modifier.padding(horizontal = 20.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
+                        }
+                    } else if (state.loading) {
+                        item(key = "loading") {
+                            Box(Modifier.fillMaxWidth().padding(top = 40.dp), Alignment.Center) {
+                                CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(32.dp))
+                            }
                         }
                     }
+            } else {
+                inlineComments(state.comments)
+            }
+        }
+        when (layout) {
+            PlayerLayout.Phone -> Column(Modifier.fillMaxSize()) {
+                Spacer(Modifier.height(top + StageTopGap))
+                // Pinned: the video stays put while the details scroll beneath it.
+                VideoStage(state, morph, fold, onCollapse, onFullscreen, interactive)
+                // While collapsing the details are invisible anyway; leaving them out keeps them
+                // from catching touches meant for the mini-player.
+                if (!showDetails) Spacer(Modifier.weight(1f)) else DetailsList(Modifier.weight(1f))
+            }
+            // Tablet (Rail 3): the video, its details and the comments in one scroll on the left;
+            // More videos always in the column on the right, so the next thing to watch never moves.
+            is PlayerLayout.Tablet -> Row(Modifier.fillMaxSize()) {
+                Column(Modifier.weight(1f)) {
+                    Spacer(Modifier.height(top + StageTopGap))
+                    VideoStage(state, morph, fold, onCollapse, onFullscreen, interactive)
+                    if (!showDetails) Spacer(Modifier.weight(1f)) else DetailsList(Modifier.weight(1f))
+                }
+                if (showDetails) {
+                    MoreVideosColumn(
+                        state, onOpen,
+                        // The bar is centred on the screen, so it stands over this column too.
+                        contentPadding = PaddingValues(top = top + 4.dp, bottom = bottomClearance + 16.dp),
+                        modifier = Modifier.width(layout.moreWidth).fillMaxHeight().then(listLook),
+                    )
+                }
+            }
+            // Open foldable: the video across the top; under it the details and comments on the left
+            // page, More videos on the right (Derek, 2026-11-02, after trying them the other way round).
+            is PlayerLayout.Book -> Column(Modifier.fillMaxSize()) {
+                Spacer(Modifier.height(top + StageTopGap))
+                VideoStage(state, morph, fold, onCollapse, onFullscreen, interactive)
+                if (!showDetails) Spacer(Modifier.weight(1f)) else Row(Modifier.weight(1f)) {
+                    DetailsList(Modifier.width(layout.foldX))
+                    MoreVideosColumn(
+                        state, onOpen,
+                        // The bar is centred on the screen, so it stands over this page too.
+                        contentPadding = PaddingValues(bottom = bottomClearance + 16.dp),
+                        modifier = Modifier.weight(1f).fillMaxHeight().then(listLook),
+                    )
                 }
             }
         }
@@ -350,26 +405,94 @@ fun PlayerScreen(
         // back with the next open (GitHub #33).
         LaunchedEffect(showDetails) { if (!showDetails && state.sheet.isPanel) state.sheet = null }
         if (state.sheet.isPanel && showDetails) {
+            // Where it rests: just under the video, over the pane with the details.
+            val restTop = morph.geometry?.let { g -> with(LocalDensity.current) { g.stage.bottom.toDp() } + 10.dp } ?: panelRestTop(state)
             Box(
-                Modifier.fillMaxSize().graphicsLayer {
+                when (layout) {
+                    is PlayerLayout.Book -> Modifier.fillMaxHeight().width(layout.foldX)
+                    is PlayerLayout.Tablet -> Modifier.fillMaxSize().padding(end = layout.moreWidth)
+                    PlayerLayout.Phone -> Modifier.fillMaxSize()
+                }
+                    .graphicsLayer {
                     val p = morph.progress.value
                     alpha = ramp(p, DetailsFadeStart)
                     val g = morph.geometry
                     translationY = if (g != null) lerpF(g.miniThumb.bottom - g.stage.bottom, 0f, p) else 0f
                 },
             ) {
-                if (state.sheet == PlayerSheet.Transcript) TranscriptPanel(state, partialTop = panelRestTop(state), onClose = { state.sheet = null })
-                else CommentsPanel(state.comments, partialTop = panelRestTop(state), onClose = { state.sheet = null })
+                if (state.sheet == PlayerSheet.Transcript) TranscriptPanel(state, partialTop = restTop, onClose = { state.sheet = null })
+                else CommentsPanel(state.comments, partialTop = restTop, onClose = { state.sheet = null })
             }
         }
     }
     // Outside the morph's frame, so it never slides in with the card: it just fades over
     // whatever the status bar shows.
     Box(
-        Modifier.fillMaxWidth().height(top)
+        Modifier
+            .layout { measurable, constraints ->
+                // Wider than the player by [statusBleed], placed that far left.
+                val bleed = statusBleed.roundToPx()
+                val placeable = measurable.measure(constraints.copy(minWidth = constraints.maxWidth + bleed, maxWidth = constraints.maxWidth + bleed))
+                layout(constraints.maxWidth, placeable.height) { placeable.place(-bleed, 0) }
+            }
+            .height(top)
             .graphicsLayer { alpha = blackStatus() }
             .background(Color.Black),
     )
+}
+
+/**
+ * Wide windows (Rail 3): More videos as a column of its own beside the details, always there. Filters
+ * for the open video's channel and the rest when More videos holds both.
+ */
+@Composable
+private fun MoreVideosColumn(state: PlayerState, onOpen: (VideoItem) -> Unit, contentPadding: PaddingValues, modifier: Modifier) {
+    val c = MaterialTheme.colorScheme
+    val related = state.details?.related.orEmpty()
+    val channel = state.current?.channel.orEmpty()
+    val fromChannel = remember(related, channel) { related.filter { channel.isNotBlank() && it.channel == channel } }
+    // 0 all, 1 from this channel, 2 the rest; back to all for each video.
+    var filter by remember(state.current?.id) { mutableIntStateOf(0) }
+    val shown = when (filter) {
+        1 -> fromChannel
+        2 -> related.filter { it !in fromChannel }
+        else -> related
+    }
+    LazyColumn(modifier, contentPadding = contentPadding) {
+        item(key = "title") { SectionTitle(stringResource(R.string.player_more_videos)) }
+        if (fromChannel.isNotEmpty() && fromChannel.size < related.size) item(key = "filters") {
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterPill(stringResource(R.string.player_more_all), filter == 0) { filter = 0 }
+                FilterPill(stringResource(R.string.player_more_from, channel), filter == 1) { filter = 1 }
+                FilterPill(stringResource(R.string.player_more_related), filter == 2) { filter = 2 }
+            }
+        }
+        items(shown, key = { "more-" + it.id }) { video ->
+            Box(Modifier.padding(horizontal = 16.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
+        }
+        if (related.isEmpty() && state.loading) item(key = "loading") {
+            Box(Modifier.fillMaxWidth().padding(top = 40.dp), Alignment.Center) {
+                CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(32.dp))
+            }
+        }
+    }
+}
+
+/** A filter above a list: full primary when picked, a quiet tone otherwise (no outline, no ripple). */
+@Composable
+internal fun FilterPill(text: String, selected: Boolean, onClick: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val bg by animateColorAsState(if (selected) c.primary else c.surfaceContainerHigh, label = "filterPill")
+    val ink by animateColorAsState(if (selected) c.onPrimary else c.onSurfaceVariant, label = "filterInk")
+    Box(
+        Modifier.height(36.dp).pressable(onClick = onClick).clip(RoundedCornerShape(18.dp)).background(bg).padding(horizontal = 15.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text, color = ink, fontSize = 13.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+    }
 }
 
 /**

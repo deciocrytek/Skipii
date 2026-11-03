@@ -30,9 +30,20 @@ data class PlaylistChoice(val id: String, val title: String, val contains: Boole
 @Immutable
 data class ChannelRef(val id: String, val name: String, val avatar: String?)
 
-/** One page of a feed plus the token for the next page, if any. */
+/**
+ * One page of a feed plus the token for the next page, if any. [chips]: the category chips
+ * YouTube put over the feed (Home's first page only; empty everywhere else).
+ */
 @Immutable
-data class FeedPage(val videos: List<VideoItem>, val next: String?)
+data class FeedPage(val videos: List<VideoItem>, val next: String?, val chips: List<FeedChip> = emptyList())
+
+/**
+ * One of Home's category chips ("All", "Music", "Gaming", "Recently uploaded"…), titled as
+ * YouTube sent it. [token] is the continuation that loads the chip's own feed; null for the
+ * chip that stands for the plain feed ("All", the one selected on the first page).
+ */
+@Immutable
+data class FeedChip(val title: String, val token: String?)
 
 enum class LikeStatus { Like, Dislike, None }
 
@@ -259,7 +270,17 @@ object InnerTube {
         parseFeed(post("browse", body))
     }
 
-    suspend fun home(next: String? = null) = browse("FEwhat_to_watch", next)
+    /**
+     * Home. [next] is either the feed's own next page or a category chip's token: a chip loads
+     * as a continuation of FEwhat_to_watch (its answer replaces the feed's body, and its own
+     * "load more" pages on from there). The first page also carries the chips.
+     */
+    suspend fun home(next: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val body = if (next != null) JSONObject().put("continuation", next) else JSONObject().put("browseId", "FEwhat_to_watch")
+        val root = post("browse", body)
+        val page = parseFeed(root)
+        if (next == null) page.copy(chips = parseHomeChips(root)) else page
+    }
 
     /** A channel's uploads (Videos tab), members-only ones filtered out like everywhere else. */
     suspend fun channelVideos(channelId: String, continuation: String? = null): FeedPage = withContext(Dispatchers.IO) {
@@ -639,11 +660,12 @@ object InnerTube {
         var next: String? = null
         root.walk { key, obj ->
             when (key) {
-                // Members-only videos can't be played (anonymous extraction), and full movies/TV
-                // aren't wanted (Derek), so neither is ever shown.
+                // Members-only videos can't be played (anonymous extraction), live and upcoming
+                // streams neither (no live playback, as in search), and full movies/TV aren't
+                // wanted (Derek), so none of them is ever shown.
                 "videoRenderer", "gridVideoRenderer", "compactVideoRenderer", "playlistVideoRenderer" ->
-                    if (!isMembersOnly(obj) && !isMovie(obj)) parseVideoRenderer(obj)?.let { videos.putIfAbsent(it.id, it) }
-                "lockupViewModel" -> if (obj.optString("contentType") == "LOCKUP_CONTENT_TYPE_VIDEO" && !isMembersOnly(obj) && !isMovie(obj)) {
+                    if (!isMembersOnly(obj) && !isLive(obj) && !isMovie(obj)) parseVideoRenderer(obj)?.let { videos.putIfAbsent(it.id, it) }
+                "lockupViewModel" -> if (obj.optString("contentType") == "LOCKUP_CONTENT_TYPE_VIDEO" && !isMembersOnly(obj) && !isLive(obj) && !isMovie(obj)) {
                     parseLockup(obj)?.let { videos.putIfAbsent(it.id, it) }
                 }
                 // Only the feed's own "load more" item (old and new names); chip filters
@@ -653,6 +675,62 @@ object InnerTube {
             }
         }
         return FeedPage(videos.values.toList(), next)
+    }
+
+    /**
+     * Home's category chips: `feedFilterChipBarRenderer` (the grid's header) → `chipCloudChipRenderer`
+     * {text, isSelected, navigationEndpoint.continuationCommand.token}, as captured 2026-11-02;
+     * the view-model form (`chipBarViewModel` → `chipViewModel` {text, selected,
+     * tapCommand.innertubeCommand.continuationCommand.token}) is read too in case Home moves to it.
+     * The selected chip is the feed already shown ("All"), so its token is null. Chips that load
+     * nothing by continuation (a drop-down, a link elsewhere) are left out, and so are
+     * [SKIPPED_CHIPS]. YouTube is always asked in English, so the titles are stable keys.
+     */
+    internal fun parseHomeChips(root: JSONObject): List<FeedChip> {
+        val out = mutableListOf<FeedChip>()
+        fun add(title: String?, selected: Boolean, token: String?) {
+            val name = title?.trim()?.ifBlank { null } ?: return
+            if (SKIPPED_CHIPS.any { it.equals(name, ignoreCase = true) }) return
+            if (out.any { it.title == name }) return
+            when {
+                selected -> out += FeedChip(name, null)
+                token != null -> out += FeedChip(name, token)
+            }
+        }
+        fun tokenOf(command: JSONObject?) = command?.optJSONObject("continuationCommand")?.optString("token")?.ifBlank { null }
+        val bar = root.findObject("feedFilterChipBarRenderer")
+        if (bar != null) {
+            bar.walk { key, chip ->
+                if (key == "chipCloudChipRenderer") add(chip.text("text"), chip.optBoolean("isSelected"), tokenOf(chip.optJSONObject("navigationEndpoint")))
+            }
+            return out
+        }
+        val grid = root.findObject("richGridRenderer")?.optJSONObject("header")?.optJSONObject("chipBarViewModel") ?: return out
+        grid.walk { key, chip ->
+            if (key != "chipViewModel" || chip.optString("displayType").endsWith("DROP_DOWN")) return@walk
+            add(chip.optString("text"), chip.optBoolean("selected"), tokenOf(chip.optJSONObject("tapCommand")?.optJSONObject("innertubeCommand")))
+        }
+        return out
+    }
+
+    /**
+     * Home chips Skipii can't fill: "Your custom feed" is a prompt box with no videos (Derek,
+     * 6632.png), and "Live" is all live streams, which aren't played (6633.png).
+     */
+    private val SKIPPED_CHIPS = listOf("Your custom feed", "Live")
+
+    /**
+     * A live or upcoming stream (Skipii plays neither, as search already drops them). Lockups: a
+     * LIVE badge on the THUMBNAIL ("LIVE" / "Now playing"); an avatar's `liveData` only means the
+     * channel is live now and its other videos play fine. Older renderers: BADGE_STYLE_TYPE_LIVE_NOW,
+     * the time overlay styled LIVE / UPCOMING, or `upcomingEventData` (the markers NewPipe reads).
+     */
+    internal fun isLive(o: JSONObject): Boolean {
+        if (o.has("upcomingEventData")) return true
+        if (o.collectStrings("style").any { it == "BADGE_STYLE_TYPE_LIVE_NOW" || it == "LIVE" || it == "UPCOMING" }) return true
+        val image = o.optJSONObject("contentImage") ?: return false
+        return image.collectStrings("badgeStyle").any { it == "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE" } ||
+            image.collectStrings("text").any { it.equals("UPCOMING", ignoreCase = true) }
     }
 
     /** YouTube's "Members only" badge: BADGE_MEMBERS_ONLY (lockups) / BADGE_STYLE_TYPE_MEMBERS_ONLY (older renderers). */

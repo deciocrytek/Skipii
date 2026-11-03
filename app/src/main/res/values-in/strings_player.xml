@@ -83,4 +83,8 @@
     <string name="player_sb_action_ask">Tanya</string>
     <string name="player_sb_action_show">Tampil</string>
     <string name="player_sb_action_off">Mati</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Semua</string>
+    <string name="player_more_from">Dari %1$s</string>
+    <string name="player_more_related">Terkait</string>
 </resources>

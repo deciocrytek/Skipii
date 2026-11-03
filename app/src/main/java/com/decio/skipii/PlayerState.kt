@@ -180,13 +180,7 @@ class PlayerState(private val scope: CoroutineScope) {
         comments.clearFor(item.id)
         captions.clear()
         accountState = null
-        if (Account.signedIn) {
-            scope.launch {
-                runCatching { InnerTube.videoState(item.id) }
-                    .onSuccess { if (current?.id == item.id) { accountState = it; originalLike = it.like } }
-                    .onFailure { Log.w(TAG, "account state for ${item.id}", it) }
-            }
-        }
+        loadAccountState(item.id)
         loadJob?.cancel()
         loadJob = scope.launch {
             runCatching { YouTube.details(item.id) }
@@ -213,6 +207,15 @@ class PlayerState(private val scope: CoroutineScope) {
                     comments.load(item.id)
                 }
             loading = false
+        }
+    }
+
+    private fun loadAccountState(id: String) {
+        if (!Account.signedIn) return
+        scope.launch {
+            runCatching { InnerTube.videoState(id) }
+                .onSuccess { if (current?.id == id) { accountState = it; originalLike = it.like } }
+                .onFailure { Log.w(TAG, "account state for $id", it) }
         }
     }
 
@@ -551,6 +554,24 @@ class PlayerState(private val scope: CoroutineScope) {
 
     fun toggleRememberSpeed() = PlaybackSpeed.setRemember(!PlaybackSpeed.remember, speed)
 
+    /** A pinch in fullscreen, for one video: its id and whether it fills the screen. */
+    private var zoomFor by mutableStateOf<Pair<String, Boolean>?>(null)
+
+    /** Whether the current video fills the screen in fullscreen: its own pinch, else [FullscreenZoom.fill]. */
+    val zoomedToFill: Boolean
+        get() = zoomFor?.takeIf { it.first == current?.id }?.second ?: FullscreenZoom.fill
+
+    /** A pinch out ([fill]) or in: for this video only; the next one starts from the setting again. */
+    fun setZoomedToFill(fill: Boolean) {
+        zoomFor = current?.id?.let { it to fill }
+    }
+
+    /** The setting changed: it wins over a pinch made before, the playing video's too. */
+    fun setZoomFillSetting(on: Boolean) {
+        FullscreenZoom.set(on)
+        zoomFor = null
+    }
+
     /** A finger is held on the video's right side (GitHub #11/#26/#32/#36): playing at [PlaybackSpeed.HOLD]. */
     var holdingFast by mutableStateOf(false)
         private set
@@ -669,8 +690,13 @@ class PlayerState(private val scope: CoroutineScope) {
             uploaded = null,
         )
         current = item
+        // The rest of what show() loads: a window rebuilt by a fold reopens this video's page,
+        // which had no comments or like state before.
+        comments.clearFor(item.id)
+        loadAccountState(item.id)
         loadJob = scope.launch {
             runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item; captions.useTracks(it.captions) }
+            comments.load(item.id)
         }
     }
 

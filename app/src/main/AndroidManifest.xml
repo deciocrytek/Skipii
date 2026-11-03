@@ -31,7 +31,7 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|density|keyboard|keyboardHidden|navigation"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <!-- Not singleTask: a bubble needs its own task, and singleTask hands it the
                  app's one task instead (System UI kills it, or a later launch from Home
@@ -39,7 +39,9 @@
                  keeps the app to one window itself. -->
             <!-- Orientation is set at runtime (OrientationController): portrait everywhere
                  except the open player. configChanges keeps the activity, the player
-                 surface and all state alive across rotation. Android 16 ignores
+                 surface and all state alive across rotation, folding and unfolding (a
+                 Galaxy Fold's two screens differ in density too) and a keyboard plugged
+                 in. Never add locale: picking a language rebuilds the window. Android 16 ignores
                  orientation requests on large displays without this opt-out. -->
             <property
                 android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"

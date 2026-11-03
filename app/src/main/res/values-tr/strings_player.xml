@@ -85,4 +85,8 @@
     <string name="player_sb_action_ask">Sor</string>
     <string name="player_sb_action_show">Göster</string>
     <string name="player_sb_action_off">Kapalı</string>
+    <!-- Wide windows: filters above the More videos column (the open video's channel, or the rest). -->
+    <string name="player_more_all">Tümü</string>
+    <string name="player_more_from">%1$s kanalından</string>
+    <string name="player_more_related">İlgili</string>
 </resources>

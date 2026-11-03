@@ -60,6 +60,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.blur
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -1148,10 +1154,75 @@ fun ShortsScreen(shorts: ShortsState, progress: () -> Float, overlayBottom: Dp) 
         )
         if (shorts.commentsOpen) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
-                CommentsPanel(shorts.comments, partialTop = maxHeight * 0.42f, onClose = { shorts.commentsOpen = false })
+                // Wide: beside the short (where its details are), so it keeps playing in full view.
+                val height = maxHeight
+                val margin = shortsMargin(LocalWindowLayout.current, maxWidth, height)
+                if (margin == null) CommentsPanel(shorts.comments, partialTop = height * 0.42f, onClose = { shorts.commentsOpen = false })
+                else Box(Modifier.padding(start = margin.first).width(margin.second).padding(horizontal = 12.dp)) {
+                    CommentsPanel(shorts.comments, partialTop = height * 0.1f, onClose = { shorts.commentsOpen = false })
+                }
             }
         }
     }
+}
+
+/**
+ * Home on a wide window (Rail 3, Derek: Shorts must not take a big shelf): one card the size of a video
+ * card, the next three shorts side by side in it, and who made them. A tap opens the Shorts tab on the
+ * first of them.
+ */
+@Composable
+fun ShortsHomeCard(shorts: ShortsState, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val c = MaterialTheme.colorScheme
+    val next = shorts.items.drop(shorts.index).take(3)
+    if (next.isEmpty()) return
+    Column(
+        modifier
+            .padding(horizontal = 6.dp, vertical = 7.dp)
+            .fillMaxWidth()
+            .pressable(pressedScale = 0.97f, onClick = onOpen)
+            .clip(RoundedCornerShape(28.dp))
+            .background(c.surfaceContainerLow)
+            .padding(5.dp),
+    ) {
+        Row(Modifier.fillMaxWidth().aspectRatio(16f / 9f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            next.forEachIndexed { i, short ->
+                val corners = RoundedCornerShape(
+                    topStart = if (i == 0) 23.dp else 8.dp, bottomStart = if (i == 0) 23.dp else 8.dp,
+                    topEnd = if (i == next.lastIndex) 23.dp else 8.dp, bottomEnd = if (i == next.lastIndex) 23.dp else 8.dp,
+                )
+                AsyncImage(
+                    model = short.thumbnail, contentDescription = null, contentScale = ContentScale.Crop,
+                    modifier = Modifier.weight(1f).fillMaxHeight().clip(corners).background(c.surfaceContainerHigh),
+                )
+            }
+        }
+        Row(Modifier.padding(start = 8.dp, end = 6.dp, top = 12.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(CircleShape).background(c.primary), contentAlignment = Alignment.Center) {
+                Icon(Tab.Shorts.selectedIcon, null, tint = c.onPrimary, modifier = Modifier.size(22.dp))
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.app_tab_shorts), fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 20.sp)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    next.map { it.channel }.filter { it.isNotBlank() }.distinct().joinDots(),
+                    color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Wide windows: the margin beside a (9:16) short that holds its buttons and comments — the right one on
+ * a tablet, the right page on an open foldable — as (start, width). Null on a phone.
+ */
+internal fun shortsMargin(window: WindowLayout, width: Dp, height: Dp): Pair<Dp, Dp>? {
+    if (!window.wide) return null
+    val video = minOf(width, height * (9f / 16f))
+    val start = if (window.foldX != null) video else (width + video) / 2
+    return start to (width - start)
 }
 
 private val ProgressThickness = 2.5.dp
@@ -1190,18 +1261,33 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
     val aspect = shorts.aspects[item.id] ?: details?.aspect ?: (9f / 16f)
     val onScreen = shorts.index == page
     DisposableEffect(page) { onDispose { shorts.forgetPage(page) } }
-    Box(
+    // Wide windows (Rail 3): the short as big as the window allows, never cropped — full height,
+    // centred on a tablet, against the left edge on an open foldable (its details on the right page).
+    val window = LocalWindowLayout.current
+    BoxWithConstraints(
         Modifier
             .fillMaxSize()
             .background(Color.Black)
             .pointerInputTap(page) { if (shorts.index == page) shorts.togglePause() },
     ) {
+        val wide = window.wide
+        val videoWidth = if (wide) minOf(maxWidth, maxHeight * aspect) else maxWidth
+        val videoStart = if (!wide || window.foldX != null) 0.dp else (maxWidth - videoWidth) / 2
+        if (wide) {
+            // Either side: the short's own colours, blurred and dimmed.
+            AsyncImage(
+                model = item.thumbnail, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().blur(48.dp).graphicsLayer { alpha = 0.55f },
+            )
+        }
         Box(Modifier.fillMaxSize().clipToBounds()) {
-            // Vertical shorts fill the screen (a little cropped at the sides); wider ones fit its width.
+            // Vertical shorts fill a phone's screen (a little cropped at the sides); wider ones fit its width.
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .aspectFit(aspect, cover = aspect < 0.7f)
+                    .padding(start = videoStart)
+                    .width(videoWidth)
+                    .fillMaxHeight()
+                    .aspectFit(aspect, cover = !wide && aspect < 0.7f)
                     .onGloballyPositioned { shorts.videoRects[page] = Rect(it.positionInRoot(), it.size.toSize()) },
             ) {
                 AsyncImage(model = item.thumbnail, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
@@ -1219,11 +1305,21 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
         )
         if (details != null) {
             val shade = LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = 0.3f), Offset(0f, 2f), 4f))
-            Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(start = 16.dp, end = 24.dp, bottom = overlayBottom)) {
-                Text(details.item.channel, color = Ink, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = shade)
+            // Wide: in the margin beside the short, a size up — the left one on a tablet (the glass bar
+            // has the right), the right page on an open foldable, above the bar.
+            val textPlace = when {
+                !wide -> Modifier.fillMaxWidth().padding(start = 16.dp, end = 24.dp, bottom = overlayBottom)
+                window.foldX != null -> Modifier.fillMaxWidth().padding(start = videoWidth + 28.dp, end = 28.dp, bottom = overlayBottom + 8.dp)
+                else -> Modifier.width(videoStart).padding(start = 32.dp, end = 32.dp, bottom = 40.dp)
+            }
+            Column(Modifier.align(Alignment.BottomStart).then(textPlace)) {
+                Text(details.item.channel, color = Ink, fontWeight = FontWeight.SemiBold, fontSize = if (wide) 16.sp else 14.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = shade)
                 if (details.item.title.isNotBlank()) {
                     Spacer(Modifier.height(6.dp))
-                    Text(details.item.title, color = Ink, fontSize = 14.sp, lineHeight = 19.sp, maxLines = 3, overflow = TextOverflow.Ellipsis, style = shade)
+                    Text(
+                        details.item.title, color = Ink, fontSize = if (wide) 19.sp else 14.sp, lineHeight = if (wide) 25.sp else 19.sp,
+                        fontWeight = if (wide) FontWeight.Bold else null, maxLines = if (wide) 5 else 3, overflow = TextOverflow.Ellipsis, style = shade,
+                    )
                 }
             }
         }

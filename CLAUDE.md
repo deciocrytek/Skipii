@@ -605,6 +605,74 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Moodii's developer card is last on the front page (replaces the version line; About has it): "Made by @y7esdii", Come say
   hi, Instagram / Threads / X discs (Moodii's brand paths, even-odd), "Email the developer" (SENDTO mailto:, subject
   "Skipii feedback"). Outside links go through `openOrSay` (no app → a message, never a crash).
+- 0.5.85 foldables (2026-11-02, a Z Fold 6 user: "videos on the cover screen get stuck in full screen"; Derek: unfolding must
+  carry on with the same video / short, never back to Home). Stuck: the fullscreen button's forced landscape outlived the
+  fold, and it only lets go once the phone is turned sideways (with auto-rotate on), so the cover screen held upright stayed
+  sideways. `OrientationController.Bind` drops `forced` when the SCREEN changes (`screenSides()`: maximumWindowMetrics as
+  short side × long side) — never key it on smallestScreenWidthDp, which changes with rotation on the near-square inner
+  screen (the bars come off it) and cancelled fullscreen at once. Continuity: `configChanges` adds density|keyboard|navigation
+  (Samsung's two screens can differ in density; never add locale, picking a language rebuilds the window). If the window is
+  rebuilt anyway: `player.expanded` is saved (`savedExpanded`) and the player reopens at once (morph snapped to 1) once the
+  controller has the video back; `openChannel`, `resumeMain` are saveable; Shorts' `leave()` and the ON_STOP background
+  switch are skipped while `isChangingConfigurations` (leave() moves past the short on screen). The controller's
+  reconnect path (`onConnected` rebuilding from the session) now loads comments and like state too (it had only details).
+  Test: AVD `skipii_fold` (Pixel 9 Pro Fold, API 36): `emulator -avd skipii_fold -port 5562 -no-window`, `adb emu fold` /
+  `unfold`; screencap needs `-d <display id>` (`dumpsys SurfaceFlinger --display-id`). Pixel Fold doesn't rebuild the window
+  on a fold; force a rebuild with `cmd uimode night yes|no` (uiMode isn't handled). Verified on skipii_fold (debug + release):
+  fullscreen → fold = upright player, playing; rebuild with the player open / on a short = same video / short, no break.
+  NOT verified: a real Galaxy Fold.
+- 0.5.86 big screens (2026-11-02, Derek picked "Rail 3 · Flow" in `docs/design/large-screens-rail.html` with the Fold's pages
+  swapped, option B in `large-screens-rail3-fold.html`; rounds 1–2 in `large-screens.html`). `Adaptive.kt`: `WindowLayout`
+  (`LocalWindowLayout`) = `wide` (window ≥ 600 dp), `foldX` (a vertical fold in a wide window, androidx.window FoldingFeature,
+  flat or half open), `tabletopY` (HALF_OPENED + horizontal fold). Large screens (`onLargeScreen`: the screen's short side ≥ 600 dp)
+  are never held portrait: `OrientationController.free` = multi-window or large → UNSPECIFIED, and fullscreen there is a choice
+  (`paneFullscreen`, button / swipe up / Back; kept across a turn and carried from the cover screen when unfolding in fullscreen).
+  Wide: `NavRail` (Rail.kt, 84 dp, the five tabs, selected = full primary pill; hidden on Shorts) replaces the pill, pages start
+  right of it (`pagesStart`), feeds are grids kept INSIDE the LazyColumns (`videoCards` chunks rows of `gridColumns()`: page width /
+  280 dp, max 4 — one column is exactly the phone list; Home/Subscriptions/Search/Channel/Playlist), the mini-player is a card in
+  the bottom-right corner (morph geometry follows). Player (`PlayerLayout`, PlayerUi.kt): Phone as before; `Tablet` = the player
+  right of the rail, video + details + comments in one scroll on the left (`inlineComments`, Comments.kt: heading, composer, rows,
+  paging), `MoreVideosColumn` on the right (38%, 300–460 dp; All / From <channel> / Related `FilterPill`s by channel name);
+  `Book` (open foldable) = the video across the whole width on top, under it details + comments on the left page and More videos
+  on the right (0.5.87; option B had them the other way). The pill exists on wide windows only as the open player's bar, centred
+  on the screen (0.5.87), fading in with the morph; tabs off. Panels (transcript) rest under the video over
+  that pane. Black status strip bleeds over the rail (`statusBleed`). Tabletop (`TabletopPlayer`, Tabletop.kt; Derek: the bottom
+  controls are ALWAYS pure black): video above the fold, deck below on #000: time / chapter / remaining, a 64 dp scrub surface of
+  10 storyboard frames (drag anywhere, seeks on release, tap jumps; unplayed dimmed 62%, primary playhead with knobs, chapter
+  gaps, landing label), keys speed · quality · −10 · play (76 dp primary) · +10 · captions · audio only · next. Replaces the page
+  and fullscreen while the player is open; system bars hidden. Shorts on wide: never cropped, full height (`ShortPage`): centred on
+  a tablet (title left margin, glass bar right), against the left edge on an open foldable (title + bar on the right page), over the
+  short's own thumbnail blurred 48 dp at 55%; comments open in that margin (`shortsMargin`, which also places the bar and its
+  channel card, assuming 9:16). Home on wide: `ShortsHomeCard` (next three shorts in one video-sized card, second grid spot via
+  `videoCards(extra)`; signed-in Home only). Settings wide = list-detail (`SettingsScreen(wide)`: front page left 300–400 dp with
+  the open tile lit, category in a surfaceContainerLow panel right; Back clears search then closes). Home chips (all devices,
+  GitHub-style request from Derek): `InnerTube.parseHomeChips` (chipCloudChipRenderer + the newer view-model form; drop-down chips
+  skipped), `FeedState.chips/chip/selectChip` (a chip's token reloads the feed via reloadContinuationItemsCommand; YouTube does NOT
+  re-send the chip bar there, so the first page's row is kept), `HomeChips` as the list's first item (0.5.89, Derek picked B "Underline" in `docs/design/home-chips.html`: plain words in a horizontalScroll Row, chosen = primary + ExtraBold, a 4 dp rounded bar 60% of the word (≥18 dp) springing under it from each word's `onPlaced` spot, a pick near an edge scrolls it to the middle, the row fades 28 dp at whichever edge has more to scroll); fixtures
+  home_chips.json / home_chip_feed.json are ANONYMOUS captures (a fresh visitor gets no Home at all; after a few watches the same
+  request returns 21 chips). "Your custom feed" (YouTube's prompt-driven feed: a prompt box, no videos Skipii can read; Derek's 6632.png showed a blank page) is dropped by title, and so is "Live" (0.5.90, 6633.png: live streams can't play) — `SKIPPED_CHIPS`, hl=en keeps titles stable. 0.5.90 also drops live/upcoming streams from every `parseFeed` (`InnerTube.isLive`: a lockup's THUMBNAIL badge THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE; older renderers BADGE_STYLE_TYPE_LIVE_NOW / time overlay style LIVE|UPCOMING / upcomingEventData), as search (NewPipe `streamType`) already did. An avatar's `liveData` only means the CHANNEL is live: keep those videos (`liveDropped`). Upcoming lockups' marker (text UPCOMING) is a guess, no capture; any other chip whose page has no videos shows an EmptyState with a pill back to the plain chip (`FeedState.loadedEmpty`). NOT done: the custom feed itself (0.5.88; needs a signed-in capture of that chip's answer and of the prompt's submit request). Test: AVDs `skipii_fold` (5562; `adb emu fold|unfold`, `adb emu posture 2` = half open, `cmd window
+  user-rotation lock 1` for tabletop) and `skipii_tablet` (Pixel Tablet, 5564, data partition 4G). Verified (debug; release
+  playback on the tablet): rail, grids (2 on the Fold, 4 on the tablet), Book + Tablet players, cover → unfold continuity mid-video,
+  tabletop deck, Shorts both ways, Settings list-detail, phone layout unchanged folded. NOT verified: signed-in Home (chips on
+  screen, the Shorts card), a real Galaxy Fold / tablet, "controls on the video" mode on wide windows.
+  0.5.87 (Derek, same day): the pill is CENTRED ON THE SCREEN in every layout (no longer over the details pane), so More
+  videos pads for it too; and `Book` swapped back: details + comments on the LEFT page (up to the fold), More videos on the
+  right (panels rest over the left page). The Fold's Shorts layout (short at the left edge, details right) was left as is.
+- 0.5.91–0.5.93 zoom to fill (2026-11-02, Derek: "lots of users want it", like YouTube's app). Fullscreen only (`VideoContent` with
+  `fullscreen`; PiP has its own surface and never zooms). Pinch out = fill the stage (the picture's layer scales by
+  `fillScale` = max(stage ratio / aspect, its inverse), its clip with it; the root clips), pinch in = whole picture. The pinch is
+  an Initial-pass pointerInput that takes nothing until TWO fingers pass touch slop, then consumes every change, so the tap
+  handler, the brightness / volume slides and swipe down back off (their drags end on a consumed change); not while holding
+  for 2×. Feedback is the picture's own motion, nothing drawn on it (0.5.93; Derek rejected a "Zoomed to fill" text pill,
+  corner marks and 14 overlay mockups, then picked "Rubber band" in a round of bounce variants): the zoom (`Animatable`, 0
+  whole … 1 fill) follows the fingers 1:1, past either end it stretches on with resistance (`stretched`, at most
+  `ZoomStretch` 6% more / less), and on release it springs (ζ 0.5, k 380, the pinch's own velocity via VelocityTracker1D,
+  capped) to the side the pinch's net direction picked (±4%, `ZoomDecide`; less goes back), bouncing once past it — below 0
+  is a moment smaller than the whole picture. A CLOCK_TICK when the mode changes. Never add an overlay cue for it.
+  Captions and the burst line stay on the unzoomed box. A pinch is for THAT video (`PlayerState.zoomedToFill`: the pinch for
+  the current id, else `FullscreenZoom.fill`, Settings › Playback "Zoom to fill in fullscreen", prefs "playback" `zoom_fill`);
+  changing the setting drops any pinch (`setZoomFillSetting`). Test: raw two-finger evdev (slots 0/1, as the double-tap note
+  below) — `adb input` can't pinch; dismiss Android's "Viewing full screen" tip first.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -706,6 +774,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `Bell.kt` — `Bells` (each channel's bell, synced with the account), `SubscribeWithBell`, `rememberBellToggle`.
 - `NewVideos.kt` — the 15-minute new-video check (RSS feeds of belled channels), notifications, `NewVideoWorker`.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
+- `Adaptive.kt` (`WindowLayout`: wide / fold / tabletop), `Rail.kt` (`NavRail`, wide windows), `Tabletop.kt` (`TabletopPlayer`, the half-open deck).
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.

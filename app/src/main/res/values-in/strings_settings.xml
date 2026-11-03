@@ -41,4 +41,8 @@
     <string name="settings_say_hi">Mampir dan sapa</string>
     <string name="settings_email_developer">Kirim email ke developer</string>
     <string name="settings_no_app">Tidak ada aplikasi di ponsel ini yang bisa membukanya</string>
+    <string name="settings_zoom_fill_title">Perbesar untuk mengisi di layar penuh</string>
+    <string name="settings_zoom_fill_on">Setiap video mengisi layar; tepi yang berlebih dipotong. Cubit ke dalam untuk melihat video secara utuh.</string>
+    <string name="settings_zoom_fill_off">Video tampil utuh, dengan bilah hitam. Cubit ke luar di layar penuh untuk mengisi layar.</string>
+    <string name="settings_zoom_fill_summary">diperbesar untuk mengisi</string>
 </resources>

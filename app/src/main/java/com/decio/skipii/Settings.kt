@@ -15,26 +15,33 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
@@ -75,7 +82,9 @@ import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.ZoomOutMap
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -86,6 +95,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -167,6 +177,12 @@ private const val SourceUrl = "https://github.com/deciocrytek/Skipii"
 /**
  * The whole page. [active] is false while it slides away (its Back stops catching). Back goes up one
  * level: a category → the front page, a search → cleared, the front page → closed.
+ *
+ * [wide] (a window 600 dp or wider; large screens, "Rail 3" in docs/design/large-screens-rail.html): list-detail.
+ * The front page stays on the left with the open category's tile lit; the category is a panel on the right
+ * with its own title and scroll. Both are always in view, so Back only clears a search, then closes. All
+ * state lives above the switch, so a window that narrows (rotation, a fold) carries on as the phone page on
+ * the same category, and going wide again keeps it.
  */
 @Composable
 fun SettingsScreen(
@@ -175,26 +191,130 @@ fun SettingsScreen(
     onClose: () -> Unit,
     onSignIn: () -> Unit,
     onSignedOut: () -> Unit,
+    wide: Boolean = false,
 ) {
     val c = MaterialTheme.colorScheme
     val reduced = rememberReducedMotion()
     // Saveable: picking a language rebuilds the window, which reopens here on Language.
-    var page by rememberSaveable { mutableStateOf<SettingsPage?>(null) }
+    // Opened wide, the panel's first category counts as open, so a window that narrows stays on it.
+    var page by rememberSaveable { mutableStateOf(if (wide) SettingsPage.Playback else null) }
+    /** The category opened last this session: what the wide page's panel shows while [page] is null (back on the phone's front page). */
+    var last by rememberSaveable { mutableStateOf(SettingsPage.Playback) }
     var query by rememberSaveable { mutableStateOf("") }
     /** The setting a search result points at, lit once its category opens. */
     var target by remember { mutableStateOf<String?>(null) }
+    /** Counts search picks, so a result in the category already open (wide) still scrolls to its row. */
+    var findSeq by remember { mutableIntStateOf(0) }
     val indexScroll = rememberScrollState()
     // Moodii's entrance: flips true a frame after Settings opens; the front page rises in once per opening.
     val entered by rememberEntered()
     val searchFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val panelShift = with(LocalDensity.current) { PanelShift.roundToPx() }
+
+    fun open(to: SettingsPage, key: String?) {
+        target = key
+        page = to
+        last = to
+        if (key != null) findSeq++
+    }
+
+    val close = { focusManager.clearFocus(force = true); onClose() }
 
     BackHandler(enabled = active) {
         when {
-            page != null -> { page = null; target = null }
+            !wide && page != null -> { page = null; target = null }
             query.isNotEmpty() -> query = ""
-            else -> { focusManager.clearFocus(force = true); onClose() }
+            else -> close()
         }
+    }
+
+    @Composable
+    fun Front(selected: SettingsPage?) = FrontPane(
+        player = player,
+        query = query,
+        onQuery = { query = it },
+        scroll = indexScroll,
+        entered = entered,
+        searchFocus = searchFocus,
+        selected = selected,
+        onOpen = { open(it, null) },
+        onPick = { hit ->
+            focusManager.clearFocus(force = true)
+            open(hit.page, hit.key)
+        },
+        onClose = close,
+    )
+
+    @Composable
+    fun Category(shown: SettingsPage, inPanel: Boolean) {
+        val scroll = rememberScrollState()
+        val find = remember(shown) { Find(target) }
+        // A plain field the reach effect reads: the row the latest search pick points at (null after a tile tap).
+        find.key = target
+        FoldingPage(
+            title = stringResource(shown.titleRes),
+            summary = summaryOf(shown),
+            scroll = scroll,
+            find = find,
+            findSeq = findSeq,
+            inPanel = inPanel,
+            onBack = { page = null; target = null },
+        ) {
+            CompositionLocalProvider(LocalFind provides find) {
+                when (shown) {
+                    SettingsPage.Playback -> PlaybackPage(player)
+                    SettingsPage.Captions -> CaptionsPage()
+                    SettingsPage.SponsorBlock -> SponsorBlockPage()
+                    SettingsPage.Shorts -> ShortsPage()
+                    SettingsPage.Appearance -> AppearancePage()
+                    SettingsPage.Language -> LanguagePage()
+                    SettingsPage.Notifications -> NotificationsPage(player)
+                    SettingsPage.About -> AboutPage(player)
+                    SettingsPage.Account -> AccountPage(onSignIn, onSignedOut)
+                }
+            }
+        }
+    }
+
+    if (wide) {
+        val detail = page ?: last
+        val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        BoxWithConstraints(
+            Modifier
+                .fillMaxSize()
+                .background(c.surface)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        ) {
+            val listWidth = (maxWidth * 0.45f).coerceIn(300.dp, 400.dp)
+            Row(Modifier.fillMaxSize()) {
+                Box(Modifier.width(listWidth).fillMaxHeight()) { Front(selected = detail) }
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(top = statusTop + 8.dp, end = 12.dp)
+                        .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                        .padding(bottom = 12.dp)
+                        .clip(RoundedCornerShape(PanelCorner))
+                        .background(c.surfaceContainerLow),
+                ) {
+                    AnimatedContent(
+                        targetState = detail,
+                        modifier = Modifier.fillMaxSize(),
+                        transitionSpec = {
+                            // Shared axis Y inside the panel: the next category comes in from its tile's side.
+                            val dir = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                            if (reduced) fadeIn(snap()) togetherWith fadeOut(snap())
+                            else (slideInVertically(tween(440, easing = SettingsEase)) { dir * panelShift } + fadeIn(tween(350, delayMillis = 60))) togetherWith
+                                (slideOutVertically(tween(260)) { -dir * panelShift * 3 / 4 } + fadeOut(tween(160)))
+                        },
+                        label = "settingsPanel",
+                    ) { shown -> Category(shown, inPanel = true) }
+                }
+            }
+        }
+        return
     }
 
     AnimatedContent(
@@ -209,57 +329,44 @@ fun SettingsScreen(
         },
         label = "settingsPage",
     ) { shown ->
-        if (shown == null) {
-            FoldingPage(
-                title = stringResource(R.string.settings_title),
-                summary = null,
-                scroll = indexScroll,
-                find = null,
-                titleModifier = Modifier.riseIn(entered, 0),
-                onBack = { focusManager.clearFocus(force = true); onClose() },
-                onSearch = {
-                    indexScroll.animateScrollTo(0)
-                    searchFocus.requestFocus()
-                },
-            ) {
-                Box(Modifier.riseIn(entered, 1)) { SearchField(query, { query = it }, searchFocus) }
-                if (query.isBlank()) {
-                    FrontPage(player, entered) { page = it }
-                } else {
-                    Results(query) { hit ->
-                        focusManager.clearFocus(force = true)
-                        target = hit.key
-                        page = hit.page
-                    }
-                }
-            }
-        } else {
-            val scroll = rememberScrollState()
-            val find = remember(shown) { Find(target) }
-            FoldingPage(
-                title = stringResource(shown.titleRes),
-                summary = summaryOf(shown),
-                scroll = scroll,
-                find = find,
-                onBack = { page = null; target = null },
-            ) {
-                CompositionLocalProvider(LocalFind provides find) {
-                    when (shown) {
-                        SettingsPage.Playback -> PlaybackPage(player)
-                        SettingsPage.Captions -> CaptionsPage()
-                        SettingsPage.SponsorBlock -> SponsorBlockPage()
-                        SettingsPage.Shorts -> ShortsPage()
-                        SettingsPage.Appearance -> AppearancePage()
-                        SettingsPage.Language -> LanguagePage()
-                        SettingsPage.Notifications -> NotificationsPage(player)
-                        SettingsPage.About -> AboutPage(player)
-                        SettingsPage.Account -> AccountPage(onSignIn, onSignedOut)
-                    }
-                }
-            }
-        }
+        if (shown == null) Front(selected = null) else Category(shown, inPanel = false)
     }
 }
+
+/** The front page: the big title, search, then the account card, quick toggles and tiles (or the search results). */
+@Composable
+private fun FrontPane(
+    player: PlayerState,
+    query: String,
+    onQuery: (String) -> Unit,
+    scroll: ScrollState,
+    entered: Boolean,
+    searchFocus: FocusRequester,
+    selected: SettingsPage?,
+    onOpen: (SettingsPage) -> Unit,
+    onPick: (Hit) -> Unit,
+    onClose: () -> Unit,
+) {
+    FoldingPage(
+        title = stringResource(R.string.settings_title),
+        summary = null,
+        scroll = scroll,
+        find = null,
+        titleModifier = Modifier.riseIn(entered, 0),
+        onBack = onClose,
+        onSearch = {
+            scroll.animateScrollTo(0)
+            searchFocus.requestFocus()
+        },
+    ) {
+        Box(Modifier.riseIn(entered, 1)) { SearchField(query, onQuery, searchFocus) }
+        if (query.isBlank()) FrontPage(player, entered, selected, onOpen) else Results(query, onPick)
+    }
+}
+
+/** The wide page's category panel: its corners and how far a category travels as it comes in. */
+private val PanelCorner = 28.dp
+private val PanelShift = 40.dp
 
 /** Ledgii's settings curve (fast out, long soft landing). */
 private val SettingsEase = CubicBezierEasing(0.2f, 0.85f, 0.22f, 1f)
@@ -275,6 +382,9 @@ private fun FoldingPage(
     onBack: () -> Unit,
     titleModifier: Modifier = Modifier,
     onSearch: (suspend () -> Unit)? = null,
+    findSeq: Int = 0,
+    /** The wide page's category panel: already clear of the status bar, no back arrow, the panel's tone. */
+    inPanel: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val c = MaterialTheme.colorScheme
@@ -283,14 +393,15 @@ private fun FoldingPage(
     // Read in layer lambdas only, so scrolling never recomposes the page.
     val fold = { (scroll.value / foldPx).coerceIn(0f, 1f) }
     val folded by remember { derivedStateOf { fold() > 0.6f } }
-    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val statusTop = if (inPanel) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val surface = if (inPanel) c.surfaceContainerLow else c.surface
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     if (find != null) {
         find.scroll = scroll
         find.topPx = with(density) { (statusTop + BarHeight + 48.dp).toPx() }
-        LaunchedEffect(find) { find.reach() }
+        LaunchedEffect(find, findSeq) { find.reach() }
     }
-    Box(Modifier.fillMaxSize().background(c.surface)) {
+    Box(Modifier.fillMaxSize().background(surface)) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -298,9 +409,10 @@ private fun FoldingPage(
                 .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
                 .verticalScroll(scroll)
                 .onGloballyPositioned { find?.content = it }
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = if (inPanel) 24.dp else 20.dp),
         ) {
-            Spacer(Modifier.height(statusTop + BarHeight))
+            // In the panel the title sits near its top; the bar only appears (fades in) as the title folds into it.
+            Spacer(Modifier.height(if (inPanel) 16.dp else statusTop + BarHeight))
             Text(
                 title,
                 modifier = titleModifier
@@ -333,8 +445,7 @@ private fun FoldingPage(
             Spacer(Modifier.height(36.dp))
         }
         // Under the folded bar the page fades out instead of cutting off (the tabs' top vignette).
-        val page = c.surface
-        val vignette = remember(page) { vignetteBrush(page, opaqueAtTop = true) }
+        val vignette = remember(surface) { vignetteBrush(surface, opaqueAtTop = true) }
         Box(
             Modifier
                 .padding(top = statusTop + BarHeight)
@@ -347,20 +458,22 @@ private fun FoldingPage(
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(c.surface)
+                .drawBehind { drawRect(surface, alpha = if (inPanel) fold() else 1f) }
                 .padding(top = statusTop)
                 .height(BarHeight)
-                .padding(start = 6.dp, end = 8.dp),
+                .padding(start = if (inPanel) 22.dp else 6.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(Modifier.size(48.dp).pressable(onClick = onBack), contentAlignment = Alignment.Center) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.ui_back), tint = c.onSurface)
+            if (!inPanel) {
+                Box(Modifier.size(48.dp).pressable(onClick = onBack), contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.ui_back), tint = c.onSurface)
+                }
             }
             Text(
                 title,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 6.dp)
+                    .padding(start = if (inPanel) 0.dp else 6.dp)
                     .graphicsLayer {
                         val f = fold()
                         alpha = f
@@ -439,19 +552,19 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, focus: FocusRe
 }
 
 @Composable
-private fun FrontPage(player: PlayerState, entered: Boolean, onOpen: (SettingsPage) -> Unit) {
+private fun FrontPage(player: PlayerState, entered: Boolean, selected: SettingsPage?, onOpen: (SettingsPage) -> Unit) {
     Box(Modifier.riseIn(entered, 2)) { AccountCard { onOpen(SettingsPage.Account) } }
     Box(Modifier.riseIn(entered, 3)) { QuickToggles(player) }
     Column(Modifier.riseIn(entered, 4)) {
         GroupLabel(stringResource(R.string.settings_group_watching))
-        CategoryTiles(listOf(SettingsPage.Playback, SettingsPage.Captions, SettingsPage.SponsorBlock, SettingsPage.Shorts), onOpen)
+        CategoryTiles(listOf(SettingsPage.Playback, SettingsPage.Captions, SettingsPage.SponsorBlock, SettingsPage.Shorts), selected, onOpen)
     }
     Column(Modifier.riseIn(entered, 5)) {
         GroupLabel(stringResource(R.string.settings_group_look))
-        CategoryTiles(listOf(SettingsPage.Appearance, SettingsPage.Language), onOpen)
+        CategoryTiles(listOf(SettingsPage.Appearance, SettingsPage.Language), selected, onOpen)
     }
     Column(Modifier.padding(top = 24.dp).riseIn(entered, 6)) {
-        CategoryTiles(listOf(SettingsPage.Notifications, SettingsPage.About), onOpen)
+        CategoryTiles(listOf(SettingsPage.Notifications, SettingsPage.About), selected, onOpen)
     }
     DeveloperCard(player, Modifier.padding(top = 24.dp).riseIn(entered, 7))
 }
@@ -572,23 +685,39 @@ private fun joinedShape(index: Int, count: Int): Shape {
 }
 
 @Composable
-private fun CategoryTiles(pages: List<SettingsPage>, onOpen: (SettingsPage) -> Unit) {
+private fun CategoryTiles(pages: List<SettingsPage>, selected: SettingsPage?, onOpen: (SettingsPage) -> Unit) {
     Joined(pages.size) { i, shape ->
         val page = pages[i]
-        Tile(page.icon, stringResource(page.titleRes), summaryOf(page), shape) { onOpen(page) }
+        Tile(page.icon, stringResource(page.titleRes), summaryOf(page), shape, selected = page == selected) { onOpen(page) }
     }
 }
 
-/** Ledgii's tile: an icon square, the title and a one-line summary, a chevron. */
+/**
+ * Ledgii's tile: an icon square, the title and a one-line summary, a chevron. [selected] (the wide page's open
+ * category) turns it primary container, both tones opaque.
+ */
 @Composable
-private fun Tile(icon: ImageVector, title: AnnotatedString, line: AnnotatedString?, shape: Shape, crumb: String? = null, onClick: () -> Unit) {
+private fun Tile(
+    icon: ImageVector,
+    title: AnnotatedString,
+    line: AnnotatedString?,
+    shape: Shape,
+    crumb: String? = null,
+    selected: Boolean = false,
+    onClick: () -> Unit,
+) {
     val c = MaterialTheme.colorScheme
+    // A 0…1 blend rather than animated colours, so a theme change still lands at once.
+    val lit by animateFloatAsState(if (selected) 1f else 0f, tween(260), label = "tileLit")
+    val background = lerp(c.surfaceContainer, c.primaryContainer, lit)
+    val content = lerp(LocalContentColor.current, c.onPrimaryContainer, lit)
+    val muted = lerp(c.onSurfaceVariant, c.onPrimaryContainer.copy(alpha = 0.8f), lit)
     Row(
         Modifier
             .fillMaxWidth()
             .pressable(pressedScale = 0.98f, onClick = onClick)
             .clip(shape)
-            .background(c.surfaceContainer)
+            .drawBehind { drawRect(background) }
             .heightIn(min = 78.dp)
             .padding(horizontal = 17.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -600,20 +729,20 @@ private fun Tile(icon: ImageVector, title: AnnotatedString, line: AnnotatedStrin
                 Text(crumb, color = c.primary, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(2.dp))
             }
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(title, color = content, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (line != null) {
                 Spacer(Modifier.height(4.dp))
-                Text(line, color = c.onSurfaceVariant, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(line, color = muted, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
         Spacer(Modifier.width(8.dp))
-        Icon(Icons.Rounded.ChevronRight, null, tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp))
+        Icon(Icons.Rounded.ChevronRight, null, tint = muted, modifier = Modifier.size(20.dp))
     }
 }
 
 @Composable
-private fun Tile(icon: ImageVector, title: String, line: String?, shape: Shape, onClick: () -> Unit) =
-    Tile(icon, AnnotatedString(title), line?.let(::AnnotatedString), shape, null, onClick)
+private fun Tile(icon: ImageVector, title: String, line: String?, shape: Shape, selected: Boolean = false, onClick: () -> Unit) =
+    Tile(icon, AnnotatedString(title), line?.let(::AnnotatedString), shape, null, selected, onClick)
 
 @Composable
 private fun IconSquare(icon: ImageVector) {
@@ -749,6 +878,7 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
         stringResource(if (PlayerControls.inBar) R.string.ui_player_controls_pill else R.string.ui_player_controls_on_video),
         if (PlaybackSpeed.remember) stringResource(R.string.settings_speed_kept_summary, PlaybackSpeed.label(PlaybackSpeed.saved))
         else stringResource(R.string.settings_speed_per_video),
+        if (FullscreenZoom.fill) stringResource(R.string.settings_zoom_fill_summary) else null,
         if (AudioOnly.enabled) stringResource(R.string.bar_audio_only) else null,
     ).joinDots()
     SettingsPage.Captions -> listOf(captionShowLabel(CaptionSettings.show), stringResource(CaptionSettings.look.labelRes)).joinDots()
@@ -818,6 +948,7 @@ private fun entries(): List<Entry> = buildList {
     val pb = SettingsPage.Playback
     add(Entry(pb, "controls", str(R.string.ui_player_controls), listOf(str(R.string.ui_player_controls_pill), str(R.string.ui_player_controls_on_video))))
     add(Entry(pb, "speed", str(R.string.settings_speed_remember_title), listOf(str(R.string.settings_speed_keep), str(R.string.bar_speed_remember))))
+    add(Entry(pb, "zoom", str(R.string.settings_zoom_fill_title), listOf(str(R.string.settings_zoom_fill_on), str(R.string.settings_zoom_fill_off))))
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
     val cc = SettingsPage.Captions
     add(Entry(cc, "show", str(R.string.captions_show), listOf(str(R.string.captions_show_never), str(R.string.captions_show_always))))
@@ -903,7 +1034,7 @@ private fun marked(text: String, query: String, style: SpanStyle): AnnotatedStri
 // ── Finding a setting: scroll to it and light it up ───────────────────────────
 
 /** The setting a search result opened, found once the category has laid out. */
-private class Find(val key: String?) {
+private class Find(var key: String?) {
     val rows = HashMap<String, LayoutCoordinates>()
     var content: LayoutCoordinates? = null
     var scroll: ScrollState? = null
@@ -912,6 +1043,8 @@ private class Find(val key: String?) {
 
     suspend fun reach() {
         val key = key ?: return
+        // The same row picked again (wide: its category stays open) lights up again.
+        lit = null
         // Once the category has slid in.
         delay(380)
         val row = rows[key]?.takeIf { it.isAttached } ?: return
@@ -1079,7 +1212,7 @@ private fun Note(text: String) {
 @Composable
 private fun PlaybackPage(player: PlayerState) {
     Spacer(Modifier.height(14.dp))
-    Joined(3) { i, shape ->
+    Joined(4) { i, shape ->
         when (i) {
             0 -> ChipsSetting(
                 "controls", shape,
@@ -1097,6 +1230,13 @@ private fun PlaybackPage(player: PlayerState) {
                 PlaybackSpeed.remember,
                 icon = Icons.Rounded.Speed,
             ) { if (it != PlaybackSpeed.remember) player.toggleRememberSpeed() }
+            2 -> SwitchSetting(
+                "zoom", shape,
+                stringResource(R.string.settings_zoom_fill_title),
+                stringResource(if (FullscreenZoom.fill) R.string.settings_zoom_fill_on else R.string.settings_zoom_fill_off),
+                FullscreenZoom.fill,
+                icon = Icons.Rounded.ZoomOutMap,
+            ) { player.setZoomFillSetting(it) }
             else -> SwitchSetting(
                 "audio", shape,
                 stringResource(R.string.bar_audio_only),

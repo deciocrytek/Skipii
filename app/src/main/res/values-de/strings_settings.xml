@@ -42,4 +42,8 @@
     <string name="settings_say_hi">Sag gern Hallo</string>
     <string name="settings_email_developer">E-Mail an den Entwickler</string>
     <string name="settings_no_app">Keine App auf diesem Telefon kann das öffnen</string>
+    <string name="settings_zoom_fill_title">Im Vollbild zum Füllen zoomen</string>
+    <string name="settings_zoom_fill_on">Jedes Video füllt den Bildschirm; überstehende Ränder werden abgeschnitten. Zusammenziehen, um ein Video ganz zu sehen.</string>
+    <string name="settings_zoom_fill_off">Videos werden ganz gezeigt, mit schwarzen Balken. Im Vollbild auseinanderziehen, um den Bildschirm zu füllen.</string>
+    <string name="settings_zoom_fill_summary">zum Füllen gezoomt</string>
 </resources>

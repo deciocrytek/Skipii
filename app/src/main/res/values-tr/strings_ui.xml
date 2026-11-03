@@ -138,4 +138,6 @@
     <string name="ui_feed_error_title">Bu yüklenemedi</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Oturumunuz kapalı.</string>
+    <string name="ui_chip_empty_title">Burada bir şey yok</string>
+    <string name="ui_chip_empty_body">YouTube “%1$s” için video göndermedi.</string>
 </resources>

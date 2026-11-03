@@ -67,6 +67,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -494,6 +495,43 @@ fun PlayerPanel(
                 }
             }
             content(Modifier.weight(1f).nestedScroll(listPull))
+        }
+    }
+}
+
+/**
+ * Wide windows (Rail 3): the comments flow in the player's own list under the details, as they read
+ * on a page, instead of a card that opens a panel. The heading with the count, the comment box when
+ * signed in, then every comment with its replies; the next page loads as the end comes into view.
+ */
+fun LazyListScope.inlineComments(state: CommentsState) {
+    item(key = "commentsHead") {
+        val c = MaterialTheme.colorScheme
+        Row(Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.comments_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
+            if (state.total > 0) {
+                Spacer(Modifier.width(8.dp))
+                Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        }
+    }
+    if (Account.signedIn && !state.disabled) item(key = "commentsComposer") {
+        Box(Modifier.padding(horizontal = 12.dp, vertical = 6.dp).clip(RoundedCornerShape(26.dp))) { Composer(state) }
+    }
+    items(state.comments, key = { "comment-" + it.id }) { comment -> CommentRow(comment, state) }
+    when {
+        state.loading || state.hasMore -> item(key = "commentsMore") {
+            // Composed as it nears the screen: that's the cue for the next page.
+            LaunchedEffect(state.comments.size) { state.loadMore() }
+            Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 3.dp, modifier = Modifier.size(26.dp))
+            }
+        }
+        state.comments.isEmpty() -> item(key = "commentsNone") {
+            Text(
+                state.error ?: stringResource(if (state.disabled) R.string.comments_turned_off else R.string.comments_none),
+                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+            )
         }
     }
 }
