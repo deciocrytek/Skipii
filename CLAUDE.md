@@ -673,6 +673,12 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   the current id, else `FullscreenZoom.fill`, Settings › Playback "Zoom to fill in fullscreen", prefs "playback" `zoom_fill`);
   changing the setting drops any pinch (`setZoomFillSetting`). Test: raw two-finger evdev (slots 0/1, as the double-tap note
   below) — `adb input` can't pinch; dismiss Android's "Viewing full screen" tip first.
+- 0.5.94 square screens (2026-11-03, GitHub #38, a Unihertz Titan 2 Elite: 1080 × 1200): on a near-square phone
+  (`onSquareScreen`, Adaptive.kt: the whole screen's long side ≤ 4:3 of its short side, so the bars don't count) fullscreen
+  stays UPRIGHT for every video, the vertical-video path (`portraitFullscreen`); turning the phone sideways still gives
+  landscape fullscreen. No keyboard check: any near-square screen gains next to nothing from turning. Large screens stay
+  `free`. Test: `adb shell wm size 1080x1200` + `wm density 400` (back: `wm size reset` / `wm density reset`). Verified on
+  skipii_qa (debug): upright fullscreen, letterboxed 16:9, Back exits; the normal 1080×2400 screen still turns landscape.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

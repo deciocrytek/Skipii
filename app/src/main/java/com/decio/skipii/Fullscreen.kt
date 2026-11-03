@@ -45,6 +45,9 @@ import androidx.core.view.WindowInsetsControllerCompat
  *  - A vertical video (taller than wide; GitHub issues #20/#22) goes fullscreen UPRIGHT: the
  *    button / swipe up keep the phone portrait and fill the screen. Turning the phone sideways
  *    then makes it ordinary landscape fullscreen (and turning it back exits, as usual).
+ *  - A near-square phone ([onSquareScreen]: keyboard phones like the Titan 2 Elite; GitHub #38)
+ *    does the same for every video: there's next to nothing to gain from turning it, and its owners
+ *    hold it upright. Turning it sideways still gives landscape fullscreen.
  *  - Folding or unfolding (another screen) starts over from how the phone is held: a landscape
  *    forced on the inner screen kept the cover screen sideways in fullscreen while it was held
  *    upright, and only turning the phone sideways and back (with auto-rotate on) let go
@@ -70,7 +73,9 @@ class OrientationController(private val activity: ComponentActivity) {
     private val free get() = multiWindow || largeScreen
     /** Split screen: fullscreen chosen with the button; null follows the pane's shape. */
     private var paneFullscreen by mutableStateOf<Boolean?>(null)
-    /** Fullscreen in portrait, for a vertical video; dropped once the window turns landscape. */
+    /** A near-square phone ([onSquareScreen]): fullscreen stays upright for every video. */
+    private var squareScreen by mutableStateOf(activity.onSquareScreen())
+    /** Fullscreen in portrait, for a vertical video or a square screen; dropped once the window turns landscape. */
     private var portraitFullscreen by mutableStateOf(false)
 
     private val listener = object : OrientationEventListener(activity) {
@@ -99,11 +104,11 @@ class OrientationController(private val activity: ComponentActivity) {
         else -> landscape || (portraitFullscreen && !AudioOnly.enabled)
     }
 
-    /** [vertical]: the video is taller than wide, so fullscreen stays portrait. */
+    /** [vertical]: the video is taller than wide, so fullscreen stays portrait (as on a square screen). */
     fun enterFullscreen(vertical: Boolean) {
         when {
             free -> paneFullscreen = true
-            vertical -> portraitFullscreen = true
+            vertical || squareScreen -> portraitFullscreen = true
             else -> forced = Forced.Landscape
         }
     }
@@ -164,6 +169,7 @@ class OrientationController(private val activity: ComponentActivity) {
             val large = activity.onLargeScreen()
             if (large && !largeScreen) paneFullscreen = if (wasFullscreen[0]) true else null
             largeScreen = large
+            squareScreen = activity.onSquareScreen()
         }
         SideEffect { wasFullscreen[0] = showsFullscreen(playerOpen, landscape) }
         LaunchedEffect(playerOpen, forced, multiWindow, largeScreen) { setPlayerOpen(playerOpen) }

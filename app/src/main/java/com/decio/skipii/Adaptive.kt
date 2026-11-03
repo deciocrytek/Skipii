@@ -67,3 +67,12 @@ fun Activity.screenSides(): Pair<Int, Int> {
 
 /** A tablet or an open foldable: the screen's short side is wide-window size, so nothing is held portrait. */
 fun Activity.onLargeScreen(): Boolean = screenSides().first / resources.displayMetrics.density >= WideWindow.value
+
+/** No more than 4:3 either way round (the Titan 2 Elite is 1080 × 1200, the Ikko Mind One about 1.15): fullscreen keeps the phone upright. */
+val SquareScreenRatio = 4f / 3f
+
+/**
+ * A near-square phone (Unihertz Titan, keyboard phones; GitHub #38): turning it sideways gains the
+ * video almost nothing, so fullscreen stays upright. The whole screen, so the bars don't count.
+ */
+fun Activity.onSquareScreen(): Boolean = screenSides().let { (short, long) -> short > 0 && long <= short * SquareScreenRatio + 0.5f }

@@ -10,6 +10,9 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### Fixed
+- On near-square phones like the Unihertz Titan 2 Elite and other keyboard phones, fullscreen no longer turns the screen sideways. The video fills the screen the way you're holding it, and you can still turn the phone sideways for landscape.
+
 ## 0.5.93
 
 ### New

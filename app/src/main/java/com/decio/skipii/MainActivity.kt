@@ -315,7 +315,7 @@ fun SkipiiApp() {
     SideEffect { if (!pip.active) fullscreenBeforePip.value = showFullscreen }
     LaunchedEffect(showFullscreen) { player.fullscreen = showFullscreen }
     SystemBarsHidden(showFullscreen || tabletop)
-    // A vertical video's fullscreen stays upright (Fullscreen.kt).
+    // A vertical video's fullscreen stays upright, and every video's on a near-square phone (Fullscreen.kt).
     fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen(vertical = player.videoAspect < 1f)
 
     BackHandler(enabled = player.expanded) { player.expanded = false }
