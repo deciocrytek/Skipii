@@ -679,6 +679,33 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   landscape fullscreen. No keyboard check: any near-square screen gains next to nothing from turning. Large screens stay
   `free`. Test: `adb shell wm size 1080x1200` + `wm density 400` (back: `wm size reset` / `wm density reset`). Verified on
   skipii_qa (debug): upright fullscreen, letterboxed 16:9, Back exits; the normal 1080×2400 screen still turns landscape.
+- 0.5.95 double tap to like Shorts (2026-11-03, GitHub #47): a double tap anywhere on a short likes it, never unlikes
+  (`ShortsState.likeFromTap`; signed out only the sign-in note, no thumb). `shortTaps` (Shorts.kt) replaces the plain tap: a
+  lone tap now waits out the double-tap timeout before pausing (as the main player's side taps); every further tap within
+  `ThumbRunWindowMs` 600 ms of the last throws another thumb. `ThumbBurst`: the filled like glyph 104 dp box at the tap,
+  random 8–20° lean, springs in from 0 with overshoot + the like button's eight sparks, holds 520 ms, floats 64 dp up and
+  fades (`Motion.Exit`); a soft dark halo so it reads on bright frames. The bar's like icon pops by itself (its Flourish).
+  Test with ONE evdev write holding both taps (separate `cat`s land ~300 ms apart = two lone taps). Verified on skipii_qa
+  (debug, with a throwaway build faking the signed-in path): thumb, no pause, runs of 4, single tap pauses. NOT verified:
+  the like reaching Derek's account (same `InnerTube.setLike` as the bar's button).
+  0.5.97 (Derek: "my finger hides it"): the thumb's centre sits `ThumbAboveFinger` 96 dp ABOVE the tap (clamped
+  `ThumbTopMargin` 24 dp from the page's top), never on it.
+  0.5.98 (Derek: "a solid 2 seconds after switching shorts before I can double tap"): likes waited for
+  `InnerTube.videoState`, asked only once a short was on screen. Now `tick` asks for this short and the next two, and a
+  like with no state yet goes through at once (a stand-in state, Like); the answer, when it lands, keeps the local like /
+  subscribe (`accountFor` merges). A failed like reverts only `like`. NOT verified signed in (no account on the emulator).
+  Animation mockups in `docs/design/shorts-double-tap.html` (A–J). 0.5.99: Derek picked B · Confetti. `ThumbBurst` now
+  plays the mockup's numbers in dp (it drew 0.72 px per dp), all read off ONE ms clock (`clock`, 1100 ms linear): the thumb
+  runs `keyframe`s on CSS ease-out over the whole timeline (scale 0 → 1.2 → 0.97 → 1, lean 0 → −8° → 3° → 0, holds to 70%,
+  then rises 42 dp and fades); 16 confetti (`Confetto`, per tap: every third a 8.3 dp dot, else a 5.6×12.5 dp strip that
+  spins ±540°/s; colours #FF0033 #FFD000 #3EA6FF #FF4FB8 #7CF29A white) leave the thumb's centre 40 ms in, up and out
+  (−170…−10°, 167–320 dp/s, gravity 722 dp/s²), for 900 ms, fading over the last 40%. Drawn in the thumb box's drawBehind
+  (unclipped). Reduced motion: the thumb fades in and out, no confetti.
+- 0.5.96 (2026-11-03, Derek's 6641.mp4): the player's bar came back from the comments cut off above a line, then popped in
+  whole. MainActivity faded the NavPill's tab-bar-sized slot with layer alpha; alpha < 1 draws a layer offscreen CROPPED to
+  its own bounds, and the player's bar stands taller than that slot (grown upward + lifted). The slot's layer now only
+  translates; the fade is NavPill's `fade`, applied on the bar's own layer (with its shape/clip/shadow). Never put alpha
+  on a layer whose content is placed or drawn outside its bounds.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

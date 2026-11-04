@@ -10,6 +10,13 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- Double tap a short to like it, as on YouTube (#47, thanks @Suhareb). A thumbs up pops out just above where you tapped, clear of your finger, with a burst of confetti; keep tapping for more. A double tap never takes a like away, and a single tap still pauses.
+
+### Fixed
+- Liking a short (double tap or the like button) works the moment it comes on screen. It used to do nothing for about two seconds after each swipe.
+- Closing the comments brought the player's controls back with their top half cut off for a moment. They now come back whole.
+
 ## 0.5.94
 
 ### Fixed

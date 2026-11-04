@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Shorts double tap to like, ten animations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'App Rounded';src:local('SF Pro Rounded'),local('.SF NS Rounded'),local('SFProRounded-Regular');font-weight:100 1000}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'App Rounded',ui-rounded,Nunito,system-ui,-apple-system,sans-serif;
+  --ease-rise:cubic-bezier(.2,.9,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --primary:#FF0033;--surface:#0f0f0f;--on:#f1f1f1;--on-var:#aaaaaa;
+  --sc-low:#181818;--sc:#212121;--sc-high:#2c2c2c;
+}
+body{font-family:var(--font);background:#0a0a0a;color:var(--on);min-height:100vh}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block}
+
+.page{max-width:1800px;margin:0 auto;padding:40px 28px 64px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:34px}
+.intro h1{font-size:40px;font-weight:900;letter-spacing:-1.6px;line-height:1.05}
+.intro p{margin-top:10px;color:var(--on-var);font-size:16px;font-weight:600;max-width:760px;line-height:1.45}
+.intro p b{color:var(--on)}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:var(--sc-high);border-radius:999px;padding:4px;gap:4px}
+.seg button{height:40px;padding:0 18px;border-radius:999px;font-weight:800;font-size:14px;color:var(--on-var);transition:background .35s var(--ease-rise),color .35s}
+.seg button.on{background:var(--primary);color:#fff}
+.demo{height:48px;padding:0 22px;border-radius:999px;background:var(--on);color:var(--surface);font-weight:900;font-size:15px;transition:transform .42s var(--ease-spring)}
+.demo:active{transform:scale(.94);transition-duration:.09s}
+
+.stage{display:flex;flex-wrap:wrap;gap:34px;justify-content:center}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px}
+.cap{text-align:center;max-width:310px}
+.cap b{display:block;font-size:19px;font-weight:900;letter-spacing:-.3px}
+.cap b em{font-style:normal;color:var(--primary)}
+.cap small{display:block;margin-top:5px;font-size:13.5px;font-weight:600;color:var(--on-var);line-height:1.45}
+.phone{width:316px;height:664px;border-radius:46px;padding:9px;background:#1c1c1c;box-shadow:0 0 0 2px #2e2e2e inset,0 30px 70px -20px rgba(0,0,0,.7)}
+.screen{width:100%;height:100%;border-radius:38px;overflow:hidden;clip-path:inset(0 round 38px);position:relative;background:#000;isolation:isolate;cursor:pointer;user-select:none}
+.screen:before{content:"";position:absolute;top:10px;left:50%;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:#050505;z-index:80}
+
+/* the short: an abstract, slowly drifting picture */
+.video{position:absolute;inset:0;overflow:hidden}
+.video i{position:absolute;border-radius:50%;filter:blur(30px);opacity:.9;animation:drift 9s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(30px,-40px) scale(1.15)}}
+.shade-top{position:absolute;inset:0 0 auto;height:80px;background:linear-gradient(rgba(0,0,0,.38),transparent)}
+.shade-bot{position:absolute;inset:auto 0 0;height:240px;background:linear-gradient(transparent,rgba(0,0,0,.18) 35%,rgba(0,0,0,.62))}
+.status{position:absolute;top:13px;left:26px;right:24px;display:flex;justify-content:space-between;font-size:12px;font-weight:800;z-index:5}
+.meta{position:absolute;left:12px;right:18px;bottom:66px;z-index:5;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+.meta b{font-size:11px;font-weight:800}
+.meta p{margin-top:4px;font-size:10.5px;font-weight:600;line-height:1.35}
+
+/* the glass bar */
+.bar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:6}
+.glass{height:37px;border-radius:999px;background:rgba(37,37,37,.38);backdrop-filter:blur(14px) saturate(1.25);-webkit-backdrop-filter:blur(14px) saturate(1.25);display:flex;align-items:center}
+.back{width:37px;justify-content:center}
+.pill{width:174px;justify-content:space-around;padding:0 6px}
+.pill .slot{width:30px;height:30px;display:grid;place-items:center;position:relative}
+.pill svg{width:16px;height:16px;fill:#fafafa}
+.av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#ffb36b,#ff5f8f)}
+.like-btn{transform-origin:50% 75%}
+.like-btn .on{display:none}
+.liked .like-btn .on{display:block}
+.liked .like-btn .off{display:none}
+.heart .like-btn .on svg{fill:url(#heartFill)}
+.combo{position:absolute;left:0;top:0;height:30px;padding:0 12px;border-radius:999px;display:flex;align-items:center;font-weight:900;font-size:16px;letter-spacing:-.3px;background:rgba(37,37,37,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden}
+.combo span{display:block}
+
+.fx{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:hidden}
+.fx > *{position:absolute;left:0;top:0;will-change:transform,opacity}
+.finger{width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,.28);box-shadow:0 0 0 2px rgba(255,255,255,.55) inset;opacity:0;z-index:30}
+.thumb svg{fill:#fafafa;filter:drop-shadow(0 3px 10px rgba(0,0,0,.35))}
+
+.notes{margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.note{background:var(--sc-low);border-radius:24px;padding:18px 20px}
+.note h3{font-size:12px;font-weight:900;letter-spacing:1.3px;color:var(--primary);text-transform:uppercase}
+.note p,.note li{margin-top:8px;font-size:14px;font-weight:600;line-height:1.5;color:var(--on-var)}
+.note ul{padding-left:18px}
+.note b{color:var(--on)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <div>
+      <h1>Double tap to like, ten ways</h1>
+      <p>Each phone plays a double tap, then two more quick taps. The circle is where the finger touched. <b>Click twice on any phone to try it yourself.</b> Every option starts above the finger, so the fingertip never hides it. The bar's like button fills on the first like.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" id="speed">
+        <button class="on" data-s="1">Real speed</button>
+        <button data-s="4">4× slower</button>
+      </div>
+      <button class="demo" id="replay">Replay all</button>
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="heartFill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF4F8B"/><stop offset="1" stop-color="#FF0033"/></linearGradient></defs></svg>
+  <div class="stage" id="stage"></div>
+
+  <div class="notes">
+    <div class="note"><h3>What they share</h3><p>Every option likes on the second tap, never unlikes, and a single tap still pauses after the 300 ms double-tap wait. Each further quick tap adds another one. They are drawn over the picture (only G moves it, a short jolt), and with animations off they just fade in and out.</p></div>
+    <div class="note"><h3>YouTube today</h3><p>Since June 2026 YouTube has been <b>swapping the Shorts thumbs-up for a heart</b> (like button and double tap), first as a test, then more widely. These keep Skipii's thumb. Any of them can take a heart instead if you'd rather match the new look.</p></div>
+    <div class="note"><h3>Now in 0.5.98</h3><p>The current build: the thumb springs in leaning, eight white dots fly out, it holds, then floats up and fades. Whichever you pick replaces it.</p></div>
+  </div>
+</div>
+
+<script>
+const LIKED = 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z';
+const LIKE = 'M9 21h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.58 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2zM9 9l4.34-4.34L12 10h9v2l-3 7H9V9zM1 9h4v12H1z';
+const COMMENT = 'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z';
+const SHARE = 'M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z';
+const HEART = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+const HEART_LINE = 'M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z';
+const svg = (d, s) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}"><path d="${d}"/></svg>`;
+
+// Phone scale: the screen is 298 px for a 412 dp phone, so 1 dp ≈ 0.72 px.
+const DP = 0.72;
+const LIFT = 96 * DP;          // the thumb's centre sits this far above the finger
+const THUMB = 64 * DP;         // glyph size
+
+let S = 1;                     // slow motion factor
+const anim = (el, frames, ms, opts = {}) => el.animate(frames, { duration: ms * S, fill: 'both', easing: 'linear', ...opts, delay: (opts.delay || 0) * S });
+const after = ms => new Promise(r => setTimeout(r, ms * S));
+const rand = (a, b) => a + Math.random() * (b - a);
+
+const OPTIONS = [
+  { key: 'pop', name: 'A · <em>Pop</em>', text: 'Closest to YouTube’s old one. The thumb punches in big, wobbles, and short white streaks shoot out like a cartoon impact. Then it lifts away.' },
+  { key: 'confetti', name: 'B · <em>Confetti</em>', text: 'The thumb pops and a handful of confetti bursts out of it in Skipii’s red and bright colours, tumbling under gravity. The loudest one.' },
+  { key: 'ripple', name: 'C · <em>Ripple</em>', text: 'A soft ring spreads from the fingertip, and the thumb fills in from the bottom like ink as it bounces. Calm, Material-like.' },
+  { key: 'fly', name: 'D · <em>Fly home</em>', text: 'The thumb pops above the finger, then flies in an arc into the bar’s like button, which pops and fills. Shows where the like went.' },
+  { key: 'bubble', name: 'E · <em>Glass bubble</em>', text: 'A bubble of the bar’s dark frosted glass springs open with the thumb stamped inside (squash and stretch), then floats up. Matches the bar.' },
+  { key: 'heart', heart: true, name: 'F · <em>Heart</em>', text: 'YouTube’s new look: a red-to-pink heart beats in twice, little hearts drift up from it, and the bar’s like button becomes a heart too.' },
+  { key: 'stamp', name: 'G · <em>Stamp</em>', text: 'The thumb slams down from big and see-through like a rubber stamp. On impact the picture jolts and a puff of dust kicks out sideways.' },
+  { key: 'rocket', name: 'H · <em>Rocket</em>', text: 'A small thumb launches up from the fingertip with a sparkle trail, then bursts open at the top like a firework.' },
+  { key: 'combo', name: 'I · <em>Combo</em>', text: 'One thumb that re-pops on every tap, with a game-style counter beside it: ×2, ×3… rolling up. Ends a moment after the last tap.' },
+  { key: 'jelly', name: 'J · <em>Jelly</em>', text: 'A red blob stretches up out of the fingertip, lands as a jiggling circle with the thumb inside, then pops into droplets.' },
+];
+
+function phone(opt, i) {
+  const hue = [12, 200, 280, 140, 330, 350, 30, 230, 170, 300][i];
+  const blobs = [[-40, 80, 240, `hsl(${hue} 80% 55%)`], [120, 300, 260, `hsl(${hue + 40} 70% 45%)`], [-20, 470, 220, `hsl(${hue - 30} 75% 35%)`]]
+    .map(([x, y, s, c]) => `<i style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${c};animation-delay:-${i * 1.7}s"></i>`).join('');
+  return `<div class="shot" data-key="${opt.key}">
+    <div class="phone"><div class="screen${opt.heart ? ' heart' : ''}">
+      <div class="video">${blobs}</div>
+      <div class="shade-top"></div><div class="shade-bot"></div>
+      <div class="status"><span>9:41</span><span>● ● ▮</span></div>
+      <div class="meta"><b>Channel name</b><p>The short’s title goes here, up to three lines</p></div>
+      <div class="bar">
+        <div class="glass back"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 4.5 7.5 12l7.5 7.5" fill="none" stroke="#fafafa" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="glass pill">
+          <div class="slot like-slot"><div class="like-btn"><span class="off">${svg(opt.heart ? HEART_LINE : LIKE, 16)}</span><span class="on">${svg(opt.heart ? HEART : LIKED, 16)}</span></div></div>
+          <div class="slot">${svg(COMMENT, 16)}</div>
+          <div class="slot">${svg(SHARE, 16)}</div>
+          <div class="slot"><div class="av"></div></div>
+        </div>
+      </div>
+      <div class="fx"></div>
+    </div></div>
+    <div class="cap"><b>${opt.name}</b><small>${opt.text}</small></div>
+  </div>`;
+}
+document.getElementById('stage').innerHTML = OPTIONS.map(phone).join('');
+
+function put(fx, html, x, y, cls) {
+  const el = document.createElement('div');
+  if (cls) el.className = cls;
+  el.innerHTML = html;
+  el.style.transform = `translate(${x}px,${y}px)`;
+  fx.appendChild(el);
+  return el;
+}
+const at = (x, y, extra = '') => `translate(${x}px,${y}px) ${extra}`;
+
+function likeButton(screen, pop = true) {
+  const was = screen.classList.contains('liked');
+  screen.classList.add('liked');
+  const b = screen.querySelector('.like-btn');
+  if (!was || pop) anim(b, [{ transform: 'scale(.6) rotate(0)' }, { transform: 'scale(1.35) rotate(-18deg)', offset: .35 }, { transform: 'scale(.92) rotate(8deg)', offset: .65 }, { transform: 'scale(1) rotate(0)' }], 480);
+}
+function likeButtonCenter(screen) {
+  const r = screen.querySelector('.like-slot').getBoundingClientRect(), s = screen.getBoundingClientRect();
+  return [r.left - s.left + r.width / 2, r.top - s.top + r.height / 2];
+}
+
+// A thumb element centred on (x, y), drawn at `size`.
+function thumbEl(fx, x, y, size = THUMB) {
+  const el = put(fx, svg(LIKED, size), 0, 0, 'thumb');
+  el.style.width = el.style.height = size + 'px';
+  el.style.marginLeft = el.style.marginTop = (-size / 2) + 'px';
+  el.style.transformOrigin = '50% 70%';
+  el.style.transform = at(x, y, 'scale(0)');
+  return el;
+}
+
+const KINDS = {
+  // A: a punchy pop with a wobble and impact streaks.
+  pop(screen, fx, x, y, first) {
+    const ty = y - LIFT, tilt = rand(-14, 14);
+    const t = thumbEl(fx, x, ty);
+    anim(t, [
+      { transform: at(x, ty, `scale(0) rotate(${tilt - 25}deg)`), opacity: 1 },
+      { transform: at(x, ty, `scale(1.32) rotate(${tilt + 10}deg)`), opacity: 1, offset: .14 },
+      { transform: at(x, ty, `scale(.9) rotate(${tilt - 6}deg)`), opacity: 1, offset: .26 },
+      { transform: at(x, ty, `scale(1.04) rotate(${tilt + 2}deg)`), opacity: 1, offset: .36 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .62 },
+      { transform: at(x, ty - 44, `scale(1.1) rotate(${tilt}deg)`), opacity: 0 },
+    ], 950, { easing: 'ease-out' });
+    for (let k = 0; k < 8; k++) {
+      const a = k / 8 * 360 + 22.5;
+      const line = put(fx, '', 0, 0);
+      Object.assign(line.style, { width: '3px', height: '13px', marginLeft: '-1.5px', marginTop: '-6.5px', borderRadius: '2px', background: '#fff', boxShadow: '0 0 6px rgba(0,0,0,.25)' });
+      anim(line, [
+        { transform: at(x, ty, `rotate(${a}deg) translateY(-24px) scaleY(.3)`), opacity: 0 },
+        { transform: at(x, ty, `rotate(${a}deg) translateY(-36px) scaleY(1.2)`), opacity: 1, offset: .3 },
+        { transform: at(x, ty, `rotate(${a}deg) translateY(-54px) scaleY(.2)`), opacity: 0 },
+      ], 380, { delay: 50, easing: 'cubic-bezier(.2,.8,.3,1)' });
+    }
+    if (first) setTimeout(() => likeButton(screen), 80 * S);
+  },
+
+  // B: confetti with gravity.
+  confetti(screen, fx, x, y, first) {
+    const ty = y - LIFT;
+    const t = thumbEl(fx, x, ty);
+    anim(t, [
+      { transform: at(x, ty, 'scale(0)'), opacity: 1 },
+      { transform: at(x, ty, 'scale(1.2) rotate(-8deg)'), opacity: 1, offset: .18 },
+      { transform: at(x, ty, 'scale(.97) rotate(3deg)'), opacity: 1, offset: .32 },
+      { transform: at(x, ty, 'scale(1) rotate(0)'), opacity: 1, offset: .7 },
+      { transform: at(x, ty - 30, 'scale(1)'), opacity: 0 },
+    ], 1100, { easing: 'ease-out' });
+    const colors = ['#FF0033', '#FFD000', '#3EA6FF', '#FF4FB8', '#7CF29A', '#ffffff'];
+    for (let k = 0; k < 16; k++) {
+      const p = put(fx, '', 0, 0);
+      const round = k % 3 === 0, w = round ? 6 : 4, h = round ? 6 : 9;
+      Object.assign(p.style, { width: w + 'px', height: h + 'px', marginLeft: -w / 2 + 'px', marginTop: -h / 2 + 'px', borderRadius: round ? '50%' : '1.5px', background: colors[k % colors.length] });
+      const ang = rand(-170, -10) * Math.PI / 180, v = rand(120, 230), spin = rand(-540, 540);
+      const frames = [];
+      for (let s = 0; s <= 10; s++) {
+        const tt = s / 10 * 0.9;
+        const px = x + Math.cos(ang) * v * tt, py = ty + Math.sin(ang) * v * tt + 0.5 * 520 * tt * tt;
+        frames.push({ transform: at(px, py, `rotate(${spin * tt}deg)`), opacity: s < 7 ? 1 : 1 - (s - 6) / 4 });
+      }
+      anim(p, frames, 900, { delay: 40 });
+    }
+    if (first) setTimeout(() => likeButton(screen), 80 * S);
+  },
+
+  // C: a ring from the fingertip, the thumb fills in like ink.
+  ripple(screen, fx, x, y, first) {
+    const ring = put(fx, '', 0, 0);
+    Object.assign(ring.style, { width: '120px', height: '120px', marginLeft: '-60px', marginTop: '-60px', borderRadius: '50%', border: '2.5px solid rgba(255,255,255,.9)' });
+    anim(ring, [{ transform: at(x, y, 'scale(.15)'), opacity: .9 }, { transform: at(x, y, 'scale(1.1)'), opacity: 0 }], 560, { easing: 'cubic-bezier(.2,.8,.3,1)' });
+    const ty = y - LIFT;
+    const outline = thumbEl(fx, x, ty);
+    outline.innerHTML = svg(LIKE, THUMB);
+    const fill = thumbEl(fx, x, ty);
+    const thumbFrames = (o) => [
+      { transform: at(x, ty, 'scale(.7)'), opacity: 0 },
+      { transform: at(x, ty, 'scale(1)'), opacity: o, offset: .16 },
+      { transform: at(x, ty, 'scale(1.14)'), opacity: 1, offset: .34 },
+      { transform: at(x, ty, 'scale(1)'), opacity: 1, offset: .5 },
+      { transform: at(x, ty, 'scale(1)'), opacity: 1, offset: .74 },
+      { transform: at(x, ty - 36, 'scale(.96)'), opacity: 0 },
+    ];
+    anim(outline, thumbFrames(1), 1050, { easing: 'ease-out' });
+    anim(fill, thumbFrames(1), 1050, { easing: 'ease-out' });
+    anim(fill.firstChild, [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)', offset: .12 }, { clipPath: 'inset(0 0 0 0)', offset: .34 }, { clipPath: 'inset(0 0 0 0)' }], 1050, { easing: 'ease-in-out' });
+    const halo = put(fx, '', 0, 0);
+    Object.assign(halo.style, { width: '80px', height: '80px', marginLeft: '-40px', marginTop: '-40px', borderRadius: '50%', border: '2px solid rgba(255,255,255,.7)' });
+    anim(halo, [{ transform: at(x, ty, 'scale(.4)'), opacity: 0 }, { transform: at(x, ty, 'scale(.6)'), opacity: .8, offset: .3 }, { transform: at(x, ty, 'scale(1.2)'), opacity: 0 }], 520, { delay: 300, easing: 'ease-out' });
+    if (first) setTimeout(() => likeButton(screen), 300 * S);
+  },
+
+  // D: pops, then flies into the bar's like button.
+  fly(screen, fx, x, y) {
+    const ty = y - LIFT, tilt = rand(-12, 12);
+    const [bx, by] = likeButtonCenter(screen);
+    const t = thumbEl(fx, x, ty);
+    const frames = [
+      { transform: at(x, ty, `scale(0) rotate(${tilt - 20}deg)`), opacity: 1, offset: 0 },
+      { transform: at(x, ty, `scale(1.25) rotate(${tilt + 8}deg)`), opacity: 1, offset: .14 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .3 },
+      { transform: at(x, ty - 6, `scale(1.02) rotate(${tilt}deg)`), opacity: 1, offset: .42 },
+    ];
+    // An arc that swings out to the side, then drops onto the button.
+    const cx = (x + bx) / 2 + (x < bx ? -70 : 70), cy = Math.min(ty, by) - 70;
+    for (let s = 1; s <= 10; s++) {
+      const u = s / 10, e = u * u * (3 - 2 * u);
+      const px = (1 - e) * (1 - e) * x + 2 * (1 - e) * e * cx + e * e * bx;
+      const py = (1 - e) * (1 - e) * (ty - 6) + 2 * (1 - e) * e * cy + e * e * by;
+      const sc = 1 - (1 - 16 / THUMB) * e;
+      frames.push({ transform: at(px, py, `scale(${sc}) rotate(${tilt * (1 - e)}deg)`), opacity: 1, offset: .42 + .58 * u });
+    }
+    anim(t, frames, 1000).finished.then(() => {
+      t.remove();
+      likeButton(screen, true);
+      const [bx2, by2] = likeButtonCenter(screen);
+      for (let k = 0; k < 6; k++) {
+        const a = k / 6 * 360;
+        const d = put(fx, '', 0, 0);
+        Object.assign(d.style, { width: '4px', height: '4px', marginLeft: '-2px', marginTop: '-2px', borderRadius: '50%', background: '#fff' });
+        anim(d, [{ transform: at(bx2, by2, `rotate(${a}deg) translateY(-10px)`), opacity: 1 }, { transform: at(bx2, by2, `rotate(${a}deg) translateY(-22px)`), opacity: 0 }], 360, { easing: 'ease-out' });
+      }
+    });
+  },
+
+  // E: a frosted glass bubble with the thumb stamped in.
+  bubble(screen, fx, x, y, first, n) {
+    const size = n > 0 ? 70 : 84;
+    const bx = x + (n > 0 ? rand(-22, 22) : 0), byy = y - LIFT + (n > 0 ? rand(-14, 10) : 0);
+    const b = put(fx, svg(LIKED, size * 0.5), 0, 0);
+    Object.assign(b.style, {
+      width: size + 'px', height: size + 'px', marginLeft: -size / 2 + 'px', marginTop: -size / 2 + 'px', borderRadius: '50%',
+      display: 'grid', placeItems: 'center', background: 'rgba(37,37,37,.42)', backdropFilter: 'blur(14px) saturate(1.25)',
+      webkitBackdropFilter: 'blur(14px) saturate(1.25)', boxShadow: '0 8px 24px rgba(0,0,0,.3)',
+    });
+    b.firstChild.style.fill = '#fafafa';
+    b.firstChild.style.transformOrigin = '50% 75%';
+    anim(b, [
+      { transform: at(bx, byy, 'scale(0)'), opacity: 1 },
+      { transform: at(bx, byy, 'scale(1.14)'), opacity: 1, offset: .16 },
+      { transform: at(bx, byy, 'scale(.96)'), opacity: 1, offset: .28 },
+      { transform: at(bx, byy, 'scale(1)'), opacity: 1, offset: .38 },
+      { transform: at(bx, byy, 'scale(1)'), opacity: 1, offset: .72 },
+      { transform: at(bx, byy - 50, 'scale(.9)'), opacity: 0 },
+    ], 1150, { easing: 'ease-out' });
+    anim(b.firstChild, [
+      { transform: 'scale(0) rotate(-20deg)' },
+      { transform: 'scale(0) rotate(-20deg)', offset: .1 },
+      { transform: 'scale(1.35,.7) rotate(-10deg)', offset: .2 },
+      { transform: 'scale(.85,1.2) rotate(6deg)', offset: .3 },
+      { transform: 'scale(1.06,.95) rotate(-2deg)', offset: .4 },
+      { transform: 'scale(1) rotate(0)', offset: .5 },
+      { transform: 'scale(1) rotate(0)' },
+    ], 1150, { easing: 'ease-out' });
+    if (first) setTimeout(() => likeButton(screen), 200 * S);
+  },
+  // F: YouTube's new heart: two beats, small hearts drifting up.
+  heart(screen, fx, x, y, first) {
+    const ty = y - LIFT, size = THUMB * 1.05, tilt = rand(-10, 10);
+    const h = put(fx, `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="${HEART}" fill="url(#heartFill)"/></svg>`, 0, 0, 'thumb');
+    Object.assign(h.style, { marginLeft: -size / 2 + 'px', marginTop: -size / 2 + 'px', transformOrigin: '50% 60%' });
+    anim(h, [
+      { transform: at(x, ty, `scale(0) rotate(${tilt}deg)`), opacity: 1 },
+      { transform: at(x, ty, `scale(1.25) rotate(${tilt}deg)`), opacity: 1, offset: .12 },
+      { transform: at(x, ty, `scale(.95) rotate(${tilt}deg)`), opacity: 1, offset: .22 },
+      { transform: at(x, ty, `scale(1.12) rotate(${tilt}deg)`), opacity: 1, offset: .32 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .44 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .7 },
+      { transform: at(x, ty - 40, `scale(.9) rotate(${tilt}deg)`), opacity: 0 },
+    ], 1100, { easing: 'ease-out' });
+    for (let k = 0; k < 5; k++) {
+      const s = rand(10, 16), dx = rand(-34, 34);
+      const m = put(fx, `<svg viewBox="0 0 24 24" width="${s}" height="${s}"><path d="${HEART}" fill="${k % 2 ? '#FF4FB8' : '#FF2D55'}"/></svg>`, 0, 0);
+      Object.assign(m.style, { marginLeft: -s / 2 + 'px', marginTop: -s / 2 + 'px' });
+      const frames = [];
+      for (let st = 0; st <= 8; st++) {
+        const u = st / 8;
+        frames.push({ transform: at(x + dx * u + Math.sin(u * 6 + k) * 6, ty - 10 - u * rand(70, 110), `scale(${.4 + .8 * Math.min(1, u * 3)})`), opacity: u < .7 ? 1 : 1 - (u - .7) / .3 });
+      }
+      anim(m, frames, 1000, { delay: 120 + k * 70, easing: 'ease-out' });
+    }
+    if (first) setTimeout(() => likeButton(screen), 80 * S);
+  },
+
+  // G: a rubber stamp slamming down, the picture jolts, dust puffs out.
+  stamp(screen, fx, x, y, first) {
+    const ty = y - LIFT, tilt = rand(-10, 10);
+    const t = thumbEl(fx, x, ty);
+    anim(t, [
+      { transform: at(x, ty, `scale(2.6) rotate(${tilt - 14}deg)`), opacity: 0 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .16, easing: 'cubic-bezier(.5,0,.8,.4)' },
+      { transform: at(x, ty, `scale(1.08,.9) rotate(${tilt}deg)`), opacity: 1, offset: .21 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .3 },
+      { transform: at(x, ty, `scale(1) rotate(${tilt}deg)`), opacity: 1, offset: .74 },
+      { transform: at(x, ty, `scale(.94) rotate(${tilt}deg)`), opacity: 0 },
+    ], 1100);
+    const impact = 176;
+    anim(screen.querySelector('.video'), [
+      { transform: 'none' }, { transform: 'none', offset: .3 },
+      { transform: 'translate(0,5px) scale(1.02)', offset: .42 }, { transform: 'translate(-3px,-2px) scale(1.01)', offset: .58 },
+      { transform: 'translate(2px,1px)', offset: .74 }, { transform: 'none' },
+    ], 560, { fill: 'none' });
+    const ring = put(fx, '', 0, 0);
+    Object.assign(ring.style, { width: '90px', height: '90px', marginLeft: '-45px', marginTop: '-45px', borderRadius: '50%', border: '3px solid rgba(255,255,255,.7)' });
+    anim(ring, [{ transform: at(x, ty + THUMB * .42, 'scale(.4,.14)'), opacity: .9 }, { transform: at(x, ty + THUMB * .42, 'scale(1.3,.42)'), opacity: 0 }], 420, { delay: impact, easing: 'ease-out' });
+    for (let k = 0; k < 10; k++) {
+      const side = k % 2 ? 1 : -1, s = rand(5, 10);
+      const d = put(fx, '', 0, 0);
+      Object.assign(d.style, { width: s + 'px', height: s + 'px', marginLeft: -s / 2 + 'px', marginTop: -s / 2 + 'px', borderRadius: '50%', background: 'rgba(255,255,255,.75)', filter: 'blur(1px)' });
+      const dx = side * rand(26, 62), dy = -rand(0, 22);
+      anim(d, [{ transform: at(x + side * 10, ty + THUMB * .45, 'scale(.5)'), opacity: 0 }, { transform: at(x + dx * .6, ty + THUMB * .45 + dy * .6, 'scale(1)'), opacity: .9, offset: .3 }, { transform: at(x + dx, ty + THUMB * .45 + dy, 'scale(1.6)'), opacity: 0 }], 520, { delay: impact, easing: 'ease-out' });
+    }
+    if (first) setTimeout(() => likeButton(screen), impact * S);
+  },
+
+  // H: launches from the fingertip with a sparkle trail, bursts at the top.
+  rocket(screen, fx, x, y, first) {
+    const ty = y - LIFT - 10, rise = 230;
+    const t = thumbEl(fx, x, y);
+    anim(t, [
+      { transform: at(x, y - 10, 'scale(.3)'), opacity: 1 },
+      { transform: at(x, ty, 'scale(.42)'), opacity: 1, offset: rise / 1150, easing: 'cubic-bezier(.3,0,.2,1)' },
+      { transform: at(x, ty, 'scale(1.28)'), opacity: 1, offset: (rise + 110) / 1150 },
+      { transform: at(x, ty, 'scale(.94)'), opacity: 1, offset: (rise + 200) / 1150 },
+      { transform: at(x, ty, 'scale(1)'), opacity: 1, offset: .74 },
+      { transform: at(x, ty - 34, 'scale(1)'), opacity: 0 },
+    ], 1150, { easing: 'ease-out' });
+    for (let k = 0; k < 9; k++) {
+      const u = k / 9, px = x + rand(-5, 5), py = y - 10 - (y - 10 - ty) * u * u * (3 - 2 * u);
+      const d = put(fx, '', 0, 0), s = rand(3, 6);
+      Object.assign(d.style, { width: s + 'px', height: s + 'px', marginLeft: -s / 2 + 'px', marginTop: -s / 2 + 'px', borderRadius: '50%', background: k % 3 ? '#fff' : '#FFD54A', boxShadow: '0 0 6px rgba(255,255,255,.8)' });
+      anim(d, [{ transform: at(px, py, 'scale(1)'), opacity: 1 }, { transform: at(px + rand(-8, 8), py + 16, 'scale(.2)'), opacity: 0 }], 420, { delay: u * rise, easing: 'ease-out' });
+    }
+    for (let k = 0; k < 12; k++) {
+      const a = k / 12 * 360;
+      const d = put(fx, '', 0, 0);
+      Object.assign(d.style, { width: '4px', height: '4px', marginLeft: '-2px', marginTop: '-2px', borderRadius: '50%', background: k % 2 ? '#FFD54A' : '#fff' });
+      anim(d, [{ transform: at(x, ty, `rotate(${a}deg) translateY(-14px)`), opacity: 1 }, { transform: at(x, ty, `rotate(${a}deg) translateY(-62px)`), opacity: 0 }], 520, { delay: rise, easing: 'cubic-bezier(.1,.8,.3,1)' });
+    }
+    if (first) setTimeout(() => likeButton(screen), rise * S);
+  },
+
+  // I: one thumb that re-pops each tap, with a ×N counter.
+  combo(screen, fx, x, y, first, n) {
+    const st = screen._combo || (screen._combo = {});
+    if (first || !st.thumb || !st.thumb.isConnected) {
+      fx.querySelectorAll('.combo-thumb,.combo').forEach(e => e.remove());
+      st.x = x; st.y = y - LIFT;
+      st.thumb = thumbEl(fx, st.x, st.y); st.thumb.classList.add('combo-thumb');
+      st.label = null;
+      likeButton(screen);
+    }
+    const tx = st.x, ty = st.y;
+    st.thumb.getAnimations().forEach(a => a.cancel());
+    anim(st.thumb, [
+      { transform: at(tx, ty, `scale(${first ? 0 : .78}) rotate(-12deg)`), opacity: 1 },
+      { transform: at(tx, ty, 'scale(1.24) rotate(6deg)'), opacity: 1, offset: .2 },
+      { transform: at(tx, ty, 'scale(1) rotate(0)'), opacity: 1, offset: .4 },
+      { transform: at(tx, ty, 'scale(1) rotate(0)'), opacity: 1, offset: .8 },
+      { transform: at(tx - 10, ty - 30, 'scale(.9)'), opacity: 0 },
+    ], 1400, { easing: 'ease-out' });
+    if (n >= 1) {
+      if (!st.label || !st.label.isConnected) st.label = put(fx, '', 0, 0, 'combo');
+      const lab = st.label;
+      lab.innerHTML = `<span>×${n + 1}</span>`;
+      lab.getAnimations().forEach(a => a.cancel());
+      anim(lab, [
+        { transform: at(tx + THUMB * .55, ty - 30, 'scale(.7)'), opacity: n === 1 ? 0 : 1 },
+        { transform: at(tx + THUMB * .55, ty - 30, 'scale(1.15)'), opacity: 1, offset: .14 },
+        { transform: at(tx + THUMB * .55, ty - 30, 'scale(1)'), opacity: 1, offset: .26 },
+        { transform: at(tx + THUMB * .55, ty - 30, 'scale(1)'), opacity: 1, offset: .8 },
+        { transform: at(tx + THUMB * .55, ty - 60, 'scale(.9)'), opacity: 0 },
+      ], 1400, { easing: 'ease-out' });
+      anim(lab.firstChild, [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], 220, { easing: 'cubic-bezier(.3,1.4,.6,1)' });
+    }
+  },
+
+  // J: a red blob stretches out of the fingertip, lands, jiggles, pops into droplets.
+  jelly(screen, fx, x, y, first) {
+    const ty = y - LIFT, size = 74;
+    const b = put(fx, svg(LIKED, size * .5), 0, 0);
+    Object.assign(b.style, { width: size + 'px', height: size + 'px', marginLeft: -size / 2 + 'px', marginTop: -size / 2 + 'px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 30%, #ff5c7a, #FF0033 60%, #c4002a)', display: 'grid', placeItems: 'center', boxShadow: '0 8px 20px rgba(160,0,30,.45)' });
+    b.firstChild.style.fill = '#fff';
+    anim(b, [
+      { transform: at(x, y, 'scale(.25,.25)'), borderRadius: '50%' },
+      { transform: at(x, (y + ty) / 2, 'scale(.6,1.25)'), offset: .12 },
+      { transform: at(x, ty, 'scale(1.18,.82)'), offset: .22 },
+      { transform: at(x, ty, 'scale(.92,1.08)'), offset: .3 },
+      { transform: at(x, ty, 'scale(1.04,.97)'), offset: .38 },
+      { transform: at(x, ty, 'scale(1)'), opacity: 1, offset: .66 },
+      { transform: at(x, ty, 'scale(1.3)'), opacity: 0, offset: .76 },
+      { transform: at(x, ty, 'scale(1.3)'), opacity: 0 },
+    ], 1150, { easing: 'ease-out' });
+    anim(b.firstChild, [{ transform: 'scale(0)' }, { transform: 'scale(0)', offset: .2 }, { transform: 'scale(1.2)', offset: .32 }, { transform: 'scale(1)', offset: .42 }, { transform: 'scale(1)' }], 1150, { easing: 'ease-out' });
+    const t = thumbEl(fx, x, ty);
+    anim(t, [{ transform: at(x, ty, 'scale(.5)'), opacity: 0 }, { transform: at(x, ty, 'scale(.5)'), opacity: 0, offset: .7 }, { transform: at(x, ty, 'scale(1)'), opacity: 1, offset: .78 }, { transform: at(x, ty - 30, 'scale(1)'), opacity: 0 }], 1450, { easing: 'ease-out' });
+    for (let k = 0; k < 9; k++) {
+      const ang = (k / 9 * 360 + rand(-12, 12)) * Math.PI / 180, v = rand(60, 100), s = rand(5, 10);
+      const d = put(fx, '', 0, 0);
+      Object.assign(d.style, { width: s + 'px', height: s + 'px', marginLeft: -s / 2 + 'px', marginTop: -s / 2 + 'px', borderRadius: '50%', background: '#FF0033' });
+      const frames = [];
+      for (let st = 0; st <= 8; st++) {
+        const u = st / 8 * .6;
+        frames.push({ transform: at(x + Math.cos(ang) * v * u, ty + Math.sin(ang) * v * u + 260 * u * u, `scale(${1 - u})`), opacity: st < 6 ? 1 : 1 - (st - 5) / 3 });
+      }
+      anim(d, frames, 600, { delay: 1150 * .7, easing: 'ease-out' });
+    }
+    if (first) setTimeout(() => likeButton(screen), 260 * S);
+  },
+};
+
+// Taps: a finger mark, then the option's animation on the second and every further quick tap.
+function fingerTap(fx, x, y) {
+  let f = fx.querySelector('.finger');
+  if (!f) { f = put(fx, '', x, y, 'finger'); }
+  f.getAnimations().forEach(a => a.cancel());
+  anim(f, [
+    { transform: at(x, y, 'scale(.6)'), opacity: .9 },
+    { transform: at(x, y, 'scale(1)'), opacity: .9, offset: .25 },
+    { transform: at(x, y, 'scale(1)'), opacity: .9, offset: .7 },
+    { transform: at(x, y, 'scale(1.2)'), opacity: 0 },
+  ], 500, { easing: 'ease-out' });
+}
+function likeAt(shot, x, y, n) {
+  const screen = shot.querySelector('.screen'), fx = shot.querySelector('.fx');
+  KINDS[shot.dataset.key](screen, fx, x, y, n === 0, n);
+  setTimeout(() => [...fx.children].forEach(c => { if (!c.matches('.finger,.combo,.combo-thumb') && !c.getAnimations().some(a => a.playState === 'running')) c.remove(); }), 2500 * S);
+}
+
+let run = 0;
+async function demo(shot, token) {
+  const screen = shot.querySelector('.screen'), fx = shot.querySelector('.fx');
+  screen.classList.remove('liked');
+  const w = screen.clientWidth, h = screen.clientHeight;
+  const spots = [[w * .55, h * .52], [w * .55, h * .52], [w * .42, h * .58], [w * .63, h * .47]];
+  const gaps = [0, 130, 520, 420];
+  for (let i = 0; i < spots.length; i++) {
+    await after(gaps[i]);
+    if (token !== run) return;
+    fingerTap(fx, ...spots[i]);
+    if (i > 0) likeAt(shot, spots[i][0], spots[i][1], i - 1);
+  }
+}
+async function replay() {
+  const token = ++run;
+  document.querySelectorAll('.fx').forEach(fx => fx.innerHTML = '');
+  const shots = [...document.querySelectorAll('.shot')];
+  while (token === run) {
+    shots.forEach(s => demo(s, token));
+    await after(4200);
+  }
+}
+
+// Try it: a second click within 300 ms likes; quick clicks after that keep going.
+document.querySelectorAll('.shot').forEach(shot => {
+  const screen = shot.querySelector('.screen'), fx = shot.querySelector('.fx');
+  let last = 0, n = -1;
+  screen.addEventListener('pointerdown', e => {
+    run++; // stop the demo loop while trying
+    const r = screen.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, now = performance.now();
+    fingerTap(fx, x, y);
+    const gap = now - last; last = now;
+    if (n >= 0 && gap < 600 * S) { likeAt(shot, x, y, ++n); }
+    else if (gap < 300 * S) { n = 0; likeAt(shot, x, y, 0); }
+    else n = -1;
+  });
+});
+
+document.getElementById('replay').onclick = replay;
+document.querySelectorAll('#speed button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#speed button').forEach(o => o.classList.toggle('on', o === b));
+  S = +b.dataset.s;
+  replay();
+});
+replay();
+</script>
+</body>
+</html>

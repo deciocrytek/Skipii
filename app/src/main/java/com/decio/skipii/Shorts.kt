@@ -132,6 +132,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import androidx.compose.ui.graphics.drawscope.rotate
+import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.PI
+import kotlin.random.Random
+import kotlinx.coroutines.coroutineScope
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Animatable
 
 // Shorts (0.5.50, Derek, 2026-10-28; a Shorts tab was first proposed by essopsp in PR #10).
 // A full-bleed vertical feed on its own players: the app's video pauses while it's open and
@@ -640,7 +651,9 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         buffering = now != null && !failed.containsKey(curId) && (!now.prepared || now.exo.playbackState == Player.STATE_BUFFERING)
         val duration = now?.exo?.duration ?: 0L
         progress = if (now != null && duration > 0) (now.exo.currentPosition.toFloat() / duration).coerceIn(0f, 1f) else 0f
-        accountFor(curId)
+        // This short's like / subscribe state, then the next two's, so a double tap or the
+        // like button works the moment one comes on screen (it waited ~2 s for this answer).
+        (cur..cur + 2).forEach { i -> list.getOrNull(i)?.let { accountFor(it.id) } }
         if (playing) joinHistory(curId)
     }
 
@@ -798,7 +811,12 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         if (!Account.signedIn || !accountAsked.add(id)) return
         scope.launch {
             runCatching { InnerTube.videoState(id) }
-                .onSuccess { accountStates[id] = it }
+                // A like (or subscribe) made before this answer came wins over it.
+                .onSuccess { got ->
+                    val local = accountStates[id]
+                    accountStates[id] = if (local == null) got
+                    else got.copy(like = local.like, subscribed = local.subscribed ?: got.subscribed)
+                }
                 .onFailure { if (it !is CancellationException) { Log.w(TAG, "shorts: account state for $id", it); accountAsked.remove(id) } }
         }
     }
@@ -814,13 +832,29 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
     fun toggleLike() {
         val id = current?.id ?: return
         if (!Account.signedIn) { onMessage(str(R.string.shorts_sign_in_to_like)); return }
-        val before = accountStates[id] ?: return
+        // Not known yet (the answer is on its way): like it now, without waiting.
+        val before = accountStates[id] ?: VideoAccountState(LikeStatus.None, subscribed = null, channelId = null)
         val next = if (before.like == LikeStatus.Like) LikeStatus.None else LikeStatus.Like
         accountStates[id] = before.copy(like = next)
         scope.launch {
             runCatching { InnerTube.setLike(id, next) }
-                .onFailure { if (it !is CancellationException) { accountStates[id] = before; onMessage(str(R.string.shorts_like_failed)) } }
+                .onFailure {
+                    if (it is CancellationException) throw it
+                    accountStates[id]?.let { s -> accountStates[id] = s.copy(like = before.like) }
+                    onMessage(str(R.string.shorts_like_failed))
+                }
         }
+    }
+
+    /**
+     * Double tap on the short (GitHub #47): likes it, never unlikes, as on YouTube. True when it's
+     * liked now, so the page throws a thumb up; signed out it only says so.
+     */
+    fun likeFromTap(): Boolean {
+        val id = current?.id ?: return false
+        if (!Account.signedIn) { onMessage(str(R.string.shorts_sign_in_to_like)); return false }
+        if (accountStates[id]?.like != LikeStatus.Like) toggleLike()
+        return true
     }
 
     fun toggleSubscribe() {
@@ -1264,11 +1298,17 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
     // Wide windows (Rail 3): the short as big as the window allows, never cropped — full height,
     // centred on a tablet, against the left edge on an open foldable (its details on the right page).
     val window = LocalWindowLayout.current
+    // Thumbs thrown by double taps, each where its tap landed (GitHub #47).
+    val thumbs = remember { mutableStateListOf<TapThumb>() }
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .pointerInputTap(page) { if (shorts.index == page) shorts.togglePause() },
+            .shortTaps(
+                page,
+                onTap = { if (shorts.index == page) shorts.togglePause() },
+                onDoubleTap = { at -> if (shorts.index == page && shorts.likeFromTap()) thumbs += TapThumb(at) },
+            ),
     ) {
         val wide = window.wide
         val videoWidth = if (wide) minOf(maxWidth, maxHeight * aspect) else maxWidth
@@ -1336,26 +1376,188 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
             Icons.Rounded.PlayArrow, contentDescription = null, tint = Ink,
             modifier = Modifier.align(Alignment.Center).size(72.dp).graphicsLayer { alpha = pausedAlpha * 0.9f },
         )
+        thumbs.forEach { thumb -> key(thumb) { ThumbBurst(thumb, onDone = { thumbs.remove(thumb) }) } }
     }
 }
 
 /**
- * A tap that leaves the touch to the pager: nothing is consumed (detectTapGestures takes the
+ * Taps that leave the touch to the pager: nothing is consumed (detectTapGestures takes the
  * down, and a quick flick then came out as a tap that paused instead of a swipe), and a touch
- * that travels past touch slop is no tap.
+ * that travels past touch slop is no tap. A lone tap waits out the double-tap timeout; a second
+ * one within it is [onDoubleTap], and so is every further tap that follows as quickly (a run of
+ * thumbs, as on YouTube) — none of them pause.
  */
-private fun Modifier.pointerInputTap(key: Any, onTap: () -> Unit) =
+private fun Modifier.shortTaps(key: Any, onTap: () -> Unit, onDoubleTap: (Offset) -> Unit) =
     this.then(
         Modifier.pointerInput(key) {
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                val up = waitForUpOrCancellation() ?: return@awaitEachGesture
-                if ((up.position - down.position).getDistance() < viewConfiguration.touchSlop &&
-                    up.uptimeMillis - down.uptimeMillis < viewConfiguration.longPressTimeoutMillis
-                ) onTap()
+            val doubleTapMs = viewConfiguration.doubleTapTimeoutMillis
+            coroutineScope {
+                var pendingTap: Job? = null
+                var lastUp = Long.MIN_VALUE / 2
+                var liking = false
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val up = waitForUpOrCancellation() ?: return@awaitEachGesture
+                    if ((up.position - down.position).getDistance() >= viewConfiguration.touchSlop ||
+                        up.uptimeMillis - down.uptimeMillis >= viewConfiguration.longPressTimeoutMillis
+                    ) return@awaitEachGesture
+                    val follows = down.uptimeMillis - lastUp < (if (liking) ThumbRunWindowMs else doubleTapMs)
+                    lastUp = up.uptimeMillis
+                    pendingTap?.cancel()
+                    if (follows) {
+                        liking = true
+                        onDoubleTap(up.position)
+                    } else {
+                        liking = false
+                        pendingTap = launch { delay(doubleTapMs); onTap() }
+                    }
+                }
             }
         },
     )
+
+/** A run of double-tap thumbs carries on while each tap comes this soon after the last. */
+private const val ThumbRunWindowMs = 600L
+
+/** One thumb thrown by a double tap made at [at] in the page, with its own handful of confetti. */
+private class TapThumb(val at: Offset) {
+    val confetti = List(ConfettiCount) { k ->
+        Confetto(
+            color = ConfettiColors[k % ConfettiColors.size],
+            round = k % 3 == 0,
+            // Up and out: anywhere from just above level on the left to just above level on the right.
+            angle = Math.toRadians(-170.0 + Random.nextDouble() * 160.0).toFloat(),
+            speed = 167f + Random.nextFloat() * 153f,
+            spin = -540f + Random.nextFloat() * 1080f,
+        )
+    }
+}
+
+/** A piece of confetti: thrown at [angle] (radians) at [speed] dp/s, turning [spin] degrees a second. */
+private class Confetto(val color: Color, val round: Boolean, val angle: Float, val speed: Float, val spin: Float)
+
+private val ThumbSize = 104.dp
+/**
+ * The thumb's centre sits this far above the tap, so the finger that tapped doesn't cover it
+ * (Derek, 2026-11-03: at the tap itself it hid under his fingertip). Its glyph's bottom edge
+ * then clears the touch by ~64 dp, past the fingertip's own reach above the contact point.
+ */
+private val ThumbAboveFinger = 96.dp
+/** Kept at least this far from the page's top when the tap is near it. */
+private val ThumbTopMargin = 24.dp
+
+// Derek picked "B · Confetti" in docs/design/shorts-double-tap.html (2026-11-03); these are its
+// numbers, in dp (the mockup drew 0.72 px per dp).
+private const val ThumbMs = 1100
+private const val ConfettiCount = 16
+private const val ConfettiDelayMs = 40
+private const val ConfettiFlightMs = 900
+/** Pulls the confetti back down, dp/s². */
+private const val ConfettiGravity = 722f
+private val ThumbRise = 42.dp
+private val ConfettiDot = 8.3.dp
+private val ConfettiStripW = 5.6.dp
+private val ConfettiStripH = 12.5.dp
+private val ConfettiColors = listOf(
+    Color(0xFFFF0033), Color(0xFFFFD000), Color(0xFF3EA6FF), Color(0xFFFF4FB8), Color(0xFF7CF29A), Color.White,
+)
+/** CSS "ease-out", which the mockup ran the thumb's whole timeline on. */
+private val ThumbEasing = CubicBezierEasing(0f, 0f, 0.58f, 1f)
+
+/** [keys] = position, value, position, value… (positions rising 0..1); straight lines between them. */
+private fun keyframe(p: Float, vararg keys: Float): Float {
+    var i = 2
+    while (i < keys.size - 2 && p > keys[i]) i += 2
+    val (p0, v0, p1, v1) = listOf(keys[i - 2], keys[i - 1], keys[i], keys[i + 1])
+    return if (p1 <= p0) v1 else v0 + (v1 - v0) * ((p - p0) / (p1 - p0)).coerceIn(0f, 1f)
+}
+
+/**
+ * The double-tap thumb: pops out just above the tap (overshoot, a small lean back and forth) while
+ * a handful of confetti bursts out of it and tumbles down under gravity; it holds, then floats up
+ * and fades. Layer transforms and drawing only. Reduced motion: the thumb just shows and fades.
+ */
+@Composable
+private fun ThumbBurst(thumb: TapThumb, onDone: () -> Unit) {
+    val reduced = rememberReducedMotion()
+    // Milliseconds since the tap: the thumb and every piece of confetti are read off this one clock.
+    val clock = remember { Animatable(0f) }
+    val fade = remember { Animatable(0f) }
+    val done by rememberUpdatedState(onDone)
+    LaunchedEffect(thumb) {
+        if (reduced) {
+            fade.animateTo(1f, tween(120))
+            delay(500)
+            fade.animateTo(0f, tween(220))
+        } else {
+            clock.animateTo(ThumbMs.toFloat(), tween(ThumbMs, easing = LinearEasing))
+        }
+        done()
+    }
+    val p = { ThumbEasing.transform((clock.value / ThumbMs).coerceIn(0f, 1f)) }
+    val thumbAlpha = { if (reduced) fade.value else keyframe(p(), 0f, 1f, 0.7f, 1f, 1f, 0f) }
+    val half = ThumbSize / 2
+    Box(
+        Modifier
+            .offset {
+                val y = maxOf(thumb.at.y - ThumbAboveFinger.toPx(), half.toPx() + ThumbTopMargin.toPx())
+                IntOffset((thumb.at.x - half.toPx()).roundToInt(), (y - half.toPx()).roundToInt())
+            }
+            .size(ThumbSize)
+            .drawBehind {
+                val c = center
+                // A soft shade under it, so a white thumb reads on a bright picture.
+                drawCircle(
+                    Brush.radialGradient(listOf(Color.Black.copy(alpha = 0.22f * thumbAlpha()), Color.Black.copy(alpha = 0f)), c, size.minDimension * 0.62f),
+                    radius = size.minDimension * 0.62f, center = c,
+                )
+                if (reduced) return@drawBehind
+                val flight = (clock.value - ConfettiDelayMs) / ConfettiFlightMs
+                if (flight <= 0f || flight >= 1f) return@drawBehind
+                // Seconds in the air (0.9 s over the 900 ms flight), fading over its last 40%.
+                val t = flight * ConfettiFlightMs / 1000f
+                val alpha = if (flight < 0.6f) 1f else 1f - (flight - 0.6f) / 0.4f
+                val dp = density
+                thumb.confetti.forEach { piece ->
+                    val at = Offset(
+                        c.x + cos(piece.angle) * piece.speed * t * dp,
+                        c.y + (sin(piece.angle) * piece.speed * t + 0.5f * ConfettiGravity * t * t) * dp,
+                    )
+                    val color = piece.color.copy(alpha = alpha)
+                    if (piece.round) {
+                        drawCircle(color, radius = ConfettiDot.toPx() / 2f, center = at)
+                    } else {
+                        val w = ConfettiStripW.toPx()
+                        val h = ConfettiStripH.toPx()
+                        rotate(piece.spin * t, pivot = at) {
+                            drawRoundRect(color, Offset(at.x - w / 2f, at.y - h / 2f), Size(w, h), CornerRadius(2.dp.toPx()))
+                        }
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            LikedGlyph, contentDescription = null, tint = Ink,
+            modifier = Modifier
+                .size(ThumbSize * 0.62f)
+                .optical(Mass.like, ThumbSize * 0.62f)
+                .graphicsLayer {
+                    if (reduced) {
+                        alpha = fade.value
+                        return@graphicsLayer
+                    }
+                    val q = p()
+                    val scale = keyframe(q, 0f, 0f, 0.18f, 1.2f, 0.32f, 0.97f, 0.7f, 1f, 1f, 1f)
+                    scaleX = scale; scaleY = scale
+                    rotationZ = keyframe(q, 0f, 0f, 0.18f, -8f, 0.32f, 3f, 0.7f, 0f, 1f, 0f)
+                    translationY = -keyframe(q, 0f, 0f, 0.7f, 0f, 1f, 1f) * ThumbRise.toPx()
+                    alpha = thumbAlpha()
+                    transformOrigin = TransformOrigin(0.5f, 0.7f)
+                },
+        )
+    }
+}
 
 /**
  * The page's own TextureView, showing whichever pool player holds this page. Hidden until that

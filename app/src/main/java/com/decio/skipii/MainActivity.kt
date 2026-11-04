@@ -638,6 +638,9 @@ fun SkipiiApp() {
             if (player.sheet.isPanel && playerOpen) 1f else 0f,
             if (reduced) snap() else tween(280, easing = Motion.Emphasized), label = "barAside",
         )
+        // With the controls on the video (PlayerControls) the open player has no bar:
+        // the tabs step down as it opens and come back up as it collapses.
+        val navAway = { maxOf(settingsAway, if (PlayerControls.inBar) barAside else maxOf(barAside, ramp(morph.progress.value, 0f, 0.5f))) }
         // A tap anywhere outside the open card / list closes it (and goes no further).
         if (playerBar.isOpen && playerOpen) {
             Box(
@@ -666,16 +669,15 @@ fun SkipiiApp() {
             onFullscreen = { toggleFullscreen() },
             shorts = { shortsMorph.value },
             tabsEnabled = !shortsShown && !wide,
+            // The fade is the bar's own (NavPill puts it on the bar's layer): alpha on this slot-sized
+            // layer would crop the player's bar, which stands taller than the slot.
+            fade = { (1f - navAway()) * if (wide) ramp(morph.progress.value, 0.55f, 0.95f) else 1f },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
                 .graphicsLayer {
                     // Moved fully off screen, so it can't catch touches meant for the composer.
-                    // With the controls on the video (PlayerControls) the open player has no bar:
-                    // the tabs step down as it opens and come back up as it collapses.
-                    val away = maxOf(settingsAway, if (PlayerControls.inBar) barAside else maxOf(barAside, ramp(morph.progress.value, 0f, 0.5f)))
-                    translationY = away * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
-                    alpha = (1f - away) * if (wide) ramp(morph.progress.value, 0.55f, 0.95f) else 1f
+                    translationY = navAway() * (NavHeight + PlayerBarRaise + stackBottom + 24.dp).toPx()
                 },
         )
         }

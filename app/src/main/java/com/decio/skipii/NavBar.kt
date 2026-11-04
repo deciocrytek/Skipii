@@ -185,6 +185,7 @@ internal fun NavPill(
     modifier: Modifier = Modifier,
     shorts: () -> Float = { 0f },
     tabsEnabled: Boolean = true,
+    fade: () -> Float = { 1f },
 ) {
     val c = MaterialTheme.colorScheme
     val view = LocalView.current
@@ -248,6 +249,10 @@ internal fun NavPill(
                         playerBarScrubLift(bar, barGate(p))
                     shape = playerBarShape(bar, size, barGate(p))
                     clip = true
+                    // The caller's fade goes here, on the layer that holds the outline and shadow: alpha on
+                    // an outer layer draws offscreen cropped to the tab bar's slot, which cut off the part of
+                    // the player's bar above it while it stepped back up after the comments (6641.mp4).
+                    alpha = fade()
                     shadowElevation = playerBarElevation(bar, barGate(p)) * (1f - shortsBarFade(shorts()))
                     ambientShadowColor = Color.Black
                     spotShadowColor = Color.Black
