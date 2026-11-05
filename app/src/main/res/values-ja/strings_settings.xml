@@ -37,6 +37,11 @@
     <string name="settings_update_available">バージョン %1$s を利用できます</string>
     <string name="settings_source">GitHub のソースコード</string>
     <string name="settings_source_line">問題の報告や機能のリクエスト</string>
+    <string name="settings_crash_title">クラッシュレポート</string>
+    <string name="settings_crash_saved">前回のクラッシュから保存されました。共有して GitHub の issue に貼り付けてください</string>
+    <string name="settings_crash_none">保存されたクラッシュはありません。Android が前回 Skipii を終了した理由を共有します（GitHub の issue 用）</string>
+    <string name="settings_crash_tile">クラッシュレポートを保存しました</string>
+    <string name="settings_crash_share">クラッシュレポートを共有</string>
     <string name="settings_made_by">作者: %1$s</string>
     <string name="settings_say_hi">気軽に声をかけてください</string>
     <string name="settings_email_developer">開発者にメールする</string>

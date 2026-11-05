@@ -19,3 +19,8 @@
 -keep class com.grack.nanojson.** { *; }
 -keep class org.jsoup.** { *; }
 -dontwarn org.jsoup.**
+
+# Crash reports (CrashLog, 0.5.109) are pasted into GitHub issues from users' phones: keep real class
+# and method names and line numbers so a stack trace reads without a mapping file (the source is public).
+-dontobfuscate
+-keepattributes SourceFile,LineNumberTable

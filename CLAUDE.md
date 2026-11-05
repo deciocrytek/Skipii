@@ -782,6 +782,13 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   (68 dp keys); wider (the Fold) keeps one row. Transport bigger everywhere: ±10 80 dp (glyph 38), play 116 (glyph 54); deck
   side padding 20. A tool that's on is "Tint" (Derek: less obtrusive than full primary, not muted): `lerp(DeckKey, primary,
   0.24)` with primary ink. NOT verified on a real Flip (no Flip AVD; tested by forcing the narrow layout's width).
+- 0.5.109 crash reports (2026-11-05, GitHub #55: an OPPO K13 Turbo Pro "keeps closing", no trace to go on). `CrashLog`
+  (Crash.kt), installed FIRST in SkipiiApplication.onCreate: the default uncaught handler writes the stack trace (thread,
+  uptime, heap) to filesDir/crashes/crash-<ms>.txt (newest 3 kept), then hands the crash on to the previous handler.
+  Settings › About › Crash report shares `CrashLog.report` (Markdown, built on IO): build, phone, ROM build, heap/RAM,
+  a few settings, the saved crashes and Android's `getHistoricalProcessExitReasons` (11+; low memory / native / ANR with
+  its trace / system kills, which leave no Java trace). The About tile says "Crash report saved" until it's shared
+  (prefs "crashes" `shared`). Never put account data or watch history in it. Test: `adb shell am crash com.skipii`.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
@@ -879,6 +886,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `CaptionsUi.kt` — `CaptionLayer` (on the picture), `captionOptions`, `CaptionsSheet`, `TranscriptPanel`, the account card.
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
+- `Crash.kt` — `CrashLog`: uncaught-exception reports + Android's exit reasons, shared from Settings › About.
 - `Updater.kt` — `AppUpdate` (daily GitHub release check, release notes, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill + What's new sheet.
 - `Bell.kt` — `Bells` (each channel's bell, synced with the account), `SubscribeWithBell`, `rememberBellToggle`.
 - `NewVideos.kt` — the 15-minute new-video check (RSS feeds of belled channels), notifications, `NewVideoWorker`.

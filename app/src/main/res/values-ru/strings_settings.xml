@@ -40,6 +40,11 @@
     <string name="settings_update_available">Доступна версия %1$s</string>
     <string name="settings_source">Исходный код на GitHub</string>
     <string name="settings_source_line">Сообщить о проблеме или предложить функцию</string>
+    <string name="settings_crash_title">Отчёт о сбое</string>
+    <string name="settings_crash_saved">Сохранён после последнего сбоя. Поделитесь им и вставьте в issue на GitHub</string>
+    <string name="settings_crash_none">Сбоев не сохранено. Отправляет, как Android в последний раз закрыл Skipii, для issue на GitHub</string>
+    <string name="settings_crash_tile">Сохранён отчёт о сбое</string>
+    <string name="settings_crash_share">Поделиться отчётом о сбое</string>
     <string name="settings_made_by">Автор: %1$s</string>
     <string name="settings_say_hi">Заходите поздороваться</string>
     <string name="settings_email_developer">Написать разработчику</string>

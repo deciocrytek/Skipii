@@ -39,6 +39,11 @@
     <string name="settings_update_available">La versión %1$s está disponible</string>
     <string name="settings_source">Código fuente en GitHub</string>
     <string name="settings_source_line">Informa de un problema o pide una función</string>
+    <string name="settings_crash_title">Informe de errores</string>
+    <string name="settings_crash_saved">Guardado del último cierre inesperado. Compártelo y pégalo en un issue de GitHub</string>
+    <string name="settings_crash_none">No hay ningún error guardado. Comparte cómo cerró Android Skipii la última vez, para un issue de GitHub</string>
+    <string name="settings_crash_tile">Informe de errores guardado</string>
+    <string name="settings_crash_share">Compartir informe de errores</string>
     <string name="settings_made_by">Hecho por %1$s</string>
     <string name="settings_say_hi">Pasa a saludar</string>
     <string name="settings_email_developer">Escribir al desarrollador</string>

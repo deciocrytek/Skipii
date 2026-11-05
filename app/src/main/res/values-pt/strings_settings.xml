@@ -39,6 +39,11 @@
     <string name="settings_update_available">A versão %1$s está disponível</string>
     <string name="settings_source">Código-fonte no GitHub</string>
     <string name="settings_source_line">Relate um problema ou peça um recurso</string>
+    <string name="settings_crash_title">Relatório de falhas</string>
+    <string name="settings_crash_saved">Salvo da última falha. Compartilhe e cole numa issue do GitHub</string>
+    <string name="settings_crash_none">Nenhuma falha salva. Compartilha como o Android fechou o Skipii da última vez, para uma issue do GitHub</string>
+    <string name="settings_crash_tile">Relatório de falhas salvo</string>
+    <string name="settings_crash_share">Compartilhar relatório de falhas</string>
     <string name="settings_made_by">Feito por %1$s</string>
     <string name="settings_say_hi">Vem dar um oi</string>
     <string name="settings_email_developer">Enviar e-mail ao desenvolvedor</string>

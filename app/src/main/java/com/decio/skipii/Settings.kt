@@ -146,7 +146,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.Normalizer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.rounded.BugReport
 
 /**
  * Settings (Derek, 2026-11-02: example 4 "Big title that folds" in docs/design/settings-merged.html, Ledgii's
@@ -902,6 +906,7 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
     SettingsPage.About -> listOfNotNull(
         stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
         AppUpdate.available?.let { stringResource(R.string.settings_update_available, it.version) },
+        if (CrashLog.unshared) stringResource(R.string.settings_crash_tile) else null,
     ).joinDots()
     SettingsPage.Account -> Account.profile?.let { p -> listOfNotNull(p.name, p.handle).joinDots() } ?: stringResource(R.string.ui_account_pitch_title)
 }
@@ -977,6 +982,7 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(SettingsPage.Account, "account", str(if (Account.signedIn) R.string.ui_sign_out else R.string.ui_sign_in), listOfNotNull(Account.profile?.name, "Google")))
     val ab = SettingsPage.About
     add(Entry(ab, "version", str(R.string.settings_version, BuildConfig.VERSION_NAME), listOf(str(R.string.settings_checking))))
+    add(Entry(ab, "crash", str(R.string.settings_crash_title), listOf(str(R.string.settings_crash_none), str(R.string.settings_crash_saved))))
     add(Entry(ab, "source", str(R.string.settings_source), listOf(str(R.string.settings_source_line), "GitHub")))
 }
 
@@ -1586,10 +1592,25 @@ private fun AboutPage(player: PlayerState) {
     val context = LocalContext.current
     var whatsNew by remember { mutableStateOf(false) }
     Spacer(Modifier.height(14.dp))
-    Joined(2) { i, shape ->
+    val scope = rememberCoroutineScope()
+    val shareTitle = stringResource(R.string.settings_crash_share)
+    Joined(3) { i, shape ->
         if (i == 0) {
             LinkSetting("version", shape, Icons.Rounded.SystemUpdateAlt, stringResource(R.string.settings_version, BuildConfig.VERSION_NAME), updateStatus()) {
                 if (AppUpdate.available != null) whatsNew = true else AppUpdate.checkNow()
+            }
+        } else if (i == 1) {
+            // GitHub #55: what crashed (or how Android closed Skipii), to paste into an issue.
+            val line = stringResource(if (CrashLog.newest > 0L) R.string.settings_crash_saved else R.string.settings_crash_none)
+            LinkSetting("crash", shape, Icons.Rounded.BugReport, stringResource(R.string.settings_crash_title), line) {
+                scope.launch {
+                    val text = withContext(Dispatchers.IO) { CrashLog.report(context) }
+                    val send = Intent(Intent.ACTION_SEND).setType("text/plain")
+                        .putExtra(Intent.EXTRA_SUBJECT, "Skipii crash report")
+                        .putExtra(Intent.EXTRA_TEXT, text)
+                    context.openOrSay(Intent.createChooser(send, shareTitle)) { player.actionMessage = it }
+                    CrashLog.markShared()
+                }
             }
         } else {
             LinkSetting("source", shape, Icons.Rounded.Code, stringResource(R.string.settings_source), stringResource(R.string.settings_source_line)) {

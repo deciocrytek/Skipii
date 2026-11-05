@@ -42,6 +42,11 @@
     <string name="settings_update_available">الإصدار %1$s متاح</string>
     <string name="settings_source">الشيفرة المصدرية على GitHub</string>
     <string name="settings_source_line">أبلغ عن مشكلة أو اطلب ميزة</string>
+    <string name="settings_crash_title">تقرير الأعطال</string>
+    <string name="settings_crash_saved">محفوظ من آخر عطل. شاركه والصقه في بلاغ على GitHub</string>
+    <string name="settings_crash_none">لا يوجد عطل محفوظ. يشارك كيف أغلق Android تطبيق Skipii آخر مرة، لبلاغ على GitHub</string>
+    <string name="settings_crash_tile">تم حفظ تقرير عطل</string>
+    <string name="settings_crash_share">مشاركة تقرير الأعطال</string>
     <string name="settings_made_by">من صنع %1$s</string>
     <string name="settings_say_hi">تعال وقل مرحبًا</string>
     <string name="settings_email_developer">راسل المطوّر</string>

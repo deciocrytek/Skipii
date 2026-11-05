@@ -13,6 +13,8 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        // Before anything that could crash, so its stack trace is kept (Settings › About › Crash report).
+        CrashLog.install(this)
         // First: everything below may already word something (str()).
         AppLanguage.init(this)
         NewPipe.init(NewPipeDownloader.instance)

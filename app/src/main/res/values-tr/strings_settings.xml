@@ -38,6 +38,11 @@
     <string name="settings_update_available">%1$s sürümü hazır</string>
     <string name="settings_source">GitHub’da kaynak kodu</string>
     <string name="settings_source_line">Bir sorun bildir ya da özellik iste</string>
+    <string name="settings_crash_title">Çökme raporu</string>
+    <string name="settings_crash_saved">Son çökmeden kaydedildi. Paylaşın ve bir GitHub issue\'suna yapıştırın</string>
+    <string name="settings_crash_none">Kayıtlı çökme yok. Android\'in Skipii\'yi son kez nasıl kapattığını paylaşır, bir GitHub issue\'su için</string>
+    <string name="settings_crash_tile">Çökme raporu kaydedildi</string>
+    <string name="settings_crash_share">Çökme raporunu paylaş</string>
     <string name="settings_made_by">%1$s tarafından yapıldı</string>
     <string name="settings_say_hi">Gel bir merhaba de</string>
     <string name="settings_email_developer">Geliştiriciye e-posta gönder</string>

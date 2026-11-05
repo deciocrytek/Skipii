@@ -37,6 +37,11 @@
     <string name="settings_update_available">Đã có phiên bản %1$s</string>
     <string name="settings_source">Mã nguồn trên GitHub</string>
     <string name="settings_source_line">Báo lỗi hoặc đề xuất tính năng</string>
+    <string name="settings_crash_title">Báo cáo sự cố</string>
+    <string name="settings_crash_saved">Đã lưu từ lần gặp sự cố gần nhất. Hãy chia sẻ và dán vào một issue trên GitHub</string>
+    <string name="settings_crash_none">Chưa lưu sự cố nào. Chia sẻ cách Android đóng Skipii lần gần nhất, để gửi issue trên GitHub</string>
+    <string name="settings_crash_tile">Đã lưu báo cáo sự cố</string>
+    <string name="settings_crash_share">Chia sẻ báo cáo sự cố</string>
     <string name="settings_made_by">Tạo bởi %1$s</string>
     <string name="settings_say_hi">Ghé qua chào nhé</string>
     <string name="settings_email_developer">Gửi email cho nhà phát triển</string>

@@ -38,6 +38,11 @@
     <string name="settings_update_available">वर्शन %1$s उपलब्ध है</string>
     <string name="settings_source">GitHub पर सोर्स कोड</string>
     <string name="settings_source_line">कोई समस्या बताएं या कोई सुविधा मांगें</string>
+    <string name="settings_crash_title">क्रैश रिपोर्ट</string>
+    <string name="settings_crash_saved">पिछले क्रैश से सेव की गई। इसे शेयर करें और GitHub issue में पेस्ट करें</string>
+    <string name="settings_crash_none">कोई क्रैश सेव नहीं है। Android ने पिछली बार Skipii को कैसे बंद किया, यह GitHub issue के लिए शेयर करता है</string>
+    <string name="settings_crash_tile">क्रैश रिपोर्ट सेव हुई</string>
+    <string name="settings_crash_share">क्रैश रिपोर्ट शेयर करें</string>
     <string name="settings_made_by">%1$s ने बनाया</string>
     <string name="settings_say_hi">आइए, नमस्ते कहिए</string>
     <string name="settings_email_developer">डेवलपर को ईमेल करें</string>

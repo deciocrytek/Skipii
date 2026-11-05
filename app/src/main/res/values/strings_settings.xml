@@ -49,6 +49,12 @@
     <string name="settings_update_available">Version %1$s is available</string>
     <string name="settings_source">Source code on GitHub</string>
     <string name="settings_source_line">Report a problem or ask for a feature</string>
+    <!-- Settings › About: the crash report (GitHub #55), shared to paste into an issue. -->
+    <string name="settings_crash_title">Crash report</string>
+    <string name="settings_crash_saved">Saved from the last crash. Share it and paste it into a GitHub issue</string>
+    <string name="settings_crash_none">No crash saved. Shares how Android last closed Skipii, for a GitHub issue</string>
+    <string name="settings_crash_tile">Crash report saved</string>
+    <string name="settings_crash_share">Share crash report</string>
     <!-- The developer card, last on the Settings page; %1$s = the handle (@y7esdii). -->
     <string name="settings_made_by">Made by %1$s</string>
     <string name="settings_say_hi">Come say hi</string>

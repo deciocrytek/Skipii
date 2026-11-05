@@ -39,6 +39,11 @@
     <string name="settings_update_available">La version %1$s est disponible</string>
     <string name="settings_source">Code source sur GitHub</string>
     <string name="settings_source_line">Signaler un problème ou demander une fonction</string>
+    <string name="settings_crash_title">Rapport de plantage</string>
+    <string name="settings_crash_saved">Enregistré lors du dernier plantage. Partagez-le et collez-le dans une issue GitHub</string>
+    <string name="settings_crash_none">Aucun plantage enregistré. Partage la façon dont Android a fermé Skipii la dernière fois, pour une issue GitHub</string>
+    <string name="settings_crash_tile">Rapport de plantage enregistré</string>
+    <string name="settings_crash_share">Partager le rapport de plantage</string>
     <string name="settings_made_by">Créé par %1$s</string>
     <string name="settings_say_hi">Venez dire bonjour</string>
     <string name="settings_email_developer">Écrire au développeur</string>
