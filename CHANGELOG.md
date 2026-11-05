@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.106
+
 ### New
 - Channel pages look like YouTube's (#53, thanks @usa2525-code). Tabs for **Home**, **Videos**, **Shorts** and **Playlists** sit under the profile and stay at the top as you scroll. Home shows the channel's featured video and its own rows (latest uploads, playlists, featured channels), each with See all. Videos can be sorted Latest, Popular or Oldest.
 - Tapping a short on a channel plays it in Shorts, and swiping goes through that channel's other shorts. Back takes you to the channel again, and your Shorts feed is where you left it.
