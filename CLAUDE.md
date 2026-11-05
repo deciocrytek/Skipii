@@ -771,6 +771,17 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   the message + airplane-mode hint (`player_error_bot_check_hint`; `friendlyError` joins both for pages / Shorts) and an
   Open in YouTube pill (`openInYouTube`: watch URL + `&t=`) beside Try again. Verified on skipii_qa with a throwaway build
   forcing the exception in `StreamCache.getOrLoad`: panel after the 3/8/20 s retries, the pill opened YouTube's app.
+- 0.5.107 (2026-11-04, a Threads report: "only a single row of recommended videos" on a tablet held upright): `gridColumns`
+  gives a wide window at least TWO columns. An upright 600–643 dp tablet has under 2 × `GridCardMin` (280) right of the rail,
+  so it got one phone card stretched over ~520 dp. Test: skipii_tablet, `cmd window user-rotation lock 1` + `wm density 427`
+  (600 dp across; back: `wm density reset`, `user-rotation free`). Open there too: the `Tablet` player puts More videos at its
+  300 dp minimum, leaving the video ~216 dp wide on that screen (not changed; a design call).
+- 0.5.108 Flip flex mode (2026-11-04, Derek's 6666.jpg; picked A "Two rows" in `docs/design/flip-flex.html`, refined in
+  `flip-flex-a.html`): the tabletop deck's eight keys in one row crushed the five tools to ~18 dp slivers on a Flip (411 dp).
+  `DeckButtons` (Tabletop.kt): narrower than `OneRowMin` 660 dp, −10 · play · +10 get their own row and the tools a second
+  (68 dp keys); wider (the Fold) keeps one row. Transport bigger everywhere: ±10 80 dp (glyph 38), play 116 (glyph 54); deck
+  side padding 20. A tool that's on is "Tint" (Derek: less obtrusive than full primary, not muted): `lerp(DeckKey, primary,
+  0.24)` with primary ink. NOT verified on a real Flip (no Flip AVD; tested by forcing the narrow layout's width).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

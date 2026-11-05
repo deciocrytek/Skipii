@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Flip flex mode, A refined</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght,ROND@400..900,0..100&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--font:'Google Sans Flex','Google Sans',Roboto,system-ui,sans-serif;--pop:cubic-bezier(.34,1.56,.64,1);
+  --primary:#C5C4F4;--on-primary:#2C2B5E;--key:#1C1C1E;--ink:#fff;--dim:rgba(255,255,255,.62);
+  --pg-fg:var(--foreground,#ECE6F0);--pg-mut:var(--muted-foreground,#A79DB2);--pg-card:var(--card,#1B1920)}
+html.page{background:#0B0A0D}html.page body{padding:36px 28px 80px;max-width:1100px;margin:0 auto}
+body{font-family:var(--font);font-variation-settings:'ROND' 100;color:var(--pg-fg)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;font-variation-settings:inherit}
+svg{display:block;fill:currentColor;flex:none}
+h1{font-size:28px;font-weight:850;letter-spacing:-.7px}
+.lead{margin-top:6px;color:var(--pg-mut);font-size:14px;font-weight:550;line-height:1.5}
+.lead b{color:var(--pg-fg)}
+.grid{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1fr);gap:24px;margin-top:18px;align-items:start}
+.lbl{font-size:12px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:var(--pg-mut);margin-bottom:10px}
+
+.fit{position:relative;width:100%}
+.dev{position:absolute;left:0;top:0;width:429px;height:1023px;transform-origin:0 0;border-radius:42px;background:#2A2A2E;padding:9px}
+.scr{position:relative;width:411px;height:1005px;border-radius:33px;overflow:hidden;background:#000;color:var(--ink);--f:.2525}
+.half{position:absolute;left:0;right:0;height:502px;display:flex;flex-direction:column}
+.half.top{top:0}.half.bot{top:503px}
+.hinge{position:absolute;left:0;right:0;top:494px;height:18px;pointer-events:none;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.07) 45%,rgba(0,0,0,.6) 55%,rgba(255,255,255,0))}
+.pic{width:411px;height:231px;flex:none;background:url(shots/flip-flex-6666.jpg) 0 -134.6px/411px auto no-repeat}
+.trow{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;white-space:nowrap}
+.trow .chap{flex:1;text-align:center;color:var(--dim);font-size:14px;font-weight:700}
+.trow .rem{color:var(--dim);font-weight:700}
+.scrub{position:relative;border-radius:16px;overflow:hidden;background:var(--key);display:flex;height:64px;flex:none}
+.scrub .fr{flex:1;height:100%;background-repeat:no-repeat}
+.scrub .dim{position:absolute;inset:0 0 0 calc(var(--f)*100%);background:rgba(0,0,0,.62)}
+.scrub .gap{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#000}
+.scrub .head{position:absolute;top:0;bottom:0;left:calc(var(--f)*100%);width:4px;margin-left:-2px;border-radius:4px;background:var(--primary)}
+.scrub .head::before,.scrub .head::after{content:"";position:absolute;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--primary)}
+.scrub .head::before{top:-3px}.scrub .head::after{bottom:-3px}
+
+.press{transition:transform .42s var(--pop)}.press:active{transform:scale(.94);transition-duration:.09s}
+.trans{display:flex;align-items:center;justify-content:center}
+.round{display:grid;place-items:center;border-radius:50%;background:var(--key);flex:none}
+.play{display:grid;place-items:center;border-radius:50%;background:var(--primary);color:var(--on-primary);flex:none}
+.play .pl{display:none}.paused .play .pl{display:block}.paused .play .pa{display:none}
+
+.keys{display:flex;gap:8px;height:68px}
+.key{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--key);border-radius:20px;flex:1;min-width:0;
+  transition:background .25s,color .25s,transform .42s var(--pop)}
+.key .sym{height:26px;display:grid;place-items:center;font-size:15px;font-weight:850}
+.key .lb{font-size:11.5px;font-weight:700;opacity:.8;white-space:nowrap}
+.key::after{content:"";position:absolute;bottom:7px;left:50%;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:var(--primary);opacity:0;transform:scaleX(.3);transition:opacity .2s,transform .42s var(--pop)}
+/* the old look: full primary */
+.s-full .key.on{background:var(--primary);color:var(--on-primary)}.s-full .key.on .lb{opacity:1}
+/* Tint: primary washed into the key, primary ink */
+.s-tint .key.on{background:color-mix(in srgb,var(--primary) 24%,var(--key));color:var(--primary)}.s-tint .key.on .lb{opacity:1}
+/* Ink: key stays dark, primary ink + a short bar */
+.s-ink .key.on{color:var(--primary)}.s-ink .key.on .lb{opacity:1}
+.s-ink .key.on::after{opacity:1;transform:none}
+.s-ink .key .lb{transform:translateY(-3px)}.s-ink .key .sym{transform:translateY(-3px)}
+/* Soft: a half-strength fill, white ink */
+.s-soft .key.on{background:color-mix(in srgb,var(--primary) 42%,var(--key));color:#fff}.s-soft .key.on .lb{opacity:1}
+
+.styles{display:flex;flex-direction:column;gap:10px}
+.opt{display:block;cursor:pointer;width:100%;text-align:left;border-radius:22px;background:var(--pg-card);padding:14px 16px 16px;transition:transform .42s var(--pop)}
+.opt:active{transform:scale(.98)}
+.opt .h{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.opt .h i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--pg-mut);opacity:.35;flex:none;transition:opacity .2s,background .2s}
+.opt.sel .h i{opacity:1;background:var(--pg-fg);box-shadow:inset 0 0 0 6px var(--pg-card)}
+.opt .h b{font-size:15px;font-weight:850}
+.opt .h em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--pg-mut)}
+.opt .row{background:#000;border-radius:16px;padding:12px;color:#fff}
+.notes{margin-top:14px;font-size:13px;line-height:1.5;color:var(--pg-mut);font-weight:540}
+.notes b{color:var(--pg-fg)}
+</style>
+</head>
+<body>
+<h1>A, refined</h1>
+<p class="lead"><b>Bigger transport:</b> −10 and +10 go 64 → 80 dp, play 88 → 116 dp, glyphs to match. <b>Quieter "on" keys</b> in the bottom row: pick a style on the right, the phone follows. Captions and Speed (1.5×) are on; tap any key to toggle.</p>
+<div class="grid">
+  <div><div class="lbl">Flip 6, to scale</div><div class="fit" id="fit"><div class="dev"><div class="scr s-tint" id="scr"></div></div></div></div>
+  <div><div class="lbl">Selected style</div><div class="styles" id="styles"></div>
+    <p class="notes">All three keep the key's place and shape; only its tone and ink change. <b>Tint</b> reads as on at a glance without being the brightest thing on the deck; play stays the one full-primary button.</p></div>
+</div>
+<script>
+const IMG = 'shots/flip-flex-6666.jpg', DUR = 9921, W = 371;
+const CH = [['Cold open',0],['London Broyal',.12],['Blind tasting',.31],['The verdict',.47],['Round two',.66],['Credits',.83]];
+const fmt = s => { s = Math.round(s); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h ? h + ':' + String(m).padStart(2,'0') : m) + ':' + String(x).padStart(2,'0'); };
+const ic = (d, s=24) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}">${d}</svg>`;
+const P = {
+  pause:'<path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 1.1.9 2 2 2zm6-12v10c0 1.1.9 2 2 2s2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2z"/>',
+  play:'<path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/>',
+  cc:'<path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/>',
+  head:'<path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-1c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/>',
+  next:'<path d="M7.58 16.89l5.77-4.07c.56-.4.56-1.24 0-1.63L7.58 7.11C6.91 6.65 6 7.12 6 7.93v8.14c0 .81.91 1.28 1.58.82zM16 7v10c0 .55.45 1 1 1s1-.45 1-1V7c0-.55-.45-1-1-1s-1 .45-1 1z"/>',
+};
+const seek = (fwd, s) => ic(`<g ${fwd ? 'transform="matrix(-1 0 0 1 24 0)"' : ''}><path d="M12 5.6a7.2 7.2 0 1 1-7.2 7.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12.6 2.3 8.4 5.6l4.2 3.3z"/></g><text x="12" y="13.6" text-anchor="middle" dominant-baseline="central" font-size="7.4" font-weight="850" fill="currentColor" font-family="inherit">10</text>`, s);
+const SPOTS = [[400,430,1],[120,470,.9],[700,430,1.05],[230,600,.95],[400,340,1.1],[560,520,.85],[80,330,.8],[745,560,1],[330,560,.92],[500,610,1.08]];
+function frames(n, h) {
+  const w = W / n; let out = '';
+  for (let i = 0; i < n; i++) {
+    const [cx, cy, b] = SPOTS[i % SPOTS.length], f = Math.max(w / 220, h / 300);
+    const x = Math.min(Math.max(cx * f - w / 2, 0), 818 * f - w), y = Math.min(Math.max(cy * f - h / 2, 268 * f), 700 * f - h);
+    out += `<div class="fr" style="background-image:url(${IMG});background-size:${818 * f}px auto;background-position:${-x}px ${-y}px;filter:brightness(${b})"></div>`;
+  }
+  return out;
+}
+const KEYS = [['<span>1.5×</span>','Speed',1],['<span style="font-size:14px">Auto</span>','Quality'],[ic(P.cc),'Captions',1],[ic(P.head),'Audio only'],[ic(P.next, 26),'Next']];
+const keys = () => `<div class="keys">${KEYS.map(k => `<button class="key press ${k[2] ? 'on' : ''}"><span class="sym">${k[0]}</span><span class="lb">${k[1]}</span></button>`).join('')}</div>`;
+const pos = .2525 * DUR, chap = CH[1][0];
+
+document.getElementById('scr').innerHTML = `
+  <div class="half top"><div style="flex:1;display:grid;place-items:center"><div class="pic"></div></div></div>
+  <div class="half bot"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 20px">
+    <div class="trow"><span>${fmt(pos)} / ${fmt(DUR)}</span><span class="chap">${chap}</span><span class="rem">−${fmt(DUR - pos)}</span></div>
+    <div style="height:10px"></div>
+    <div class="scrub">${frames(10, 64)}<div class="dim"></div>${CH.slice(1).map(c => `<div class="gap" style="left:${c[1] * 100}%"></div>`).join('')}<div class="head"></div></div>
+    <div style="height:22px"></div>
+    <div class="trans" style="gap:18px">
+      <button class="round press" style="width:80px;height:80px">${seek(false, 44)}</button>
+      <button class="play press" style="width:116px;height:116px"><span class="pa">${ic(P.pause, 52)}</span><span class="pl">${ic(P.play, 58)}</span></button>
+      <button class="round press" style="width:80px;height:80px">${seek(true, 44)}</button>
+    </div>
+    <div style="height:20px"></div>${keys()}
+  </div></div><div class="hinge"></div>`;
+
+const STYLES = [
+  ['tint','Tint','primary washed into the key, primary ink'],
+  ['ink','Ink','key stays dark, primary ink and a short bar'],
+  ['soft','Soft','a half-strength fill, white ink'],
+  ['full','Now','full primary, for comparison'],
+];
+const scr = document.getElementById('scr'), box = document.getElementById('styles');
+box.innerHTML = STYLES.map(s => `<div class="opt ${s[0] === 'tint' ? 'sel' : ''}" data-s="${s[0]}"><div class="h"><i></i><b>${s[1]}</b><em>${s[2]}</em></div><div class="row s-${s[0]}">${keys()}</div></div>`).join('');
+box.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (!o) return;
+  box.querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === o));
+  scr.className = 'scr s-' + o.dataset.s + (scr.classList.contains('paused') ? ' paused' : '');
+});
+scr.addEventListener('click', e => {
+  const k = e.target.closest('.key'); if (k && !k.querySelector('svg path[d^="M7.58"]') && !k.textContent.includes('Auto')) k.classList.toggle('on');
+  if (e.target.closest('.play')) scr.classList.toggle('paused');
+});
+function fit() { const f = document.getElementById('fit'), s = f.clientWidth / 429; f.style.height = 1023 * s + 'px'; f.firstElementChild.style.transform = `scale(${s})`; }
+if (!getComputedStyle(document.documentElement).getPropertyValue('--foreground')) document.documentElement.classList.add('page');
+addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>

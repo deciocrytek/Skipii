@@ -307,11 +307,16 @@ fun rememberScrollToTop(signal: Int): LazyListState {
 /** The narrowest a card gets in a grid: one a row on a phone, two on an open Fold, four on a landscape tablet. */
 private val GridCardMin = 280.dp
 
-/** Cards a row on this window (Rail 3 grids): the page's width (right of the rail) over [GridCardMin], at most four. */
+/**
+ * Cards a row on this window (Rail 3 grids): the page's width (right of the rail) over [GridCardMin], at most four.
+ * A wide window always gets two: an upright 600–643 dp tablet (Galaxy Tab A, Lenovo Tab M8) has under 560 dp
+ * right of the rail and showed one phone card stretched across it (a Threads report, 2026-11-04).
+ */
 @Composable
 fun gridColumns(): Int {
-    val width = LocalConfiguration.current.screenWidthDp.dp - if (LocalWindowLayout.current.wide) RailWidth else 0.dp
-    return (width / GridCardMin).toInt().coerceIn(1, 4)
+    val wide = LocalWindowLayout.current.wide
+    val width = LocalConfiguration.current.screenWidthDp.dp - if (wide) RailWidth else 0.dp
+    return (width / GridCardMin).toInt().coerceIn(if (wide) 2 else 1, 4)
 }
 
 /**

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Flip in flex mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght,ROND@400..900,0..100&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font:'Google Sans Flex','Google Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --primary:#C5C4F4;--on-primary:#2C2B5E;--key:#1C1C1E;--ink:#fff;--dim:rgba(255,255,255,.62);
+  --pg-fg:var(--foreground,#ECE6F0);--pg-mut:var(--muted-foreground,#A79DB2);--pg-card:var(--card,#1B1920);
+  --pg-on:var(--primary-foreground,#1B1920);
+}
+html{background:var(--background,#0B0A0D);color:var(--pg-fg)}
+body{font-family:var(--font);font-variation-settings:'ROND' 100}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;font-variation-settings:inherit}
+svg{display:block;fill:currentColor;flex:none}
+.wrap{max-width:1500px;margin:0 auto}
+html.page .wrap{padding:36px 28px 80px}
+
+h1{font-size:30px;font-weight:850;letter-spacing:-.8px;line-height:1.1}
+.lead{margin-top:8px;color:var(--pg-mut);font-size:14.5px;font-weight:550;line-height:1.5;max-width:760px}
+.lead b{color:var(--pg-fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 20px}
+.chip{height:38px;padding:0 15px;border-radius:999px;background:var(--pg-card);font-weight:750;font-size:13.5px;color:var(--pg-mut);transition:transform .42s var(--pop),background .25s,color .25s;white-space:nowrap}
+.chip b{font-weight:900}
+.chip.on{background:var(--pg-fg);color:var(--background,#0B0A0D)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+
+.stage{display:grid;gap:20px;align-items:start}
+.col h2{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:850;margin-bottom:10px;letter-spacing:-.2px}
+.col h2 i{font-style:normal;width:26px;height:26px;border-radius:9px;background:var(--pg-fg);color:var(--background,#0B0A0D);display:grid;place-items:center;font-size:13px;font-weight:900}
+.col h2 i.now{background:#E5002E;color:#fff}
+.col h2 em{font-style:normal;font-weight:650;color:var(--pg-mut);font-size:13px}
+.notes{margin-top:12px;font-size:13px;line-height:1.5;color:var(--pg-mut);font-weight:540}
+.notes p{margin-bottom:6px}
+.notes p b,.notes li b{color:var(--pg-fg);font-weight:800}
+.notes ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.notes li{padding-left:14px;position:relative}
+.notes li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:2px;background:var(--pg-mut);opacity:.7}
+.notes .trade{margin-top:8px;padding:10px 12px;border-radius:14px;background:var(--pg-card)}
+.notes .trade b{color:var(--pg-fg)}
+
+/* ── the phone: everything inside is in dp at 1px = 1dp, scaled to fit ── */
+.fit{position:relative;width:100%}
+.dev{position:absolute;left:0;top:0;width:429px;height:1023px;transform-origin:0 0;border-radius:42px;background:#2A2A2E;padding:9px}
+.scr{position:relative;width:411px;height:1005px;border-radius:33px;overflow:hidden;background:#000;color:var(--ink);--f:.2525}
+.half{position:absolute;left:0;right:0;height:502px;display:flex;flex-direction:column}
+.half.top{top:0}
+.half.bot{top:503px}
+.hinge{position:absolute;left:0;right:0;top:494px;height:18px;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.07) 45%,rgba(0,0,0,.6) 55%,rgba(255,255,255,0))}
+.shot{width:411px;height:1005px;display:block;object-fit:cover}
+
+.pic{width:411px;height:231px;flex:none;background:url(shots/flip-flex-6666.jpg) 0 -134.6px/411px auto no-repeat}
+
+.trow{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;white-space:nowrap}
+.trow .chap{flex:1;text-align:center;color:var(--dim);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.trow .rem{color:var(--dim);font-weight:700}
+.scr.scrubbing .t-pos{color:var(--primary)}
+
+.scrub{position:relative;border-radius:16px;overflow:hidden;background:var(--key);display:flex;touch-action:none;cursor:ew-resize;flex:none}
+.scrub .fr{flex:1;height:100%;background-repeat:no-repeat}
+.scrub .dim{position:absolute;top:0;bottom:0;right:0;left:calc(var(--f)*100%);background:rgba(0,0,0,.62)}
+.scrub .gap{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#000}
+.scrub .head{position:absolute;top:0;bottom:0;left:calc(var(--f)*100%);width:4px;margin-left:-2px;border-radius:4px;background:var(--primary)}
+.scrub .head::before,.scrub .head::after{content:"";position:absolute;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--primary)}
+.scrub .head::before{top:-3px}.scrub .head::after{bottom:-3px}
+.scr.scrubbing .scrub .head{width:5.5px;margin-left:-2.75px}
+
+.press{transition:transform .42s var(--pop)}
+.press:active{transform:scale(.94);transition-duration:.09s}
+.round{display:grid;place-items:center;border-radius:50%;background:var(--key);flex:none}
+.play{display:grid;place-items:center;border-radius:50%;background:var(--primary);color:var(--on-primary);flex:none}
+.play .pl{display:none}.scr.paused .play .pl{display:block}.scr.paused .play .pa{display:none}
+.trans{display:flex;align-items:center;justify-content:center}
+
+.key{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--key);border-radius:20px;flex:1;min-width:0}
+.key .sym{height:26px;display:grid;place-items:center;font-size:15px;font-weight:850}
+.key .lb{font-size:11.5px;font-weight:700;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 4px}
+.key.on,.tool.on .circ{background:var(--primary);color:var(--on-primary)}
+.key.on .lb{opacity:1}
+.keys{display:flex;gap:8px}
+.keys.joined{gap:3px}
+.keys.joined .key{border-radius:7px}
+.keys.joined .key:first-child{border-radius:21px 7px 7px 21px}
+.keys.joined .key:last-child{border-radius:7px 21px 21px 7px}
+
+.tools{display:flex;justify-content:space-between}
+.tool{display:flex;flex-direction:column;align-items:center;gap:7px;width:66px}
+.tool .circ{width:58px;height:58px;border-radius:50%;background:var(--key);display:grid;place-items:center;font-size:15px;font-weight:850;transition:background .25s,color .25s}
+.tool .lb{font-size:11.5px;font-weight:700;color:var(--dim);white-space:nowrap}
+
+.chapbtn{display:flex;align-items:center;gap:12px;height:52px;border-radius:26px;background:var(--key);padding:0 18px;font-size:14px;font-weight:800;flex:none}
+.chapbtn span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chapbtn em{font-style:normal;color:var(--dim);font-weight:700}
+
+.meta{padding:0 22px 16px;display:flex;flex-direction:column;gap:9px}
+.meta .ch{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:800;white-space:nowrap}
+.meta .ch em{font-style:normal;color:var(--dim);font-weight:650;overflow:hidden;text-overflow:ellipsis}
+.meta .av{width:30px;height:30px;border-radius:50%;flex:none;background:url(shots/flip-flex-6666.jpg) -98px -150px/300px auto no-repeat}
+.meta h3{font-size:20px;line-height:1.22;font-weight:800;letter-spacing:-.2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Flex mode on a Flip</h1>
+  <p class="lead">The tabletop deck was built for the Fold's 870 dp-wide inner screen. On a <b>Flip (411 × 1005 dp, fold at 502)</b> its eight keys share one row and five of them collapse into slivers. Three rearrangements of the same pieces, drawn to scale. The strip scrubs, play and the mode keys toggle.</p>
+  <div class="chips" id="chips">
+    <button class="chip on" data-v="A"><b>A</b> · Two rows</button>
+    <button class="chip" data-v="B"><b>B</b> · On the hinge</button>
+    <button class="chip" data-v="C"><b>C</b> · Screen and keys</button>
+    <button class="chip" data-v="all">All three</button>
+  </div>
+  <div class="stage" id="stage"></div>
+</div>
+
+<script>
+const IMG = 'shots/flip-flex-6666.jpg';
+const DUR = 9921;           // 2:45:21
+const CHAPTERS = [['Cold open',0],['London Broyal',.12],['Blind tasting',.31],['The verdict',.47],['Round two',.66],['Credits',.83]];
+const W = 371;              // deck width: 411 − 2 × 20
+
+const fmt = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  return (h ? h + ':' + String(m).padStart(2,'0') : m) + ':' + String(x).padStart(2,'0'); };
+const chapAt = f => { let c = CHAPTERS[0]; for (const k of CHAPTERS) if (f >= k[1]) c = k; return c; };
+
+const ic = (d, s=24) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}">${d}</svg>`;
+const P = {
+  pause:'<path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 1.1.9 2 2 2zm6-12v10c0 1.1.9 2 2 2s2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2z"/>',
+  play:'<path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/>',
+  cc:'<path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/>',
+  head:'<path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-1c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/>',
+  next:'<path d="M7.58 16.89l5.77-4.07c.56-.4.56-1.24 0-1.63L7.58 7.11C6.91 6.65 6 7.12 6 7.93v8.14c0 .81.91 1.28 1.58.82zM16 7v10c0 .55.45 1 1 1s1-.45 1-1V7c0-.55-.45-1-1-1s-1 .45-1 1z"/>',
+  list:'<path d="M4.5 7h15M4.5 12h15M4.5 17h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>',
+  up:'<path d="M11.29 8.71 6.7 13.3a.996.996 0 1 0 1.41 1.41L12 10.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 8.71a.996.996 0 0 0-1.41 0z"/>',
+};
+const seek = (fwd, s) => ic(`<g ${fwd ? 'transform="matrix(-1 0 0 1 24 0)"' : ''}><path d="M12 5.6a7.2 7.2 0 1 1-7.2 7.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12.6 2.3 8.4 5.6l4.2 3.3z"/></g><text x="12" y="13.6" text-anchor="middle" dominant-baseline="central" font-size="7.4" font-weight="850" fill="currentColor" font-family="inherit">10</text>`, s);
+
+// Storyboard frames: crops of the real frame, a different spot each, so the strip reads like one.
+const SPOTS = [[400,430,1],[120,470,.9],[700,430,1.05],[230,600,.95],[400,340,1.1],[560,520,.85],[80,330,.8],[745,560,1],[330,560,.92],[500,610,1.08]];
+function frames(n, h) {
+  const w = W / n; let out = '';
+  for (let i = 0; i < n; i++) {
+    const [cx, cy, b] = SPOTS[Math.round(i * SPOTS.length / n) % SPOTS.length];
+    const f = Math.max(w / 220, h / 300);
+    let x = cx * f - w / 2, y = cy * f - h / 2;
+    x = Math.min(Math.max(x, 0), 818 * f - w); y = Math.min(Math.max(y, 268 * f), 700 * f - h);
+    out += `<div class="fr" style="background-image:url(${IMG});background-size:${818 * f}px auto;background-position:${-x}px ${-y}px;filter:brightness(${b}) saturate(${.85 + (i % 3) * .12})"></div>`;
+  }
+  return out;
+}
+const scrub = (h, n) => `<div class="scrub" style="height:${h}px">${frames(n, h)}<div class="dim"></div>${CHAPTERS.slice(1).map(c => `<div class="gap" style="left:${c[1] * 100}%"></div>`).join('')}<div class="head"></div></div>`;
+const trow = () => `<div class="trow"><span class="t-pos"></span><span class="chap t-chap"></span><span class="rem t-rem"></span></div>`;
+const trans = (side, play, gap) => `<div class="trans" style="gap:${gap}px">
+  <button class="round press" style="width:${side}px;height:${side}px">${seek(false, Math.round(side * .56))}</button>
+  <button class="play press" style="width:${play}px;height:${play}px"><span class="pa">${ic(P.pause, Math.round(play * .45))}</span><span class="pl">${ic(P.play, Math.round(play * .5))}</span></button>
+  <button class="round press" style="width:${side}px;height:${side}px">${seek(true, Math.round(side * .56))}</button></div>`;
+const TOOLS = [['<span>1×</span>','Speed'],['<span style="font-size:14px">Auto</span>','Quality'],[ic(P.cc),'Captions','tog on'],[ic(P.head),'Audio only','tog'],[ic(P.next, 26),'Next']];
+const keys = (h, cls='') => `<div class="keys ${cls}" style="height:${h}px">${TOOLS.map(t => `<button class="key press ${t[2] || ''}"><span class="sym">${t[0]}</span><span class="lb">${t[1]}</span></button>`).join('')}</div>`;
+const tools = () => `<div class="tools">${TOOLS.map(t => `<button class="tool press ${t[2] || ''}"><span class="circ">${t[0]}</span><span class="lb">${t[1]}</span></button>`).join('')}</div>`;
+
+const MOCK = {
+  A: {
+    name:'Two rows', sub:'the smallest change',
+    top: `<div style="flex:1;display:grid;place-items:center"><div class="pic"></div></div>`,
+    bot: `<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 20px">
+      ${trow()}<div style="height:10px"></div>${scrub(64, 10)}<div style="height:22px"></div>
+      ${trans(64, 88, 20)}<div style="height:20px"></div>${keys(68)}</div>`,
+    notes: `<p><b>Same deck, the keys split in two.</b> −10 · play · +10 get a row of their own; the five tools move to a second row, 64 dp each, words whole.</p>
+      <ul><li>Upright half unchanged: the picture centred, captions on it.</li>
+      <li>Time row and the 10-frame strip as now.</li>
+      <li>Deck 314 dp tall, centred in the 502 dp table half.</li></ul>
+      <div class="trade"><b>Trade-off:</b> fixes the slivers and nothing else; the 270 dp of black around the picture stays.</div>`,
+  },
+  B: {
+    name:'On the hinge', sub:'the picture sits on the fold',
+    top: `<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end">
+      <div class="meta"><div class="ch"><span class="av"></span>The Tasting Room <em>· 1.4M views · 3 days ago</em></div>
+      <h3>London Broyal, blindfolded: the whole tasting, uncut</h3></div><div class="pic"></div></div>`,
+    bot: `<div style="flex:1;display:flex;flex-direction:column;padding:14px 20px 30px">
+      ${scrub(84, 6)}<div style="height:10px"></div>${trow()}
+      <div style="flex:1;display:grid;place-items:center">${trans(68, 96, 24)}</div>${keys(64, 'joined')}</div>`,
+    notes: `<p><b>The picture drops onto the fold</b>, like Samsung's own flex-mode apps, and the strip starts right under it, as if the video's timeline ran over the hinge.</p>
+      <ul><li>Above the picture: channel, views and title, as the portrait player shows them.</li>
+      <li>Strip 84 dp tall with 6 frames instead of 10, each wide enough to recognise; time row under it.</li>
+      <li>Transport in the middle of the table half; the five tools along the bottom as one joined group (Settings' 3 dp gaps, inner corners 7).</li></ul>
+      <div class="trade"><b>Trade-off:</b> the eye barely moves between picture and strip; the tools sit furthest from the hinge, nearest your hand.</div>`,
+  },
+  C: {
+    name:'Screen and keys', sub:'look up, press down',
+    top: `<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:0">
+      <div class="pic"></div><div style="padding:18px 20px 0">${trow()}<div style="height:10px"></div>${scrub(72, 8)}</div></div>`,
+    bot: `<div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 20px 14px">
+      ${trans(76, 112, 26)}${tools()}
+      <button class="chapbtn press">${ic(P.list, 22)}<span class="t-chap"></span><em class="t-chn"></em>${ic(P.up, 22)}</button></div>`,
+    notes: `<p><b>Everything you watch goes up, everything you press stays down.</b> The time and strip move under the picture into the black; the table half holds only buttons.</p>
+      <ul><li>Play 112 dp, ±10 76 dp.</li>
+      <li>The tools as the player bar card's 58 dp circles in one row, labels under.</li>
+      <li>The chapter becomes the bar card's Chapters strip (≡ chapter ⌃), opening the chapter list.</li></ul>
+      <div class="trade"><b>Trade-off:</b> the roomiest keys, but scrubbing means touching the upright half, which can tip a light phone back on its hinge.</div>`,
+  },
+};
+
+function phone(v) {
+  if (v === 'now') return `<div class="scr"><img class="shot" src="${IMG}" alt="Skipii 0.5.107 in flex mode on a Flip"></div>`;
+  const m = MOCK[v];
+  return `<div class="scr" data-v="${v}"><div class="half top">${m.top}</div><div class="half bot">${m.bot}</div><div class="hinge"></div></div>`;
+}
+function col(v) {
+  const head = v === 'now'
+    ? `<h2><i class="now">!</i>Now <em>0.5.107</em></h2>`
+    : `<h2><i>${v}</i>${MOCK[v].name} <em>${MOCK[v].sub}</em></h2>`;
+  const notes = v === 'now'
+    ? `<p><b>The Fold's deck squeezed into 411 dp.</b></p><ul>
+       <li>Eight keys in one row: after play and ±10, the five labelled keys get ~18 dp each. Speed reads "1", Quality "A", the rest are slivers.</li>
+       <li>Upright half: the picture is 231 of 502 dp; 270 dp of black around it.</li>
+       <li>Table half: ~150 dp of black under the keys; the strip's 10 frames are 37 dp wide.</li></ul>`
+    : MOCK[v].notes;
+  return `<div class="col">${head}<div class="fit"><div class="dev">${phone(v)}</div></div><div class="notes">${notes}</div></div>`;
+}
+
+const stage = document.getElementById('stage');
+let shown = 'A';
+function render() {
+  const list = shown === 'all' ? ['now','A','B','C'] : ['now', shown];
+  stage.style.gridTemplateColumns = `repeat(${list.length}, minmax(0, 1fr))`;
+  stage.innerHTML = list.map(col).join('');
+  stage.querySelectorAll('.scr[data-v]').forEach(wire);
+  fit();
+}
+function fit() {
+  stage.querySelectorAll('.fit').forEach(f => {
+    const s = f.clientWidth / 429;
+    f.style.height = 1023 * s + 'px';
+    f.firstElementChild.style.transform = `scale(${s})`;
+  });
+}
+function wire(scr) {
+  let f = .2525;
+  const paint = () => {
+    scr.style.setProperty('--f', f);
+    const c = chapAt(f), n = CHAPTERS.indexOf(c) + 1;
+    scr.querySelectorAll('.t-pos').forEach(e => e.textContent = fmt(f * DUR) + ' / ' + fmt(DUR));
+    scr.querySelectorAll('.t-rem').forEach(e => e.textContent = '−' + fmt(DUR - f * DUR));
+    scr.querySelectorAll('.t-chap').forEach(e => e.textContent = c[0]);
+    scr.querySelectorAll('.t-chn').forEach(e => e.textContent = n + ' of ' + CHAPTERS.length);
+  };
+  paint();
+  scr.querySelectorAll('.scrub').forEach(el => {
+    const at = e => { const r = el.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)); };
+    el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); scr.classList.add('scrubbing'); f = at(e); paint(); });
+    el.addEventListener('pointermove', e => { if (el.hasPointerCapture(e.pointerId)) { f = at(e); paint(); } });
+    const end = () => scr.classList.remove('scrubbing');
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  });
+  scr.querySelectorAll('.play').forEach(b => b.onclick = () => scr.classList.toggle('paused'));
+  scr.querySelectorAll('.tog').forEach(b => b.onclick = () => b.classList.toggle('on'));
+  scr.querySelectorAll('.round').forEach((b, i) => b.onclick = () => { f = Math.min(1, Math.max(0, f + (i % 2 ? 10 : -10) / DUR)); paint(); });
+}
+document.getElementById('chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
+  shown = b.dataset.v; render();
+});
+if (!getComputedStyle(document.documentElement).getPropertyValue('--foreground')) document.documentElement.classList.add('page');
+addEventListener('resize', fit);
+render();
+</script>
+</body>
+</html>

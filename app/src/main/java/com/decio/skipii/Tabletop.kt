@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -44,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -67,13 +69,16 @@ private val DeckInk = Color.White
 private val DeckInkDim = Color.White.copy(alpha = 0.62f)
 /** Storyboard frames along the scrub surface. */
 private const val ScrubFrames = 10
+/** Narrower than this (a Flip's 411 dp), the five tool keys get a row of their own under the transport. */
+private val OneRowMin = 660.dp
 
 /**
  * Tabletop (Rail 3, Derek 2026-11-02): an open foldable stood half open on a table, its fold running
  * across. The video fills the top half; the bottom half, always pure black, is the deck: the time and
  * chapter, a wide scrub surface of storyboard frames you drag across anywhere (seeks on release, a tap
  * jumps), and the transport with plain buttons — speed, quality, −10, play, +10, captions, audio only,
- * next. No player bar, no pill. [foldTop] / [foldBottom]: the fold's edges from the window's top.
+ * next. No player bar, no pill. On a narrow deck (a Flip, 2026-11-04) the tools take a second row.
+ * [foldTop] / [foldBottom]: the fold's edges from the window's top.
  */
 @Composable
 fun TabletopPlayer(player: PlayerState, foldTop: Dp, foldBottom: Dp) {
@@ -93,7 +98,7 @@ fun TabletopPlayer(player: PlayerState, foldTop: Dp, foldBottom: Dp) {
         }
         // Bottom half: the deck.
         Column(
-            Modifier.fillMaxSize().padding(top = foldBottom).padding(horizontal = 28.dp, vertical = 14.dp),
+            Modifier.fillMaxSize().padding(top = foldBottom).padding(horizontal = 20.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -224,54 +229,94 @@ private fun ScrubSurface(player: PlayerState, onScrub: (Long?) -> Unit) {
 
 @Composable
 private fun DeckButtons(player: PlayerState) {
-    val c = MaterialTheme.colorScheme
-    val hasNext = player.queue.isNotEmpty() || !player.details?.related.isNullOrEmpty()
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        DeckKeyButton(label = stringResource(R.string.bar_tool_speed), on = player.speed != 1f, onClick = { player.sheet = PlayerSheet.Speed }) {
-            Text(PlaybackSpeed.label(player.speed) + "×", color = it, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
-        }
-        DeckKeyButton(label = stringResource(R.string.bar_tool_quality), onClick = { player.sheet = PlayerSheet.Quality }) {
-            Text(QualityPreference.height?.let { h -> "${h}p" } ?: stringResource(R.string.bar_quality_auto), color = it, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
-        }
-        DeckIconButton(seekIcon(forward = false), seekLabel(-1)) { player.seekBy(-SeekStep.ms) }
-        // Play: the one big key, full primary.
-        Box(
-            Modifier.size(76.dp).pressable { player.togglePlay() }.clip(CircleShape).background(c.primary),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                if (player.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                stringResource(if (player.isPlaying) R.string.bar_pause else R.string.bar_play),
-                tint = c.onPrimary, modifier = Modifier.size(38.dp),
-            )
-        }
-        DeckIconButton(seekIcon(forward = true), seekLabel(1)) { player.seekBy(SeekStep.ms) }
-        DeckKeyButton(label = stringResource(R.string.bar_tool_captions), on = player.captions.on, onClick = {
-            player.captions.turn(true)
-            player.sheet = PlayerSheet.Captions
-        }) { Icon(Icons.Rounded.ClosedCaption, null, tint = it, modifier = Modifier.size(24.dp)) }
-        DeckKeyButton(label = stringResource(R.string.bar_audio_only), on = AudioOnly.enabled, onClick = { player.setAudioOnly(!AudioOnly.enabled) }) {
-            Icon(Icons.Rounded.Headphones, null, tint = it, modifier = Modifier.size(24.dp))
-        }
-        DeckKeyButton(label = stringResource(R.string.bar_tool_next), enabled = hasNext, onClick = { player.playNextUp() }) {
-            Icon(Icons.Rounded.SkipNext, null, tint = it, modifier = Modifier.size(26.dp))
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= OneRowMin) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                SpeedKey(player); QualityKey(player)
+                Transport(player)
+                CaptionsKey(player); AudioOnlyKey(player); NextKey(player)
+            }
+        } else {
+            // A Flip: the transport alone and big, the tools under it with their words whole.
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) { Transport(player) }
+                Spacer(Modifier.height(20.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SpeedKey(player, tall = true); QualityKey(player, tall = true)
+                    CaptionsKey(player, tall = true); AudioOnlyKey(player, tall = true); NextKey(player, tall = true)
+                }
+            }
         }
     }
 }
 
-/** A plain key: a dark tile with its symbol over a short label; full primary while its mode is on. */
+/** −10 · play · +10: play the one full-primary key on the deck. */
 @Composable
-private fun RowScope.DeckKeyButton(label: String, on: Boolean = false, enabled: Boolean = true, onClick: () -> Unit, symbol: @Composable (Color) -> Unit) {
+private fun Transport(player: PlayerState) {
     val c = MaterialTheme.colorScheme
-    val ink = if (on) c.onPrimary else DeckInk
+    DeckIconButton(seekIcon(forward = false), seekLabel(-1)) { player.seekBy(-SeekStep.ms) }
+    Box(
+        Modifier.size(116.dp).pressable { player.togglePlay() }.clip(CircleShape).background(c.primary),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            if (player.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+            stringResource(if (player.isPlaying) R.string.bar_pause else R.string.bar_play),
+            tint = c.onPrimary, modifier = Modifier.size(54.dp),
+        )
+    }
+    DeckIconButton(seekIcon(forward = true), seekLabel(1)) { player.seekBy(SeekStep.ms) }
+}
+
+@Composable
+private fun RowScope.SpeedKey(player: PlayerState, tall: Boolean = false) =
+    DeckKeyButton(label = stringResource(R.string.bar_tool_speed), on = player.speed != 1f, tall = tall, onClick = { player.sheet = PlayerSheet.Speed }) {
+        Text(PlaybackSpeed.label(player.speed) + "×", color = it, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+    }
+
+@Composable
+private fun RowScope.QualityKey(player: PlayerState, tall: Boolean = false) =
+    DeckKeyButton(label = stringResource(R.string.bar_tool_quality), tall = tall, onClick = { player.sheet = PlayerSheet.Quality }) {
+        Text(QualityPreference.height?.let { h -> "${h}p" } ?: stringResource(R.string.bar_quality_auto), color = it, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
+    }
+
+@Composable
+private fun RowScope.CaptionsKey(player: PlayerState, tall: Boolean = false) =
+    DeckKeyButton(label = stringResource(R.string.bar_tool_captions), on = player.captions.on, tall = tall, onClick = {
+        player.captions.turn(true)
+        player.sheet = PlayerSheet.Captions
+    }) { Icon(Icons.Rounded.ClosedCaption, null, tint = it, modifier = Modifier.size(24.dp)) }
+
+@Composable
+private fun RowScope.AudioOnlyKey(player: PlayerState, tall: Boolean = false) =
+    DeckKeyButton(label = stringResource(R.string.bar_audio_only), on = AudioOnly.enabled, tall = tall, onClick = { player.setAudioOnly(!AudioOnly.enabled) }) {
+        Icon(Icons.Rounded.Headphones, null, tint = it, modifier = Modifier.size(24.dp))
+    }
+
+@Composable
+private fun RowScope.NextKey(player: PlayerState, tall: Boolean = false) {
+    val hasNext = player.queue.isNotEmpty() || !player.details?.related.isNullOrEmpty()
+    DeckKeyButton(label = stringResource(R.string.bar_tool_next), enabled = hasNext, tall = tall, onClick = { player.playNextUp() }) {
+        Icon(Icons.Rounded.SkipNext, null, tint = it, modifier = Modifier.size(26.dp))
+    }
+}
+
+/**
+ * A plain key: a dark tile with its symbol over a short label. While its mode is on it's tinted, primary
+ * washed into the key with primary ink (Derek, 2026-11-04: full primary competed with play).
+ */
+@Composable
+private fun RowScope.DeckKeyButton(label: String, on: Boolean = false, enabled: Boolean = true, tall: Boolean = false, onClick: () -> Unit, symbol: @Composable (Color) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val ink = if (on) c.primary else DeckInk
     Column(
         Modifier
             .weight(1f)
-            .height(64.dp)
+            .height(if (tall) 68.dp else 64.dp)
             .pressable(enabled = enabled, onClick = onClick)
             .graphicsLayer { alpha = if (enabled) 1f else 0.38f }
             .clip(RoundedCornerShape(20.dp))
-            .background(if (on) c.primary else DeckKey),
+            .background(if (on) lerp(DeckKey, c.primary, 0.24f) else DeckKey),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -282,7 +327,7 @@ private fun RowScope.DeckKeyButton(label: String, on: Boolean = false, enabled: 
 
 @Composable
 private fun DeckIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
-    Box(Modifier.size(58.dp).pressable(onClick = onClick).clip(CircleShape).background(DeckKey), contentAlignment = Alignment.Center) {
-        Icon(icon, description, tint = DeckInk, modifier = Modifier.size(28.dp))
+    Box(Modifier.size(80.dp).pressable(onClick = onClick).clip(CircleShape).background(DeckKey), contentAlignment = Alignment.Center) {
+        Icon(icon, description, tint = DeckInk, modifier = Modifier.size(38.dp))
     }
 }
