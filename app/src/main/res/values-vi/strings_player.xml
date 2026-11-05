@@ -48,7 +48,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">Video này bị giới hạn độ tuổi và cần tài khoản YouTube để xem.</string>
     <string name="player_error_geo">Video này không có ở quốc gia của bạn.</string>
-    <string name="player_error_bot_check">YouTube đang yêu cầu xác nhận bạn không phải là bot. Hãy thử lại sau vài phút.</string>
+    <string name="player_error_bot_check">YouTube đang yêu cầu xác nhận bạn không phải là bot.</string>
+    <string name="player_error_bot_check_hint">Bật rồi tắt chế độ máy bay thường sẽ khắc phục được.</string>
     <string name="player_error_private">Đây là video riêng tư.</string>
     <string name="player_error_members_only">Video này chỉ dành cho hội viên. Skipii chưa thể phát video dành cho hội viên.</string>
     <string name="player_error_unavailable">Video này không có sẵn.</string>
@@ -88,4 +89,7 @@
     <string name="player_more_all">Tất cả</string>
     <string name="player_more_from">Từ %1$s</string>
     <string name="player_more_related">Liên quan</string>
+    <string name="player_not_interested_done">Đã hiểu. Bạn sẽ thấy ít video như thế này hơn</string>
+    <string name="player_channel_not_recommended">Kênh này sẽ không được đề xuất cho bạn nữa</string>
+    <string name="player_feedback_failed">Không gửi được tới YouTube. Hãy thử lại</string>
 </resources>

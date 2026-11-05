@@ -46,4 +46,14 @@
     <string name="settings_zoom_fill_on">हर वीडियो स्क्रीन भर देता है; बाहर निकले किनारे कट जाते हैं। पूरा वीडियो देखने के लिए उंगलियाँ पास लाएँ।</string>
     <string name="settings_zoom_fill_off">वीडियो पूरे दिखते हैं, काली पट्टियों के साथ। फ़ुलस्क्रीन में स्क्रीन भरने के लिए उंगलियाँ फैलाएँ।</string>
     <string name="settings_zoom_fill_summary">भरने के लिए ज़ूम</string>
+    <string name="settings_seek_step_title">पीछे और आगे जाना</string>
+    <string name="settings_seek_step_line">वीडियो पर दो बार टैप करने और −/⁠+ बटन से कितना आगे-पीछे जाए</string>
+    <string name="settings_seconds_short">%1$s से॰</string>
+    <string name="settings_seek_step_summary">%1$s से॰ की छलांग</string>
+    <string name="settings_music_normal_title">संगीत सामान्य गति पर</string>
+    <string name="settings_music_normal_line">गाने हमेशा 1× पर चलते हैं, भले ही हर वीडियो के लिए कोई गति रखी हो</string>
+    <string name="settings_chapters_open_title">अध्याय खुले रखें</string>
+    <string name="settings_chapters_open_line">अध्याय चुनने पर सूची खुली रहती है, ताकि एक से दूसरे पर जा सकें</string>
+    <string name="settings_auto_pip_title">बाहर जाने पर पिक्चर-इन-पिक्चर</string>
+    <string name="settings_auto_pip_line">वीडियो चलते हुए होम पर जाने से वह एक छोटी विंडो में चलता रहता है</string>
 </resources>

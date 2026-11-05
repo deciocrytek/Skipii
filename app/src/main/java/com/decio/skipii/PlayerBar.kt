@@ -1026,8 +1026,9 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
                         .pressable(enabled = live, pressedScale = 0.97f) {
                             haptic(view, HapticFeedbackConstants.CONTEXT_CLICK)
                             player.seekTo(chapter.startMs)
-                            // The fill lands on the picked chapter, then the bar folds back down.
-                            scope.launch { delay(QualityPickedMs); bar.closeAll() }
+                            // The fill lands on the picked chapter, then the bar folds back down —
+                            // unless the list stays open for the next pick (Settings › Playback, #46).
+                            if (!ChaptersStayOpen.on) scope.launch { delay(QualityPickedMs); bar.closeAll() }
                         }
                         .clip(RoundedCornerShape(18.dp))
                         .background(if (selected) c.primary else c.primary.copy(alpha = 0f))

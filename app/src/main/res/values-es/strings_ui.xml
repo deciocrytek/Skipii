@@ -136,9 +136,30 @@
     <string name="ui_channel_error_title">No se pudo cargar este canal</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Videos</string>
+    <string name="ui_channel_sort_latest">Recientes</string>
+    <string name="ui_channel_sort_popular">Populares</string>
+    <string name="ui_channel_sort_oldest">Más antiguos</string>
+    <string name="ui_see_all">Ver todo</string>
+    <string name="ui_channel_popular_videos">Videos populares</string>
+    <string name="ui_channel_featured_channels">Canales destacados</string>
+    <string name="ui_channel_no_videos">Este canal no ha publicado videos.</string>
+    <string name="ui_channel_no_shorts">Este canal no ha publicado Shorts.</string>
+    <string name="ui_channel_no_playlists">Este canal no tiene listas públicas.</string>
     <string name="ui_feed_error_title">No se pudo cargar esto</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Se cerró tu sesión.</string>
     <string name="ui_chip_empty_title">Aquí no hay nada</string>
     <string name="ui_chip_empty_body">YouTube no envió videos para «%1$s».</string>
+    <string name="ui_not_interested">No me interesa</string>
+    <string name="ui_dont_recommend_channel">No recomendar este canal</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">Retroceder %1$s segundo</item>
+        <item quantity="many">Retroceder %1$s segundos</item>
+        <item quantity="other">Retroceder %1$s segundos</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">Avanzar %1$s segundo</item>
+        <item quantity="many">Avanzar %1$s segundos</item>
+        <item quantity="other">Avanzar %1$s segundos</item>
+    </plurals>
 </resources>

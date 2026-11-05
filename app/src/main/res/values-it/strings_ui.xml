@@ -136,9 +136,30 @@
     <string name="ui_channel_error_title">Impossibile caricare questo canale</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Video</string>
+    <string name="ui_channel_sort_latest">Più recenti</string>
+    <string name="ui_channel_sort_popular">Popolari</string>
+    <string name="ui_channel_sort_oldest">Meno recenti</string>
+    <string name="ui_see_all">Mostra tutto</string>
+    <string name="ui_channel_popular_videos">Video popolari</string>
+    <string name="ui_channel_featured_channels">Canali in evidenza</string>
+    <string name="ui_channel_no_videos">Questo canale non ha ancora pubblicato video.</string>
+    <string name="ui_channel_no_shorts">Questo canale non ha ancora pubblicato Short.</string>
+    <string name="ui_channel_no_playlists">Questo canale non ha playlist pubbliche.</string>
     <string name="ui_feed_error_title">Impossibile caricare il contenuto</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Sei uscito dall\'account.</string>
     <string name="ui_chip_empty_title">Qui non c\'è niente</string>
     <string name="ui_chip_empty_body">YouTube non ha inviato video per “%1$s”.</string>
+    <string name="ui_not_interested">Non mi interessa</string>
+    <string name="ui_dont_recommend_channel">Non consigliare il canale</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">Indietro di %1$s secondo</item>
+        <item quantity="many">Indietro di %1$s secondi</item>
+        <item quantity="other">Indietro di %1$s secondi</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">Avanti di %1$s secondo</item>
+        <item quantity="many">Avanti di %1$s secondi</item>
+        <item quantity="other">Avanti di %1$s secondi</item>
+    </plurals>
 </resources>

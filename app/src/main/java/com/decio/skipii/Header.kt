@@ -43,12 +43,15 @@ import kotlinx.coroutines.launch
  * (the bottom one's [vignetteBrush], mirrored, half its depth) fades in behind the status bar.
  *
  * [content] gets the header's height to use as its top content padding. [resetKey] changing
- * (refresh, scroll-to-top, new search) brings the header back.
+ * (refresh, scroll-to-top, new search) brings the header back. [pinned] is drawn over the
+ * content and under the header, told where the header's bottom edge is right now (px, 0 once
+ * it's gone): a row that sticks under it (a channel's tabs).
  */
 @Composable
 fun CollapsingHeaderLayout(
     resetKey: Any? = null,
     header: @Composable () -> Unit,
+    pinned: (@Composable (headerBottom: () -> Float) -> Unit)? = null,
     content: @Composable (top: Dp) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -100,6 +103,7 @@ fun CollapsingHeaderLayout(
                 .graphicsLayer { alpha = if (headerPx > 0) (-offset.value / headerPx).coerceIn(0f, 1f) else 0f }
                 .drawBehind { drawRect(vignette) },
         )
+        pinned?.invoke { (headerPx + offset.value).coerceAtLeast(0f) }
         Box(
             Modifier
                 .fillMaxWidth()

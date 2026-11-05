@@ -15,8 +15,6 @@
     <string name="video_next">Próximo</string>
     <string name="video_fullscreen">Tela cheia</string>
     <string name="video_exit_fullscreen">Sair da tela cheia</string>
-    <string name="video_back_10">Voltar 10 segundos</string>
-    <string name="video_forward_10">Avançar 10 segundos</string>
     <string name="video_play">Reproduzir</string>
     <string name="video_pause">Pausar</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -70,4 +68,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Tentar de novo</string>
+    <string name="video_open_in_youtube">Abrir no YouTube</string>
 </resources>

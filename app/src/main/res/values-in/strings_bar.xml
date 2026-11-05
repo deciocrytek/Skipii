@@ -4,8 +4,6 @@
     <string name="bar_play">Putar</string>
     <string name="bar_pause">Jeda</string>
     <!-- Accessibility labels of the bar's seek buttons. -->
-    <string name="bar_back_10">Mundur 10 detik</string>
-    <string name="bar_forward_10">Maju 10 detik</string>
     <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
     <string name="bar_more_controls">Kontrol lainnya</string>
     <!-- Accessibility label of the ✕ the ⋮ key turns into. -->

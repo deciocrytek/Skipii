@@ -536,7 +536,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   "All" for that channel and a phone notification per new video; off = "Personalized" (YouTube's default). `Bells` (prefs
   "bells") is the local copy: `learn` takes what a page says (`parseBell`: the subscribe button's
   `subscriptionNotificationToggleButtonRenderer`, current state's icon NOTIFICATIONS_ACTIVE / id 2 = All) from the watch page
-  (`videoState`), the channel page (`channelSubscribed`) and the whole subscriptions list (`InnerTube.subscriptions`,
+  (`videoState`), the channel page (`channelHome`) and the whole subscriptions list (`InnerTube.subscriptions`,
   FEchannels + continuations, `syncIfDue` every 20 h from the worker); a page read within 30 s of a change doesn't overrule it.
   NOT subscribed, YouTube still sends the toggle on Personalized (next.json) — `learn` ignores it then. Writes:
   `InnerTube.setBell` → notification/modify_channel_preference with hand-built params (`bellParams`, YouTube.js's
@@ -706,6 +706,71 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   its own bounds, and the player's bar stands taller than that slot (grown upward + lifted). The slot's layer now only
   translates; the fade is NavPill's `fade`, applied on the bar's own layer (with its shape/clip/shadow). Never put alpha
   on a layer whose content is placed or drawn outside its bounds.
+- 0.5.100 channel page (2026-11-04, GitHub #53; Derek picked A "Underline tabs" in `docs/design/channel-page.html`, opening on
+  Home, shorts in the Shorts pager). Channel.kt: profile, then `UnderlineTabs` (Home's chip row, now shared in Screens.kt)
+  Home · Videos · Shorts · Playlists, pinned under the header once scrolled up to it (`CollapsingHeaderLayout`'s new `pinned`
+  slot, told the header's bottom edge; under the status bar while the header is hidden). Data (Account.kt, anonymous via
+  `postAny`; captures of 2026-11-04 in `ChannelParseTest`): `channelHome` = the page itself (tabs + their params by English
+  title, `channelVideoPlayerRenderer` featured video, `shelfRenderer` / `reelShelfRenderer` shelves; See all from the shelf's
+  browse endpoint: VL… = playlist page, the channel's own id = the tab its params name, `tabOfParams`), also the signed-in
+  subscribe state + bell (replaces `channelSubscribed`). Videos = `channelVideos` with its first page's sort chips
+  (Latest · Popular · Oldest, chipBarViewModel, read by `parseHomeChips`; a chip is a continuation, so `FeedState.selectChip`
+  does the sorting). Shorts = `channelShorts` (`shortsLockupViewModel`), Playlists = `channelPlaylists` (`parsePlaylists`,
+  shared with the Library's list). `InnerTube.playlist` is anonymous when signed out now. Home is hidden when it has nothing,
+  Shorts tab / shelves while Shorts are off; without the page (it failed) only the uploads show, as before. A tab switch (or
+  sort) while pinned keeps the tabs where they are: `holdTabs` re-places them as the new content arrives until a finger
+  drags (the list anchors on the item under the header's edge, which the new content replaces, so it drifted); an empty tab's
+  spinner / empty / error fills the page so it can scroll that far. A short tapped there: `ShortsState.openList(ShortsList)`
+  plays the channel's list in the pager (the feed set aside in `saved`; `loadMore` pages through the channel; the bank waits);
+  ‹ / Back (`leaveShorts`, MainActivity) reopens the channel page and `leave()` / `closeList()` put the feed back where it
+  was. Playlists opened from a channel go over it (`playlistOverChannel`, zIndex; Back closes the playlist first).
+  `ChannelState.list` is hoisted so the page keeps its scroll across that round trip. Verified on skipii_qa (debug, signed
+  out): tabs, pinning + switches, Popular order, Shorts pager swipe + Back, playlist over channel, Shorts feed restored.
+  NOT verified: signed in (subscribe state from `channelHome`), wide windows (grids), every translation on screen.
+- 0.5.101 (2026-11-04, Derek, from GitHub issues). Subscriptions' channel row opens each channel (#37/#32; `ChannelRail` had no
+  click). Shorts progress (#48/#44): the line moved from the screen's bottom edge into each PAGE (`ShortPage`, rides the swipe),
+  centred `LineOverBar` under overlayBottom (12 dp over the glass bar), the words lifted `LineRoom`; on wide windows along the
+  short's own bottom. A 36 dp strip grabs it: sideways past slop = scrub (consumed, so the pager and `shortTaps` stay out),
+  up/down first = left to the pager, a tap = jump there (consumed: no pause). `ShortsState.scrubTo` / `endScrub`: paused
+  (`scrub` in playWhenReady), CLOSEST_SYNC seeks while moving, EXACT on release; the line swells 3 → 6 dp with a knob and
+  "0:39 / 0:59" over it, the words fade. Card feedback (#16): `InnerTube.feedbackOf` reads a card's ⋮ items that carry a
+  feedbackEndpoint (lockup sheet `listItemViewModel` / `menuServiceItemRenderer`; icon NOT_INTERESTED / REMOVE, else the
+  English label) into `VideoItem.feedback`; long-press rows Not interested / Don't recommend channel → `sendFeedback`
+  (youtubei/v1/feedback {feedbackTokens}); `Dismissed` hides the video / the channel's videos in every `videoCards` at once,
+  restored if the request fails. NOT verified signed in: anonymous menus hold only Add to queue + Share, so
+  `CardFeedbackParseTest` grafts the items onto real anonymous cards — replace with a signed-in capture. Settings › Playback
+  (PlaybackModes.kt, prefs "playback", now two joined groups): `SeekStep` 5–30 s in 5s (#36) for double tap, the bar's and the
+  overlay's −/+, the tabletop deck and the session's increments (read when the service starts); every −/+ draws `seekIcon`
+  (Material's 5/10/30; 15/20/25 built by `seekGlyph` from Material's arrows and digits — the 5's "5" shifted into the "0"'s
+  place, measured from its paths — plus a "2" drawn as a 0.84 stroke in the digits' box, `twoAt`), labels `seekLabel` (plurals). `PlaybackSpeed.musicAtNormal` (#35, default on): `SpeedKeeper` gives music
+  1× even when remembering (`YouTube.isMusic`: NewPipe `category` "Music" — present, checked on dQw4w9WgXcQ — or an
+  "… - Topic" channel). `ChaptersStayOpen` (#46): the bar's chapter list doesn't fold on a pick. `AutoPip` (#42, default off):
+  `PipController.AutoEnter` = setAutoEnterEnabled on 12+, the user-leave hint below, while a video plays with its picture.
+  Verified on skipii_qa (debug): 15 s glyphs + summary, +15 jumps 15 s, chapter list stays, Home → PiP playing, Shorts line
+  scrub / tap / swipe up from it, music 1× vs 1.5× remembered.
+- 0.5.102 (2026-11-04, Derek): Settings' choice chips show the pick in full `primary` / `onPrimary` (secondaryContainer was
+  too close to the unpicked tone in some themes). Subscriptions in upload order (GitHub #50): `InnerTube.parseSubscriptionsFeed`
+  empties the "Most relevant" richShelfRenderer / shelfRenderer (by its English title) before parsing, then stable-sorts each page
+  by `NewVideos.ageMs` (an ageless card keeps the age before it). NOT verified signed in: `SubscriptionsOrderTest` builds the web
+  shape around real anonymous lockups — capture FEsubscriptions on Derek's account and replace it.
+- 0.5.103 (2026-11-04, Derek's 6659.mp4: Subscriptions took ~4 s, its channel row ~6 s more and pushed the list down).
+  Both were asked for only when the tab opened. `LibraryData.warmUp` (MainActivity, signed in) reads the Subscriptions feed
+  and the row (FEchannels) once Home's first page is in (or after 6 s); `showSubscriptions` reloads a read-ahead page that is
+  over 10 min old (or failed) the first time the tab shows. The row is kept in prefs "library" `channels` and shown from the
+  first frame on the next start (refreshed once per session, `ensureChannels`; cleared by `reset`). NOT verified signed in.
+- 0.5.104 Flip cover screen (2026-11-04, a Z Flip 6 user: "switch to the cover screen mid-video, it plays in full screen
+  and I can't get out"). The cover screen (720 × 748) never turns, but its window came out wider than tall (the bars off the
+  height; Samsung's / older Android's Configuration), so `landscape` = always fullscreen, and exit's PORTRAIT request couldn't
+  turn a screen that doesn't turn. On a near-square screen (`onSquareScreen`, not in multi-window) MainActivity's `landscape`
+  is now the display's rotation (`turnedSideways`, Adaptive.kt: ROTATION_90/270), never the window's shape. Repro on
+  skipii_qa: `wm size 760x720` + `cmd window set-ignore-orientation-request true` (the old build opened every video
+  fullscreen); fixed: normal player, swipe up / exit button / Back in and out; Titan size (1080x1200) turned sideways still
+  goes landscape fullscreen; the normal phone unchanged. NOT verified: a real Flip.
+- 0.5.105 bot-check panel (2026-11-04, Derek; stopgap until PO tokens): when `BotCheck` gives up, `PlayerState.botCheck` (set by `fail`
+  from a SignInConfirmNotBotException, incl. `StreamRecovery.failed`, which now carries the Throwable) makes `ErrorPanel` show
+  the message + airplane-mode hint (`player_error_bot_check_hint`; `friendlyError` joins both for pages / Shorts) and an
+  Open in YouTube pill (`openInYouTube`: watch URL + `&t=`) beside Try again. Verified on skipii_qa with a throwaway build
+  forcing the exception in `StreamCache.getOrLoad`: panel after the 3/8/20 s retries, the pill opened YouTube's app.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with

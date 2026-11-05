@@ -135,9 +135,28 @@
     <string name="ui_channel_error_title">Bu kanal yüklenemedi</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Videolar</string>
+    <string name="ui_channel_sort_latest">En yeni</string>
+    <string name="ui_channel_sort_popular">Popüler</string>
+    <string name="ui_channel_sort_oldest">En eski</string>
+    <string name="ui_see_all">Tümünü gör</string>
+    <string name="ui_channel_popular_videos">Popüler videolar</string>
+    <string name="ui_channel_featured_channels">Öne çıkan kanallar</string>
+    <string name="ui_channel_no_videos">Bu kanal henüz video yayınlamadı.</string>
+    <string name="ui_channel_no_shorts">Bu kanal henüz Shorts yayınlamadı.</string>
+    <string name="ui_channel_no_playlists">Bu kanalın herkese açık oynatma listesi yok.</string>
     <string name="ui_feed_error_title">Bu yüklenemedi</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Oturumunuz kapalı.</string>
     <string name="ui_chip_empty_title">Burada bir şey yok</string>
     <string name="ui_chip_empty_body">YouTube “%1$s” için video göndermedi.</string>
+    <string name="ui_not_interested">İlgilenmiyorum</string>
+    <string name="ui_dont_recommend_channel">Kanalı önerme</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">%1$s saniye geri</item>
+        <item quantity="other">%1$s saniye geri</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">%1$s saniye ileri</item>
+        <item quantity="other">%1$s saniye ileri</item>
+    </plurals>
 </resources>

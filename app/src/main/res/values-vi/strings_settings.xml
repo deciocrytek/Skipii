@@ -45,4 +45,14 @@
     <string name="settings_zoom_fill_on">Mọi video lấp đầy màn hình; phần mép thừa bị cắt. Chụm hai ngón tay để xem trọn video.</string>
     <string name="settings_zoom_fill_off">Video hiển thị trọn vẹn, có viền đen. Tách hai ngón tay khi toàn màn hình để lấp đầy màn hình.</string>
     <string name="settings_zoom_fill_summary">thu phóng để lấp đầy</string>
+    <string name="settings_seek_step_title">Tua lại và tua tới</string>
+    <string name="settings_seek_step_line">Khoảng nhảy khi nhấn đúp vào video và các nút −/⁠+</string>
+    <string name="settings_seconds_short">%1$s giây</string>
+    <string name="settings_seek_step_summary">Nhảy %1$s giây</string>
+    <string name="settings_music_normal_title">Nhạc ở tốc độ bình thường</string>
+    <string name="settings_music_normal_line">Bài hát luôn phát ở 1×, kể cả khi đã giữ một tốc độ cho mọi video</string>
+    <string name="settings_chapters_open_title">Giữ danh sách chương mở</string>
+    <string name="settings_chapters_open_line">Chọn một chương thì danh sách vẫn mở, để chuyển từ chương này sang chương khác</string>
+    <string name="settings_auto_pip_title">Hình trong hình khi rời ứng dụng</string>
+    <string name="settings_auto_pip_line">Về màn hình chính khi video đang phát thì video tiếp tục trong một cửa sổ nhỏ</string>
 </resources>

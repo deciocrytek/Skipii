@@ -49,7 +49,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">इस वीडियो पर उम्र की पाबंदी है. इसे देखने के लिए YouTube खाता चाहिए.</string>
     <string name="player_error_geo">यह वीडियो आपके देश में उपलब्ध नहीं है.</string>
-    <string name="player_error_bot_check">YouTube पुष्टि करना चाहता है कि आप बॉट नहीं हैं. कुछ मिनट बाद फिर से कोशिश करें.</string>
+    <string name="player_error_bot_check">YouTube पुष्टि करना चाहता है कि आप बॉट नहीं हैं.</string>
+    <string name="player_error_bot_check_hint">हवाई जहाज़ मोड चालू करके फिर बंद करने से आमतौर पर यह ठीक हो जाता है.</string>
     <string name="player_error_private">यह वीडियो निजी है.</string>
     <string name="player_error_members_only">यह वीडियो सिर्फ़ सदस्यों के लिए है. Skipii अभी ऐसे वीडियो नहीं चला सकता.</string>
     <string name="player_error_unavailable">यह वीडियो उपलब्ध नहीं है.</string>
@@ -89,4 +90,7 @@
     <string name="player_more_all">सभी</string>
     <string name="player_more_from">%1$s से</string>
     <string name="player_more_related">संबंधित</string>
+    <string name="player_not_interested_done">ठीक है। ऐसे वीडियो कम दिखेंगे</string>
+    <string name="player_channel_not_recommended">यह चैनल अब आपको सुझाया नहीं जाएगा</string>
+    <string name="player_feedback_failed">YouTube को नहीं भेजा जा सका। फिर से कोशिश करें</string>
 </resources>

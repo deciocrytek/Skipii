@@ -15,8 +15,6 @@
     <string name="video_next">Berikutnya</string>
     <string name="video_fullscreen">Layar penuh</string>
     <string name="video_exit_fullscreen">Keluar dari layar penuh</string>
-    <string name="video_back_10">Mundur 10 detik</string>
-    <string name="video_forward_10">Maju 10 detik</string>
     <string name="video_play">Putar</string>
     <string name="video_pause">Jeda</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -70,4 +68,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Coba lagi</string>
+    <string name="video_open_in_youtube">Buka di YouTube</string>
 </resources>

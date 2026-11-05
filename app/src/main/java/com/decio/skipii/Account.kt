@@ -45,6 +45,48 @@ data class FeedPage(val videos: List<VideoItem>, val next: String?, val chips: L
 @Immutable
 data class FeedChip(val title: String, val token: String?)
 
+/** A page of playlists (a channel's Playlists tab) and the token for the next one. */
+@Immutable
+data class PlaylistPage(val playlists: List<PlaylistRef>, val next: String?)
+
+/**
+ * The channel page's tabs Skipii shows (GitHub #53), by YouTube's English titles. Posts, Store,
+ * Playables, Live and the rest hold nothing Skipii plays.
+ */
+enum class ChannelTab(val title: String) { Home("Home"), Videos("Videos"), Shorts("Shorts"), Playlists("Playlists") }
+
+/** Where a channel shelf's "See all" goes: one of the channel's tabs, or a playlist page. */
+sealed interface ShelfLink {
+    data class Tab(val tab: ChannelTab) : ShelfLink
+    data class Playlist(val ref: PlaylistRef) : ShelfLink
+}
+
+/**
+ * One row of a channel's Home tab, as the creator arranged it ("Videos", "Popular videos", a
+ * playlist's row, "Shorts", "Featured channels"). Usually one kind of item per shelf.
+ */
+@Immutable
+data class ChannelShelf(
+    val title: String,
+    val videos: List<VideoItem> = emptyList(),
+    val shorts: List<VideoItem> = emptyList(),
+    val playlists: List<PlaylistRef> = emptyList(),
+    val channels: List<ChannelRef> = emptyList(),
+    val link: ShelfLink? = null,
+)
+
+/**
+ * A channel page's Home tab: which tabs the channel has (each with its browse params), the
+ * featured video and the shelves. [subscribed] only signed in (null otherwise or not shown).
+ */
+@Immutable
+data class ChannelHome(
+    val tabs: Map<ChannelTab, String>,
+    val featured: VideoItem?,
+    val shelves: List<ChannelShelf>,
+    val subscribed: Boolean? = null,
+)
+
 enum class LikeStatus { Like, Dislike, None }
 
 @Immutable
@@ -282,18 +324,69 @@ object InnerTube {
         if (next == null) page.copy(chips = parseHomeChips(root)) else page
     }
 
-    /** A channel's uploads (Videos tab), members-only ones filtered out like everywhere else. */
+    /**
+     * A channel's uploads (Videos tab), members-only ones filtered out like everywhere else. The
+     * first page carries the tab's sort as chips (Latest · Popular · Oldest); a chip's token is a
+     * continuation that reloads the list in that order, read like any next page.
+     */
     suspend fun channelVideos(channelId: String, continuation: String? = null): FeedPage = withContext(Dispatchers.IO) {
         val body = if (continuation != null) JSONObject().put("continuation", continuation)
         else JSONObject().put("browseId", channelId).put("params", CHANNEL_VIDEOS_TAB)
-        parseFeed(postAny("browse", body))
+        val root = postAny("browse", body)
+        val page = parseFeed(root)
+        if (continuation == null) page.copy(chips = parseHomeChips(root)) else page
     }
 
     /** The channel page's Videos tab selector (as on youtube.com, 2026-10-06). */
     private const val CHANNEL_VIDEOS_TAB = "EgZ2aWRlb3PyBgQKAjoA"
-    suspend fun subscriptionsFeed(next: String? = null) = browse("FEsubscriptions", next)
+
+    /**
+     * A channel page's Home tab (the page itself, no params), anonymous when signed out: the
+     * tabs it has, the featured video and the creator's shelves. Signed in, the subscribe
+     * button's state comes along and its bell goes to [Bells].
+     */
+    suspend fun channelHome(channelId: String, name: String?, avatar: String?): ChannelHome = withContext(Dispatchers.IO) {
+        val root = postAny("browse", JSONObject().put("browseId", channelId))
+        val home = parseChannelHome(root, channelId)
+        if (!Account.signedIn) return@withContext home
+        var subscribed: Boolean? = null
+        var bell: Boolean? = null
+        root.walk { key, obj ->
+            if ((key == "subscribeButtonRenderer" || key == "subscriptionStateEntity") && obj.has("subscribed") && subscribed == null) {
+                subscribed = obj.optBoolean("subscribed")
+            }
+            if (key == "subscriptionNotificationToggleButtonRenderer" && bell == null) bell = parseBell(obj)
+        }
+        Bells.learn(channelId, subscribed, bell, name, avatar)
+        home.copy(subscribed = subscribed)
+    }
+
+    /** A channel's Shorts tab, a page at a time ([params]: the tab's, from [ChannelHome.tabs]). */
+    suspend fun channelShorts(channelId: String, params: String, continuation: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val body = if (continuation != null) JSONObject().put("continuation", continuation)
+        else JSONObject().put("browseId", channelId).put("params", params)
+        parseChannelShorts(postAny("browse", body))
+    }
+
+    /** A channel's Playlists tab, a page at a time. */
+    suspend fun channelPlaylists(channelId: String, params: String, continuation: String? = null): PlaylistPage = withContext(Dispatchers.IO) {
+        val body = if (continuation != null) JSONObject().put("continuation", continuation)
+        else JSONObject().put("browseId", channelId).put("params", params)
+        val root = postAny("browse", body)
+        PlaylistPage(parsePlaylists(root), parseFeed(root).next)
+    }
+
+    suspend fun subscriptionsFeed(next: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val body = if (next != null) JSONObject().put("continuation", next) else JSONObject().put("browseId", "FEsubscriptions")
+        parseSubscriptionsFeed(post("browse", body))
+    }
     suspend fun history(next: String? = null) = browse("FEhistory", next)
-    suspend fun playlist(id: String, next: String? = null) = browse("VL$id", next)
+
+    /** A playlist's videos; anonymous when signed out, so a channel's public playlists open too. */
+    suspend fun playlist(id: String, next: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val body = if (next != null) JSONObject().put("continuation", next) else JSONObject().put("browseId", "VL$id")
+        parseFeed(postAny("browse", body))
+    }
 
     suspend fun channels(): List<ChannelRef> = withContext(Dispatchers.IO) {
         val out = LinkedHashMap<String, ChannelRef>()
@@ -309,30 +402,31 @@ object InnerTube {
     }
 
     suspend fun playlists(): List<PlaylistRef> = withContext(Dispatchers.IO) {
+        parsePlaylists(post("browse", JSONObject().put("browseId", "FEplaylist_aggregation"))).filterNot { it.id == "WL" || it.id == "LL" }
+    }
+
+    /** Every playlist a response lists (old grid/list renderers or lockups), in order. */
+    internal fun parsePlaylists(root: JSONObject): List<PlaylistRef> {
         val out = LinkedHashMap<String, PlaylistRef>()
-        post("browse", JSONObject().put("browseId", "FEplaylist_aggregation")).walk { key, obj ->
-            when (key) {
-                "gridPlaylistRenderer", "playlistRenderer" -> {
-                    val id = obj.optString("playlistId").ifBlank { return@walk }
-                    out.getOrPut(id) {
-                        PlaylistRef(id, obj.text("title") ?: "", obj.thumbnails()?.lastOrNull()?.let(::absoluteUrl), obj.text("videoCountText") ?: obj.text("videoCountShortText"))
-                    }
-                }
-                "lockupViewModel" -> if (obj.optString("contentType") == "LOCKUP_CONTENT_TYPE_PLAYLIST") {
-                    val id = obj.optString("contentId").ifBlank { return@walk }
-                    val meta = obj.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")
-                    out.getOrPut(id) {
-                        PlaylistRef(
-                            id = id,
-                            title = meta?.optJSONObject("title")?.optString("content").orEmpty(),
-                            thumbnail = obj.firstImageSource(),
-                            subtitle = obj.collectStrings("text").firstOrNull { it.contains("video", ignoreCase = true) },
-                        )
-                    }
-                }
-            }
+        root.walk { key, obj -> playlistOf(key, obj)?.let { out.putIfAbsent(it.id, it) } }
+        return out.values.toList()
+    }
+
+    private fun playlistOf(key: String, obj: JSONObject): PlaylistRef? = when (key) {
+        "gridPlaylistRenderer", "playlistRenderer" -> obj.optString("playlistId").ifBlank { null }?.let { id ->
+            PlaylistRef(id, obj.text("title") ?: "", obj.thumbnails()?.lastOrNull()?.let(::absoluteUrl), obj.text("videoCountText") ?: obj.text("videoCountShortText"))
         }
-        out.values.filterNot { it.id == "WL" || it.id == "LL" }
+        "lockupViewModel" -> if (obj.optString("contentType") != "LOCKUP_CONTENT_TYPE_PLAYLIST") null
+        else obj.optString("contentId").ifBlank { null }?.let { id ->
+            val meta = obj.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")
+            PlaylistRef(
+                id = id,
+                title = meta?.optJSONObject("title")?.optString("content").orEmpty(),
+                thumbnail = obj.firstImageSource(),
+                subtitle = obj.collectStrings("text").firstOrNull { it.contains("video", ignoreCase = true) },
+            )
+        }
+        else -> null
     }
 
     /**
@@ -370,20 +464,6 @@ object InnerTube {
             }
         }
         return VideoAccountState(like, subscribed, channelId, bell)
-    }
-
-    /** Whether the account follows [channelId] (from the channel page's subscribe button); its bell goes to [Bells]. */
-    suspend fun channelSubscribed(channelId: String, name: String?, avatar: String?): Boolean? = withContext(Dispatchers.IO) {
-        var subscribed: Boolean? = null
-        var bell: Boolean? = null
-        post("browse", JSONObject().put("browseId", channelId)).walk { key, obj ->
-            if ((key == "subscribeButtonRenderer" || key == "subscriptionStateEntity") && obj.has("subscribed") && subscribed == null) {
-                subscribed = obj.optBoolean("subscribed")
-            }
-            if (key == "subscriptionNotificationToggleButtonRenderer" && bell == null) bell = parseBell(obj)
-        }
-        Bells.learn(channelId, subscribed, bell, name, avatar)
-        subscribed
     }
 
     /**
@@ -678,6 +758,27 @@ object InnerTube {
     }
 
     /**
+     * Subscriptions in upload order, newest first (Derek; GitHub #50). YouTube's web feed opens with a
+     * "Most relevant" shelf of its own picks (out of date order) before the uploads; that shelf is left
+     * out. Each page is then kept newest first by its ages ("3 hours ago"; stable, so videos of the same
+     * age keep YouTube's order, and one without an age keeps its place after the one before it).
+     */
+    internal fun parseSubscriptionsFeed(root: JSONObject): FeedPage {
+        root.walk { key, shelf ->
+            if (key != "richShelfRenderer" && key != "shelfRenderer") return@walk
+            val title = shelf.text("title") ?: shelf.optJSONObject("header")?.collectStrings("content")?.firstOrNull()
+            // Emptied in place: walk() goes into it next and finds nothing.
+            if (title?.trim().equals(MOST_RELEVANT, ignoreCase = true)) shelf.keys().asSequence().toList().forEach(shelf::remove)
+        }
+        val page = parseFeed(root)
+        var last = 0L
+        val ages = page.videos.associate { v -> v.id to (NewVideos.ageMs(v.uploaded) ?: last).also { last = it } }
+        return page.copy(videos = page.videos.sortedBy { ages[it.id] })
+    }
+
+    private const val MOST_RELEVANT = "Most relevant"
+
+    /**
      * Home's category chips: `feedFilterChipBarRenderer` (the grid's header) → `chipCloudChipRenderer`
      * {text, isSelected, navigationEndpoint.continuationCommand.token}, as captured 2026-11-02;
      * the view-model form (`chipBarViewModel` → `chipViewModel` {text, selected,
@@ -718,6 +819,125 @@ object InnerTube {
      * 6632.png), and "Live" is all live streams, which aren't played (6633.png).
      */
     private val SKIPPED_CHIPS = listOf("Your custom feed", "Live")
+
+    /**
+     * A channel page (its Home tab selected): `twoColumnBrowseResultsRenderer.tabs[].tabRenderer`
+     * {title, endpoint.browseEndpoint.params} for each tab, and the Home tab's sections:
+     * `channelVideoPlayerRenderer` (the featured video), `shelfRenderer` (title, items in
+     * `content`, "See all" in `endpoint`) and `reelShelfRenderer` (Shorts). Captured anonymously
+     * 2026-11-04. Shelves with nothing playable (Posts) are left out.
+     */
+    internal fun parseChannelHome(root: JSONObject, channelId: String): ChannelHome {
+        val tabs = LinkedHashMap<ChannelTab, String>()
+        var homeContent: JSONObject? = null
+        val list = root.optJSONObject("contents")?.optJSONObject("twoColumnBrowseResultsRenderer")?.optJSONArray("tabs")
+        for (i in 0 until (list?.length() ?: 0)) {
+            val tab = list?.optJSONObject(i)?.optJSONObject("tabRenderer") ?: continue
+            val kind = ChannelTab.entries.firstOrNull { it.title.equals(tab.optString("title"), ignoreCase = true) } ?: continue
+            val params = tab.optJSONObject("endpoint")?.optJSONObject("browseEndpoint")?.optString("params")?.ifBlank { null } ?: continue
+            tabs.putIfAbsent(kind, params)
+            if (kind == ChannelTab.Home) homeContent = tab.optJSONObject("content")
+        }
+        var featured: VideoItem? = null
+        val shelves = mutableListOf<ChannelShelf>()
+        homeContent?.walk { key, obj ->
+            when (key) {
+                "channelVideoPlayerRenderer" -> if (featured == null) featured = parseFeatured(obj)
+                "shelfRenderer", "reelShelfRenderer" -> parseShelf(obj, key == "reelShelfRenderer", channelId, tabs.keys)?.let(shelves::add)
+            }
+        }
+        return ChannelHome(tabs, featured, shelves)
+    }
+
+    private fun parseFeatured(o: JSONObject): VideoItem? {
+        val id = o.optString("videoId").takeIf { it.length == 11 } ?: return null
+        return VideoItem(
+            id = id,
+            title = o.text("title") ?: return null,
+            channel = "", channelUrl = null,
+            thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg",
+            avatar = null, durationSec = 0,
+            views = parseViews(o.text("viewCountText")),
+            uploaded = o.text("publishedTimeText"),
+        )
+    }
+
+    private fun parseShelf(o: JSONObject, reel: Boolean, channelId: String, tabs: Set<ChannelTab>): ChannelShelf? {
+        val title = o.text("title")?.trim()?.ifBlank { null } ?: return null
+        val videos = LinkedHashMap<String, VideoItem>()
+        val shorts = LinkedHashMap<String, VideoItem>()
+        val playlists = LinkedHashMap<String, PlaylistRef>()
+        val channels = LinkedHashMap<String, ChannelRef>()
+        (o.optJSONObject("content") ?: o).walk { key, obj ->
+            when (key) {
+                "videoRenderer", "gridVideoRenderer" ->
+                    if (!isMembersOnly(obj) && !isLive(obj) && !isMovie(obj)) parseVideoRenderer(obj)?.let { videos.putIfAbsent(it.id, it) }
+                "lockupViewModel" -> when (obj.optString("contentType")) {
+                    "LOCKUP_CONTENT_TYPE_VIDEO" -> if (!isMembersOnly(obj) && !isLive(obj) && !isMovie(obj)) parseLockup(obj)?.let { videos.putIfAbsent(it.id, it) }
+                    else -> playlistOf(key, obj)?.let { playlists.putIfAbsent(it.id, it) }
+                }
+                "shortsLockupViewModel", "reelItemRenderer" -> parseShortLockup(obj)?.let { shorts.putIfAbsent(it.id, it) }
+                "gridPlaylistRenderer", "playlistRenderer" -> playlistOf(key, obj)?.let { playlists.putIfAbsent(it.id, it) }
+                "gridChannelRenderer", "channelRenderer" -> obj.optString("channelId").takeIf { it.startsWith("UC") }?.let { id ->
+                    channels.putIfAbsent(id, ChannelRef(id, obj.text("title") ?: "", obj.thumbnails()?.lastOrNull()?.let(::absoluteUrl)))
+                }
+            }
+        }
+        if (videos.isEmpty() && shorts.isEmpty() && playlists.isEmpty() && channels.isEmpty()) return null
+        val browse = o.optJSONObject("endpoint")?.optJSONObject("browseEndpoint")
+        val target = browse?.optString("browseId").orEmpty()
+        val link = when {
+            target.startsWith("VL") -> ShelfLink.Playlist(PlaylistRef(target.removePrefix("VL"), title, videos.values.firstOrNull()?.thumbnail, null))
+            target == channelId -> tabOfParams(browse?.optString("params"))?.takeIf { it in tabs }?.let { ShelfLink.Tab(it) }
+            reel && ChannelTab.Shorts in tabs -> ShelfLink.Tab(ChannelTab.Shorts)
+            else -> null
+        }
+        return ChannelShelf(title, videos.values.toList(), shorts.values.toList(), playlists.values.toList(), channels.values.toList(), link)
+    }
+
+    /**
+     * Which tab a channel browse's params open: they're a protobuf whose field 2 is the tab's
+     * name ("videos", "shorts", "playlists"…), base64 (sometimes URL-safe, sometimes %-escaped).
+     */
+    internal fun tabOfParams(params: String?): ChannelTab? {
+        val raw = params?.let { java.net.URLDecoder.decode(it, "UTF-8") }?.ifBlank { null } ?: return null
+        val bytes = runCatching { java.util.Base64.getDecoder().decode(raw.replace('-', '+').replace('_', '/').trimEnd('=').let { it + "=".repeat((4 - it.length % 4) % 4) }) }
+            .getOrNull() ?: return null
+        if (bytes.size < 2 || bytes[0] != 0x12.toByte() || bytes[1] + 2 > bytes.size) return null
+        return when (String(bytes, 2, bytes[1].toInt())) {
+            "videos" -> ChannelTab.Videos
+            "shorts" -> ChannelTab.Shorts
+            "playlists" -> ChannelTab.Playlists
+            "featured" -> ChannelTab.Home
+            else -> null
+        }
+    }
+
+    /** A channel's Shorts tab page: its `shortsLockupViewModel`s and the next page's token. */
+    internal fun parseChannelShorts(root: JSONObject): FeedPage {
+        val shorts = LinkedHashMap<String, VideoItem>()
+        root.walk { key, obj -> if (key == "shortsLockupViewModel" || key == "reelItemRenderer") parseShortLockup(obj)?.let { shorts.putIfAbsent(it.id, it) } }
+        return FeedPage(shorts.values.toList(), parseFeed(root).next)
+    }
+
+    /**
+     * A short's tile: `shortsLockupViewModel` {onTap…reelWatchEndpoint.videoId, overlayMetadata
+     * {primaryText = title, secondaryText = "739K views"}, thumbnailViewModel (9:16)}; or the older
+     * `reelItemRenderer` {videoId, headline, viewCountText, thumbnail}.
+     */
+    private fun parseShortLockup(o: JSONObject): VideoItem? {
+        val reel = o.optJSONObject("onTap")?.optJSONObject("innertubeCommand")?.optJSONObject("reelWatchEndpoint")
+        val id = (reel?.optString("videoId") ?: o.optString("videoId")).takeIf { it.length == 11 } ?: return null
+        val meta = o.optJSONObject("overlayMetadata")
+        val title = meta?.optJSONObject("primaryText")?.optString("content")?.ifBlank { null } ?: o.text("headline") ?: return null
+        val views = meta?.optJSONObject("secondaryText")?.optString("content")?.ifBlank { null } ?: o.text("viewCountText")
+        val frame = (o.optJSONObject("thumbnailViewModel") ?: o.optJSONObject("thumbnail"))?.collectStrings("url")?.firstOrNull()
+        return VideoItem(
+            id = id, title = title, channel = "", channelUrl = null,
+            thumbnail = frame?.let(::absoluteUrl) ?: "https://i.ytimg.com/vi/$id/oar2.jpg",
+            avatar = null, durationSec = 0, views = parseViews(views), uploaded = null,
+        )
+    }
 
     /**
      * A live or upcoming stream (Skipii plays neither, as search already drops them). Lockups: a
@@ -787,6 +1007,7 @@ object InnerTube {
             durationSec = parseDuration(duration),
             views = parseViews(o.text("viewCountText") ?: o.text("shortViewCountText") ?: infoRuns.firstOrNull { it.contains("view") }),
             uploaded = o.text("publishedTimeText") ?: infoRuns.firstOrNull { it.contains("ago") },
+            feedback = feedbackOf(o),
         )
     }
 
@@ -814,7 +1035,58 @@ object InnerTube {
             durationSec = parseDuration(duration),
             views = parseViews(parts.firstOrNull { it.contains("view") }),
             uploaded = parts.firstOrNull { it.contains("ago") },
+            feedback = feedbackOf(o),
         )
+    }
+
+    /**
+     * A card's "Not interested" and "Don't recommend channel" (#16): items of its ⋮ menu that carry a
+     * feedbackEndpoint — a lockup's sheet (listItemViewModel) or an older renderer's menuServiceItemRenderer.
+     * Known by YouTube's icon (NOT_INTERESTED / REMOVE), else by the English label (hl=en). Signed out, the
+     * menu holds only Add to queue and Share, so cards have none.
+     */
+    internal fun feedbackOf(o: JSONObject): CardFeedback? {
+        var notInterested: String? = null
+        var dontRecommend: String? = null
+        o.walk { key, item ->
+            val label: String?
+            val icon: String?
+            val endpoint: JSONObject?
+            when (key) {
+                "listItemViewModel" -> {
+                    label = item.optJSONObject("title")?.optString("content")
+                    icon = item.optJSONObject("leadingImage")?.collectStrings("imageName")?.firstOrNull()
+                    endpoint = item.optJSONObject("rendererContext")?.optJSONObject("commandContext")?.optJSONObject("onTap")
+                        ?.optJSONObject("innertubeCommand")?.optJSONObject("feedbackEndpoint")
+                }
+                "menuServiceItemRenderer" -> {
+                    label = item.text("text")
+                    icon = item.optJSONObject("icon")?.optString("iconType")
+                    endpoint = item.optJSONObject("serviceEndpoint")?.optJSONObject("feedbackEndpoint")
+                }
+                else -> return@walk
+            }
+            val token = endpoint?.optString("feedbackToken")?.ifBlank { null } ?: return@walk
+            val words = label.orEmpty().replace('\u2019', '\'')
+            when {
+                icon == "NOT_INTERESTED" || words.equals("Not interested", ignoreCase = true) -> if (notInterested == null) notInterested = token
+                icon == "REMOVE" || words.startsWith("Don't recommend", ignoreCase = true) -> if (dontRecommend == null) dontRecommend = token
+            }
+        }
+        return if (notInterested == null && dontRecommend == null) null else CardFeedback(notInterested, dontRecommend)
+    }
+
+    /** Sends a card's feedback token (Not interested / Don't recommend channel) to the account. */
+    suspend fun sendFeedback(token: String) = withContext(Dispatchers.IO) {
+        val answer = post(
+            "feedback",
+            JSONObject()
+                .put("feedbackTokens", JSONArray().put(token))
+                .put("isFeedbackTokenUnencrypted", false)
+                .put("shouldMerge", false),
+        )
+        val processed = answer.optJSONArray("feedbackResponses")?.optJSONObject(0)?.optBoolean("isProcessed", true) ?: true
+        check(processed) { "feedback not processed" }
     }
 
     private val DURATION = Regex("^\\d{1,2}(:\\d{2}){1,2}$")

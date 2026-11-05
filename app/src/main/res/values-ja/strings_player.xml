@@ -47,7 +47,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">この動画は年齢制限があり、視聴するには YouTube アカウントが必要です。</string>
     <string name="player_error_geo">この動画はお住まいの国では利用できません。</string>
-    <string name="player_error_bot_check">YouTube がロボットでないことの確認を求めています。数分後にもう一度お試しください。</string>
+    <string name="player_error_bot_check">YouTube がロボットでないことの確認を求めています。</string>
+    <string name="player_error_bot_check_hint">機内モードをオンにしてからオフに戻すと、たいてい解決します。</string>
     <string name="player_error_private">この動画は非公開です。</string>
     <string name="player_error_members_only">この動画はメンバー限定です。Skipii はまだメンバー限定動画を再生できません。</string>
     <string name="player_error_unavailable">この動画は利用できません。</string>
@@ -87,4 +88,7 @@
     <string name="player_more_all">すべて</string>
     <string name="player_more_from">%1$s から</string>
     <string name="player_more_related">関連</string>
+    <string name="player_not_interested_done">了解しました。このような動画の表示を減らします</string>
+    <string name="player_channel_not_recommended">このチャンネルはおすすめに表示されなくなります</string>
+    <string name="player_feedback_failed">YouTube に送信できませんでした。もう一度お試しください</string>
 </resources>

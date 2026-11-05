@@ -15,8 +15,6 @@
     <string name="video_next">Next</string>
     <string name="video_fullscreen">Fullscreen</string>
     <string name="video_exit_fullscreen">Exit fullscreen</string>
-    <string name="video_back_10">Back 10 seconds</string>
-    <string name="video_forward_10">Forward 10 seconds</string>
     <string name="video_play">Play</string>
     <string name="video_pause">Pause</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -70,4 +68,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Try again</string>
+    <string name="video_open_in_youtube">Open in YouTube</string>
 </resources>

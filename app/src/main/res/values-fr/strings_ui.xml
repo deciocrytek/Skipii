@@ -136,9 +136,30 @@
     <string name="ui_channel_error_title">Impossible de charger cette chaîne</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Vidéos</string>
+    <string name="ui_channel_sort_latest">Les plus récentes</string>
+    <string name="ui_channel_sort_popular">Populaires</string>
+    <string name="ui_channel_sort_oldest">Les plus anciennes</string>
+    <string name="ui_see_all">Tout afficher</string>
+    <string name="ui_channel_popular_videos">Vidéos populaires</string>
+    <string name="ui_channel_featured_channels">Chaînes à la une</string>
+    <string name="ui_channel_no_videos">Cette chaîne n\'a publié aucune vidéo.</string>
+    <string name="ui_channel_no_shorts">Cette chaîne n\'a publié aucun Short.</string>
+    <string name="ui_channel_no_playlists">Cette chaîne n\'a aucune playlist publique.</string>
     <string name="ui_feed_error_title">Impossible de charger ce contenu</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Vous êtes déconnecté.</string>
     <string name="ui_chip_empty_title">Rien ici</string>
     <string name="ui_chip_empty_body">YouTube n\'a envoyé aucune vidéo pour « %1$s ».</string>
+    <string name="ui_not_interested">Pas intéressé</string>
+    <string name="ui_dont_recommend_channel">Ne pas recommander la chaîne</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">Reculer de %1$s seconde</item>
+        <item quantity="many">Reculer de %1$s secondes</item>
+        <item quantity="other">Reculer de %1$s secondes</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">Avancer de %1$s seconde</item>
+        <item quantity="many">Avancer de %1$s secondes</item>
+        <item quantity="other">Avancer de %1$s secondes</item>
+    </plurals>
 </resources>

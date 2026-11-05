@@ -102,8 +102,8 @@ class PlaybackService : MediaSessionService() {
             // Keeps CPU and Wi-Fi awake while playing, so background audio isn't cut off
             // when the phone sleeps.
             .setWakeMode(C.WAKE_MODE_NETWORK)
-            .setSeekBackIncrementMs(10_000)
-            .setSeekForwardIncrementMs(10_000)
+            .setSeekBackIncrementMs(SeekStep.ms)
+            .setSeekForwardIncrementMs(SeekStep.ms)
             .build()
         val openApp = PendingIntent.getActivity(
             this, 0,
@@ -201,8 +201,8 @@ object StreamRecovery {
     var recovering by mutableStateOf<String?>(null)
         internal set
 
-    /** Refetching failed: video ID and the reason, shown in the error panel. */
-    var failed by mutableStateOf<Pair<String, String>?>(null)
+    /** Refetching failed: video ID and why, shown in the error panel. */
+    var failed by mutableStateOf<Pair<String, Throwable>?>(null)
         internal set
 }
 
@@ -248,7 +248,7 @@ private class StreamRecoverer(
                     .onSuccess { resume(item, position) }
                     .onFailure {
                         Log.w("Skipii", "re-extracting $id failed", it)
-                        StreamRecovery.failed = id to YouTube.friendlyError(it)
+                        StreamRecovery.failed = id to it
                     }
             }
         }
@@ -457,7 +457,11 @@ private class SpeedKeeper(private val player: ExoPlayer) : Player.Listener {
         val id = mediaItem?.mediaId?.ifBlank { null } ?: return
         if (id == videoId) return
         videoId = id
-        player.setPlaybackSpeed(PlaybackSpeed.forNewVideo)
+        // Resolved before it was added (onAddMediaItems), so its details are in the cache by now.
+        val music = StreamCache.get(id)?.let(YouTube::isMusic) == true
+        val speed = PlaybackSpeed.forNewVideo(music)
+        player.setPlaybackSpeed(speed)
+        if (music) Log.i("Skipii", "speed for $id: ${speed}× (music)")
     }
 }
 

@@ -4,8 +4,6 @@
     <string name="bar_play">再生</string>
     <string name="bar_pause">一時停止</string>
     <!-- Accessibility labels of the bar's seek buttons. -->
-    <string name="bar_back_10">10 秒戻る</string>
-    <string name="bar_forward_10">10 秒進む</string>
     <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
     <string name="bar_more_controls">その他の操作</string>
     <!-- Accessibility label of the ✕ the ⋮ key turns into. -->

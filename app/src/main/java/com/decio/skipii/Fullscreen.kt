@@ -18,6 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import android.os.Build
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -212,15 +214,40 @@ class PipController(private val activity: ComponentActivity) {
     /** False when the system refused (PiP switched off for the app in Settings). */
     fun enter(videoAspect: Float): Boolean {
         if (!supported) return false
+        return activity.enterPictureInPictureMode(params(videoAspect).build())
+    }
+
+    private fun params(videoAspect: Float): PictureInPictureParams.Builder {
         // Android accepts 1:2.39 to 2.39:1; anything outside it would throw.
         val ratio = videoAspect.coerceIn(0.42f, 2.38f)
-        val params = PictureInPictureParams.Builder()
+        return PictureInPictureParams.Builder()
             .setAspectRatio(Rational((ratio * 1000).toInt(), 1000))
             .apply {
                 videoBounds?.let { b -> setSourceRectHint(android.graphics.Rect(b.left.toInt(), b.top.toInt(), b.right.toInt(), b.bottom.toInt())) }
             }
-            .build()
-        return activity.enterPictureInPictureMode(params)
+    }
+
+    /**
+     * Picture-in-picture by itself (#42, [AutoPip]): while [wanted] (a video playing with its picture),
+     * leaving the app turns it into the floating window. Android 12+ does it as part of the swipe home
+     * (auto-enter); older versions on the user-leave hint (Home / Recents pressed).
+     */
+    @Composable
+    fun AutoEnter(wanted: Boolean, videoAspect: Float) {
+        if (!supported) return
+        val currentWanted by rememberUpdatedState(wanted)
+        val currentAspect by rememberUpdatedState(videoAspect)
+        if (Build.VERSION.SDK_INT >= 31) {
+            LaunchedEffect(wanted, videoAspect) {
+                activity.setPictureInPictureParams(params(videoAspect).setAutoEnterEnabled(wanted).build())
+            }
+        } else {
+            DisposableEffect(activity) {
+                val listener = Runnable { if (currentWanted && !active) enter(currentAspect) }
+                activity.addOnUserLeaveHintListener(listener)
+                onDispose { activity.removeOnUserLeaveHintListener(listener) }
+            }
+        }
     }
 
     @Composable

@@ -49,7 +49,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">Bu video yaş kısıtlamalı ve izlemek için bir YouTube hesabı gerekiyor.</string>
     <string name="player_error_geo">Bu video ülkenizde kullanılamıyor.</string>
-    <string name="player_error_bot_check">YouTube, bot olmadığınızı doğrulamanızı istiyor. Birkaç dakika sonra tekrar deneyin.</string>
+    <string name="player_error_bot_check">YouTube, bot olmadığınızı doğrulamanızı istiyor.</string>
+    <string name="player_error_bot_check_hint">Uçak modunu açıp kapatmak genellikle sorunu çözer.</string>
     <string name="player_error_private">Bu video gizli.</string>
     <string name="player_error_members_only">Bu video yalnızca kanal üyelerine özel. Skipii henüz üyelere özel videoları oynatamıyor.</string>
     <string name="player_error_unavailable">Bu video kullanılamıyor.</string>
@@ -89,4 +90,7 @@
     <string name="player_more_all">Tümü</string>
     <string name="player_more_from">%1$s kanalından</string>
     <string name="player_more_related">İlgili</string>
+    <string name="player_not_interested_done">Anlaşıldı. Bunun gibi daha az video göreceksin</string>
+    <string name="player_channel_not_recommended">Bu kanal artık sana önerilmeyecek</string>
+    <string name="player_feedback_failed">YouTube\'a gönderilemedi. Tekrar dene</string>
 </resources>

@@ -135,9 +135,28 @@
     <string name="ui_channel_error_title">यह चैनल लोड नहीं हो सका</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">वीडियो</string>
+    <string name="ui_channel_sort_latest">नवीनतम</string>
+    <string name="ui_channel_sort_popular">लोकप्रिय</string>
+    <string name="ui_channel_sort_oldest">सबसे पुराने</string>
+    <string name="ui_see_all">सभी देखें</string>
+    <string name="ui_channel_popular_videos">लोकप्रिय वीडियो</string>
+    <string name="ui_channel_featured_channels">चुनिंदा चैनल</string>
+    <string name="ui_channel_no_videos">इस चैनल ने अभी तक कोई वीडियो पोस्ट नहीं किया है।</string>
+    <string name="ui_channel_no_shorts">इस चैनल ने अभी तक कोई Shorts पोस्ट नहीं किया है।</string>
+    <string name="ui_channel_no_playlists">इस चैनल की कोई सार्वजनिक प्लेलिस्ट नहीं है।</string>
     <string name="ui_feed_error_title">इसे लोड नहीं किया जा सका</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">आप साइन आउट हो गए हैं.</string>
     <string name="ui_chip_empty_title">यहाँ कुछ नहीं है</string>
     <string name="ui_chip_empty_body">YouTube ने “%1$s” के लिए कोई वीडियो नहीं भेजा।</string>
+    <string name="ui_not_interested">दिलचस्पी नहीं है</string>
+    <string name="ui_dont_recommend_channel">चैनल का सुझाव न दें</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">%1$s सेकंड पीछे</item>
+        <item quantity="other">%1$s सेकंड पीछे</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">%1$s सेकंड आगे</item>
+        <item quantity="other">%1$s सेकंड आगे</item>
+    </plurals>
 </resources>

@@ -47,4 +47,14 @@
     <string name="settings_zoom_fill_on">Todos os vídeos preenchem a tela; as bordas que sobram são cortadas. Faça o gesto de pinça para dentro para ver um vídeo inteiro.</string>
     <string name="settings_zoom_fill_off">Os vídeos aparecem inteiros, com barras pretas. Faça o gesto de pinça para fora em tela cheia para preencher a tela.</string>
     <string name="settings_zoom_fill_summary">ampliado para preencher</string>
+    <string name="settings_seek_step_title">Voltar e avançar</string>
+    <string name="settings_seek_step_line">Quanto um toque duplo no vídeo e os botões −/⁠+ pulam</string>
+    <string name="settings_seconds_short">%1$s s</string>
+    <string name="settings_seek_step_summary">Saltos de %1$s s</string>
+    <string name="settings_music_normal_title">Música na velocidade normal</string>
+    <string name="settings_music_normal_line">As músicas sempre tocam a 1×, mesmo com uma velocidade mantida para todos os vídeos</string>
+    <string name="settings_chapters_open_title">Manter os capítulos abertos</string>
+    <string name="settings_chapters_open_line">Escolher um capítulo deixa a lista aberta, para ir de um ao outro</string>
+    <string name="settings_auto_pip_title">Picture-in-picture ao sair</string>
+    <string name="settings_auto_pip_line">Ir para a tela inicial com um vídeo tocando o mantém numa janela pequena</string>
 </resources>

@@ -46,4 +46,14 @@
     <string name="settings_zoom_fill_on">Jedes Video füllt den Bildschirm; überstehende Ränder werden abgeschnitten. Zusammenziehen, um ein Video ganz zu sehen.</string>
     <string name="settings_zoom_fill_off">Videos werden ganz gezeigt, mit schwarzen Balken. Im Vollbild auseinanderziehen, um den Bildschirm zu füllen.</string>
     <string name="settings_zoom_fill_summary">zum Füllen gezoomt</string>
+    <string name="settings_seek_step_title">Zurück- und vorspulen</string>
+    <string name="settings_seek_step_line">Wie weit ein Doppeltippen aufs Video und die −/⁠+-Tasten springen</string>
+    <string name="settings_seconds_short">%1$s s</string>
+    <string name="settings_seek_step_summary">Sprünge von %1$s s</string>
+    <string name="settings_music_normal_title">Musik in normaler Geschwindigkeit</string>
+    <string name="settings_music_normal_line">Songs laufen immer mit 1×, auch wenn eine Geschwindigkeit für alle Videos gemerkt ist</string>
+    <string name="settings_chapters_open_title">Kapitel offen lassen</string>
+    <string name="settings_chapters_open_line">Nach der Wahl eines Kapitels bleibt die Liste offen, so geht es von einem zum nächsten</string>
+    <string name="settings_auto_pip_title">Bild-im-Bild beim Verlassen</string>
+    <string name="settings_auto_pip_line">Wechselst du beim Abspielen zum Startbildschirm, läuft das Video in einem kleinen Fenster weiter</string>
 </resources>

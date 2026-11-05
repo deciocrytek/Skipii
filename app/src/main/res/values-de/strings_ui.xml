@@ -136,9 +136,28 @@
     <string name="ui_channel_error_title">Dieser Kanal konnte nicht geladen werden</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Videos</string>
+    <string name="ui_channel_sort_latest">Neueste</string>
+    <string name="ui_channel_sort_popular">Beliebt</string>
+    <string name="ui_channel_sort_oldest">Älteste</string>
+    <string name="ui_see_all">Alle ansehen</string>
+    <string name="ui_channel_popular_videos">Beliebte Videos</string>
+    <string name="ui_channel_featured_channels">Empfohlene Kanäle</string>
+    <string name="ui_channel_no_videos">Dieser Kanal hat noch keine Videos veröffentlicht.</string>
+    <string name="ui_channel_no_shorts">Dieser Kanal hat noch keine Shorts veröffentlicht.</string>
+    <string name="ui_channel_no_playlists">Dieser Kanal hat keine öffentlichen Playlists.</string>
     <string name="ui_feed_error_title">Konnte nicht geladen werden</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Du bist abgemeldet.</string>
     <string name="ui_chip_empty_title">Hier ist nichts</string>
     <string name="ui_chip_empty_body">YouTube hat für „%1$s“ keine Videos geschickt.</string>
+    <string name="ui_not_interested">Kein Interesse</string>
+    <string name="ui_dont_recommend_channel">Kanal nicht empfehlen</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">%1$s Sekunde zurück</item>
+        <item quantity="other">%1$s Sekunden zurück</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">%1$s Sekunde vor</item>
+        <item quantity="other">%1$s Sekunden vor</item>
+    </plurals>
 </resources>

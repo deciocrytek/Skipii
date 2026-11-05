@@ -59,14 +59,12 @@ import androidx.compose.material.icons.rounded.ClosedCaption
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.FastRewind
-import androidx.compose.material.icons.rounded.Forward10
 import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.FullscreenExit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.CircularProgressIndicator
@@ -224,7 +222,7 @@ fun VideoContent(
         if (reduced) tween(0) else tween(160, easing = Motion.Emphasized), label = "scrubFade",
     )
     fun seekStep(side: Int) {
-        val moved = state.seekBy(side * SeekStepMs)
+        val moved = state.seekBy(side * SeekStep.ms)
         burstSeconds += ((abs(moved) + 500) / 1000).toInt()
         burstTaps++
     }
@@ -426,7 +424,7 @@ fun VideoContent(
 
         val error = state.error
         if (error != null) {
-            ErrorPanel(error, onRetry = state::retry, onCollapse = onCollapse)
+            ErrorPanel(error, state, onCollapse = onCollapse)
             return@Box
         }
 
@@ -559,14 +557,14 @@ fun VideoContent(
                     horizontalArrangement = Arrangement.spacedBy(if (fullscreen) 32.dp else 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    OverlaySeek(-1, enabled, seek) { touched(); state.seekBy(-10_000) }
+                    OverlaySeek(-1, enabled, seek) { touched(); state.seekBy(-SeekStep.ms) }
                     OverlayPlay(
                         playing = state.isPlaying,
                         buffering = state.isBuffering || (state.loading && state.details == null),
                         size = if (fullscreen) 78.dp else 66.dp,
                         enabled = enabled,
                     ) { touched(); state.togglePlay() }
-                    OverlaySeek(1, enabled, seek) { touched(); state.seekBy(10_000) }
+                    OverlaySeek(1, enabled, seek) { touched(); state.seekBy(SeekStep.ms) }
                 }
                 // Times, the Ask pill, Next and fullscreen; under them the scrubber in fullscreen. In portrait
                 // the video's own bottom edge is the scrubber (VideoStage), so the row sits just clear of it.
@@ -673,7 +671,7 @@ fun AudioOnlyStage(
         Box(Modifier.fillMaxSize().graphicsLayer { alpha = ramp(progress(), 0.25f, 0.85f) }.background(c.surfaceContainer))
         val error = state.error
         if (error != null) {
-            ErrorPanel(error, onRetry = state::retry, onCollapse = {})
+            ErrorPanel(error, state, onCollapse = {})
             return@Box
         }
         Box(Modifier.fillMaxSize().graphicsLayer { alpha = controlsAlpha() * gather().coerceIn(0f, 1f) }) {
@@ -709,7 +707,7 @@ fun AudioOnlyStage(
                     translationX = -side * (1f - gather()) * (gap + (play + skip) / 2).toPx()
                 }
                 val tile = c.surfaceContainerHighest
-                Box(Modifier.slide(-1)) { OverlaySeek(-1, interactive, skip, tile) { state.seekBy(-10_000) } }
+                Box(Modifier.slide(-1)) { OverlaySeek(-1, interactive, skip, tile) { state.seekBy(-SeekStep.ms) } }
                 Box(Modifier.graphicsLayer { val k = lerpF(0.6f, 1f, gather()); scaleX = k; scaleY = k }) {
                     OverlayPlay(
                         playing = state.isPlaying,
@@ -718,7 +716,7 @@ fun AudioOnlyStage(
                         enabled = interactive,
                     ) { state.togglePlay() }
                 }
-                Box(Modifier.slide(1)) { OverlaySeek(1, interactive, skip, tile) { state.seekBy(10_000) } }
+                Box(Modifier.slide(1)) { OverlaySeek(1, interactive, skip, tile) { state.seekBy(SeekStep.ms) } }
             }
             // Same place and padding as the video's bottom bar (its row is the fullscreen button's 34 dp).
             Column(
@@ -838,8 +836,8 @@ private fun OverlaySeek(side: Int, enabled: Boolean, size: Dp, tile: Color = Mat
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            if (side < 0) Icons.Rounded.Replay10 else Icons.Rounded.Forward10,
-            contentDescription = stringResource(if (side < 0) R.string.video_back_10 else R.string.video_forward_10),
+            seekIcon(forward = side > 0),
+            contentDescription = seekLabel(side),
             tint = c.onSurface,
             modifier = Modifier.size(size * 0.51f).graphicsLayer { rotationZ = spin.value },
         )
@@ -1494,8 +1492,14 @@ private fun QualityRow(title: String, subtitle: String?, selected: Boolean, onCl
     }
 }
 
+/**
+ * What went wrong, over the video, with Try again. YouTube's bot check ([PlayerState.botCheck])
+ * also says what usually clears it (a new address from airplane mode) and offers the video in
+ * YouTube's own app, which isn't refused.
+ */
 @Composable
-private fun BoxScope.ErrorPanel(message: String, onRetry: () -> Unit, onCollapse: () -> Unit) {
+private fun BoxScope.ErrorPanel(message: String, state: PlayerState, onCollapse: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.72f)))
     Column(
         Modifier.align(Alignment.Center).padding(horizontal = 32.dp),
@@ -1503,15 +1507,31 @@ private fun BoxScope.ErrorPanel(message: String, onRetry: () -> Unit, onCollapse
     ) {
         Icon(Icons.Rounded.ErrorOutline, null, tint = Color.White, modifier = Modifier.size(28.dp))
         Spacer(Modifier.height(8.dp))
-        Text(message, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, lineHeight = 19.sp)
+        if (state.botCheck) {
+            Text(stringResource(R.string.player_error_bot_check), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, lineHeight = 19.sp, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(R.string.player_error_bot_check_hint), color = Color.White.copy(alpha = 0.78f), fontSize = 13.sp, lineHeight = 18.sp, textAlign = TextAlign.Center)
+        } else {
+            Text(message, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, lineHeight = 19.sp)
+        }
         Spacer(Modifier.height(12.dp))
-        Box(
-            Modifier.pressable(onClick = onRetry).clip(CircleShape).background(Color.White).padding(horizontal = 18.dp, vertical = 9.dp),
-        ) { Text(stringResource(R.string.video_try_again), color = Color(0xFF141414), fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+        @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+        androidx.compose.foundation.layout.FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                Modifier.pressable(onClick = state::retry).clip(CircleShape).background(Color.White).padding(horizontal = 18.dp, vertical = 9.dp),
+            ) { Text(stringResource(R.string.video_try_again), color = Color(0xFF141414), fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1) }
+            if (state.botCheck) {
+                Box(
+                    Modifier.pressable(onClick = { state.openInYouTube(context) }).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)).padding(horizontal = 18.dp, vertical = 9.dp),
+                ) { Text(stringResource(R.string.video_open_in_youtube), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1) }
+            }
+        }
     }
 }
 
-private const val SeekStepMs = 10_000L
 /** A burst stays open this long after its last tap; further taps on that side add to it. */
 private const val SeekBurstWindowMs = 600L
 

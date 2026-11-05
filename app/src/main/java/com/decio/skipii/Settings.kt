@@ -57,6 +57,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
+import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
@@ -878,6 +881,7 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
         stringResource(if (PlayerControls.inBar) R.string.ui_player_controls_pill else R.string.ui_player_controls_on_video),
         if (PlaybackSpeed.remember) stringResource(R.string.settings_speed_kept_summary, PlaybackSpeed.label(PlaybackSpeed.saved))
         else stringResource(R.string.settings_speed_per_video),
+        if (SeekStep.seconds != 10) stringResource(R.string.settings_seek_step_summary, SeekStep.seconds.toString()) else null,
         if (FullscreenZoom.fill) stringResource(R.string.settings_zoom_fill_summary) else null,
         if (AudioOnly.enabled) stringResource(R.string.bar_audio_only) else null,
     ).joinDots()
@@ -948,6 +952,10 @@ private fun entries(): List<Entry> = buildList {
     val pb = SettingsPage.Playback
     add(Entry(pb, "controls", str(R.string.ui_player_controls), listOf(str(R.string.ui_player_controls_pill), str(R.string.ui_player_controls_on_video))))
     add(Entry(pb, "speed", str(R.string.settings_speed_remember_title), listOf(str(R.string.settings_speed_keep), str(R.string.bar_speed_remember))))
+    add(Entry(pb, "seek", str(R.string.settings_seek_step_title), listOf(str(R.string.settings_seek_step_line)) + SeekStep.choices.map { str(R.string.settings_seconds_short, it.toString()) }))
+    add(Entry(pb, "chapters", str(R.string.settings_chapters_open_title), listOf(str(R.string.settings_chapters_open_line), str(R.string.bar_chapters))))
+    add(Entry(pb, "pip", str(R.string.settings_auto_pip_title), listOf(str(R.string.settings_auto_pip_line))))
+    add(Entry(pb, "music", str(R.string.settings_music_normal_title), listOf(str(R.string.settings_music_normal_line))))
     add(Entry(pb, "zoom", str(R.string.settings_zoom_fill_title), listOf(str(R.string.settings_zoom_fill_on), str(R.string.settings_zoom_fill_off))))
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
     val cc = SettingsPage.Captions
@@ -1169,10 +1177,12 @@ private fun <T> Chips(options: List<Pair<T, String>>, selected: T, enabled: Bool
                 Modifier
                     .pressable(enabled = enabled) { onPick(value) }
                     .clip(RoundedCornerShape(if (on) 18.dp else 10.dp))
-                    .background(if (on) c.secondaryContainer else c.surfaceContainerHighest)
+                    // Full primary when picked, as the quick toggles: secondaryContainer was too close to the
+                    // others' tone in some themes to tell which was on (Derek).
+                    .background(if (on) c.primary else c.surfaceContainerHighest)
                     .padding(horizontal = 16.dp, vertical = 9.dp),
             ) {
-                Text(label, color = if (on) c.onSecondaryContainer else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false)
+                Text(label, color = if (on) c.onPrimary else c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -1211,8 +1221,10 @@ private fun Note(text: String) {
 
 @Composable
 private fun PlaybackPage(player: PlayerState) {
+    val pipSupported = LocalPictureInPicture.current?.supported != false
     Spacer(Modifier.height(14.dp))
-    Joined(4) { i, shape ->
+    // The controls and how they behave.
+    Joined(if (pipSupported) 4 else 3) { i, shape ->
         when (i) {
             0 -> ChipsSetting(
                 "controls", shape,
@@ -1222,7 +1234,36 @@ private fun PlaybackPage(player: PlayerState) {
                 PlayerControls.inBar,
                 icon = Icons.Rounded.Tune,
             ) { PlayerControls.set(it) }
-            1 -> SwitchSetting(
+            // Its icon is the −/+ buttons' own glyph, so it changes with the pick (#36).
+            1 -> ChipsSetting(
+                "seek", shape,
+                stringResource(R.string.settings_seek_step_title),
+                stringResource(R.string.settings_seek_step_line),
+                SeekStep.choices.map { it to stringResource(R.string.settings_seconds_short, it.toString()) },
+                SeekStep.seconds,
+                icon = seekIcon(forward = true),
+            ) { SeekStep.set(it) }
+            2 -> SwitchSetting(
+                "chapters", shape,
+                stringResource(R.string.settings_chapters_open_title),
+                stringResource(R.string.settings_chapters_open_line),
+                ChaptersStayOpen.on,
+                icon = Icons.AutoMirrored.Rounded.FormatListBulleted,
+            ) { ChaptersStayOpen.set(it) }
+            else -> SwitchSetting(
+                "pip", shape,
+                stringResource(R.string.settings_auto_pip_title),
+                stringResource(R.string.settings_auto_pip_line),
+                AutoPip.on,
+                icon = Icons.Rounded.PictureInPictureAlt,
+            ) { AutoPip.set(it) }
+        }
+    }
+    Spacer(Modifier.height(14.dp))
+    // Speed, picture and sound.
+    Joined(4) { i, shape ->
+        when (i) {
+            0 -> SwitchSetting(
                 "speed", shape,
                 stringResource(R.string.settings_speed_remember_title),
                 if (PlaybackSpeed.remember) stringResource(R.string.settings_speed_remember_on, PlaybackSpeed.label(PlaybackSpeed.saved))
@@ -1230,6 +1271,13 @@ private fun PlaybackPage(player: PlayerState) {
                 PlaybackSpeed.remember,
                 icon = Icons.Rounded.Speed,
             ) { if (it != PlaybackSpeed.remember) player.toggleRememberSpeed() }
+            1 -> SwitchSetting(
+                "music", shape,
+                stringResource(R.string.settings_music_normal_title),
+                stringResource(R.string.settings_music_normal_line),
+                PlaybackSpeed.musicAtNormal,
+                icon = Icons.Rounded.MusicNote,
+            ) { PlaybackSpeed.chooseMusicAtNormal(it) }
             2 -> SwitchSetting(
                 "zoom", shape,
                 stringResource(R.string.settings_zoom_fill_title),

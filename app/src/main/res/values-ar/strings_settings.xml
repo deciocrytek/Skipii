@@ -50,4 +50,14 @@
     <string name="settings_zoom_fill_on">كل فيديو يملأ الشاشة، وتُقص الحواف الزائدة. قرّب إصبعيك لرؤية الفيديو كاملًا.</string>
     <string name="settings_zoom_fill_off">تظهر الفيديوهات كاملة مع أشرطة سوداء. باعد إصبعيك في وضع ملء الشاشة لملء الشاشة.</string>
     <string name="settings_zoom_fill_summary">مكبّر لملء الشاشة</string>
+    <string name="settings_seek_step_title">الرجوع والتقديم</string>
+    <string name="settings_seek_step_line">مقدار القفز عند النقر مرتين على الفيديو وبأزرار −/⁠+</string>
+    <string name="settings_seconds_short">%1$s ث</string>
+    <string name="settings_seek_step_summary">قفزات %1$s ث</string>
+    <string name="settings_music_normal_title">الموسيقى بالسرعة العادية</string>
+    <string name="settings_music_normal_line">تُشغَّل الأغاني دائمًا بسرعة 1×، حتى مع حفظ سرعة لكل الفيديوهات</string>
+    <string name="settings_chapters_open_title">إبقاء الفصول مفتوحة</string>
+    <string name="settings_chapters_open_line">اختيار فصل يُبقي القائمة مفتوحة لتنتقل من فصل إلى آخر</string>
+    <string name="settings_auto_pip_title">صورة داخل صورة عند المغادرة</string>
+    <string name="settings_auto_pip_line">عند الذهاب إلى الشاشة الرئيسية أثناء تشغيل فيديو، يستمر في نافذة صغيرة</string>
 </resources>

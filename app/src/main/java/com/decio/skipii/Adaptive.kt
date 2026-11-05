@@ -2,6 +2,7 @@ package com.decio.skipii
 
 import android.app.Activity
 import android.os.Build
+import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
@@ -63,6 +64,12 @@ fun Activity.screenSides(): Pair<Int, Int> {
         android.graphics.Point().also { @Suppress("DEPRECATION") windowManager.defaultDisplay.getRealSize(it) }.let { it.x to it.y }
     }
     return minOf(w, h) to maxOf(w, h)
+}
+
+/** The screen is turned a quarter from its natural way up (the phone held sideways). */
+fun Activity.turnedSideways(): Boolean {
+    val rotation = if (Build.VERSION.SDK_INT >= 30) display?.rotation else @Suppress("DEPRECATION") windowManager.defaultDisplay.rotation
+    return rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270
 }
 
 /** A tablet or an open foldable: the screen's short side is wide-window size, so nothing is held portrait. */

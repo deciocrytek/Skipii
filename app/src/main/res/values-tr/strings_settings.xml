@@ -46,4 +46,14 @@
     <string name="settings_zoom_fill_on">Her video ekranı doldurur; taşan kenarlar kırpılır. Bir videonun tamamını görmek için parmaklarınızı birleştirin.</string>
     <string name="settings_zoom_fill_off">Videolar siyah çubuklarla bütün olarak gösterilir. Tam ekranda ekranı doldurmak için parmaklarınızı açın.</string>
     <string name="settings_zoom_fill_summary">doldurmak için yakınlaştırıldı</string>
+    <string name="settings_seek_step_title">Geri ve ileri sarma</string>
+    <string name="settings_seek_step_line">Videoya çift dokunmanın ve −/⁠+ düğmelerinin ne kadar atlayacağı</string>
+    <string name="settings_seconds_short">%1$s sn</string>
+    <string name="settings_seek_step_summary">%1$s sn atlama</string>
+    <string name="settings_music_normal_title">Müzik normal hızda</string>
+    <string name="settings_music_normal_line">Şarkılar, tüm videolar için bir hız saklansa bile her zaman 1× çalar</string>
+    <string name="settings_chapters_open_title">Bölümleri açık tut</string>
+    <string name="settings_chapters_open_line">Bir bölüm seçince liste açık kalır, böylece birinden diğerine geçebilirsin</string>
+    <string name="settings_auto_pip_title">Çıkınca pencere içinde pencere</string>
+    <string name="settings_auto_pip_line">Video oynarken ana ekrana dönersen küçük bir pencerede oynamaya devam eder</string>
 </resources>

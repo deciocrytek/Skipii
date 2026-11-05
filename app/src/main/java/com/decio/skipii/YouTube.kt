@@ -56,7 +56,13 @@ data class VideoItem(
     val durationSec: Long,
     val views: Long,
     val uploaded: String?,
+    /** The card's own "Not interested" / "Don't recommend channel" (signed-in feeds only, #16). */
+    val feedback: CardFeedback? = null,
 )
+
+/** Tokens YouTube puts on a signed-in card for its feedback items; sent back as they are ([InnerTube.sendFeedback]). */
+@Immutable
+data class CardFeedback(val notInterested: String?, val dontRecommend: String?)
 
 @Immutable
 data class VideoDetails(
@@ -173,6 +179,14 @@ object YouTube {
      * [wait] false: no quiet retries through a bot check ([BotCheck.withoutWaiting]) — Shorts
      * would rather move on than hold a short on a spinner for up to half a minute.
      */
+    /**
+     * Music (#35: it plays at 1× even with a speed remembered): YouTube's own category, or a channel
+     * YouTube makes for an artist's tracks ("Artist - Topic"). Categories come in English (hl=en).
+     */
+    fun isMusic(info: StreamInfo): Boolean =
+        runCatching { info.category }.getOrNull().equals("Music", ignoreCase = true) ||
+            info.uploaderName.orEmpty().endsWith(" - Topic")
+
     suspend fun details(id: String, wait: Boolean = true): VideoDetails = withContext(Dispatchers.IO) {
         val info = if (wait) BotCheck.retrying(id) { StreamCache.getOrLoad(id) } else BotCheck.withoutWaiting(id) { StreamCache.getOrLoad(id) }
         val picked = StreamSelection.pick(info)
@@ -232,18 +246,6 @@ object YouTube {
         )
     }
 
-    /**
-     * One page of a channel's uploads; [token] null for the first. Read through InnerTube
-     * (not NewPipe) because only the raw page carries the "Members only" badge.
-     */
-    suspend fun channelVideos(channel: ChannelDetails, token: String?): FeedPage {
-        val page = InnerTube.channelVideos(channel.id, token)
-        // The uploads list doesn't repeat the channel on every item; fill it in.
-        return page.copy(videos = page.videos.map {
-            it.copy(channel = it.channel.ifBlank { channel.name }, avatar = it.avatar ?: channel.avatar, channelUrl = it.channelUrl ?: channel.url)
-        })
-    }
-
     private fun StreamInfoItem.toVideoItem(): VideoItem? {
         // Live and upcoming entries need HLS handling that isn't built yet.
         if (streamType != StreamType.VIDEO_STREAM) return null
@@ -296,7 +298,7 @@ object YouTube {
         is AgeRestrictedContentException -> str(R.string.player_error_age_restricted)
         is GeographicRestrictionException -> str(R.string.player_error_geo)
         is SignInConfirmNotBotException ->
-            str(R.string.player_error_bot_check)
+            str(R.string.player_error_bot_check) + "\n" + str(R.string.player_error_bot_check_hint)
         is org.schabi.newpipe.extractor.exceptions.PrivateContentException -> str(R.string.player_error_private)
         // Members-only videos (e.g. "Insider Edition") need a channel membership; Skipii's
         // stream extraction is anonymous, so it can't play them even when you're a member.

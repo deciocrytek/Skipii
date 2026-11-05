@@ -10,6 +10,28 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- Channel pages look like YouTube's (#53, thanks @usa2525-code). Tabs for **Home**, **Videos**, **Shorts** and **Playlists** sit under the profile and stay at the top as you scroll. Home shows the channel's featured video and its own rows (latest uploads, playlists, featured channels), each with See all. Videos can be sorted Latest, Popular or Oldest.
+- Tapping a short on a channel plays it in Shorts, and swiping goes through that channel's other shorts. Back takes you to the channel again, and your Shorts feed is where you left it.
+- A channel's playlists open even when you're signed out.
+- Drag along a short's progress bar to go anywhere in it (#44, thanks @ganapathi-subramanian). The bar thickens under your finger and the time shows above it; a tap on the bar jumps there.
+- **Not interested** and **Don't recommend channel** in the long-press menu of the videos YouTube recommends you when you're signed in (#16, thanks @RaulKong878). The video, or every video from that channel, leaves your feeds at once, and YouTube learns from it.
+- Choose how far a double tap and the back / forward buttons jump, from 5 to 30 seconds in steps of 5, in **Settings › Playback** (#36, thanks @jm11x). The buttons show the number you picked.
+- Music plays at normal speed even when you keep a speed for every video, and the next video that isn't music is back at your speed (#35, thanks @risingsword). You can turn this off in **Settings › Playback**.
+- **Keep chapters open** in **Settings › Playback** (#46, thanks @Suhareb): picking a chapter leaves the list open, so you can jump from one chapter to the next.
+- **Picture-in-picture when you leave** in **Settings › Playback** (#42, thanks @ganapathi-subramanian): go home while a video plays and it keeps playing in a small window. Off unless you turn it on.
+
+### Improved
+- When YouTube asks to confirm you're not a bot, the player now says what usually fixes it (turning airplane mode on and back off) and has an **Open in YouTube** button that opens the video in YouTube's app from where you were, next to Try again.
+- Subscriptions opens faster. Your subscriptions are loaded in the background once Home is in, and the row of channels at the top is there right away instead of appearing a few seconds after the videos.
+- Subscriptions shows your channels' videos newest first, in the order they went up. YouTube's own "Most relevant" picks no longer sit at the top (#50).
+- In Settings, the option picked in a row of choices (like Player controls or Skip back and forward) is now filled in with your theme's colour, so it's easy to tell which one is on.
+- The progress bar in Shorts sits just above the buttons, under the title, where it's easier to see (#48, thanks @Suhareb).
+
+### Fixed
+- On a Galaxy Z Flip's cover screen, videos no longer get stuck in full screen. The player opens normally there, and the full screen button goes in and out again.
+- Tapping a channel at the top of Subscriptions now opens it (#37, thanks @Rooknee56, and #32, thanks @ganapathi-subramanian).
+
 ## 0.5.99
 
 ### New

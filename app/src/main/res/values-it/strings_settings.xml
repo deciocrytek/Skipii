@@ -47,4 +47,14 @@
     <string name="settings_zoom_fill_on">Ogni video riempie lo schermo; i bordi in eccesso vengono tagliati. Avvicina due dita per vedere un video intero.</string>
     <string name="settings_zoom_fill_off">I video si vedono interi, con bande nere. Allarga due dita a schermo intero per riempire lo schermo.</string>
     <string name="settings_zoom_fill_summary">zoom per riempire</string>
+    <string name="settings_seek_step_title">Indietro e avanti</string>
+    <string name="settings_seek_step_line">Di quanto saltano un doppio tocco sul video e i pulsanti −/⁠+</string>
+    <string name="settings_seconds_short">%1$s s</string>
+    <string name="settings_seek_step_summary">Salti di %1$s s</string>
+    <string name="settings_music_normal_title">Musica a velocità normale</string>
+    <string name="settings_music_normal_line">I brani suonano sempre a 1×, anche con una velocità tenuta per tutti i video</string>
+    <string name="settings_chapters_open_title">Tieni aperti i capitoli</string>
+    <string name="settings_chapters_open_line">Scegliendo un capitolo l\'elenco resta aperto, per passare dall\'uno all\'altro</string>
+    <string name="settings_auto_pip_title">Picture in picture quando esci</string>
+    <string name="settings_auto_pip_line">Tornando alla schermata Home durante un video, continua in una piccola finestra</string>
 </resources>

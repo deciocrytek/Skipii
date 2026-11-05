@@ -16,8 +16,6 @@
     <string name="video_next">अगला</string>
     <string name="video_fullscreen">फ़ुलस्क्रीन</string>
     <string name="video_exit_fullscreen">फ़ुलस्क्रीन से बाहर निकलें</string>
-    <string name="video_back_10">10 सेकंड पीछे</string>
-    <string name="video_forward_10">10 सेकंड आगे</string>
     <string name="video_play">चलाएं</string>
     <string name="video_pause">रोकें</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -71,4 +69,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">फिर से कोशिश करें</string>
+    <string name="video_open_in_youtube">YouTube में खोलें</string>
 </resources>

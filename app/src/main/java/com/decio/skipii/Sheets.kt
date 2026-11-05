@@ -49,6 +49,8 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.DoNotDisturbOn
+import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.WatchLater
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -132,6 +134,13 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
         OptionRow(Icons.Rounded.Share, stringResource(R.string.ui_share)) {
             shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
+        }
+        // Only cards from the account's own feeds carry these (#16).
+        video.feedback?.notInterested?.let {
+            OptionRow(Icons.Rounded.DoNotDisturbOn, stringResource(R.string.ui_not_interested)) { player.notInterested(video); onDismiss() }
+        }
+        video.feedback?.dontRecommend?.let {
+            OptionRow(Icons.Rounded.RemoveCircleOutline, stringResource(R.string.ui_dont_recommend_channel)) { player.dontRecommendChannel(video); onDismiss() }
         }
         Spacer(Modifier.height(24.dp))
     }

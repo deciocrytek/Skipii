@@ -169,10 +169,7 @@ fun SubscriptionsScreen(
 ) {
     val signedIn = Account.signedIn
     LaunchedEffect(signedIn) {
-        if (signedIn) {
-            lib.subscriptions.ensureLoaded()
-            if (lib.channels.isEmpty()) lib.loadChannels()
-        }
+        if (signedIn) lib.showSubscriptions()
     }
     CollapsingHeaderLayout(
         resetKey = scrollToTop to lib.subscriptions.generation,
@@ -180,7 +177,8 @@ fun SubscriptionsScreen(
     ) { top ->
         if (signedIn) {
             FeedList(lib.subscriptions, contentPadding.withTop(top), onOpen, header = {
-                // Always present (empty until loaded) so its arrival never shifts the list.
+                // Always present (empty until loaded) so its arrival never shifts the list; the
+                // row kept from last time shows from the first frame (LibraryData).
                 item(key = "channels") { if (lib.channels.isNotEmpty()) ChannelRail(lib.channels) }
             }, scrollToTop = scrollToTop, indicatorTop = top)
         } else {
@@ -206,13 +204,23 @@ fun SubscriptionsScreen(
  */
 @Composable
 private fun HomeChips(chips: List<FeedChip>, chosen: FeedChip?, onPick: (FeedChip) -> Unit) {
+    val selected = chips.indexOfFirst { chosen?.let { ch -> ch.title == it.title } ?: (it.token == null) }
+    UnderlineTabs(chips.map { it.title }, selected, { onPick(chips[it]) }, Modifier.padding(top = 2.dp, bottom = 10.dp))
+}
+
+/**
+ * Words in a row that scrolls, the [selected] one primary and heavier with a short rounded bar
+ * springing under it from the last pick; the row fades out at whichever edge has more to scroll
+ * to. Home's categories and a channel's tabs.
+ */
+@Composable
+fun UnderlineTabs(labels: List<String>, selected: Int, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val c = MaterialTheme.colorScheme
     val reduced = rememberReducedMotion()
     val density = LocalDensity.current
     val scroll = rememberScrollState()
-    val selected = chips.indexOfFirst { chosen?.let { ch -> ch.title == it.title } ?: (it.token == null) }
     // Each word's left edge and width in the row, in px (written as they're placed).
-    val spots = remember(chips) { mutableStateMapOf<Int, Pair<Float, Float>>() }
+    val spots = remember(labels) { mutableStateMapOf<Int, Pair<Float, Float>>() }
     val barLeft = remember { Animatable(0f) }
     val barWidth = remember { Animatable(0f) }
     var barShown by remember { mutableStateOf(false) }
@@ -242,9 +250,8 @@ private fun HomeChips(chips: List<FeedChip>, chosen: FeedChip?, onPick: (FeedChi
     }
     val fade = with(density) { ChipRowFade.toPx() }
     Box(
-        Modifier
+        modifier
             .fillMaxWidth()
-            .padding(top = 2.dp, bottom = 10.dp)
             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .drawWithContent {
                 drawContent()
@@ -278,20 +285,20 @@ private fun HomeChips(chips: List<FeedChip>, chosen: FeedChip?, onPick: (FeedChi
                     )
                 },
         ) {
-            chips.forEachIndexed { i, chip ->
+            labels.forEachIndexed { i, label ->
                 val on = i == selected
                 val pad = with(density) { ChipWordPadding.toPx() }
                 val fg by animateColorAsState(if (on) c.primary else c.onSurfaceVariant, tween(if (reduced) 0 else 220), label = "chipFg")
                 Box(
                     Modifier
                         .onPlaced { spots[i] = it.positionInParent().x + pad to it.size.width - 2 * pad }
-                        .pressable(onClick = { onPick(chip) })
+                        .pressable(onClick = { onPick(i) })
                         .height(ChipRowHeight)
                         .padding(horizontal = ChipWordPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        chip.title,
+                        label,
                         color = fg,
                         fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold,
                         fontSize = 16.sp,
@@ -304,7 +311,7 @@ private fun HomeChips(chips: List<FeedChip>, chosen: FeedChip?, onPick: (FeedChi
     }
 }
 
-/** Home's category row: 20 dp in from the edges, words 22 dp apart (11 dp of tap room each side). */
+/** The row ([UnderlineTabs]): 20 dp in from the edges, words 22 dp apart (11 dp of tap room each side). */
 private val ChipRowPadding = 9.dp
 private val ChipWordPadding = 11.dp
 private val ChipRowHeight = 40.dp
@@ -317,13 +324,17 @@ private val ChipBarHeight = 4.dp
 @Composable
 private fun ChannelRail(channels: List<ChannelRef>) {
     val c = MaterialTheme.colorScheme
+    val openChannel = LocalChannelOpener.current
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.padding(top = 2.dp, bottom = 10.dp),
     ) {
         items(channels, key = { it.id }) { ch ->
-            Column(Modifier.width(64.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                Modifier.width(64.dp).pressable { openChannel("https://www.youtube.com/channel/${ch.id}") },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 ChannelAvatar(ch.avatar, ch.name, size = 56)
                 Spacer(Modifier.height(6.dp))
                 Text(ch.name, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = c.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)

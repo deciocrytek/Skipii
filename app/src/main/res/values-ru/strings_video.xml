@@ -16,8 +16,6 @@
     <string name="video_next">Далее</string>
     <string name="video_fullscreen">Во весь экран</string>
     <string name="video_exit_fullscreen">Выйти из полноэкранного режима</string>
-    <string name="video_back_10">Назад на 10 секунд</string>
-    <string name="video_forward_10">Вперёд на 10 секунд</string>
     <string name="video_play">Воспроизвести</string>
     <string name="video_pause">Пауза</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -71,4 +69,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Повторить попытку</string>
+    <string name="video_open_in_youtube">Открыть в YouTube</string>
 </resources>

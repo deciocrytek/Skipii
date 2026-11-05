@@ -47,4 +47,14 @@
     <string name="settings_zoom_fill_on">Chaque vidéo remplit l\'écran ; les bords qui dépassent sont rognés. Pincez pour voir une vidéo en entier.</string>
     <string name="settings_zoom_fill_off">Les vidéos s\'affichent en entier, avec des bandes noires. Écartez deux doigts en plein écran pour remplir l\'écran.</string>
     <string name="settings_zoom_fill_summary">zoom pour remplir</string>
+    <string name="settings_seek_step_title">Reculer et avancer</string>
+    <string name="settings_seek_step_line">De combien sautent un double appui sur la vidéo et les boutons −/⁠+</string>
+    <string name="settings_seconds_short">%1$s s</string>
+    <string name="settings_seek_step_summary">Sauts de %1$s s</string>
+    <string name="settings_music_normal_title">Musique à vitesse normale</string>
+    <string name="settings_music_normal_line">Les morceaux passent toujours à 1×, même avec une vitesse gardée pour toutes les vidéos</string>
+    <string name="settings_chapters_open_title">Garder les chapitres ouverts</string>
+    <string name="settings_chapters_open_line">Choisir un chapitre laisse la liste ouverte, pour passer de l\'un à l\'autre</string>
+    <string name="settings_auto_pip_title">Picture-in-picture en quittant</string>
+    <string name="settings_auto_pip_line">Revenir à l\'écran d\'accueil pendant une vidéo la garde dans une petite fenêtre</string>
 </resources>

@@ -15,8 +15,6 @@
     <string name="video_next">التالي</string>
     <string name="video_fullscreen">ملء الشاشة</string>
     <string name="video_exit_fullscreen">الخروج من ملء الشاشة</string>
-    <string name="video_back_10">رجوع 10 ثوانٍ</string>
-    <string name="video_forward_10">تقديم 10 ثوانٍ</string>
     <string name="video_play">تشغيل</string>
     <string name="video_pause">إيقاف مؤقت</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -71,4 +69,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">إعادة المحاولة</string>
+    <string name="video_open_in_youtube">فتح في YouTube</string>
 </resources>

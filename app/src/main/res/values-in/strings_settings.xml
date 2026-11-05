@@ -45,4 +45,14 @@
     <string name="settings_zoom_fill_on">Setiap video mengisi layar; tepi yang berlebih dipotong. Cubit ke dalam untuk melihat video secara utuh.</string>
     <string name="settings_zoom_fill_off">Video tampil utuh, dengan bilah hitam. Cubit ke luar di layar penuh untuk mengisi layar.</string>
     <string name="settings_zoom_fill_summary">diperbesar untuk mengisi</string>
+    <string name="settings_seek_step_title">Mundur dan maju</string>
+    <string name="settings_seek_step_line">Seberapa jauh ketuk dua kali pada video dan tombol −/⁠+ melompat</string>
+    <string name="settings_seconds_short">%1$s dtk</string>
+    <string name="settings_seek_step_summary">Lompat %1$s dtk</string>
+    <string name="settings_music_normal_title">Musik dengan kecepatan normal</string>
+    <string name="settings_music_normal_line">Lagu selalu diputar 1×, meski ada kecepatan yang disimpan untuk semua video</string>
+    <string name="settings_chapters_open_title">Biarkan bab tetap terbuka</string>
+    <string name="settings_chapters_open_line">Memilih bab membiarkan daftar tetap terbuka, jadi bisa lanjut dari satu ke berikutnya</string>
+    <string name="settings_auto_pip_title">Picture-in-picture saat keluar</string>
+    <string name="settings_auto_pip_line">Ke layar utama saat video diputar membuatnya tetap jalan di jendela kecil</string>
 </resources>

@@ -53,7 +53,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">هذا الفيديو مقيّد بالفئة العمرية ويتطلب حساب YouTube لمشاهدته.</string>
     <string name="player_error_geo">هذا الفيديو غير متاح في بلدك.</string>
-    <string name="player_error_bot_check">يطلب YouTube تأكيد أنك لست روبوتًا. حاول مرة أخرى بعد بضع دقائق.</string>
+    <string name="player_error_bot_check">يطلب YouTube تأكيد أنك لست روبوتًا.</string>
+    <string name="player_error_bot_check_hint">تشغيل وضع الطيران ثم إيقافه يحل المشكلة عادةً.</string>
     <string name="player_error_private">هذا الفيديو خاص.</string>
     <string name="player_error_members_only">هذا الفيديو مخصّص للأعضاء فقط. لا يمكن لـ Skipii تشغيل فيديوهات الأعضاء بعد.</string>
     <string name="player_error_unavailable">هذا الفيديو غير متاح.</string>
@@ -93,4 +94,7 @@
     <string name="player_more_all">الكل</string>
     <string name="player_more_from">من %1$s</string>
     <string name="player_more_related">ذات صلة</string>
+    <string name="player_not_interested_done">تم. سترى عددًا أقل من الفيديوهات المشابهة</string>
+    <string name="player_channel_not_recommended">لن تُقترح عليك هذه القناة بعد الآن</string>
+    <string name="player_feedback_failed">تعذّر الإرسال إلى YouTube. حاول مرة أخرى</string>
 </resources>

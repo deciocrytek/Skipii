@@ -51,7 +51,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">Это видео имеет возрастные ограничения, для просмотра нужен аккаунт YouTube.</string>
     <string name="player_error_geo">Это видео недоступно в вашей стране.</string>
-    <string name="player_error_bot_check">YouTube просит подтвердить, что вы не робот. Повторите попытку через несколько минут.</string>
+    <string name="player_error_bot_check">YouTube просит подтвердить, что вы не робот.</string>
+    <string name="player_error_bot_check_hint">Обычно помогает включить и выключить режим полёта.</string>
     <string name="player_error_private">Это видео с ограниченным доступом.</string>
     <string name="player_error_members_only">Это видео только для спонсоров канала. Skipii пока не умеет воспроизводить такие видео.</string>
     <string name="player_error_unavailable">Это видео недоступно.</string>
@@ -92,4 +93,7 @@
     <string name="player_more_all">Все</string>
     <string name="player_more_from">От %1$s</string>
     <string name="player_more_related">Похожие</string>
+    <string name="player_not_interested_done">Понятно. Таких видео станет меньше</string>
+    <string name="player_channel_not_recommended">Этот канал больше не будет рекомендоваться</string>
+    <string name="player_feedback_failed">Не удалось отправить в YouTube. Попробуйте ещё раз</string>
 </resources>

@@ -1,5 +1,9 @@
 package com.decio.skipii
 
+import android.view.HapticFeedbackConstants
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.media3.exoplayer.SeekParameters
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
@@ -131,7 +135,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
+import kotlin.math.abs
 import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.sin
 import kotlin.math.cos
@@ -246,6 +250,12 @@ object ShortsSetting {
  * seen. Created once per process ([SkipiiApplication]), so it keeps filling with the app in
  * the background.
  */
+/**
+ * Shorts to play in the pager instead of the feed ([ShortsState.openList]): a channel's, from
+ * [start]. [more] loads the page after [next] (null: the list ends there).
+ */
+class ShortsList(val items: List<VideoItem>, val start: Int, val next: String? = null, val more: (suspend (String) -> FeedPage)? = null)
+
 @Stable
 class ShortsState(context: Context, private val scope: CoroutineScope) {
     private val app = context.applicationContext
@@ -311,9 +321,14 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         private set
     var buffering by mutableStateOf(false)
         private set
-    /** How far into the short on screen, 0..1 (the line along the screen's bottom edge). */
+    /** How far into the short on screen, 0..1 (the line just above the glass bar). */
     var progress by mutableFloatStateOf(0f)
         private set
+    /** Where a finger on that line has put the short on screen, 0..1 (#44); null while nobody scrubs. */
+    var scrub by mutableStateOf<Float?>(null)
+        private set
+    /** The short on screen's length in ms; 0 until known. */
+    val durationMs: Long get() = assigned[index]?.exo?.duration?.takeIf { it > 0 } ?: 0L
     private var loop: Job? = null
     /** How many shorts past this one get a player loading them; 1 once the device runs out of video decoders. */
     private var maxAhead = 2
@@ -374,6 +389,55 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         playable = true, quality = null, qualities = emptyList(), aspect = aspect,
     )
 
+    // ── Someone's shorts (a channel's) in place of the feed ──
+
+    /** The feed and its spot, put aside while a [ShortsList] plays; back on [closeList] or [leave]. */
+    private class SavedFeed(val items: List<VideoItem>, val next: String?, val index: Int)
+    private var saved: SavedFeed? = null
+    private var listMore: (suspend (String) -> FeedPage)? = null
+    /** A channel's shorts are playing instead of the feed. */
+    val inList get() = saved != null
+
+    /**
+     * Plays [list] in the pager from its start in place of the feed (a channel's shorts, GitHub #53):
+     * swiping goes on through the rest and their next pages. The feed comes back, at the short it
+     * was on, with [closeList] or when the tab closes. Nothing from such a list is banked.
+     */
+    fun openList(list: ShortsList) {
+        if (list.items.isEmpty()) return
+        if (saved == null) saved = SavedFeed(items, next, index)
+        bankJob?.cancel()
+        swapFeed(list.items, list.next, list.start.coerceIn(list.items.indices))
+        listMore = list.more
+    }
+
+    /** The feed back from [openList], on the short it was on. */
+    fun closeList() {
+        val back = saved ?: return
+        saved = null
+        swapFeed(back.items, back.next, back.index)
+        listMore = null
+    }
+
+    private fun swapFeed(list: List<VideoItem>, token: String?, at: Int) {
+        pageJob?.cancel()
+        loading = false
+        pool.forEach { it.exo.playWhenReady = false; it.free() }
+        assigned.clear()
+        glassFrames.clear()
+        samples.clear()
+        items = list
+        next = token
+        index = at
+        error = null
+        userPaused = false
+        progress = 0f
+        commentsOpen = false
+        channelMenu = false
+        feedVersion++
+        if (active) { markShown(); tick() }
+    }
+
     /** The tab opened: load the feed if there's none, and start playing where it was left. */
     fun enter() {
         if (active) return
@@ -402,8 +466,20 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         playing = false
         buffering = false
         pool.forEach { it.exo.playWhenReady = false }
+        // A channel's shorts were playing: the feed comes back where it was (none of the players hold it).
+        val back = saved
+        if (back != null) {
+            saved = null
+            listMore = null
+            pageJob?.cancel()
+            loading = false
+            items = back.items
+            next = back.next
+            index = back.index
+            feedVersion++
+        }
         // Next time it opens on a short not seen yet (the bank's next one), like YouTube.
-        if (current?.id in viewed && index < items.lastIndex) {
+        else if (current?.id in viewed && index < items.lastIndex) {
             index++
             feedVersion++
         }
@@ -465,10 +541,35 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         tick()
     }
 
+    /**
+     * A finger on the progress line (#44): the short waits, paused, on the frame under it. Seeks go
+     * to the nearest keyframe while it moves (fast, even mid-download); [endScrub] lands exactly.
+     */
+    fun scrubTo(fraction: Float) {
+        val exo = assigned[index]?.exo ?: return
+        val f = fraction.coerceIn(0f, 1f)
+        if (scrub == null) exo.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+        scrub = f
+        progress = f
+        exo.duration.takeIf { it > 0 }?.let { exo.seekTo((f * it).toLong()) }
+        tick()
+    }
+
+    fun endScrub() {
+        val f = scrub ?: return
+        scrub = null
+        assigned[index]?.exo?.let { exo ->
+            exo.setSeekParameters(SeekParameters.EXACT)
+            exo.duration.takeIf { it > 0 }?.let { exo.seekTo((f * it).toLong()) }
+        }
+        tick()
+    }
+
     /** The pager settled on [page]. The short left behind rewinds, ready to play again. */
     fun select(page: Int) {
         if (page == index) return
-        assigned[index]?.exo?.let { it.playWhenReady = false; it.seekTo(0) }
+        assigned[index]?.exo?.let { it.playWhenReady = false; it.setSeekParameters(SeekParameters.EXACT); it.seekTo(0) }
+        scrub = null
         index = page
         userPaused = false
         progress = 0f
@@ -536,20 +637,22 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         val token = next ?: return
         if (loading || SystemClock.elapsedRealtime() - moreFailedAt < 10_000) return
         loading = true
+        // A channel's list pages on through that channel; the feed through its reel sequence.
+        val more = listMore
         pageJob = scope.launch {
-            runCatching { InnerTube.shorts(token) }
+            runCatching { more?.invoke(token) ?: InnerTube.shorts(token) }
                 .onSuccess { page ->
                     val seen = items.mapTo(HashSet()) { it.id }
                     items = items + page.videos.filter { seen.add(it.id) }
                     next = page.next
-                    ShortsBank.setNext(next)
+                    if (more == null) ShortsBank.setNext(next)
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
                     Log.w(TAG, "shorts: next page failed", it)
                     moreFailedAt = SystemClock.elapsedRealtime()
                     // A kept token can go stale (the bank's, from days ago): start a new sequence.
-                    if (items.isNotEmpty()) { next = null; ShortsBank.setNext(null); pendingFresh = true }
+                    if (more == null && items.isNotEmpty()) { next = null; ShortsBank.setNext(null); pendingFresh = true }
                 }
             loading = false
         }
@@ -614,7 +717,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         val now = assigned[cur]
         if (now != null && !now.prepared) prepare(now, "on screen")
         now?.capMs = Long.MAX_VALUE
-        pool.forEach { it.exo.playWhenReady = it === now && foreground && !userPaused && !covered }
+        pool.forEach { it.exo.playWhenReady = it === now && foreground && !userPaused && !covered && scrub == null }
         // The shorts after it: their first seconds once this one has a safe lead, all of each
         // once everything before it is loaded.
         // Nothing else starts until this short has played its first second: three players starting
@@ -650,7 +753,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         playing = now?.exo?.isPlaying == true
         buffering = now != null && !failed.containsKey(curId) && (!now.prepared || now.exo.playbackState == Player.STATE_BUFFERING)
         val duration = now?.exo?.duration ?: 0L
-        progress = if (now != null && duration > 0) (now.exo.currentPosition.toFloat() / duration).coerceIn(0f, 1f) else 0f
+        progress = scrub ?: if (now != null && duration > 0) (now.exo.currentPosition.toFloat() / duration).coerceIn(0f, 1f) else 0f
         // This short's like / subscribe state, then the next two's, so a double tap or the
         // like button works the moment one comes on screen (it waited ~2 s for this answer).
         (cur..cur + 2).forEach { i -> list.getOrNull(i)?.let { accountFor(it.id) } }
@@ -692,6 +795,8 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
      * loaded; elsewhere: the app's video isn't waiting on it). Runs every 1.5 s, app open or not.
      */
     private fun fillBank() {
+        // The bank is the feed's; it waits while a channel's shorts play.
+        if (saved != null) return
         val list = items
         if (list.isEmpty()) { if (!active && !loading && error == null) refresh(); return }
         if (pendingFresh) appendFresh()
@@ -1157,35 +1262,11 @@ fun ShortsScreen(shorts: ShortsState, progress: () -> Float, overlayBottom: Dp) 
                 },
         ) {
             when {
-                shorts.items.isNotEmpty() -> key(shorts.feedVersion) { ShortsPager(shorts, overlayBottom) }
+                shorts.items.isNotEmpty() -> key(shorts.feedVersion) { ShortsPager(shorts, overlayBottom, progress) }
                 shorts.error != null && !shorts.loading -> ShortsProblem(shorts.error.orEmpty(), onRetry = shorts::refresh)
                 else -> CircularProgressIndicator(color = Ink, strokeWidth = 3.dp, modifier = Modifier.align(Alignment.Center).size(36.dp))
             }
         }
-        // How far in: a hairline near the screen's bottom edge (the glass bar holds only buttons).
-        // Kept inside the display's rounded corners and a little off the edge, where the phone's
-        // bezel hid its ends (Derek, 2026-10-29).
-        val view = LocalView.current
-        Box(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(ProgressLift + ProgressThickness)
-                .graphicsLayer { alpha = ramp(progress(), 0.5f, 1f) }
-                .drawBehind {
-                    val thick = ProgressThickness.toPx()
-                    val lift = ProgressLift.toPx()
-                    val r = bottomCornerRadius(view).toFloat()
-                    // Where the corner's curve leaves the screen visible at the line's height.
-                    val clear = if (r > lift) r - sqrt(r * r - (r - lift) * (r - lift)) else 0f
-                    val inset = clear + ProgressMargin.toPx()
-                    val w = (size.width - 2 * inset).coerceAtLeast(0f)
-                    val top = size.height - lift - thick
-                    val ends = CornerRadius(thick / 2f)
-                    drawRoundRect(Color.White.copy(alpha = 0.25f), Offset(inset, top), Size(w, thick), ends)
-                    drawRoundRect(Ink, Offset(inset, top), Size(w * shorts.progress, thick), ends)
-                },
-        )
         if (shorts.commentsOpen) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 // Wide: beside the short (where its details are), so it keeps playing in full view.
@@ -1259,23 +1340,8 @@ internal fun shortsMargin(window: WindowLayout, width: Dp, height: Dp): Pair<Dp,
     return start to (width - start)
 }
 
-private val ProgressThickness = 2.5.dp
-/** Off the screen's bottom edge, and in from the corners' curve by [ProgressMargin]. */
-private val ProgressLift = 4.dp
-private val ProgressMargin = 12.dp
-
-/** The display's bottom corner radius in px (Android 12+); 0 when unknown or square. */
-private fun bottomCornerRadius(view: android.view.View): Int {
-    if (android.os.Build.VERSION.SDK_INT < 31) return 0
-    val insets = view.rootWindowInsets ?: return 0
-    return maxOf(
-        insets.getRoundedCorner(android.view.RoundedCorner.POSITION_BOTTOM_LEFT)?.radius ?: 0,
-        insets.getRoundedCorner(android.view.RoundedCorner.POSITION_BOTTOM_RIGHT)?.radius ?: 0,
-    )
-}
-
 @Composable
-private fun ShortsPager(shorts: ShortsState, overlayBottom: Dp) {
+private fun ShortsPager(shorts: ShortsState, overlayBottom: Dp, barProgress: () -> Float) {
     val pager = rememberPagerState(initialPage = shorts.index.coerceIn(0, (shorts.items.size - 1).coerceAtLeast(0))) { shorts.items.size }
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { shorts.select(it) } }
     VerticalPager(
@@ -1284,11 +1350,11 @@ private fun ShortsPager(shorts: ShortsState, overlayBottom: Dp) {
         // The pages either side are composed, so their views (and loaded first frames) are ready mid-swipe.
         beyondViewportPageCount = 1,
         key = { shorts.items.getOrNull(it)?.id ?: it },
-    ) { page -> ShortPage(shorts, page, overlayBottom) }
+    ) { page -> ShortPage(shorts, page, overlayBottom, barProgress) }
 }
 
 @Composable
-private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
+private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp, barProgress: () -> Float) {
     val item = shorts.items.getOrNull(page) ?: return
     val details = shorts.details[item.id]
     val failure = shorts.failed[item.id]
@@ -1343,16 +1409,24 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
             Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(330.dp)
                 .background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0f), 0.35f to Color.Black.copy(alpha = 0.18f), 1f to Color.Black.copy(alpha = 0.62f))),
         )
+        // A finger on the progress line: the words make way for the time it lands on.
+        val scrubbing = onScreen && shorts.scrub != null
+        val reduced = rememberReducedMotion()
+        val swell by animateFloatAsState(
+            if (scrubbing) 1f else 0f,
+            if (reduced) tween(0) else spring(dampingRatio = 0.8f, stiffness = 900f),
+            label = "shortScrub",
+        )
         if (details != null) {
             val shade = LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = 0.3f), Offset(0f, 2f), 4f))
             // Wide: in the margin beside the short, a size up — the left one on a tablet (the glass bar
             // has the right), the right page on an open foldable, above the bar.
             val textPlace = when {
-                !wide -> Modifier.fillMaxWidth().padding(start = 16.dp, end = 24.dp, bottom = overlayBottom)
+                !wide -> Modifier.fillMaxWidth().padding(start = 16.dp, end = 24.dp, bottom = overlayBottom + LineRoom)
                 window.foldX != null -> Modifier.fillMaxWidth().padding(start = videoWidth + 28.dp, end = 28.dp, bottom = overlayBottom + 8.dp)
                 else -> Modifier.width(videoStart).padding(start = 32.dp, end = 32.dp, bottom = 40.dp)
             }
-            Column(Modifier.align(Alignment.BottomStart).then(textPlace)) {
+            Column(Modifier.align(Alignment.BottomStart).then(textPlace).graphicsLayer { alpha = 1f - swell }) {
                 Text(details.item.channel, color = Ink, fontWeight = FontWeight.SemiBold, fontSize = if (wide) 16.sp else 14.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, style = shade)
                 if (details.item.title.isNotBlank()) {
                     Spacer(Modifier.height(6.dp))
@@ -1363,6 +1437,76 @@ private fun ShortPage(shorts: ShortsState, page: Int, overlayBottom: Dp) {
                 }
             }
         }
+        // How far in (#48): a line between the words and the glass bar (on a wide window, along the
+        // short's own bottom); drag along it, or tap it, to go anywhere in the short (#44).
+        val lineStart = if (wide) videoStart + LineInset else LineInset
+        val lineWidth = (if (wide) videoWidth else maxWidth) - LineInset * 2
+        val lineCentre = if (wide) LineWideBottom else overlayBottom - LineOverBar
+        val view = LocalView.current
+        if (scrubbing || swell > 0f) {
+            val at = shorts.scrub ?: shorts.progress
+            val length = shorts.durationMs
+            Text(
+                "${formatDuration((at * length).toLong())} / ${formatDuration(length)}",
+                color = Ink, fontSize = 30.sp, fontWeight = FontWeight.Bold,
+                style = LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, 2f), 8f)),
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = lineStart, bottom = lineCentre + LineTimeRaise)
+                    .width(lineWidth)
+                    .wrapContentWidth()
+                    .graphicsLayer { alpha = swell; translationY = (1f - swell) * 12.dp.toPx() },
+            )
+        }
+        Box(
+            Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = lineStart, bottom = lineCentre - LineTouch / 2)
+                .width(lineWidth)
+                .height(LineTouch)
+                .graphicsLayer { alpha = ramp(barProgress(), 0.5f, 1f) }
+                .pointerInput(page) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        if (shorts.index != page || shorts.durationMs <= 0) return@awaitEachGesture
+                        fun at(x: Float) = (x / size.width).coerceIn(0f, 1f)
+                        val slop = viewConfiguration.touchSlop
+                        var moved = Offset.Zero
+                        var dragging = false
+                        try {
+                            while (true) {
+                                val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: break
+                                if (!change.pressed) {
+                                    // A tap on the line jumps there; consumed, so it isn't also the page's pause.
+                                    if (!dragging) { change.consume(); shorts.scrubTo(at(change.position.x)) }
+                                    break
+                                }
+                                moved += change.positionChange()
+                                if (!dragging) {
+                                    // Up or down first: a swipe to the next short, the pager's.
+                                    if (abs(moved.y) > slop && abs(moved.y) >= abs(moved.x)) return@awaitEachGesture
+                                    if (abs(moved.x) <= slop) continue
+                                    dragging = true
+                                    view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                }
+                                change.consume()
+                                shorts.scrubTo(at(change.position.x))
+                            }
+                        } finally {
+                            shorts.endScrub()
+                        }
+                    }
+                }
+                .drawBehind {
+                    val thick = lerpF(LineThickness.toPx(), LineScrubThickness.toPx(), swell)
+                    val top = size.height / 2f - thick / 2f
+                    val ends = CornerRadius(thick / 2f)
+                    val fill = if (shorts.index == page) shorts.progress else 0f
+                    drawRoundRect(Color.White.copy(alpha = 0.3f), Offset(0f, top), Size(size.width, thick), ends)
+                    drawRoundRect(Ink, Offset(0f, top), Size(size.width * fill, thick), ends)
+                    if (swell > 0f) drawCircle(Ink, LineKnob.toPx() * swell, Offset(size.width * fill, size.height / 2f))
+                },
+        )
         when {
             failure != null -> Column(Modifier.align(Alignment.Center).padding(horizontal = 40.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(stringResource(R.string.shorts_cant_play_title), color = Ink, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -1418,6 +1562,21 @@ private fun Modifier.shortTaps(key: Any, onTap: () -> Unit, onDoubleTap: (Offset
 
 /** A run of double-tap thumbs carries on while each tap comes this soon after the last. */
 private const val ThumbRunWindowMs = 600L
+
+// The progress line (#48 / #44). Its centre sits [LineOverBar] under the words' bottom edge
+// (overlayBottom), 12 dp over the glass bar's top; the words move up [LineRoom] to make way.
+private val LineOverBar = 4.dp
+private val LineRoom = 14.dp
+private val LineInset = 16.dp
+/** On a wide window: up from the short's bottom edge. */
+private val LineWideBottom = 22.dp
+private val LineThickness = 3.dp
+private val LineScrubThickness = 6.dp
+private val LineKnob = 7.dp
+/** What a finger can grab: this tall, centred on the line. */
+private val LineTouch = 36.dp
+/** The time a scrub lands on: its bottom this far over the line. */
+private val LineTimeRaise = 34.dp
 
 /** One thumb thrown by a double tap made at [at] in the page, with its own handful of confetti. */
 private class TapThumb(val at: Offset) {

@@ -137,9 +137,32 @@
     <string name="ui_channel_error_title">Не удалось загрузить канал</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Видео</string>
+    <string name="ui_channel_sort_latest">Новые</string>
+    <string name="ui_channel_sort_popular">Популярные</string>
+    <string name="ui_channel_sort_oldest">Старые</string>
+    <string name="ui_see_all">Все</string>
+    <string name="ui_channel_popular_videos">Популярные видео</string>
+    <string name="ui_channel_featured_channels">Рекомендуемые каналы</string>
+    <string name="ui_channel_no_videos">На этом канале пока нет видео.</string>
+    <string name="ui_channel_no_shorts">На этом канале пока нет Shorts.</string>
+    <string name="ui_channel_no_playlists">На этом канале нет общедоступных плейлистов.</string>
     <string name="ui_feed_error_title">Не удалось загрузить</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Вы вышли из аккаунта.</string>
     <string name="ui_chip_empty_title">Здесь пусто</string>
     <string name="ui_chip_empty_body">YouTube не прислал видео для «%1$s».</string>
+    <string name="ui_not_interested">Не интересует</string>
+    <string name="ui_dont_recommend_channel">Не рекомендовать канал</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">Назад на %1$s секунду</item>
+        <item quantity="few">Назад на %1$s секунды</item>
+        <item quantity="many">Назад на %1$s секунд</item>
+        <item quantity="other">Назад на %1$s секунды</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">Вперёд на %1$s секунду</item>
+        <item quantity="few">Вперёд на %1$s секунды</item>
+        <item quantity="many">Вперёд на %1$s секунд</item>
+        <item quantity="other">Вперёд на %1$s секунды</item>
+    </plurals>
 </resources>

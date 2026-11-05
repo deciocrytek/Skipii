@@ -5,8 +5,6 @@
     <string name="bar_play">चलाएं</string>
     <string name="bar_pause">रोकें</string>
     <!-- Accessibility labels of the bar's seek buttons. -->
-    <string name="bar_back_10">10 सेकंड पीछे</string>
-    <string name="bar_forward_10">10 सेकंड आगे</string>
     <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
     <string name="bar_more_controls">और कंट्रोल</string>
     <!-- Accessibility label of the ✕ the ⋮ key turns into. -->

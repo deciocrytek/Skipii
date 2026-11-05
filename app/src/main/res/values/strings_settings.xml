@@ -58,4 +58,14 @@
     <string name="settings_zoom_fill_on">Every video fills the screen; the edges past it are cropped. Pinch in to see a video whole.</string>
     <string name="settings_zoom_fill_off">Videos show whole, with black bars. Pinch out on one in fullscreen to fill the screen.</string>
     <string name="settings_zoom_fill_summary">zoomed to fill</string>
+    <string name="settings_seek_step_title">Skip back and forward</string>
+    <string name="settings_seek_step_line">How far a double tap on the video and the −/⁠+ buttons jump</string>
+    <string name="settings_seconds_short">%1$s s</string>
+    <string name="settings_seek_step_summary">Skips %1$s s</string>
+    <string name="settings_music_normal_title">Music at normal speed</string>
+    <string name="settings_music_normal_line">Songs always play at 1×, even with a speed kept for every video</string>
+    <string name="settings_chapters_open_title">Keep chapters open</string>
+    <string name="settings_chapters_open_line">Picking a chapter leaves the list open, so you can go from one to the next</string>
+    <string name="settings_auto_pip_title">Picture-in-picture when you leave</string>
+    <string name="settings_auto_pip_line">Going home while a video plays keeps it playing in a small window</string>
 </resources>

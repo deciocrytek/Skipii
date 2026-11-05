@@ -49,7 +49,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">Este video tiene restricción de edad y se necesita una cuenta de YouTube para verlo.</string>
     <string name="player_error_geo">Este video no está disponible en tu país.</string>
-    <string name="player_error_bot_check">YouTube pide confirmar que no eres un bot. Vuelve a intentarlo en unos minutos.</string>
+    <string name="player_error_bot_check">YouTube pide confirmar que no eres un bot.</string>
+    <string name="player_error_bot_check_hint">Activar y desactivar el modo avión suele solucionarlo.</string>
     <string name="player_error_private">Este video es privado.</string>
     <string name="player_error_members_only">Este video es solo para miembros. Skipii aún no puede reproducir videos solo para miembros.</string>
     <string name="player_error_unavailable">Este video no está disponible.</string>
@@ -89,4 +90,7 @@
     <string name="player_more_all">Todos</string>
     <string name="player_more_from">De %1$s</string>
     <string name="player_more_related">Relacionados</string>
+    <string name="player_not_interested_done">Entendido. Verás menos vídeos como este</string>
+    <string name="player_channel_not_recommended">Este canal ya no se te recomendará</string>
+    <string name="player_feedback_failed">No se pudo enviar a YouTube. Inténtalo de nuevo</string>
 </resources>

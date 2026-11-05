@@ -35,10 +35,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Forward10
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -515,15 +513,15 @@ private fun SeekButton(
             .barEnter(progress, SeekEnterStart)
             .pressable(enabled = enabled) {
                 view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                burst.tap(side, player.seekBy(side * 10_000L))
+                burst.tap(side, player.seekBy(side * SeekStep.ms))
                 // The arrow kicks the way it seeks.
                 if (!reduced) scope.launch { spin.animateTo(0f, keyframes { durationMillis = 420; side * 50f at 150 }) }
             },
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            if (side < 0) Icons.Rounded.Replay10 else Icons.Rounded.Forward10,
-            contentDescription = stringResource(if (side < 0) R.string.bar_back_10 else R.string.bar_forward_10),
+            seekIcon(forward = side > 0),
+            contentDescription = seekLabel(side),
             tint = c.onSurface,
             modifier = Modifier.size(PlayerIconSize).graphicsLayer { rotationZ = spin.value },
         )

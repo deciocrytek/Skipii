@@ -15,8 +15,6 @@
     <string name="video_next">次へ</string>
     <string name="video_fullscreen">全画面</string>
     <string name="video_exit_fullscreen">全画面を終了</string>
-    <string name="video_back_10">10 秒戻る</string>
-    <string name="video_forward_10">10 秒進む</string>
     <string name="video_play">再生</string>
     <string name="video_pause">一時停止</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -70,4 +68,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">再試行</string>
+    <string name="video_open_in_youtube">YouTube で開く</string>
 </resources>

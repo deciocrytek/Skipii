@@ -134,9 +134,26 @@
     <string name="ui_channel_error_title">このチャンネルを読み込めませんでした</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">動画</string>
+    <string name="ui_channel_sort_latest">新しい順</string>
+    <string name="ui_channel_sort_popular">人気順</string>
+    <string name="ui_channel_sort_oldest">古い順</string>
+    <string name="ui_see_all">すべて表示</string>
+    <string name="ui_channel_popular_videos">人気の動画</string>
+    <string name="ui_channel_featured_channels">おすすめチャンネル</string>
+    <string name="ui_channel_no_videos">このチャンネルにはまだ動画がありません。</string>
+    <string name="ui_channel_no_shorts">このチャンネルにはまだショートがありません。</string>
+    <string name="ui_channel_no_playlists">このチャンネルには公開再生リストがありません。</string>
     <string name="ui_feed_error_title">読み込めませんでした</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">ログアウトしています。</string>
     <string name="ui_chip_empty_title">何もありません</string>
     <string name="ui_chip_empty_body">YouTube から「%1$s」の動画は届きませんでした。</string>
+    <string name="ui_not_interested">興味なし</string>
+    <string name="ui_dont_recommend_channel">チャンネルをおすすめに表示しない</string>
+    <plurals name="ui_seek_back">
+        <item quantity="other">%1$s 秒戻る</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="other">%1$s 秒進む</item>
+    </plurals>
 </resources>

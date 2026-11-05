@@ -134,9 +134,26 @@
     <string name="ui_channel_error_title">Tidak dapat memuat channel ini</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Video</string>
+    <string name="ui_channel_sort_latest">Terbaru</string>
+    <string name="ui_channel_sort_popular">Populer</string>
+    <string name="ui_channel_sort_oldest">Terlama</string>
+    <string name="ui_see_all">Lihat semua</string>
+    <string name="ui_channel_popular_videos">Video populer</string>
+    <string name="ui_channel_featured_channels">Channel unggulan</string>
+    <string name="ui_channel_no_videos">Channel ini belum memposting video.</string>
+    <string name="ui_channel_no_shorts">Channel ini belum memposting Shorts.</string>
+    <string name="ui_channel_no_playlists">Channel ini tidak punya playlist publik.</string>
     <string name="ui_feed_error_title">Tidak dapat memuat ini</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Anda sudah logout.</string>
     <string name="ui_chip_empty_title">Tidak ada apa-apa</string>
     <string name="ui_chip_empty_body">YouTube tidak mengirim video untuk “%1$s”.</string>
+    <string name="ui_not_interested">Tidak tertarik</string>
+    <string name="ui_dont_recommend_channel">Jangan rekomendasikan channel</string>
+    <plurals name="ui_seek_back">
+        <item quantity="other">Mundur %1$s detik</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="other">Maju %1$s detik</item>
+    </plurals>
 </resources>

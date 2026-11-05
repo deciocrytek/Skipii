@@ -15,8 +15,6 @@
     <string name="video_next">Sonraki</string>
     <string name="video_fullscreen">Tam ekran</string>
     <string name="video_exit_fullscreen">Tam ekrandan çık</string>
-    <string name="video_back_10">10 saniye geri</string>
-    <string name="video_forward_10">10 saniye ileri</string>
     <string name="video_play">Oynat</string>
     <string name="video_pause">Duraklat</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -71,4 +69,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Tekrar dene</string>
+    <string name="video_open_in_youtube">YouTube\'da aç</string>
 </resources>

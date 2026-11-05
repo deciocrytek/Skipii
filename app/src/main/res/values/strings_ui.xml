@@ -135,10 +135,33 @@
     <string name="ui_channel_error_title">Couldn\'t load this channel</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Videos</string>
+    <!-- The order of a channel's Videos tab, three small chips (~12 characters each): newest first, most viewed first, oldest first. -->
+    <string name="ui_channel_sort_latest">Latest</string>
+    <string name="ui_channel_sort_popular">Popular</string>
+    <string name="ui_channel_sort_oldest">Oldest</string>
+    <!-- Link at the end of a shelf's title on a channel's Home tab (~12 characters). -->
+    <string name="ui_see_all">See all</string>
+    <!-- Titles of YouTube's own shelves on a channel's Home tab. -->
+    <string name="ui_channel_popular_videos">Popular videos</string>
+    <string name="ui_channel_featured_channels">Featured channels</string>
+    <!-- A channel tab with nothing in it ("Shorts" is YouTube's name, keep it). -->
+    <string name="ui_channel_no_videos">This channel hasn\'t posted any videos.</string>
+    <string name="ui_channel_no_shorts">This channel hasn\'t posted any Shorts.</string>
+    <string name="ui_channel_no_playlists">This channel has no public playlists.</string>
     <string name="ui_feed_error_title">Couldn\'t load this</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">You\'re signed out.</string>
     <!-- Home, a category chip whose page had no videos. %1$s = the chip's name. -->
     <string name="ui_chip_empty_title">Nothing here</string>
     <string name="ui_chip_empty_body">YouTube sent no videos for “%1$s”.</string>
+    <string name="ui_not_interested">Not interested</string>
+    <string name="ui_dont_recommend_channel">Don\'t recommend channel</string>
+    <plurals name="ui_seek_back">
+        <item quantity="one">Back %1$s second</item>
+        <item quantity="other">Back %1$s seconds</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="one">Forward %1$s second</item>
+        <item quantity="other">Forward %1$s seconds</item>
+    </plurals>
 </resources>

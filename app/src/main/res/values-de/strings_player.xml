@@ -48,7 +48,8 @@
     <!-- Errors from loading a video or a page (YouTube.friendlyError), shown in the player and on pages. -->
     <string name="player_error_age_restricted">Dieses Video ist altersbeschränkt und kann nur mit einem YouTube-Konto angesehen werden.</string>
     <string name="player_error_geo">Dieses Video ist in deinem Land nicht verfügbar.</string>
-    <string name="player_error_bot_check">YouTube möchte bestätigt haben, dass du kein Bot bist. Versuch es in ein paar Minuten noch einmal.</string>
+    <string name="player_error_bot_check">YouTube möchte bestätigt haben, dass du kein Bot bist.</string>
+    <string name="player_error_bot_check_hint">Flugmodus kurz ein- und wieder ausschalten hilft meistens.</string>
     <string name="player_error_private">Dieses Video ist privat.</string>
     <string name="player_error_members_only">Dieses Video ist nur für Kanalmitglieder. Skipii kann solche Videos noch nicht abspielen.</string>
     <string name="player_error_unavailable">Dieses Video ist nicht verfügbar.</string>
@@ -88,4 +89,7 @@
     <string name="player_more_all">Alle</string>
     <string name="player_more_from">Von %1$s</string>
     <string name="player_more_related">Ähnliche</string>
+    <string name="player_not_interested_done">Verstanden. Du siehst weniger Videos wie dieses</string>
+    <string name="player_channel_not_recommended">Dieser Kanal wird dir nicht mehr empfohlen</string>
+    <string name="player_feedback_failed">Konnte nicht an YouTube gesendet werden. Versuch es noch mal</string>
 </resources>

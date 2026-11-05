@@ -16,8 +16,6 @@
     <string name="video_next">Tiếp theo</string>
     <string name="video_fullscreen">Toàn màn hình</string>
     <string name="video_exit_fullscreen">Thoát toàn màn hình</string>
-    <string name="video_back_10">Lùi 10 giây</string>
-    <string name="video_forward_10">Tua đi 10 giây</string>
     <string name="video_play">Phát</string>
     <string name="video_pause">Tạm dừng</string>
     <!-- Accessibility label of the check mark on the chosen row of a picker. -->
@@ -71,4 +69,5 @@
 
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Thử lại</string>
+    <string name="video_open_in_youtube">Mở trong YouTube</string>
 </resources>

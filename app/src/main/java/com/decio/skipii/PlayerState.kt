@@ -49,6 +49,9 @@ class PlayerState(private val scope: CoroutineScope) {
         private set
     var error by mutableStateOf<String?>(null)
         private set
+    /** [error] is YouTube's bot check: the panel adds its own advice and Open in YouTube. */
+    var botCheck by mutableStateOf(false)
+        private set
 
     var isPlaying by mutableStateOf(false)
         private set
@@ -70,7 +73,7 @@ class PlayerState(private val scope: CoroutineScope) {
             snapshotFlow { StreamRecovery.recovering to StreamRecovery.failed }.collect { (_, failed) ->
                 syncFromPlayer()
                 if (failed != null && failed.first == current?.id) {
-                    error = failed.second
+                    fail(failed.second)
                     isBuffering = false
                 }
             }
@@ -170,6 +173,7 @@ class PlayerState(private val scope: CoroutineScope) {
         current = item
         details = null
         error = null
+        botCheck = false
         firstFrameRendered = false
         videoAspect = 16f / 9f
         aspectFromFrames = false
@@ -202,7 +206,7 @@ class PlayerState(private val scope: CoroutineScope) {
                     // video's outcome no longer matters, and the new load owns the state.
                     if (it is CancellationException) throw it
                     Log.w(TAG, "details failed for ${item.id}", it)
-                    error = YouTube.friendlyError(it)
+                    fail(it)
                     // Comments wait for details; without this their spinner never stopped.
                     comments.load(item.id)
                 }
@@ -420,6 +424,26 @@ class PlayerState(private val scope: CoroutineScope) {
         }
     }
 
+    /** "Not interested" on a card (#16): it leaves the feeds now, and YouTube learns from it. */
+    fun notInterested(video: VideoItem) = sendFeedback(video, video.feedback?.notInterested, channel = false)
+
+    /** "Don't recommend channel" (#16): every card of that channel leaves the feeds. */
+    fun dontRecommendChannel(video: VideoItem) = sendFeedback(video, video.feedback?.dontRecommend, channel = true)
+
+    private fun sendFeedback(video: VideoItem, token: String?, channel: Boolean) {
+        token ?: return
+        Dismissed.hide(video, channel)
+        scope.launch {
+            runCatching { InnerTube.sendFeedback(token) }
+                .onSuccess { actionMessage = str(if (channel) R.string.player_channel_not_recommended else R.string.player_not_interested_done) }
+                .onFailure {
+                    Dismissed.restore(video, channel)
+                    actionMessage = str(R.string.player_feedback_failed)
+                    Log.w(TAG, "feedback for ${video.id} (channel: $channel)", it)
+                }
+        }
+    }
+
     // ── Save to playlist (GitHub issue #12) ──
     /** The video the "Save to playlist" sheet is open for; null = closed. */
     var playlistTarget by mutableStateOf<VideoItem?>(null)
@@ -500,8 +524,28 @@ class PlayerState(private val scope: CoroutineScope) {
         details = details?.copy(quality = StreamSelection.pick(info).playedHeight?.let { "${it}p" })
     }
 
+    private fun fail(t: Throwable) {
+        error = YouTube.friendlyError(t)
+        botCheck = t is org.schabi.newpipe.extractor.exceptions.SignInConfirmNotBotException
+    }
+
     /** Fresh links too: the cached ones may be exactly what YouTube refused. */
     fun retry() = current?.let { item -> StreamCache.invalidate(item.id); current = null; open(item) }
+
+    /**
+     * The video in YouTube's own app (or the browser), from where it stopped: the way out when
+     * YouTube's bot check refuses Skipii's requests ([botCheck]).
+     */
+    fun openInYouTube(context: android.content.Context) {
+        val item = current ?: return
+        val seconds = positionMs / 1000
+        val url = YouTube.watchUrl(item.id) + if (seconds > 0) "&t=${seconds}s" else ""
+        try {
+            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (_: android.content.ActivityNotFoundException) {
+            actionMessage = str(R.string.settings_no_app)
+        }
+    }
 
     fun togglePlay() {
         val player = controller ?: return
@@ -659,6 +703,7 @@ class PlayerState(private val scope: CoroutineScope) {
         details = null
         captions.clear()
         error = null
+        botCheck = false
         loading = false
     }
 
@@ -756,6 +801,7 @@ class PlayerState(private val scope: CoroutineScope) {
             Log.w(TAG, "playback error ${e.errorCodeName}${status?.let { " (HTTP $it)" } ?: ""} for ${current?.id}", e)
             // A refused or expired stream URL: the service is fetching fresh links (StreamRecoverer).
             if (e.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && StreamRecovery.recovering == current?.id) return
+            botCheck = false
             error = when (e.errorCode) {
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> str(R.string.player_error_connection)

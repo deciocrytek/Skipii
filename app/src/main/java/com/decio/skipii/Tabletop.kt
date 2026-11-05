@@ -22,11 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ClosedCaption
-import androidx.compose.material.icons.rounded.Forward10
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -235,7 +233,7 @@ private fun DeckButtons(player: PlayerState) {
         DeckKeyButton(label = stringResource(R.string.bar_tool_quality), onClick = { player.sheet = PlayerSheet.Quality }) {
             Text(QualityPreference.height?.let { h -> "${h}p" } ?: stringResource(R.string.bar_quality_auto), color = it, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
         }
-        DeckIconButton(Icons.Rounded.Replay10, stringResource(R.string.bar_back_10)) { player.seekBy(-10_000) }
+        DeckIconButton(seekIcon(forward = false), seekLabel(-1)) { player.seekBy(-SeekStep.ms) }
         // Play: the one big key, full primary.
         Box(
             Modifier.size(76.dp).pressable { player.togglePlay() }.clip(CircleShape).background(c.primary),
@@ -247,7 +245,7 @@ private fun DeckButtons(player: PlayerState) {
                 tint = c.onPrimary, modifier = Modifier.size(38.dp),
             )
         }
-        DeckIconButton(Icons.Rounded.Forward10, stringResource(R.string.bar_forward_10)) { player.seekBy(10_000) }
+        DeckIconButton(seekIcon(forward = true), seekLabel(1)) { player.seekBy(SeekStep.ms) }
         DeckKeyButton(label = stringResource(R.string.bar_tool_captions), on = player.captions.on, onClick = {
             player.captions.turn(true)
             player.sheet = PlayerSheet.Captions

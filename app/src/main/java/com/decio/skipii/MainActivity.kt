@@ -102,6 +102,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -201,7 +202,9 @@ fun SkipiiApp() {
     val player = rememberPlayerState()
     val scope = rememberCoroutineScope()
     val search = remember { SearchState(scope) }
-    val lib = remember { LibraryData(scope) }
+    val appContext = LocalContext.current.applicationContext
+    val lib = remember { LibraryData(scope, appContext) }
+    LaunchedEffect(Account.signedIn) { if (Account.signedIn) lib.warmUp() }
     var signingIn by remember { mutableStateOf(false) }
     // Settings (Settings.kt): a page over the app, from the header avatar. Saveable: picking a language rebuilds the window.
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
@@ -222,6 +225,12 @@ fun SkipiiApp() {
     val wide = windowLayout.wide
     DisposableEffect(shorts) { onDispose { if (!host.isChangingConfigurations) shorts.leave() } }
     var shortsFrom by rememberSaveable { mutableStateOf(Tab.Home) }
+    // A short tapped on a channel page plays in Shorts among that channel's shorts; ‹ / Back return to
+    // that page. [shortsListOnTab]: it was opened from Shorts itself (the channel page over a short).
+    var shortsBackTo by rememberSaveable { mutableStateOf<String?>(null) }
+    var shortsListOnTab by rememberSaveable { mutableStateOf(false) }
+    // A playlist opened from a channel page goes over it (else the channel goes over the playlist).
+    var playlistOverChannel by remember { mutableStateOf(false) }
     // A new-video notification's tap: that video opens in the player (leaving Shorts, as a channel page's video does).
     LaunchedEffect(NewVideos.opening) {
         val video = NewVideos.opening ?: return@LaunchedEffect
@@ -299,13 +308,22 @@ fun SkipiiApp() {
     val activity = LocalContext.current as Activity
     val orientation = rememberOrientationController(activity as ComponentActivity)
     val playerOpen = player.current != null && player.expanded
-    // In split screen this is the pane's shape, not the phone's.
-    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    // In split screen this is the pane's shape, not the phone's. On a near-square screen it's how the
+    // screen is turned: its window's shape says nothing there. A Z Flip's cover screen (720 × 748) never
+    // turns, but its window came out wider than tall, so the open player was always fullscreen and the
+    // exit button (asking for portrait) couldn't undo it (Z Flip 6 user, 2026-11-04).
+    val config = LocalConfiguration.current
+    val windowLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val landscape = remember(windowLandscape, config.screenWidthDp, config.screenHeightDp, config.densityDpi, orientation.multiWindow) {
+        if (!orientation.multiWindow && activity.onSquareScreen()) activity.turnedSideways() else windowLandscape
+    }
     // Audio only has no picture to go fullscreen with: the open player stays portrait.
     orientation.Bind(playerOpen && !AudioOnly.enabled, landscape)
     val pip = remember(activity) { PipController(activity) }
     // Closing the picture-in-picture window pauses (expanding it just comes back).
     pip.Bind(onClosed = { player.controller?.pause() })
+    // Leaving the app mid-video floats it (Settings › Playback, off unless turned on; #42).
+    pip.AutoEnter(AutoPip.on && player.isPlaying && player.current != null && !AudioOnly.enabled, player.videoAspect)
     // The PiP window can be any shape: hold whatever was showing when it opened.
     val fullscreenBeforePip = remember { mutableStateOf(false) }
     // Tabletop (an open foldable stood half open, Tabletop.kt): the open player is the video on the top
@@ -318,11 +336,41 @@ fun SkipiiApp() {
     // A vertical video's fullscreen stays upright, and every video's on a near-square phone (Fullscreen.kt).
     fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen(vertical = player.videoAspect < 1f)
 
+    fun showChannel(url: String) {
+        // From the player: minimize it so the channel page is visible.
+        player.expanded = false
+        if (channelState?.url != url) channelState = ChannelState(url, scope)
+        playlistOverChannel = false
+        openChannel = url
+    }
+
+    /** A channel's short tapped: Shorts plays the channel's list from it, the page waits for ‹ / Back. */
+    fun openShorts(list: ShortsList) {
+        shortsBackTo = openChannel
+        shortsListOnTab = tab == Tab.Shorts
+        openChannel = null
+        shorts.openList(list)
+        if (tab != Tab.Shorts) { shortsFrom = tab; tab = Tab.Shorts }
+    }
+
+    /** ‹ / Back on Shorts: to the tab it was opened from, or back to the channel page a short came from. */
+    fun leaveShorts() {
+        val back = shortsBackTo
+        shortsBackTo = null
+        when {
+            back == null -> tab = shortsFrom
+            // From another tab: leave() puts the feed back; the channel page shows over that tab again.
+            !shortsListOnTab -> { tab = shortsFrom; showChannel(back) }
+            // From the channel page over a short: the page covers the feed's short again (paused first).
+            else -> { showChannel(back); shorts.cover(true); shorts.closeList() }
+        }
+    }
+
     BackHandler(enabled = player.expanded) { player.expanded = false }
-    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { tab = if (tab == Tab.Shorts) shortsFrom else Tab.Home }
+    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
     BackHandler(enabled = signingIn) { signingIn = false }
-    BackHandler(enabled = !player.expanded && openChannel != null) { openChannel = null }
+    BackHandler(enabled = !player.expanded && openChannel != null && !(playlistOverChannel && openPlaylist != null)) { openChannel = null }
     BackHandler(enabled = tab == Tab.Shorts && shorts.commentsOpen) { shorts.commentsOpen = false }
     // Registered last so it wins: in fullscreen, Back returns to the portrait player first.
     BackHandler(enabled = showFullscreen) { orientation.exitFullscreen() }
@@ -352,6 +400,7 @@ fun SkipiiApp() {
             player.setVideoAside(true)
             shorts.enter()
         } else if (shorts.active) {
+            shortsBackTo = null
             shorts.leave()
             player.setVideoAside(false)
             if (resumeMain) player.controller?.play()
@@ -384,6 +433,7 @@ fun SkipiiApp() {
     // A tab tapped (the pill or the rail): a re-tap backs out of a playlist / channel, else scrolls to the top.
     fun selectTab(selected: Tab) {
         when {
+            selected == tab && playlistOverChannel && openPlaylist != null -> openPlaylist = null
             selected == tab && openChannel != null -> openChannel = null
             selected == tab && openPlaylist != null -> openPlaylist = null
             selected == tab -> scrollToTop[selected] = (scrollToTop[selected] ?: 0) + 1
@@ -394,12 +444,6 @@ fun SkipiiApp() {
         }
     }
 
-    fun showChannel(url: String) {
-        // From the player: minimize it so the channel page is visible.
-        player.expanded = false
-        if (channelState?.url != url) channelState = ChannelState(url, scope)
-        openChannel = url
-    }
     // A channel opened from Shorts sits over the short, which waits paused.
     SideEffect { shorts.cover(tab == Tab.Shorts && openChannel != null) }
     BackHandler(enabled = tab == Tab.Shorts && shorts.channelMenu) { shorts.channelMenu = false }
@@ -508,6 +552,7 @@ fun SkipiiApp() {
         // A playlist opens as a page over the tabs (slides in from the right).
         AnimatedVisibility(
             visible = openPlaylist != null,
+            modifier = Modifier.zIndex(if (playlistOverChannel) 1f else 0f),
             enter = if (reduced) fadeIn(snap()) else slideInHorizontally(tween(340, easing = Motion.Emphasized)) { it } + fadeIn(tween(120)),
             exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
         ) {
@@ -529,6 +574,8 @@ fun SkipiiApp() {
                     ch, contentPadding, onBack = { openChannel = null },
                     // A video from a channel opened in Shorts plays in the app's player: Shorts closes.
                     onOpen = { v -> if (tab == Tab.Shorts) tab = shortsFrom; player.open(v) },
+                    onOpenShorts = ::openShorts,
+                    onOpenPlaylist = { playlistOverChannel = true; openPlaylist = it },
                     onMessage = { player.actionMessage = it },
                 )
             }
@@ -695,7 +742,7 @@ fun SkipiiApp() {
                 ShortsBar(
                     shorts,
                     progress = { shortsMorph.value },
-                    onBack = { tab = shortsFrom },
+                    onBack = ::leaveShorts,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)

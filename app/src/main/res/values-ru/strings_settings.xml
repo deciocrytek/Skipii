@@ -48,4 +48,14 @@
     <string name="settings_zoom_fill_on">Каждое видео заполняет экран, лишние края обрезаются. Сведите пальцы, чтобы увидеть видео целиком.</string>
     <string name="settings_zoom_fill_off">Видео показываются целиком, с чёрными полосами. Разведите пальцы в полноэкранном режиме, чтобы заполнить экран.</string>
     <string name="settings_zoom_fill_summary">растянуто на весь экран</string>
+    <string name="settings_seek_step_title">Перемотка назад и вперёд</string>
+    <string name="settings_seek_step_line">На сколько перематывают двойное касание видео и кнопки −/⁠+</string>
+    <string name="settings_seconds_short">%1$s с</string>
+    <string name="settings_seek_step_summary">Шаг %1$s с</string>
+    <string name="settings_music_normal_title">Музыка на обычной скорости</string>
+    <string name="settings_music_normal_line">Песни всегда играют на 1×, даже если скорость запомнена для всех видео</string>
+    <string name="settings_chapters_open_title">Не закрывать главы</string>
+    <string name="settings_chapters_open_line">После выбора главы список остаётся открытым, чтобы переходить от одной к другой</string>
+    <string name="settings_auto_pip_title">Картинка в картинке при выходе</string>
+    <string name="settings_auto_pip_line">Если выйти на главный экран во время видео, оно продолжит играть в маленьком окне</string>
 </resources>

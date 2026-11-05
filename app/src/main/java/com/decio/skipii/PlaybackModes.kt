@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import java.util.Locale
@@ -28,6 +29,7 @@ object PlaybackSpeed {
 
     private const val KEY_REMEMBER = "speed_remember"
     private const val KEY_SPEED = "speed_saved"
+    private const val KEY_MUSIC = "speed_music_normal"
     private var prefs: SharedPreferences? = null
 
     var remember by mutableStateOf(false)
@@ -35,15 +37,27 @@ object PlaybackSpeed {
     /** The remembered speed (meaningful while [remember]). */
     var saved by mutableFloatStateOf(1f)
         private set
+    /**
+     * Music plays at 1× even while a speed is remembered (#35), and the next video that isn't
+     * music is back at the remembered speed. On unless turned off in Settings › Playback.
+     */
+    var musicAtNormal by mutableStateOf(true)
+        private set
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
         remember = prefs?.getBoolean(KEY_REMEMBER, false) == true
         saved = snap(prefs?.getFloat(KEY_SPEED, 1f) ?: 1f)
+        musicAtNormal = prefs?.getBoolean(KEY_MUSIC, true) != false
     }
 
-    /** What a video that has just become current starts at. */
-    val forNewVideo: Float get() = if (remember) saved else 1f
+    /** What a video that has just become current starts at; [music] from [YouTube.isMusic]. */
+    fun forNewVideo(music: Boolean): Float = if (remember && !(music && musicAtNormal)) saved else 1f
+
+    fun chooseMusicAtNormal(on: Boolean) {
+        musicAtNormal = on
+        prefs?.edit()?.putBoolean(KEY_MUSIC, on)?.apply()
+    }
 
     fun setRemember(on: Boolean, current: Float) {
         remember = on
@@ -116,6 +130,76 @@ object PlayerControls {
     fun set(bar: Boolean) {
         inBar = bar
         prefs?.edit()?.putBoolean(KEY, bar)?.apply()
+    }
+}
+
+/**
+ * How far a double tap on the video and the −/+ buttons jump (#36): 5 to 30 seconds in steps of 5, picked in
+ * Settings › Playback. Every −/+ button draws it (`seekIcon`). The media session's own back / forward
+ * (headphones, the notification) takes it when the service starts.
+ */
+object SeekStep {
+    val choices = listOf(5, 10, 15, 20, 25, 30)
+    private const val KEY = "seek_step"
+    private var prefs: SharedPreferences? = null
+
+    var seconds by mutableIntStateOf(10)
+        private set
+    val ms: Long get() = seconds * 1000L
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        seconds = prefs?.getInt(KEY, 10)?.takeIf { it in choices } ?: 10
+    }
+
+    fun set(value: Int) {
+        if (value !in choices) return
+        seconds = value
+        prefs?.edit()?.putInt(KEY, value)?.apply()
+    }
+}
+
+/**
+ * Picking a chapter leaves the chapter list open (#46), so you can go through them one after another;
+ * it closes on a tap outside it, ✕ or Back. Off (YouTube's way): the list folds once a chapter is picked.
+ */
+object ChaptersStayOpen {
+    private const val KEY = "chapters_stay_open"
+    private var prefs: SharedPreferences? = null
+
+    var on by mutableStateOf(false)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        on = prefs?.getBoolean(KEY, false) == true
+    }
+
+    fun set(value: Boolean) {
+        on = value
+        prefs?.edit()?.putBoolean(KEY, value)?.apply()
+    }
+}
+
+/**
+ * Picture-in-picture by itself (#42): leaving the app (Home, Recents, another app) while a video plays
+ * turns it into the floating window. Off by default (Derek): background play is audio only then.
+ */
+object AutoPip {
+    private const val KEY = "auto_pip"
+    private var prefs: SharedPreferences? = null
+
+    var on by mutableStateOf(false)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        on = prefs?.getBoolean(KEY, false) == true
+    }
+
+    fun set(value: Boolean) {
+        on = value
+        prefs?.edit()?.putBoolean(KEY, value)?.apply()
     }
 }
 

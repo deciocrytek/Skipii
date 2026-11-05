@@ -134,9 +134,26 @@
     <string name="ui_channel_error_title">Không thể tải kênh này</string>
     <!-- Section title on a channel page: its uploads. -->
     <string name="ui_videos">Video</string>
+    <string name="ui_channel_sort_latest">Mới nhất</string>
+    <string name="ui_channel_sort_popular">Phổ biến</string>
+    <string name="ui_channel_sort_oldest">Cũ nhất</string>
+    <string name="ui_see_all">Xem tất cả</string>
+    <string name="ui_channel_popular_videos">Video phổ biến</string>
+    <string name="ui_channel_featured_channels">Kênh nổi bật</string>
+    <string name="ui_channel_no_videos">Kênh này chưa đăng video nào.</string>
+    <string name="ui_channel_no_shorts">Kênh này chưa đăng Shorts nào.</string>
+    <string name="ui_channel_no_playlists">Kênh này không có danh sách phát công khai.</string>
     <string name="ui_feed_error_title">Không thể tải nội dung này</string>
     <!-- Shown when an account feed fails because the session ended. -->
     <string name="ui_signed_out_error">Bạn đã đăng xuất.</string>
     <string name="ui_chip_empty_title">Không có gì ở đây</string>
     <string name="ui_chip_empty_body">YouTube không gửi video nào cho “%1$s”.</string>
+    <string name="ui_not_interested">Không quan tâm</string>
+    <string name="ui_dont_recommend_channel">Không đề xuất kênh</string>
+    <plurals name="ui_seek_back">
+        <item quantity="other">Lùi %1$s giây</item>
+    </plurals>
+    <plurals name="ui_seek_forward">
+        <item quantity="other">Tới %1$s giây</item>
+    </plurals>
 </resources>

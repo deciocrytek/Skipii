@@ -4,8 +4,6 @@
     <string name="bar_play">Wiedergeben</string>
     <string name="bar_pause">Pausieren</string>
     <!-- Accessibility labels of the bar's seek buttons. -->
-    <string name="bar_back_10">10 Sekunden zurück</string>
-    <string name="bar_forward_10">10 Sekunden vor</string>
     <!-- Accessibility label of the ⋮ key that opens the card of tools. -->
     <string name="bar_more_controls">Weitere Steuerelemente</string>
     <!-- Accessibility label of the ✕ the ⋮ key turns into. -->
