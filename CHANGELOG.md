@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.109
+
 ### New
 - **Crash report** in **Settings › About** (#55). If Skipii closes by itself, open it again, tap Crash report and paste what it shares into a GitHub issue. It says what went wrong and how Android closed the app, with your phone's model and Android version, and nothing about your account or what you watched. Settings › About says "Crash report saved" after a crash.
 
