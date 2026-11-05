@@ -10,6 +10,17 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.108
+
+### Improved
+
+- Flex mode on a Galaxy Z Flip: the controls under the fold no longer squeeze into slivers. Play and skip are bigger, and the other buttons get a row of their own with their names in full.
+- Flex mode: buttons that are on (captions, a changed speed, audio only) are now a soft tint instead of a bright fill, so play stays the one that stands out.
+
+### Fixed
+
+- Tablets held upright now show videos two to a row, instead of one huge card across the screen.
+
 ## 0.5.106
 
 ### New
