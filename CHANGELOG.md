@@ -10,6 +10,9 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### Fixed
+- Skipii no longer closes by itself when you open it again after leaving it with Back.
+
 ## 0.5.113
 
 ### New

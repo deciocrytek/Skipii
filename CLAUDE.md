@@ -843,6 +843,12 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Settings › Playback "Swipe to adjust brightness / volume" (`FullscreenSwipes`, PlaybackModes.kt, prefs "playback"
   `swipe_brightness` / `swipe_volume`, both default on; a group of their own after the picture group, hidden on TV). A side
   that's off acts like the middle in `fullscreenGestures` (swipe down leaves fullscreen).
+- 0.5.114 (2026-11-08): crash on return. `rememberPlayerState` built the MediaController on the WINDOW's context. Media3's
+  `release()` unbinds later (always a posted message; up to `RELEASE_TIMEOUT_MS` 30 s while a command is pending), after
+  Android has already dropped the destroyed window's bindings ("leaked ServiceConnection"), so the late unbind threw
+  "Service not registered" and killed the app. The process is frozen while cached, so the crash came when the app was
+  opened again. Now SessionToken + MediaController.Builder take `applicationContext`. Never bind a service through an
+  Activity context. Repro: force-stop, open (restores a paused video), Back, wait ~40 s, open again.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

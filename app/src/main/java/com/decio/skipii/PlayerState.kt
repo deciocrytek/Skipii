@@ -847,8 +847,13 @@ fun rememberPlayerState(): PlayerState {
     val scope = rememberCoroutineScope()
     val state = remember { PlayerState(scope) }
     DisposableEffect(context) {
-        val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        val future = MediaController.Builder(context, token).buildAsync()
+        // Bound through the APPLICATION, never the window: Media3 unbinds a released controller later
+        // (a posted message, up to 30 s while a command is pending), after Android has already dropped
+        // a destroyed window's bindings ("leaked ServiceConnection"), and that late unbind crashed with
+        // "Service not registered" — Back out of the app, open it again, crash.
+        val app = context.applicationContext
+        val token = SessionToken(app, ComponentName(app, PlaybackService::class.java))
+        val future = MediaController.Builder(app, token).buildAsync()
         future.addListener({
             runCatching { future.get() }.getOrNull()?.let { controller ->
                 state.controller = controller
