@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.112
+
 ### New
 - **Android TV and Google TV.** Skipii now shows up in your TV's apps and works with the remote. Pages have the tabs down the left and four videos a row; the focused card lifts so you always know where you are. Videos play across the whole screen: press any button for the controls, ◀ ▶ to skim with a preview of where you'll land, OK to pause, ▼ for More videos, and the side panel for captions, speed, quality and chapters. Shorts change with ▲ ▼.
 - **Live activity** in **Settings › Playback**. Turn it on and leave Skipii while a video plays: its controls (−10 s, play/pause, +10 s), the thumbnail and a progress bar sit at the top of your notifications and on the lock screen, and a chip in the status bar counts down the time left. Tap it to go back to the video. Needs Android 16 QPR1 or later (Pixel, One UI 8); the usual media controls stay as they are.
