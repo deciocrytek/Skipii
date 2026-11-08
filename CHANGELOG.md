@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.113
+
 ### New
 - **Swipe to adjust brightness** and **Swipe to adjust volume** in **Settings › Playback** (#62, thanks @sushi1579). Turn either one off if you set it off by accident; that side of the fullscreen video then works like the middle (swipe down to leave fullscreen). Both stay on unless you change them.
 
