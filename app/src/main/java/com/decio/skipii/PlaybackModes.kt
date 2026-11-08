@@ -227,3 +227,36 @@ object FullscreenZoom {
         prefs?.edit()?.putBoolean(KEY, on)?.apply()
     }
 }
+
+/**
+ * Fullscreen's side swipes (#62, thanks @sushi1579): each can be turned off on its own in Settings › Playback,
+ * since they're easy to set off by accident. A side that's off acts like the middle (swipe down leaves fullscreen).
+ */
+object FullscreenSwipes {
+    private const val KEY_BRIGHTNESS = "swipe_brightness"
+    private const val KEY_VOLUME = "swipe_volume"
+    private var prefs: SharedPreferences? = null
+
+    /** Vertical drags on the left side set the brightness. */
+    var brightness by mutableStateOf(true)
+        private set
+    /** Vertical drags on the right side set the volume. */
+    var volume by mutableStateOf(true)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        brightness = prefs?.getBoolean(KEY_BRIGHTNESS, true) != false
+        volume = prefs?.getBoolean(KEY_VOLUME, true) != false
+    }
+
+    fun turnBrightness(on: Boolean) {
+        brightness = on
+        prefs?.edit()?.putBoolean(KEY_BRIGHTNESS, on)?.apply()
+    }
+
+    fun turnVolume(on: Boolean) {
+        volume = on
+        prefs?.edit()?.putBoolean(KEY_VOLUME, on)?.apply()
+    }
+}

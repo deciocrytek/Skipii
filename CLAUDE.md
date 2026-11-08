@@ -839,6 +839,10 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   with Gboard TV, player keys / scrub / panels / captions / More videos, focus back to the card, Shorts + bar, Settings, channel
   page grid; phone unchanged on skipii_qa. NOT verified: a real TV / remote, sign-in on a TV (WebView + TV keyboard), signed-in
   Home on TV, the TV launcher row with the banner.
+- 0.5.113 (2026-11-08, GitHub #62, @sushi1579): fullscreen's brightness (left) and volume (right) swipes can each be turned off,
+  Settings › Playback "Swipe to adjust brightness / volume" (`FullscreenSwipes`, PlaybackModes.kt, prefs "playback"
+  `swipe_brightness` / `swipe_volume`, both default on; a group of their own after the picture group, hidden on TV). A side
+  that's off acts like the middle in `fullscreenGestures` (swipe down leaves fullscreen).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

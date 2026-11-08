@@ -72,4 +72,10 @@
     <string name="settings_live_allow_line">Cập nhật trực tiếp đang tắt cho Skipii trong cài đặt Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Cập nhật trực tiếp, Now Bar, thanh trạng thái, màn hình khóa</string>
+    <string name="settings_swipe_brightness_title">Vuốt để chỉnh độ sáng</string>
+    <string name="settings_swipe_brightness_line">Khi toàn màn hình, vuốt lên hoặc xuống ở bên trái video.</string>
+    <string name="settings_swipe_volume_title">Vuốt để chỉnh âm lượng</string>
+    <string name="settings_swipe_volume_line">Khi toàn màn hình, vuốt lên hoặc xuống ở bên phải video.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">cử chỉ, vuốt, độ sáng, âm lượng, âm thanh</string>
 </resources>

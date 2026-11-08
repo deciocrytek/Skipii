@@ -75,4 +75,10 @@
     <string name="settings_live_allow_line">Живые обновления для Skipii отключены в настройках Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Живое обновление, Now Bar, строка состояния, экран блокировки</string>
+    <string name="settings_swipe_brightness_title">Яркость жестом</string>
+    <string name="settings_swipe_brightness_line">В полноэкранном режиме проведите вверх или вниз по левой стороне видео.</string>
+    <string name="settings_swipe_volume_title">Громкость жестом</string>
+    <string name="settings_swipe_volume_line">В полноэкранном режиме проведите вверх или вниз по правой стороне видео.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">жест, жесты, свайп, провести, яркость, громкость, звук</string>
 </resources>

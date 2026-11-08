@@ -63,6 +63,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.Check
@@ -93,6 +94,7 @@ import androidx.compose.material.icons.rounded.SystemUpdateAlt
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.ZoomOutMap
+import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -976,6 +978,8 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(pb, "pip", str(R.string.settings_auto_pip_title), listOf(str(R.string.settings_auto_pip_line))))
     add(Entry(pb, "music", str(R.string.settings_music_normal_title), listOf(str(R.string.settings_music_normal_line))))
     add(Entry(pb, "zoom", str(R.string.settings_zoom_fill_title), listOf(str(R.string.settings_zoom_fill_on), str(R.string.settings_zoom_fill_off))))
+    add(Entry(pb, "swipe_brightness", str(R.string.settings_swipe_brightness_title), listOf(str(R.string.settings_swipe_brightness_line), str(R.string.settings_swipe_words))))
+    add(Entry(pb, "swipe_volume", str(R.string.settings_swipe_volume_title), listOf(str(R.string.settings_swipe_volume_line), str(R.string.settings_swipe_words))))
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
     add(Entry(pb, "live", str(R.string.settings_live_title), listOf(str(R.string.settings_live_line), str(R.string.settings_live_words))))
     val cc = SettingsPage.Captions
@@ -1006,7 +1010,7 @@ private fun entries(): List<Entry> = buildList {
 private fun fold(s: String) = Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase()
 
 /** Rows a TV doesn't show (PlaybackPage): never found by a search there. */
-private val PhoneOnlyRows = setOf("controls", "chapters", "pip", "zoom", "live")
+private val PhoneOnlyRows = setOf("controls", "chapters", "pip", "zoom", "swipe_brightness", "swipe_volume", "live")
 
 private fun hits(query: String, tv: Boolean = false): List<Hit> {
     val q = fold(query.trim())
@@ -1328,6 +1332,26 @@ private fun PlaybackPage(player: PlayerState) {
                 AudioOnly.enabled,
                 icon = Icons.Rounded.Headphones,
             ) { player.setAudioOnly(it) }
+        }
+    }
+    // Fullscreen's side swipes (#62). A TV's player has no touch gestures.
+    if (!tv) {
+        Spacer(Modifier.height(14.dp))
+        Joined(2) { i, shape ->
+            if (i == 0) SwitchSetting(
+                "swipe_brightness", shape,
+                stringResource(R.string.settings_swipe_brightness_title),
+                stringResource(R.string.settings_swipe_brightness_line),
+                FullscreenSwipes.brightness,
+                icon = Icons.Rounded.BrightnessMedium,
+            ) { FullscreenSwipes.turnBrightness(it) }
+            else SwitchSetting(
+                "swipe_volume", shape,
+                stringResource(R.string.settings_swipe_volume_title),
+                stringResource(R.string.settings_swipe_volume_line),
+                FullscreenSwipes.volume,
+                icon = Icons.AutoMirrored.Rounded.VolumeUp,
+            ) { FullscreenSwipes.turnVolume(it) }
         }
     }
     Spacer(Modifier.height(14.dp))

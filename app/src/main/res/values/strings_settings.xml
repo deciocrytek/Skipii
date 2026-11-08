@@ -88,4 +88,10 @@
     <string name="settings_live_allow_line">Live updates are off for Skipii in Android\'s settings</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Live update, Now Bar, status bar chip, lock screen</string>
+    <string name="settings_swipe_brightness_title">Swipe to adjust brightness</string>
+    <string name="settings_swipe_brightness_line">In fullscreen, swipe up or down on the left side of the video.</string>
+    <string name="settings_swipe_volume_title">Swipe to adjust volume</string>
+    <string name="settings_swipe_volume_line">In fullscreen, swipe up or down on the right side of the video.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">gesture, gestures, swipe, slide, brightness, volume, sound</string>
 </resources>

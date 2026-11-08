@@ -74,4 +74,10 @@
     <string name="settings_live_allow_line">Las actualizaciones en vivo están desactivadas para Skipii en los ajustes de Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Actualización en vivo, Now Bar, barra de estado, pantalla de bloqueo</string>
+    <string name="settings_swipe_brightness_title">Deslizar para ajustar el brillo</string>
+    <string name="settings_swipe_brightness_line">En pantalla completa, desliza hacia arriba o abajo en el lado izquierdo del video.</string>
+    <string name="settings_swipe_volume_title">Deslizar para ajustar el volumen</string>
+    <string name="settings_swipe_volume_line">En pantalla completa, desliza hacia arriba o abajo en el lado derecho del video.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">gesto, gestos, deslizar, brillo, volumen, sonido</string>
 </resources>

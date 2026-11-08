@@ -72,4 +72,10 @@
     <string name="settings_live_allow_line">Live Update dinonaktifkan untuk Skipii di setelan Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Live Update, Now Bar, status bar, layar kunci</string>
+    <string name="settings_swipe_brightness_title">Geser untuk mengatur kecerahan</string>
+    <string name="settings_swipe_brightness_line">Di layar penuh, geser ke atas atau ke bawah di sisi kiri video.</string>
+    <string name="settings_swipe_volume_title">Geser untuk mengatur volume</string>
+    <string name="settings_swipe_volume_line">Di layar penuh, geser ke atas atau ke bawah di sisi kanan video.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">gestur, geser, usap, kecerahan, volume, suara</string>
 </resources>

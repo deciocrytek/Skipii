@@ -26,6 +26,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         AudioOnly.init(this)
         PlayerControls.init(this)
         FullscreenZoom.init(this)
+        FullscreenSwipes.init(this)
         SeekStep.init(this)
         ChaptersStayOpen.init(this)
         AutoPip.init(this)

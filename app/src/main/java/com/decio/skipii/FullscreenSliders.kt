@@ -67,6 +67,7 @@ import kotlin.math.sqrt
  * is. The middle keeps swipe down to leave fullscreen ([onSwipeDown]). Nothing is taken before
  * touch slop, so taps and double-tap seek are untouched. The brightness is the window's own
  * (the system setting is never changed) and goes back to the system's when fullscreen closes.
+ * Either side can be turned off in Settings › Playback ([FullscreenSwipes], #62).
  * Brightness levels are on Android's own slider curve ([toSlider] / [fromSlider]), not the raw
  * linear value: on that, the top half of a drag barely changed anything, everything happened
  * in the bottom third, and the pill disagreed with the system slider (40% vs its 82%).
@@ -205,8 +206,9 @@ fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> U
         if (down.position.y < guard || down.position.y > size.height - guard) return@awaitEachGesture
         val x = down.position.x / size.width
         val kind = when {
-            x < SideShare -> FullscreenSliders.Kind.Brightness
-            x > 1f - SideShare -> FullscreenSliders.Kind.Volume
+            // A side whose swipe is off in Settings (FullscreenSwipes) acts like the middle.
+            x < SideShare && FullscreenSwipes.brightness -> FullscreenSliders.Kind.Brightness
+            x > 1f - SideShare && FullscreenSwipes.volume -> FullscreenSliders.Kind.Volume
             else -> null
         }
         var over = 0f

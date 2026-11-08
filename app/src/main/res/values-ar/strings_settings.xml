@@ -77,4 +77,10 @@
     <string name="settings_live_allow_line">التحديثات المباشرة متوقفة لـ Skipii في إعدادات Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">تحديث مباشر، Now Bar، شريط الحالة، شاشة القفل</string>
+    <string name="settings_swipe_brightness_title">السحب لضبط السطوع</string>
+    <string name="settings_swipe_brightness_line">في وضع ملء الشاشة، اسحب لأعلى أو لأسفل على الجانب الأيسر من الفيديو.</string>
+    <string name="settings_swipe_volume_title">السحب لضبط مستوى الصوت</string>
+    <string name="settings_swipe_volume_line">في وضع ملء الشاشة، اسحب لأعلى أو لأسفل على الجانب الأيمن من الفيديو.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">إيماءة، إيماءات، سحب، تمرير، السطوع، مستوى الصوت، الصوت</string>
 </resources>

@@ -74,4 +74,10 @@
     <string name="settings_live_allow_line">Les mises à jour en direct sont désactivées pour Skipii dans les paramètres d\'Android</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Mise à jour en direct, Now Bar, barre d\'état, écran de verrouillage</string>
+    <string name="settings_swipe_brightness_title">Glisser pour régler la luminosité</string>
+    <string name="settings_swipe_brightness_line">En plein écran, glissez vers le haut ou le bas sur le côté gauche de la vidéo.</string>
+    <string name="settings_swipe_volume_title">Glisser pour régler le volume</string>
+    <string name="settings_swipe_volume_line">En plein écran, glissez vers le haut ou le bas sur le côté droit de la vidéo.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">geste, gestes, glisser, balayer, luminosité, volume, son</string>
 </resources>

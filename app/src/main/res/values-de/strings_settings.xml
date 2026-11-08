@@ -73,4 +73,10 @@
     <string name="settings_live_allow_line">Live-Updates sind für Skipii in den Android-Einstellungen aus</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Live-Update, Now Bar, Statusleiste, Sperrbildschirm</string>
+    <string name="settings_swipe_brightness_title">Wischen für Helligkeit</string>
+    <string name="settings_swipe_brightness_line">Im Vollbild auf der linken Seite des Videos nach oben oder unten wischen.</string>
+    <string name="settings_swipe_volume_title">Wischen für Lautstärke</string>
+    <string name="settings_swipe_volume_line">Im Vollbild auf der rechten Seite des Videos nach oben oder unten wischen.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">Geste, Gesten, wischen, Helligkeit, Lautstärke, Ton</string>
 </resources>

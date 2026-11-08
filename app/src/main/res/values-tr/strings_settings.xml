@@ -73,4 +73,10 @@
     <string name="settings_live_allow_line">Canlı güncellemeler Android ayarlarında Skipii için kapalı</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">Canlı güncelleme, Now Bar, durum çubuğu, kilit ekranı</string>
+    <string name="settings_swipe_brightness_title">Parlaklık için kaydır</string>
+    <string name="settings_swipe_brightness_line">Tam ekranda videonun sol tarafında yukarı veya aşağı kaydırın.</string>
+    <string name="settings_swipe_volume_title">Ses düzeyi için kaydır</string>
+    <string name="settings_swipe_volume_line">Tam ekranda videonun sağ tarafında yukarı veya aşağı kaydırın.</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">hareket, hareketler, kaydırma, parlaklık, ses, ses düzeyi</string>
 </resources>

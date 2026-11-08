@@ -73,4 +73,10 @@
     <string name="settings_live_allow_line">Android की सेटिंग में Skipii के लिए लाइव अपडेट बंद हैं</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">लाइव अपडेट, Now Bar, स्टेटस बार, लॉक स्क्रीन</string>
+    <string name="settings_swipe_brightness_title">स्वाइप करके ब्राइटनेस बदलें</string>
+    <string name="settings_swipe_brightness_line">फ़ुलस्क्रीन में वीडियो के बाईं ओर ऊपर या नीचे स्वाइप करें।</string>
+    <string name="settings_swipe_volume_title">स्वाइप करके आवाज़ बदलें</string>
+    <string name="settings_swipe_volume_line">फ़ुलस्क्रीन में वीडियो के दाईं ओर ऊपर या नीचे स्वाइप करें।</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">जेस्चर, स्वाइप, ब्राइटनेस, चमक, वॉल्यूम, आवाज़</string>
 </resources>

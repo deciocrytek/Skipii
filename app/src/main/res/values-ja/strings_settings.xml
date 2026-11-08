@@ -72,4 +72,10 @@
     <string name="settings_live_allow_line">Android の設定で Skipii のライブアップデートがオフになっています</string>
     <!-- Only for Settings' search: other words people use for it. -->
     <string name="settings_live_words">ライブアップデート、Now Bar、ステータスバー、ロック画面</string>
+    <string name="settings_swipe_brightness_title">スワイプで明るさを調整</string>
+    <string name="settings_swipe_brightness_line">全画面で動画の左側を上下にスワイプします。</string>
+    <string name="settings_swipe_volume_title">スワイプで音量を調整</string>
+    <string name="settings_swipe_volume_line">全画面で動画の右側を上下にスワイプします。</string>
+    <!-- Only for Settings' search: other words people use for them. -->
+    <string name="settings_swipe_words">ジェスチャー、スワイプ、明るさ、輝度、音量、サウンド</string>
 </resources>
