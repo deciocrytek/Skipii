@@ -564,6 +564,10 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
         state.submit()
     }
     var focused by remember { mutableStateOf(false) }
+    // On a TV the remote lands on the first result once they're in (else it would fall back to the rail).
+    val tv = LocalWindowLayout.current.tv
+    val firstResult = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(state.generation) { if (tv && state.generation > 0 && state.results.isNotEmpty()) firstResult.focusWhenReady() }
     // The keyboard closed by Back or its own button leaves the field focused; drop the focus
     // with it so the history gives way to the results again.
     val imeVisible = WindowInsets.isImeVisible
@@ -651,7 +655,7 @@ fun SearchScreen(state: SearchState, contentPadding: PaddingValues, onOpen: (Vid
                 val list = rememberScrollToTop(scrollToTop)
                 LaunchedEffect(state.generation) { list.scrollToItem(0) }
                 LazyColumn(state = list, contentPadding = contentPadding.withTop(top)) {
-                videoCards(state.results, columns, onOpen)
+                videoCards(state.results, columns, onOpen, firstFocus = firstResult)
             }
             }
         }

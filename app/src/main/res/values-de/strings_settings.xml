@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Überspringt %1$s, fragt bei %2$s</string>
     <string name="settings_mode">Modus</string>
     <string name="settings_theme">Design</string>
+    <string name="settings_amoled_title">AMOLED-Schwarz</string>
+    <string name="settings_amoled_line">Dunkler Modus in reinem Schwarz, für OLED-Displays</string>
+    <string name="settings_amoled_light_line">Gilt, wenn die App dunkel ist: wähle Dunkel oder System</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s Kanal mit aktivierter Glocke</item>
         <item quantity="other">%1$s Kanäle mit aktivierter Glocke</item>
@@ -61,4 +64,13 @@
     <string name="settings_chapters_open_line">Nach der Wahl eines Kapitels bleibt die Liste offen, so geht es von einem zum nächsten</string>
     <string name="settings_auto_pip_title">Bild-im-Bild beim Verlassen</string>
     <string name="settings_auto_pip_line">Wechselst du beim Abspielen zum Startbildschirm, läuft das Video in einem kleinen Fenster weiter</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Live-Aktivität</string>
+    <string name="settings_live_line">Verlässt du Skipii, während ein Video läuft, liegen die Steuerelemente in der Statusleiste und auf dem Sperrbildschirm</string>
+    <string name="settings_live_needs">Benötigt Android 16 QPR1 oder neuer</string>
+    <string name="settings_live_refused">Dieses Handy zeigt sie nur als normale Benachrichtigung, daher bleiben nur die Mediensteuerelemente</string>
+    <string name="settings_live_allow_title">Live-Updates erlauben</string>
+    <string name="settings_live_allow_line">Live-Updates sind für Skipii in den Android-Einstellungen aus</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Live-Update, Now Bar, Statusleiste, Sperrbildschirm</string>
 </resources>

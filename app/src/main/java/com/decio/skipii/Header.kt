@@ -1,5 +1,9 @@
 package com.decio.skipii
 
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.foundation.focusGroup
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -90,8 +94,14 @@ fun CollapsingHeaderLayout(
     }
 
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    // A TV remote: the list runs under the header, so to the D-pad nothing in it lies "below" the header's buttons
+    // (the nearest thing down was on the page behind). ▼ off the header goes into the list.
+    val tv = LocalWindowLayout.current.tv
+    val body = remember { FocusRequester() }
     Box(Modifier.fillMaxSize().nestedScroll(connection)) {
-        content(with(density) { headerPx.toDp() })
+        Box(if (tv) Modifier.fillMaxSize().focusRequester(body).focusGroup() else Modifier.fillMaxSize()) {
+            content(with(density) { headerPx.toDp() })
+        }
         // Top vignette, shown in proportion to how hidden the header is.
         val page = c.surface
         val vignette = remember(page) { vignetteBrush(page, opaqueAtTop = true) }
@@ -113,7 +123,8 @@ fun CollapsingHeaderLayout(
                     // Eases out as it leaves, so the edge never reads as a hard sliding slab.
                     alpha = if (headerPx > 0) 1f - 0.5f * (-offset.value / headerPx).coerceIn(0f, 1f) else 1f
                 }
-                .background(c.surface),
+                .background(c.surface)
+                .then(if (tv) Modifier.leaveTo(body, listOf(FocusDirection.Down)) else Modifier),
         ) { header() }
     }
 }

@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Atlanan: %1$s, sorulan: %2$s</string>
     <string name="settings_mode">Mod</string>
     <string name="settings_theme">Tema</string>
+    <string name="settings_amoled_title">AMOLED siyahı</string>
+    <string name="settings_amoled_line">Saf siyah koyu mod, OLED ekranlar için</string>
+    <string name="settings_amoled_light_line">Uygulama koyuyken kullanılır: Koyu veya Sistem\'i seçin</string>
     <plurals name="settings_bells_count">
         <item quantity="one">Zili açık %1$s kanal</item>
         <item quantity="other">Zili açık %1$s kanal</item>
@@ -61,4 +64,13 @@
     <string name="settings_chapters_open_line">Bir bölüm seçince liste açık kalır, böylece birinden diğerine geçebilirsin</string>
     <string name="settings_auto_pip_title">Çıkınca pencere içinde pencere</string>
     <string name="settings_auto_pip_line">Video oynarken ana ekrana dönersen küçük bir pencerede oynamaya devam eder</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Canlı etkinlik</string>
+    <string name="settings_live_line">Video oynarken Skipii\'den çıkınca kontroller durum çubuğunda ve kilit ekranında kalır</string>
+    <string name="settings_live_needs">Android 16 QPR1 veya üstü gerekir</string>
+    <string name="settings_live_refused">Bu telefon onu yalnızca normal bir bildirim olarak gösteriyor, bu yüzden yalnızca medya kontrolleri kalır</string>
+    <string name="settings_live_allow_title">Canlı güncellemelere izin ver</string>
+    <string name="settings_live_allow_line">Canlı güncellemeler Android ayarlarında Skipii için kapalı</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Canlı güncelleme, Now Bar, durum çubuğu, kilit ekranı</string>
 </resources>

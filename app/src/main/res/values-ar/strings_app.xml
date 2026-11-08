@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">رفض YouTube الجلسة (%1$s). جرّب تسجيل الدخول مرة أخرى.</string>
     <string name="app_error_youtube_returned">ردّ YouTube بالرمز %1$s</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">التشغيل في الخلفية</string>
+    <string name="app_live_channel_description">عناصر التحكم في التشغيل عندما لا يكون Skipii على الشاشة</string>
+    <string name="app_live_back">−%1$s ث</string>
+    <string name="app_live_forward">+%1$s ث</string>
 </resources>

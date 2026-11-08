@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">%1$s छोड़ता है, %2$s के लिए पूछता है</string>
     <string name="settings_mode">मोड</string>
     <string name="settings_theme">थीम</string>
+    <string name="settings_amoled_title">AMOLED काला</string>
+    <string name="settings_amoled_line">पूरे काले रंग में डार्क मोड, OLED स्क्रीन के लिए</string>
+    <string name="settings_amoled_light_line">ऐप डार्क होने पर लागू होता है: डार्क या सिस्टम चुनें</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s चैनल की घंटी चालू</item>
         <item quantity="other">%1$s चैनलों की घंटी चालू</item>
@@ -61,4 +64,13 @@
     <string name="settings_chapters_open_line">अध्याय चुनने पर सूची खुली रहती है, ताकि एक से दूसरे पर जा सकें</string>
     <string name="settings_auto_pip_title">बाहर जाने पर पिक्चर-इन-पिक्चर</string>
     <string name="settings_auto_pip_line">वीडियो चलते हुए होम पर जाने से वह एक छोटी विंडो में चलता रहता है</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">लाइव गतिविधि</string>
+    <string name="settings_live_line">वीडियो चलते समय Skipii से बाहर जाने पर उसके कंट्रोल स्टेटस बार और लॉक स्क्रीन पर रहते हैं</string>
+    <string name="settings_live_needs">Android 16 QPR1 या नया ज़रूरी है</string>
+    <string name="settings_live_refused">यह फ़ोन इसे सिर्फ़ सामान्य सूचना की तरह दिखाता है, इसलिए सिर्फ़ मीडिया कंट्रोल रहते हैं</string>
+    <string name="settings_live_allow_title">लाइव अपडेट की अनुमति दें</string>
+    <string name="settings_live_allow_line">Android की सेटिंग में Skipii के लिए लाइव अपडेट बंद हैं</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">लाइव अपडेट, Now Bar, स्टेटस बार, लॉक स्क्रीन</string>
 </resources>

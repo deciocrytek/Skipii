@@ -1,5 +1,11 @@
 package com.decio.skipii
 
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
@@ -64,11 +70,22 @@ private fun RailTab(tab: Tab, selected: Boolean, onClick: () -> Unit) {
     val reduced = rememberReducedMotion()
     val on by animateFloatAsState(if (selected) 1f else 0f, if (reduced) snap() else spring(dampingRatio = 0.7f, stiffness = 700f), label = "railTab")
     val ink by animateColorAsState(if (selected) c.onPrimary else c.onSurfaceVariant, label = "railInk")
+    // Reached with a remote (TV): the pill comes out in a tone of the ink, under the picked one's.
+    var focused by remember { mutableStateOf(false) }
+    val focus by animateFloatAsState(if (focused) 1f else 0f, if (reduced) snap() else tween(140), label = "railFocus")
     Column(
-        Modifier.width(RailWidth).pressable(onClick = onClick).padding(vertical = 4.dp),
+        Modifier.width(RailWidth).onFocusChanged { focused = it.isFocused }.pressable(focusTone = false, onClick = onClick).padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.size(width = 58.dp, height = 34.dp), contentAlignment = Alignment.Center) {
+            // A size up from the pill, so on the picked tab it still shows, as a halo.
+            Box(
+                Modifier
+                    .requiredSize(width = 72.dp, height = 46.dp)
+                    .graphicsLayer { alpha = focus; scaleX = 0.6f + 0.4f * focus; scaleY = 0.85f + 0.15f * focus }
+                    .clip(RoundedCornerShape(23.dp))
+                    .background(c.onSurface.copy(alpha = 0.2f)),
+            )
             // The pill grows out from the icon as the tab is picked (alpha and scale, never a colour to transparent).
             Box(
                 Modifier

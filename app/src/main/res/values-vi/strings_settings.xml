@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Bỏ qua %1$s, hỏi về %2$s</string>
     <string name="settings_mode">Chế độ</string>
     <string name="settings_theme">Chủ đề</string>
+    <string name="settings_amoled_title">Đen AMOLED</string>
+    <string name="settings_amoled_line">Chế độ tối với màu đen tuyền, cho màn hình OLED</string>
+    <string name="settings_amoled_light_line">Dùng khi ứng dụng ở chế độ tối: chọn Tối hoặc Hệ thống</string>
     <plurals name="settings_bells_count">
         <item quantity="other">%1$s kênh đã bật chuông</item>
     </plurals>
@@ -60,4 +63,13 @@
     <string name="settings_chapters_open_line">Chọn một chương thì danh sách vẫn mở, để chuyển từ chương này sang chương khác</string>
     <string name="settings_auto_pip_title">Hình trong hình khi rời ứng dụng</string>
     <string name="settings_auto_pip_line">Về màn hình chính khi video đang phát thì video tiếp tục trong một cửa sổ nhỏ</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Hoạt động trực tiếp</string>
+    <string name="settings_live_line">Rời Skipii khi video đang phát sẽ đưa các nút điều khiển lên thanh trạng thái và màn hình khóa</string>
+    <string name="settings_live_needs">Cần Android 16 QPR1 trở lên</string>
+    <string name="settings_live_refused">Điện thoại này chỉ hiện nó như thông báo thường, nên chỉ còn các nút điều khiển phương tiện</string>
+    <string name="settings_live_allow_title">Cho phép cập nhật trực tiếp</string>
+    <string name="settings_live_allow_line">Cập nhật trực tiếp đang tắt cho Skipii trong cài đặt Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Cập nhật trực tiếp, Now Bar, thanh trạng thái, màn hình khóa</string>
 </resources>

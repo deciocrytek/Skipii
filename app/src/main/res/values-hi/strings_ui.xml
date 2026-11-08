@@ -67,7 +67,7 @@
     <string name="ui_shorts_on_line">Shorts टैब दिखाएं</string>
     <string name="ui_shorts_off_line">Shorts टैब छिपा है और कोई Shorts लोड नहीं होते</string>
     <string name="ui_appearance">थीम</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">सिस्टम</string>
     <string name="ui_mode_light">लाइट</string>
     <string name="ui_mode_dark">डार्क</string>

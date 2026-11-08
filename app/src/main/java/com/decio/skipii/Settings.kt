@@ -1,9 +1,14 @@
 package com.decio.skipii
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -65,6 +70,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ClosedCaption
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Contrast
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.Headphones
@@ -79,6 +85,7 @@ import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.RadioButtonChecked
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Sensors
 import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Sync
@@ -151,6 +158,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material.icons.rounded.BugReport
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
 
 /**
  * Settings (Derek, 2026-11-02: example 4 "Big title that folds" in docs/design/settings-merged.html, Ledgii's
@@ -882,11 +891,13 @@ private fun rememberBrandIcon(name: String, path: String): ImageVector = remembe
 @Composable
 private fun summaryOf(page: SettingsPage): String = when (page) {
     SettingsPage.Playback -> listOfNotNull(
-        stringResource(if (PlayerControls.inBar) R.string.ui_player_controls_pill else R.string.ui_player_controls_on_video),
+        // A TV has neither (TvPlayer): its controls are the remote's.
+        if (LocalWindowLayout.current.tv) null
+        else stringResource(if (PlayerControls.inBar) R.string.ui_player_controls_pill else R.string.ui_player_controls_on_video),
         if (PlaybackSpeed.remember) stringResource(R.string.settings_speed_kept_summary, PlaybackSpeed.label(PlaybackSpeed.saved))
         else stringResource(R.string.settings_speed_per_video),
         if (SeekStep.seconds != 10) stringResource(R.string.settings_seek_step_summary, SeekStep.seconds.toString()) else null,
-        if (FullscreenZoom.fill) stringResource(R.string.settings_zoom_fill_summary) else null,
+        if (FullscreenZoom.fill && !LocalWindowLayout.current.tv) stringResource(R.string.settings_zoom_fill_summary) else null,
         if (AudioOnly.enabled) stringResource(R.string.bar_audio_only) else null,
     ).joinDots()
     SettingsPage.Captions -> listOf(captionShowLabel(CaptionSettings.show), stringResource(CaptionSettings.look.labelRes)).joinDots()
@@ -898,7 +909,11 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
             SponsorBlock.Category.entries.count { SponsorBlock.actionFor(it) == SponsorBlock.Action.Button }.toString(),
         )
     SettingsPage.Shorts -> stringResource(if (ShortsSetting.enabled) R.string.ui_shorts_on_line else R.string.settings_off)
-    SettingsPage.Appearance -> listOf(themeName(), modeLabel(ThemeSettings.mode)).joinDots()
+    SettingsPage.Appearance -> listOfNotNull(
+        themeName(),
+        modeLabel(ThemeSettings.mode),
+        if (ThemeSettings.amoled && ThemeSettings.mode != "light") "AMOLED" else null,
+    ).joinDots()
     SettingsPage.Language -> AppLanguage.choices.firstOrNull { it.tag == AppLanguage.pickedChoice }?.name ?: phoneLanguageLabel()
     SettingsPage.Notifications -> Bells.on.size.let { n ->
         if (n == 0) stringResource(R.string.settings_bells_none) else pluralStringResource(R.plurals.settings_bells_count, n, n.toString())
@@ -928,7 +943,6 @@ private fun themeName(): String {
 private fun modeLabel(mode: String): String = when (mode) {
     "light" -> stringResource(R.string.ui_mode_light)
     "dark" -> stringResource(R.string.ui_mode_dark)
-    "amoled" -> "AMOLED"
     else -> stringResource(R.string.ui_mode_system)
 }
 
@@ -963,6 +977,7 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(pb, "music", str(R.string.settings_music_normal_title), listOf(str(R.string.settings_music_normal_line))))
     add(Entry(pb, "zoom", str(R.string.settings_zoom_fill_title), listOf(str(R.string.settings_zoom_fill_on), str(R.string.settings_zoom_fill_off))))
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
+    add(Entry(pb, "live", str(R.string.settings_live_title), listOf(str(R.string.settings_live_line), str(R.string.settings_live_words))))
     val cc = SettingsPage.Captions
     add(Entry(cc, "show", str(R.string.captions_show), listOf(str(R.string.captions_show_never), str(R.string.captions_show_always))))
     add(Entry(cc, "look", str(R.string.captions_look), CaptionSettings.Look.entries.map { str(it.labelRes) }))
@@ -973,7 +988,8 @@ private fun entries(): List<Entry> = buildList {
     SponsorBlock.Category.entries.forEach { add(Entry(sb, "sb_${it.key}", it.label, listOf(str(it.shortRes)))) }
     add(Entry(SettingsPage.Shorts, "shorts", str(R.string.ui_shorts), listOf(str(R.string.ui_shorts_on_line))))
     val ap = SettingsPage.Appearance
-    add(Entry(ap, "mode", str(R.string.settings_mode), listOf(str(R.string.ui_mode_system), str(R.string.ui_mode_light), str(R.string.ui_mode_dark), "AMOLED")))
+    add(Entry(ap, "mode", str(R.string.settings_mode), listOf(str(R.string.ui_mode_system), str(R.string.ui_mode_light), str(R.string.ui_mode_dark))))
+    add(Entry(ap, "amoled", str(R.string.settings_amoled_title), listOf(str(R.string.settings_amoled_line), "AMOLED", "OLED")))
     add(Entry(ap, "theme", str(R.string.settings_theme), listOf(str(R.string.ui_theme_wallpaper)) + SKIPII_THEMES.map { it.name }))
     add(Entry(SettingsPage.Language, "lang", str(R.string.language_title), AppLanguage.choices.map { it.name } + str(R.string.language_phone)))
     val nt = SettingsPage.Notifications
@@ -989,10 +1005,13 @@ private fun entries(): List<Entry> = buildList {
 /** Case and accents don't matter ("espanol" finds Español). */
 private fun fold(s: String) = Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase()
 
-private fun hits(query: String): List<Hit> {
+/** Rows a TV doesn't show (PlaybackPage): never found by a search there. */
+private val PhoneOnlyRows = setOf("controls", "chapters", "pip", "zoom", "live")
+
+private fun hits(query: String, tv: Boolean = false): List<Hit> {
     val q = fold(query.trim())
     if (q.isEmpty()) return emptyList()
-    return entries().mapNotNull { e ->
+    return entries().filterNot { tv && it.key in PhoneOnlyRows }.mapNotNull { e ->
         when {
             fold(e.title).contains(q) -> Hit(e.page, e.key, e.title, null)
             else -> e.words.firstOrNull { fold(it).contains(q) }?.let { Hit(e.page, e.key, e.title, it) }
@@ -1006,7 +1025,7 @@ private fun hits(query: String): List<Hit> {
 @Composable
 private fun Results(query: String, onPick: (Hit) -> Unit) {
     val c = MaterialTheme.colorScheme
-    val found = hits(query)
+    val found = hits(query, tv = LocalWindowLayout.current.tv)
     if (found.isEmpty()) {
         Text(
             stringResource(R.string.settings_no_results, query.trim()),
@@ -1108,17 +1127,19 @@ private fun SwitchSetting(
     line: String,
     checked: Boolean,
     icon: ImageVector? = null,
+    enabled: Boolean = true,
     onChange: (Boolean) -> Unit,
 ) {
     val c = MaterialTheme.colorScheme
     val rtl = rememberRtlLanguage()
     val toggle = @Composable {
         CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
-            Switch(checked = checked, onCheckedChange = onChange, colors = SwitchDefaults.colors(checkedTrackColor = c.primary))
+            Switch(checked = checked, onCheckedChange = onChange, enabled = enabled, colors = SwitchDefaults.colors(checkedTrackColor = c.primary))
         }
     }
-    SettingBox(key, shape, Modifier.pressable(pressedScale = 0.98f) { onChange(!checked) }) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    SettingBox(key, shape, Modifier.pressable(enabled = enabled, pressedScale = 0.98f) { onChange(!checked) }) {
+        // Not available here (the line says why): dimmed, as SponsorBlock's segments are while it's off.
+        Row(Modifier.graphicsLayer { alpha = if (enabled) 1f else 0.4f }, verticalAlignment = Alignment.CenterVertically) {
             if (rtl) {
                 toggle()
                 Spacer(Modifier.width(14.dp))
@@ -1228,10 +1249,19 @@ private fun Note(text: String) {
 @Composable
 private fun PlaybackPage(player: PlayerState) {
     val pipSupported = LocalPictureInPicture.current?.supported != false
+    // A TV (TvPlayer) has no playback pill, chapter list, picture-in-picture, pinch or live activity: only what still
+    // applies there is shown.
+    val tv = LocalWindowLayout.current.tv
+    val controls = when {
+        tv -> listOf(1)
+        pipSupported -> listOf(0, 1, 2, 3)
+        else -> listOf(0, 1, 2)
+    }
+    val picture = if (tv) listOf(0, 1, 3) else listOf(0, 1, 2, 3)
     Spacer(Modifier.height(14.dp))
     // The controls and how they behave.
-    Joined(if (pipSupported) 4 else 3) { i, shape ->
-        when (i) {
+    Joined(controls.size) { i, shape ->
+        when (controls[i]) {
             0 -> ChipsSetting(
                 "controls", shape,
                 stringResource(R.string.ui_player_controls),
@@ -1267,8 +1297,8 @@ private fun PlaybackPage(player: PlayerState) {
     }
     Spacer(Modifier.height(14.dp))
     // Speed, picture and sound.
-    Joined(4) { i, shape ->
-        when (i) {
+    Joined(picture.size) { i, shape ->
+        when (picture[i]) {
             0 -> SwitchSetting(
                 "speed", shape,
                 stringResource(R.string.settings_speed_remember_title),
@@ -1298,6 +1328,69 @@ private fun PlaybackPage(player: PlayerState) {
                 AudioOnly.enabled,
                 icon = Icons.Rounded.Headphones,
             ) { player.setAudioOnly(it) }
+        }
+    }
+    Spacer(Modifier.height(14.dp))
+    // Off screen.
+    if (!tv) LiveActivitySetting(player)
+}
+
+/**
+ * Playback controls in a live activity once the app is off screen (LiveActivity.kt). Turning it on asks for
+ * notifications (Android 13+); with Live Updates off for Skipii in Android's settings, a row under it opens that page.
+ */
+@Composable
+private fun LiveActivitySetting(player: PlayerState) {
+    val context = LocalContext.current
+    // Read again whenever the page comes back (from Android's settings, say).
+    val supported = remember { LiveControls.supported(context) }
+    var allowed by remember { mutableStateOf(LiveControls.canPromote(context)) }
+    LifecycleResumeEffect(Unit) {
+        allowed = LiveControls.canPromote(context)
+        onPauseOrDispose { }
+    }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        allowed = LiveControls.canPromote(context)
+        if (!allowed) {
+            player.actionMessage = str(R.string.settings_live_allow_line)
+            LiveControls.openSettings(context)
+        }
+    }
+    val blocked = supported && LiveControls.on && !allowed
+    Joined(if (blocked) 2 else 1) { i, shape ->
+        if (i == 0) {
+            SwitchSetting(
+                "live", shape,
+                stringResource(R.string.settings_live_title),
+                stringResource(
+                    when {
+                        !supported -> R.string.settings_live_needs
+                        LiveControls.on && LiveControls.refusedBySystem -> R.string.settings_live_refused
+                        else -> R.string.settings_live_line
+                    },
+                ),
+                LiveControls.on && supported,
+                icon = Icons.Rounded.Sensors,
+                enabled = supported,
+            ) { on ->
+                LiveControls.set(on)
+                if (on && !LiveControls.canPromote(context)) {
+                    if (Build.VERSION.SDK_INT >= 33 &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        player.actionMessage = str(R.string.settings_live_allow_line)
+                        LiveControls.openSettings(context)
+                    }
+                }
+            }
+        } else {
+            LinkSetting(
+                "live_allow", shape, Icons.Rounded.Notifications,
+                stringResource(R.string.settings_live_allow_title),
+                stringResource(R.string.settings_live_allow_line),
+            ) { LiveControls.openSettings(context) }
         }
     }
 }
@@ -1400,14 +1493,22 @@ private fun AppearancePage() {
     val context = LocalContext.current
     val dark = isDarkTheme()
     Spacer(Modifier.height(14.dp))
-    Joined(2) { i, shape ->
+    Joined(3) { i, shape ->
         if (i == 0) {
             ChipsSetting(
                 "mode", shape, stringResource(R.string.settings_mode), null,
-                listOf("system", "light", "dark", "amoled").map { it to modeLabel(it) },
+                listOf("system", "light", "dark").map { it to modeLabel(it) },
                 ThemeSettings.mode,
                 icon = Icons.Rounded.DarkMode,
             ) { ThemeSettings.chooseMode(it) }
+        } else if (i == 1) {
+            // Applies whenever the app is dark (Dark, or System at night); Light never is, so it's dimmed there.
+            val light = ThemeSettings.mode == "light"
+            SwitchSetting(
+                "amoled", shape, stringResource(R.string.settings_amoled_title),
+                stringResource(if (light) R.string.settings_amoled_light_line else R.string.settings_amoled_line),
+                ThemeSettings.amoled, icon = Icons.Rounded.Contrast, enabled = !light,
+            ) { ThemeSettings.chooseAmoled(it) }
         } else {
             SettingBox("theme", shape) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

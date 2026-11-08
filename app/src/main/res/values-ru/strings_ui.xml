@@ -69,7 +69,7 @@
     <string name="ui_shorts_on_line">Показывать вкладку Shorts</string>
     <string name="ui_shorts_off_line">Вкладка Shorts скрыта, Shorts не загружаются</string>
     <string name="ui_appearance">Оформление</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">Системная</string>
     <string name="ui_mode_light">Светлая</string>
     <string name="ui_mode_dark">Тёмная</string>

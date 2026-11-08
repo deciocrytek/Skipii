@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube がセッションを拒否しました（%1$s）。もう一度ログインしてください。</string>
     <string name="app_error_youtube_returned">YouTube からの応答: %1$s</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">バックグラウンドで再生中</string>
+    <string name="app_live_channel_description">Skipii が画面に出ていないときの再生操作</string>
+    <string name="app_live_back">−%1$s 秒</string>
+    <string name="app_live_forward">+%1$s 秒</string>
 </resources>

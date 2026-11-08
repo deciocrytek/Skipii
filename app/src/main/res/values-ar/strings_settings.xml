@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">يتخطى %1$s، ويسأل عن %2$s</string>
     <string name="settings_mode">الوضع</string>
     <string name="settings_theme">السمة</string>
+    <string name="settings_amoled_title">أسود AMOLED</string>
+    <string name="settings_amoled_line">الوضع الداكن بالأسود الخالص، لشاشات OLED</string>
+    <string name="settings_amoled_light_line">يُستخدم عندما يكون التطبيق داكنًا: اختر داكن أو النظام</string>
     <plurals name="settings_bells_count">
         <item quantity="zero">%1$s قناة جرسها مفعّل</item>
         <item quantity="one">%1$s قناة جرسها مفعّل</item>
@@ -65,4 +68,13 @@
     <string name="settings_chapters_open_line">اختيار فصل يُبقي القائمة مفتوحة لتنتقل من فصل إلى آخر</string>
     <string name="settings_auto_pip_title">صورة داخل صورة عند المغادرة</string>
     <string name="settings_auto_pip_line">عند الذهاب إلى الشاشة الرئيسية أثناء تشغيل فيديو، يستمر في نافذة صغيرة</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">نشاط مباشر</string>
+    <string name="settings_live_line">عند مغادرة Skipii أثناء تشغيل فيديو، تظهر عناصر التحكم في شريط الحالة وعلى شاشة القفل</string>
+    <string name="settings_live_needs">يتطلب Android 16 QPR1 أو أحدث</string>
+    <string name="settings_live_refused">يعرضه هذا الهاتف كإشعار عادي فقط، لذا تبقى عناصر التحكم في الوسائط وحدها</string>
+    <string name="settings_live_allow_title">السماح بالتحديثات المباشرة</string>
+    <string name="settings_live_allow_line">التحديثات المباشرة متوقفة لـ Skipii في إعدادات Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">تحديث مباشر، Now Bar، شريط الحالة، شاشة القفل</string>
 </resources>

@@ -1,5 +1,15 @@
 package com.decio.skipii
 
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import android.view.HapticFeedbackConstants
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -540,6 +550,9 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         userPaused = !userPaused
         tick()
     }
+
+    /** A remote's ▲ / ▼ on a TV (Tv.kt): the pager turns to this page, then clears it. */
+    var pageRequest by mutableStateOf<Int?>(null)
 
     /**
      * A finger on the progress line (#44): the short waits, paused, on the frame under it. Seeks go
@@ -1249,8 +1262,42 @@ private class CappedLoadControl(
  * Tap pauses / plays. [overlayBottom] keeps the channel and title clear of the glass bar.
  */
 @Composable
-fun ShortsScreen(shorts: ShortsState, progress: () -> Float, overlayBottom: Dp) {
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
+fun ShortsScreen(
+    shorts: ShortsState,
+    progress: () -> Float,
+    overlayBottom: Dp,
+    shortFocus: FocusRequester = remember { FocusRequester() },
+    barFocus: FocusRequester? = null,
+) {
+    // A TV remote (Tv.kt): the short itself takes focus — ▲ ▼ change short, OK pauses, ▶ goes to the glass bar's Like
+    // (the short covers the screen, so nothing lies "to its right" for the D-pad to find).
+    val tv = LocalWindowLayout.current.tv
+    LaunchedEffect(tv) { if (tv) shortFocus.focusWhenReady() }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .then(
+                if (!tv) Modifier else Modifier
+                    .onKeyEvent { event ->
+                        val down = event.type == KeyEventType.KeyDown
+                        when (event.key) {
+                            Key.DirectionUp, Key.DirectionDown -> {
+                                if (down && !shorts.commentsOpen) shorts.pageRequest = shorts.index + if (event.key == Key.DirectionUp) -1 else 1
+                                true
+                            }
+                            Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
+                                if (down && event.nativeKeyEvent.repeatCount == 0) shorts.togglePause()
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                    .focusRequester(shortFocus)
+                    .focusProperties { if (barFocus != null) right = barFocus }
+                    .focusable(),
+            ),
+    ) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -1344,6 +1391,11 @@ internal fun shortsMargin(window: WindowLayout, width: Dp, height: Dp): Pair<Dp,
 private fun ShortsPager(shorts: ShortsState, overlayBottom: Dp, barProgress: () -> Float) {
     val pager = rememberPagerState(initialPage = shorts.index.coerceIn(0, (shorts.items.size - 1).coerceAtLeast(0))) { shorts.items.size }
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { shorts.select(it) } }
+    LaunchedEffect(shorts.pageRequest) {
+        val page = shorts.pageRequest ?: return@LaunchedEffect
+        shorts.pageRequest = null
+        if (pager.pageCount > 0) pager.animateScrollToPage(page.coerceIn(0, pager.pageCount - 1))
+    }
     VerticalPager(
         state = pager,
         modifier = Modifier.fillMaxSize(),
@@ -1783,12 +1835,25 @@ private fun ShortsProblem(message: String, onRetry: () -> Unit) {
  * 38% #252525 tint. No outline (rule 7).
  */
 @Composable
-fun ShortsBar(shorts: ShortsState, progress: () -> Float, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ShortsBar(
+    shorts: ShortsState,
+    progress: () -> Float,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    /** TV: the remote's way in (Like) and back out to the short (◀ / ▲ off the bar). */
+    focus: FocusRequester? = null,
+    shortFocus: FocusRequester? = null,
+) {
     val context = LocalContext.current
     val live by remember { derivedStateOf { progress() > 0.99f } }
     var origin by remember { mutableStateOf(Offset.Zero) }
     BoxWithConstraints(
-        modifier.onGloballyPositioned {
+        modifier
+            .then(
+                if (shortFocus == null) Modifier
+                else Modifier.leaveTo(shortFocus, listOf(FocusDirection.Left, FocusDirection.Up)),
+            )
+            .onGloballyPositioned {
             origin = it.positionInRoot()
             shorts.barTop = origin.y
             shorts.barBottom = origin.y + it.size.height
@@ -1817,7 +1882,7 @@ fun ShortsBar(shorts: ShortsState, progress: () -> Float, onBack: () -> Unit, mo
                 Appear(alpha = ramp(t, 0f, 0.35f), dy = lerpF(14.dp.toPx(), 0f, decel(t)), scale = 0.6f + 0.4f * Motion.Pop.transform(t))
             } }
             val onPill = { r: Rect, x: Float -> r.left + (x - g.pillLeft) * r.width / g.pw }
-            GlassSlot(g, g.toolCenterX(0), slot, progress, piece = { g.right(it) }, follow = onPill, appear = tool(0), enabled = live, description = stringResource(R.string.shorts_like), onClick = shorts::toggleLike) {
+            GlassSlot(g, g.toolCenterX(0), slot, progress, piece = { g.right(it) }, follow = onPill, appear = tool(0), enabled = live, description = stringResource(R.string.shorts_like), focus = focus, onClick = shorts::toggleLike) {
                 val liked = account?.like == LikeStatus.Like
                 // Keyed so a short that arrives already liked (or loads its state) doesn't pop.
                 key(id, account != null) {
@@ -1875,6 +1940,7 @@ private fun GlassSlot(
     appear: (Float) -> Appear,
     enabled: Boolean,
     description: String,
+    focus: FocusRequester? = null,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -1894,6 +1960,7 @@ private fun GlassSlot(
                 scaleX = a.scale
                 scaleY = a.scale
             }
+            .then(if (focus != null) Modifier.focusRequester(focus) else Modifier)
             .pressable(enabled = enabled, onClick = onClick)
             .semanticsLabel(description),
         contentAlignment = Alignment.Center,

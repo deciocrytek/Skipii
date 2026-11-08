@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV (Tv.kt): the hints under the player's keys. -->
+<resources>
+    <string name="tv_hint_seek">İleri veya geri sar</string>
+    <string name="tv_hint_play_pause">Oynat / duraklat</string>
+</resources>

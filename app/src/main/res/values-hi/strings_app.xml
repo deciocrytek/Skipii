@@ -63,4 +63,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube ने सेशन अस्वीकार कर दिया (%1$s). फिर से साइन इन करके देखें.</string>
     <string name="app_error_youtube_returned">YouTube ने %1$s लौटाया</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">बैकग्राउंड में चल रहा है</string>
+    <string name="app_live_channel_description">Skipii स्क्रीन पर न होने पर प्लेबैक कंट्रोल</string>
+    <string name="app_live_back">−%1$s से॰</string>
+    <string name="app_live_forward">+%1$s से॰</string>
 </resources>

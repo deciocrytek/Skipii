@@ -71,7 +71,7 @@
     <string name="ui_shorts_on_line">عرض علامة تبويب Shorts</string>
     <string name="ui_shorts_off_line">علامة تبويب Shorts مخفية ولا يتم تحميل أي فيديوهات Shorts</string>
     <string name="ui_appearance">المظهر</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">النظام</string>
     <string name="ui_mode_light">فاتح</string>
     <string name="ui_mode_dark">داكن</string>

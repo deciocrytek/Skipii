@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Пропускает: %1$s, спрашивает: %2$s</string>
     <string name="settings_mode">Режим</string>
     <string name="settings_theme">Тема</string>
+    <string name="settings_amoled_title">Чёрный AMOLED</string>
+    <string name="settings_amoled_line">Тёмный режим на чистом чёрном, для OLED-экранов</string>
+    <string name="settings_amoled_light_line">Работает, когда приложение тёмное: выберите «Тёмная» или «Системная»</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s канал с колокольчиком</item>
         <item quantity="few">%1$s канала с колокольчиком</item>
@@ -63,4 +66,13 @@
     <string name="settings_chapters_open_line">После выбора главы список остаётся открытым, чтобы переходить от одной к другой</string>
     <string name="settings_auto_pip_title">Картинка в картинке при выходе</string>
     <string name="settings_auto_pip_line">Если выйти на главный экран во время видео, оно продолжит играть в маленьком окне</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Живая активность</string>
+    <string name="settings_live_line">Если выйти из Skipii во время видео, управление останется в строке состояния и на экране блокировки</string>
+    <string name="settings_live_needs">Нужен Android 16 QPR1 или новее</string>
+    <string name="settings_live_refused">Этот телефон показывает её как обычное уведомление, поэтому остаются только элементы управления медиа</string>
+    <string name="settings_live_allow_title">Разрешить живые обновления</string>
+    <string name="settings_live_allow_line">Живые обновления для Skipii отключены в настройках Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Живое обновление, Now Bar, строка состояния, экран блокировки</string>
 </resources>

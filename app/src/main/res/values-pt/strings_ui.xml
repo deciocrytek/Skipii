@@ -68,7 +68,7 @@
     <string name="ui_shorts_on_line">Mostrar a guia Shorts</string>
     <string name="ui_shorts_off_line">A guia Shorts fica oculta e nenhum Short é carregado</string>
     <string name="ui_appearance">Aparência</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">Sistema</string>
     <string name="ui_mode_light">Claro</string>
     <string name="ui_mode_dark">Escuro</string>

@@ -66,7 +66,7 @@
     <string name="ui_shorts_on_line">Hiện thẻ Shorts</string>
     <string name="ui_shorts_off_line">Thẻ Shorts bị ẩn và không tải video Shorts nào</string>
     <string name="ui_appearance">Giao diện</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">Hệ thống</string>
     <string name="ui_mode_light">Sáng</string>
     <string name="ui_mode_dark">Tối</string>

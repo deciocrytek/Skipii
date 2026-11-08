@@ -149,6 +149,7 @@ class MainActivity : ComponentActivity() {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
+        LiveControls.takeOpen(intent)
         setContent { SkipiiTheme { SkipiiApp() } }
     }
 
@@ -156,6 +157,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
+        LiveControls.takeOpen(intent)
     }
 
     override fun onStart() {
@@ -223,6 +225,8 @@ fun SkipiiApp() {
     // Big screens (Adaptive.kt): the rail, grids and the two-pane player once the window is wide.
     val windowLayout = rememberWindowLayout(host)
     val wide = windowLayout.wide
+    // A TV (Tv.kt): the remote drives everything, and the open player is always TvPlayer, across the screen.
+    val tv = windowLayout.tv
     DisposableEffect(shorts) { onDispose { if (!host.isChangingConfigurations) shorts.leave() } }
     var shortsFrom by rememberSaveable { mutableStateOf(Tab.Home) }
     // A short tapped on a channel page plays in Shorts among that channel's shorts; ‹ / Back return to
@@ -235,6 +239,15 @@ fun SkipiiApp() {
     LaunchedEffect(NewVideos.opening) {
         val video = NewVideos.opening ?: return@LaunchedEffect
         NewVideos.opening = null
+        settingsOpen = false
+        if (tab == Tab.Shorts) tab = shortsFrom
+        player.open(video)
+    }
+    // The live activity's tap (LiveActivity.kt): the player opens on what's playing, once the controller has it back.
+    LaunchedEffect(LiveControls.openPlayer, player.current) {
+        if (!LiveControls.openPlayer) return@LaunchedEffect
+        val video = player.current ?: return@LaunchedEffect
+        LiveControls.openPlayer = false
         settingsOpen = false
         if (tab == Tab.Shorts) tab = shortsFrom
         player.open(video)
@@ -277,8 +290,10 @@ fun SkipiiApp() {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             when (event) {
                 // Not for a window being rebuilt (fold / unfold): the video track would go off and back on.
-                androidx.lifecycle.Lifecycle.Event.ON_STOP -> if (!host.isChangingConfigurations) { player.setBackground(true); shorts.setForeground(false) }
-                androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true) }
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> if (!host.isChangingConfigurations) {
+                    player.setBackground(true); shorts.setForeground(false); LiveControls.setOnScreen(false)
+                }
+                androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true); LiveControls.setOnScreen(true) }
                 else -> Unit
             }
         }
@@ -329,10 +344,10 @@ fun SkipiiApp() {
     // Tabletop (an open foldable stood half open, Tabletop.kt): the open player is the video on the top
     // half and the black deck on the bottom half, in place of the page and of fullscreen.
     val tabletop = windowLayout.tabletopY != null && playerOpen && !pip.active
-    val showFullscreen = !tabletop && if (pip.active) fullscreenBeforePip.value else orientation.showsFullscreen(playerOpen, landscape)
+    val showFullscreen = !tabletop && !tv && if (pip.active) fullscreenBeforePip.value else orientation.showsFullscreen(playerOpen, landscape)
     SideEffect { if (!pip.active) fullscreenBeforePip.value = showFullscreen }
     LaunchedEffect(showFullscreen) { player.fullscreen = showFullscreen }
-    SystemBarsHidden(showFullscreen || tabletop)
+    SystemBarsHidden(showFullscreen || tabletop || (tv && playerOpen))
     // A vertical video's fullscreen stays upright, and every video's on a near-square phone (Fullscreen.kt).
     fun toggleFullscreen() = if (showFullscreen) orientation.exitFullscreen() else orientation.enterFullscreen(vertical = player.videoAspect < 1f)
 
@@ -366,6 +381,15 @@ fun SkipiiApp() {
         }
     }
 
+    // Shorts on a TV: the short and its glass bar's Like, so the remote can go between them.
+    val shortFocus = remember { androidx.compose.ui.focus.FocusRequester() }
+    val shortsBarFocus = remember { androidx.compose.ui.focus.FocusRequester() }
+    var tvPlayerWasOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(tv && playerOpen) {
+        if (tv && playerOpen) tvPlayerWasOpen = true
+        // Closing it puts the remote back on the card that opened the video (if it's still there).
+        else if (tvPlayerWasOpen) { tvPlayerWasOpen = false; TvFocusMemory.opener?.focusWhenReady() }
+    }
     BackHandler(enabled = player.expanded) { player.expanded = false }
     BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
@@ -423,7 +447,12 @@ fun SkipiiApp() {
     // Taps, back and opening a video set `expanded`; this turns that into the morph.
     // Gesture releases settle themselves and are left alone (see PlayerMorph.animateTo).
     LaunchedEffect(player.expanded, player.current?.id) {
-        if (player.current == null) morph.progress.snapTo(0f) else morph.animateTo(player.expanded, reduced)
+        when {
+            player.current == null -> morph.progress.snapTo(0f)
+            // No morph on a TV: the player opens across the screen and closes to the corner card at once.
+            tv -> morph.progress.snapTo(if (player.expanded) 1f else 0f)
+            else -> morph.animateTo(player.expanded, reduced)
+        }
     }
     val showPlayer by remember {
         // Held until the morph has completely finished, so the video changes hands once.
@@ -539,7 +568,10 @@ fun SkipiiApp() {
                     onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     scrollToTop = scrollToTop[Tab.Subscriptions] ?: 0,
                 )
-                Tab.Shorts -> ShortsScreen(shorts, { shortsMorph.value }, overlayBottom = stackBottom + GlassHeight + 16.dp)
+                Tab.Shorts -> ShortsScreen(
+                    shorts, { shortsMorph.value }, overlayBottom = stackBottom + GlassHeight + 16.dp,
+                    shortFocus = shortFocus, barFocus = if (tv) shortsBarFocus else null,
+                )
                 Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
                 Tab.Library -> LibraryScreen(
                     lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openPlaylist = it },
@@ -558,7 +590,7 @@ fun SkipiiApp() {
         ) {
             val pl = openPlaylist
             val feed = playlistFeed
-            if (pl != null && feed != null) {
+            if (pl != null && feed != null) Box(Modifier.tvPage(toRail = true)) {
                 PlaylistScreen(pl, feed, contentPadding, onBack = { openPlaylist = null }, onOpen = player::open)
             }
         }
@@ -569,7 +601,7 @@ fun SkipiiApp() {
             enter = if (reduced) fadeIn(snap()) else slideInHorizontally(tween(340, easing = Motion.Emphasized)) { it } + fadeIn(tween(120)),
             exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
         ) {
-            channelState?.let { ch ->
+            channelState?.let { ch -> Box(Modifier.tvPage(toRail = true)) {
                 ChannelScreen(
                     ch, contentPadding, onBack = { openChannel = null },
                     // A video from a channel opened in Shorts plays in the app's player: Shorts closes.
@@ -578,7 +610,7 @@ fun SkipiiApp() {
                     onOpenPlaylist = { playlistOverChannel = true; openPlaylist = it },
                     onMessage = { player.actionMessage = it },
                 )
-            }
+            } }
         }
 
         }
@@ -664,7 +696,7 @@ fun SkipiiApp() {
         }
 
         // The player morphs out of (and back into) the mini-player; see PlayerMorph.
-        if (showPlayer && !showFullscreen && !tabletop) {
+        if (showPlayer && !showFullscreen && !tabletop && !tv) {
             Box(Modifier.padding(start = playerStart)) {
                 PlayerScreen(
                     player, morph,
@@ -705,7 +737,7 @@ fun SkipiiApp() {
         }
         // A wide window has the rail for its tabs, so there the pill is only ever the open player's bar,
         // centred on the screen as everywhere (Derek, 2026-11-02). It fades in as the player opens.
-        if (!tabletop && (!wide || (PlayerControls.inBar && showPlayer && !showFullscreen))) Box(Modifier.fillMaxSize()) {
+        if (!tabletop && !tv && (!wide || (PlayerControls.inBar && showPlayer && !showFullscreen))) Box(Modifier.fillMaxSize()) {
         NavPill(
             selected = tab,
             onSelect = ::selectTab,
@@ -743,6 +775,8 @@ fun SkipiiApp() {
                     shorts,
                     progress = { shortsMorph.value },
                     onBack = ::leaveShorts,
+                    focus = if (tv) shortsBarFocus else null,
+                    shortFocus = if (tv) shortFocus else null,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(start = 16.dp, end = 16.dp, bottom = stackBottom)
@@ -760,6 +794,7 @@ fun SkipiiApp() {
         }
 
         if (showFullscreen) FullscreenPlayer(player, onExit = { orientation.exitFullscreen() })
+        if (tv && playerOpen) TvPlayer(player, onClose = { player.expanded = false }, onOpen = player::open, onChannel = ::showChannel)
         windowLayout.tabletopY?.takeIf { tabletop }?.let { fold ->
             with(density) { TabletopPlayer(player, foldTop = fold.start.toDp(), foldBottom = fold.endInclusive.toDp()) }
         }
@@ -773,7 +808,7 @@ fun SkipiiApp() {
             exit = if (reduced) fadeOut(snap()) else
                 scaleOut(MoodiiSpatial(), targetScale = 0.96f) + slideOutVertically(MoodiiSpatial()) { it / 16 } + fadeOut(tween(160)),
         ) {
-            SettingsScreen(
+            Box(Modifier.tvPage()) { SettingsScreen(
                 player,
                 active = settingsOpen,
                 onClose = { settingsOpen = false },
@@ -781,9 +816,9 @@ fun SkipiiApp() {
                 onSignedOut = { lib.reset(); player.refreshAccountState() },
                 // Wide: the categories on the left, the open one on the right (list-detail).
                 wide = wide,
-            )
+            ) }
         }
-        if (signingIn) {
+        if (signingIn) Box(Modifier.tvPage()) {
             SignInScreen(
                 onDone = { signingIn = false; lib.reset(); player.refreshAccountState() },
                 onCancel = { signingIn = false },

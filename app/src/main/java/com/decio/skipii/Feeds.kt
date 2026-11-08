@@ -1,5 +1,7 @@
 package com.decio.skipii
 
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.platform.LocalConfiguration
@@ -314,10 +316,14 @@ private val GridCardMin = 280.dp
  */
 @Composable
 fun gridColumns(): Int {
-    val wide = LocalWindowLayout.current.wide
-    val width = LocalConfiguration.current.screenWidthDp.dp - if (wide) RailWidth else 0.dp
-    return (width / GridCardMin).toInt().coerceIn(if (wide) 2 else 1, 4)
+    val window = LocalWindowLayout.current
+    val width = LocalConfiguration.current.screenWidthDp.dp - if (window.wide) RailWidth else 0.dp
+    // A TV is seen from across the room at 960 dp: four a row, as TV apps do (three at 280 looked like a tablet's).
+    return (width / if (window.tv) TvCardMin else GridCardMin).toInt().coerceIn(if (window.wide) 2 else 1, 4)
 }
+
+/** A TV's narrowest card (Android TV, Tv.kt). */
+private val TvCardMin = 200.dp
 
 /**
  * Video cards, [columns] a row: a grid kept inside the page's LazyColumn, so headers and the
@@ -329,10 +335,13 @@ fun LazyListScope.videoCards(
     onOpen: (VideoItem) -> Unit,
     /** A card of its own in the grid's second spot (Home's Shorts card); grids only. */
     extra: (@Composable (Modifier) -> Unit)? = null,
+    /** Given to the first card, so a TV remote can be put there (fresh search results). */
+    firstFocus: FocusRequester? = null,
 ) {
     val videos = videos.filterNot(Dismissed::hides)
+    fun Modifier.first(video: VideoItem) = if (firstFocus != null && video === videos.firstOrNull()) focusRequester(firstFocus) else this
     if (columns <= 1) {
-        items(videos, key = { it.id }) { video -> VideoCard(video, onClick = { onOpen(video) }) }
+        items(videos, key = { it.id }) { video -> VideoCard(video, onClick = { onOpen(video) }, modifier = Modifier.first(video)) }
         return
     }
     val cells: List<Any> = if (extra != null && videos.isNotEmpty()) videos.take(1) + ExtraCell + videos.drop(1) else videos
@@ -340,7 +349,7 @@ fun LazyListScope.videoCards(
     items(cells.chunked(columns), key = { row -> "row-" + (row.first() as VideoItem).id }) { row ->
         Row(Modifier.fillMaxWidth().padding(horizontal = 5.dp)) {
             row.forEach { cell ->
-                if (cell is VideoItem) VideoCard(cell, onClick = { onOpen(cell) }, modifier = Modifier.weight(1f))
+                if (cell is VideoItem) VideoCard(cell, onClick = { onOpen(cell) }, modifier = Modifier.weight(1f).first(cell))
                 else extra?.invoke(Modifier.weight(1f))
             }
             repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }

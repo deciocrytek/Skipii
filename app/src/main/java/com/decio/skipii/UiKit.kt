@@ -45,6 +45,15 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -274,14 +283,25 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
     val c = MaterialTheme.colorScheme
     val menu = LocalVideoMenu.current
     val shape = RoundedCornerShape(28.dp)
+    // On a remote (TV) the focused card lifts: a lighter container and a shadow under its scale-up.
+    val tv = LocalWindowLayout.current.tv
+    var focused by remember { mutableStateOf(false) }
+    val lift by animateFloatAsState(if (focused) 1f else 0f, tween(160), label = "cardLift")
+    // The card that opened the video gets the remote back when the TV player closes (TvFocusMemory).
+    val opener = remember { FocusRequester() }
     Column(
         modifier = modifier
             .padding(horizontal = 6.dp, vertical = 7.dp)
             .fillMaxWidth()
             .prefetchOnPress(video.id)
-            .pressable(pressedScale = 0.97f, onLongClick = { menu(video) }, onClick = onClick)
-            .clip(shape)
-            .background(c.surfaceContainerLow)
+            .onFocusChanged { focused = it.isFocused }
+            .then(if (tv) Modifier.focusRequester(opener) else Modifier)
+            .pressable(pressedScale = 0.97f, focusedScale = 1.05f, focusTone = false, onLongClick = { menu(video) }) {
+                if (tv) TvFocusMemory.opener = opener
+                onClick()
+            }
+            .graphicsLayer { shadowElevation = 18.dp.toPx() * lift; this.shape = shape; clip = true; ambientShadowColor = Color.Black; spotShadowColor = Color.Black }
+            .background(if (lift > 0f) androidx.compose.ui.graphics.lerp(c.surfaceContainerLow, c.surfaceContainerHighest, lift) else c.surfaceContainerLow)
             .padding(5.dp),
     ) {
         Box {
@@ -291,7 +311,8 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
         }
         Row(modifier = Modifier.padding(start = 8.dp, end = 6.dp, top = 12.dp, bottom = 10.dp)) {
             val openChannel = LocalChannelOpener.current
-            Box(Modifier.pressable(enabled = video.channelUrl != null) { video.channelUrl?.let(openChannel) }) {
+            // On a TV the card is one stop for the remote: the channel is in its long-press menu.
+            Box(Modifier.pressable(enabled = video.channelUrl != null && !tv) { video.channelUrl?.let(openChannel) }) {
                 ChannelAvatar(video.avatar, video.channel)
             }
             Spacer(Modifier.width(12.dp))

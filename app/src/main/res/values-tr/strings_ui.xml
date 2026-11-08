@@ -67,7 +67,7 @@
     <string name="ui_shorts_on_line">Shorts sekmesini göster</string>
     <string name="ui_shorts_off_line">Shorts sekmesi gizli ve hiç Shorts yüklenmiyor</string>
     <string name="ui_appearance">Görünüm</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">Sistem</string>
     <string name="ui_mode_light">Açık</string>
     <string name="ui_mode_dark">Koyu</string>

@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube menolak sesi (%1$s). Coba login lagi.</string>
     <string name="app_error_youtube_returned">YouTube mengembalikan %1$s</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">Diputar di latar belakang</string>
+    <string name="app_live_channel_description">Kontrol pemutaran saat Skipii tidak di layar</string>
+    <string name="app_live_back">−%1$s dtk</string>
+    <string name="app_live_forward">+%1$s dtk</string>
 </resources>

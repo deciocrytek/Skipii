@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube oturumu reddetti (%1$s). Tekrar oturum açmayı deneyin.</string>
     <string name="app_error_youtube_returned">YouTube şu yanıtı verdi: %1$s</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">Arka planda oynatılıyor</string>
+    <string name="app_live_channel_description">Skipii ekranda değilken oynatma kontrolleri</string>
+    <string name="app_live_back">−%1$s sn</string>
+    <string name="app_live_forward">+%1$s sn</string>
 </resources>

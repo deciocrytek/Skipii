@@ -789,10 +789,62 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   a few settings, the saved crashes and Android's `getHistoricalProcessExitReasons` (11+; low memory / native / ANR with
   its trace / system kills, which leave no Java trace). The About tile says "Crash report saved" until it's shared
   (prefs "crashes" `shared`). Never put account data or watch history in it. Test: `adb shell am crash com.skipii`.
+- 0.5.110 live activity (2026-11-05, Derek: "a toggle in playback that puts playback controls in live activities once the app is
+  minimized; should work well with One UI and Pixel"). `LiveControls` + `LiveActivity` (LiveActivity.kt), Settings › Playback "Live
+  activity" (prefs "playback" `live_controls`, default off). Android 16 QPR1's Live Updates: a SECOND notification (channel
+  "live_controls"), because MediaStyle can't be promoted and the media notification must stay MediaStyle (Pixel's media player, One
+  UI's Now Bar read the session from it). ProgressStyle (SponsorBlock segments in their colours, ≤15 pieces), thumbnail square,
+  −step · play/pause · +step (text actions → `LiveControlsReceiver`), `EXTRA_REQUEST_PROMOTED_ONGOING` as its string (the constant
+  is only in SDK 36.1), chip = countdown chronometer of the wall time left while playing, the pause glyph as small icon when paused;
+  reposted every 5 s while playing (progress isn't system-driven). Shown only while MainActivity is stopped (`setOnScreen` from the
+  ON_STOP/ON_START observer; PiP doesn't stop it) and the video played off screen (`armed`); kept through pauses; gone on return,
+  end, cleared queue. Swiped away = not again until the app was on screen. Tap = MainActivity with `EXTRA_OPEN` → player opens.
+  Never a plain duplicate: posted only if `canPostPromotedNotifications()`, and 1 s after posting, without FLAG_PROMOTED_ONGOING it's
+  cancelled for the rest of that off-screen stretch (`refusedBySystem`, said in Settings). Plain 16.0 answers no (row dimmed, "Needs
+  Android 16 QPR1"); `supported` = SDK_INT_FULL ≥ 36.1 or 16.0 that already promotes. One UI 8: chip + card per the docs; the Now Bar
+  shows third-party Live Updates only with Samsung's dev option "Live notifications for all apps" (the media session is in it anyway).
+  Samsung's own `android.ongoingActivityNoti.*` extras are allowlist-only, not used. Logs "live activity: …". Test: AVD `skipii_live`
+  (Pixel 8, android-37.0 playstore image, 5566, 4G data, 2G RAM); skipii_qa is 36.0 (the "not allowed" path). Verified (debug +
+  release on skipii_live): promoted card, chip countdown / pause glyph, ±10 / Pause / Play, next video's card, tap opens the player
+  and removes it; 36.0 posts nothing. NOT verified: a real Pixel, One UI 8 (chip, Now Bar), the lock screen.
+- 0.5.112 Android TV (2026-11-07, Derek: "let's build it" on the mockup now in `docs/design/android-tv.html`; Tv.kt). One APK:
+  the manifest marks touchscreen + leanback optional, adds LEANBACK_LAUNCHER and `android:banner` (`drawable-xhdpi/tv_banner.png`,
+  640×360: brand mark + "Skipii" on white). `WindowLayout.tv` (`Context.isTv()`: UI mode television or FEATURE_LEANBACK); a TV
+  counts as `onLargeScreen` (540 dp tall, never turns: held portrait it was pillarboxed to a phone strip). Pages = the wide layout
+  (rail, grids); `gridColumns` uses `TvCardMin` 200 dp there (four a row). Focus look for the remote lives in `pressable`
+  (Motion.kt): focused = `focusedScale` (growth capped at `MaxFocusGrow` 24 dp across, so full-width rows don't spill) + a
+  `FocusToneAlpha` tone of the ink (`focusTone = false` where a control draws its own); touch never focuses anything, so phones
+  look the same. `VideoCard` lifts on focus (lighter container + 18 dp shadow, no tone, avatar not a stop on TV); the rail shows a
+  tone pill a size up from the picked one (a halo on the selected tab). The open player is `TvPlayer` (no morph: `morph` snaps,
+  `PlayerScreen` / NavPill / FullscreenPlayer aren't used): picture across the screen; hidden controls: ◀ ▶ scrub, OK play/pause
+  (or skips an Ask segment while its pill shows), ▲ ▼ show them; shown: title row, times, `TvTrack` (focusable; ◀ ▶ move a pending
+  spot by the seek step, ×3 when held, storyboard frame + time float over the knob without taking room, seeks after
+  `ScrubSettleMs` 800 or on OK), keys CC · speed · −step · play · +step · chapters · next · ⋯ (focused = solid white, play glows),
+  hints, More videos peeking (`MorePeek`) and rising with a dim when focused. Panels on the right (`TvSidePanel`: speed, quality,
+  captions, chapters, ⋯ = quality · audio only · like/dislike · go to channel; chosen row primaryContainer, focused row inverse).
+  Hides after `TvControlsHideMs` 5 s. Back: panel → pending scrub → controls → player (the corner mini-player plays on; focus
+  returns to the card that opened it, `TvFocusMemory`). Focus rules learned: the player and panels `trapFocus()` (the page under
+  is still composed and the D-pad walked into it); pages laid over others use `Modifier.tvPage()` (Settings, sign-in: trapped;
+  channel / playlist: ◀ may reach the rail); `CollapsingHeaderLayout` sends ▼ off a header into its list (`leaveTo`), since the
+  list runs under the header and nothing in it is geometrically "below". NEVER use Compose 1.7's `focusRestorer` (crashed:
+  "Release should only be called once"). Focus a requester with `focusWhenReady()` (1.7 throws while it's unattached). Search on
+  TV focuses the first result when results land. Shorts: the short is a focus target (▲ ▼ = `ShortsState.pageRequest`, OK pauses,
+  ▶ = the glass bar's Like, ◀ / ▲ off the bar back to the short). Settings › Playback hides the phone-only rows on TV
+  (`PhoneOnlyRows`: controls placement, chapters, PiP, zoom, live activity; search skips them too). Test: AVD `skipii_tv`
+  (Google TV API 34, port 5568; its system image was unpacked SPARSE by hand — 8.6 GB raw, 1.5 GB on disk — and the AVD config
+  written by hand, run with `-partition-size 2048`); Google TV's launcher is stuck on "Set up Google TV" without an account,
+  so launch with `am start -c android.intent.category.LEANBACK_LAUNCHER -n com.skipii/com.decio.skipii.MainActivity` (check
+  registration with `cmd package query-activities -c android.intent.category.LEANBACK_LAUNCHER`). After `adb install`, wait,
+  force-stop, then start (an immediate start races the restart). Verified (debug; release playback): launch, rail + grids, search
+  with Gboard TV, player keys / scrub / panels / captions / More videos, focus back to the card, Shorts + bar, Settings, channel
+  page grid; phone unchanged on skipii_qa. NOT verified: a real TV / remote, sign-in on a TV (WebView + TV keyboard), signed-in
+  Home on TV, the TV launcher row with the banner.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
-  card (`ThemeSettings`, persisted). Mode chips System / Light / Dark / AMOLED (2026-10-14): AMOLED = dark with
-  `ColorScheme.amoled()` (page pure black, containers pulled toward black but kept a step apart); use
+  card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)
+  (Derek: not a mode of its own; prefs "appearance" `amoled`, an old "amoled" mode reads as dark + on). On, every
+  dark the app shows (Dark, or System at night) is `ColorScheme.amoled()` (page pure black, containers pulled toward
+  black but kept a step apart); dimmed while Light is picked. Use
   `themedScheme`, not `schemeFor`, wherever a scheme is shown. Palettes in Theme.kt are copied verbatim from
   ~/decio/ledgii/android/.../Theme.kt — re-copy on change; `completeLedgiiScheme` fills roles
   Ledgii leaves unset. Tab bar is 62 dp (Derek; tabs keep 50 dp targets); the page has Ledgii's bottom vignette
@@ -886,12 +938,14 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `CaptionsUi.kt` — `CaptionLayer` (on the picture), `captionOptions`, `CaptionsSheet`, `TranscriptPanel`, the account card.
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
+- `LiveActivity.kt` — `LiveControls` (setting, on-screen flag) and `LiveActivity` (the service's Live Update notification).
 - `Crash.kt` — `CrashLog`: uncaught-exception reports + Android's exit reasons, shared from Settings › About.
 - `Updater.kt` — `AppUpdate` (daily GitHub release check, release notes, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill + What's new sheet.
 - `Bell.kt` — `Bells` (each channel's bell, synced with the account), `SubscribeWithBell`, `rememberBellToggle`.
 - `NewVideos.kt` — the 15-minute new-video check (RSS feeds of belled channels), notifications, `NewVideoWorker`.
 - `NavBar.kt` — `NavPill`: the tab bar, which morphs into the open player's −10 · play · +10 · ⋮ bar.
-- `Adaptive.kt` (`WindowLayout`: wide / fold / tabletop), `Rail.kt` (`NavRail`, wide windows), `Tabletop.kt` (`TabletopPlayer`, the half-open deck).
+- `Tv.kt` — `TvPlayer` (the remote-driven player), side panels, `tvPage` / `trapFocus` / `leaveTo` focus helpers, `TvFocusMemory`.
+- `Adaptive.kt` (`WindowLayout`: wide / fold / tabletop / tv), `Rail.kt` (`NavRail`, wide windows), `Tabletop.kt` (`TabletopPlayer`, the half-open deck).
 - `PlayerBar.kt` — the open player's bar: `PlayerBarState`, tools dome, quality list, scrub track, gestures.
 - `UiKit.kt` — header, cards, expressive shapes (`CookieShape`), formatting.
 - `AvSync.kt` — TextureView lip-sync measurement + `SyncedRenderersFactory`.

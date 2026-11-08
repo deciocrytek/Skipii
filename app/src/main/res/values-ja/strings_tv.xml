@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV (Tv.kt): the hints under the player's keys. -->
+<resources>
+    <string name="tv_hint_seek">早送り / 巻き戻し</string>
+    <string name="tv_hint_play_pause">再生 / 一時停止</string>
+</resources>

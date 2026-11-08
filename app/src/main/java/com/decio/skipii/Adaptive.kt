@@ -1,6 +1,10 @@
 package com.decio.skipii
 
 import android.app.Activity
+import android.app.UiModeManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.view.Surface
 import androidx.compose.runtime.Composable
@@ -30,6 +34,8 @@ data class WindowLayout(
     val foldX: Float? = null,
     /** Half open with the fold running across the window (tabletop): the fold's top and bottom, px. */
     val tabletopY: ClosedFloatingPointRange<Float>? = null,
+    /** An Android TV / Google TV: driven by a remote's D-pad, never touched ([TvPlayer], Tv.kt). */
+    val tv: Boolean = false,
 )
 
 /** Medium width and up (Material's window size classes): the phone layout stops here. */
@@ -44,7 +50,8 @@ fun rememberWindowLayout(activity: Activity): WindowLayout {
     val flow = remember(activity) { WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity) }
     val info by flow.collectAsState(initial = null)
     val fold = info?.displayFeatures?.filterIsInstance<FoldingFeature>()?.firstOrNull()
-    return remember(wide, fold) {
+    val tv = remember(activity) { activity.isTv() }
+    return remember(wide, fold, tv) {
         val b = fold?.bounds
         WindowLayout(
             wide = wide,
@@ -52,9 +59,15 @@ fun rememberWindowLayout(activity: Activity): WindowLayout {
             tabletopY = if (fold?.state == FoldingFeature.State.HALF_OPENED && fold.orientation == FoldingFeature.Orientation.HORIZONTAL && b != null) {
                 b.top.toFloat()..b.bottom.toFloat()
             } else null,
+            tv = tv,
         )
     }
 }
+
+/** A television (leanback): Android TV and Google TV both say so in their UI mode. */
+fun Context.isTv(): Boolean =
+    (getSystemService(Context.UI_MODE_SERVICE) as UiModeManager).currentModeType == Configuration.UI_MODE_TYPE_TELEVISION ||
+        packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
 
 /** The whole screen the window is on, (short side, long side) in px: the same either way round. */
 fun Activity.screenSides(): Pair<Int, Int> {
@@ -72,8 +85,11 @@ fun Activity.turnedSideways(): Boolean {
     return rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270
 }
 
-/** A tablet or an open foldable: the screen's short side is wide-window size, so nothing is held portrait. */
-fun Activity.onLargeScreen(): Boolean = screenSides().first / resources.displayMetrics.density >= WideWindow.value
+/**
+ * A tablet or an open foldable (the screen's short side is wide-window size) or a TV (540 dp tall, but it
+ * never turns): nothing is held portrait. A TV held portrait was pillarboxed to a phone-shaped strip.
+ */
+fun Activity.onLargeScreen(): Boolean = isTv() || screenSides().first / resources.displayMetrics.density >= WideWindow.value
 
 /** No more than 4:3 either way round (the Titan 2 Elite is 1080 × 1200, the Ikko Mind One about 1.15): fullscreen keeps the phone upright. */
 val SquareScreenRatio = 4f / 3f

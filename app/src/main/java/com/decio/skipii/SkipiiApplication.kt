@@ -29,6 +29,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         SeekStep.init(this)
         ChaptersStayOpen.init(this)
         AutoPip.init(this)
+        LiveControls.init(this)
         CaptionSettings.init(this)
         CaptionTranslator.refresh()
         SearchHistory.init(this)

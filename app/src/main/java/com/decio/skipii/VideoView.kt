@@ -1109,7 +1109,7 @@ fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
 
 /** "Skip sponsor ›" — shown while playback is inside a segment set to Ask. */
 @Composable
-private fun SkipSegmentPill(segment: SponsorBlock.Segment, enabled: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+internal fun SkipSegmentPill(segment: SponsorBlock.Segment, enabled: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Row(
         modifier = modifier
             .height(32.dp)
@@ -1127,7 +1127,7 @@ private fun SkipSegmentPill(segment: SponsorBlock.Segment, enabled: Boolean, mod
 
 /** "Skipped 1:12 sponsor · Undo" after an automatic skip; fades after a few seconds. */
 @Composable
-private fun SkippedNote(state: PlayerState, modifier: Modifier) {
+internal fun SkippedNote(state: PlayerState, modifier: Modifier) {
     val skip = SponsorBlock.lastSkip?.takeIf { it.videoId == state.current?.id } ?: return
     LaunchedEffect(skip) {
         delay(4_000)
@@ -1300,7 +1300,7 @@ private fun BoxScope.SpeedDrop(state: PlayerState, open: Boolean, anchor: Rect, 
 }
 
 /** 0.5–3×, the ruler's range. */
-private val SpeedPresets = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f, 2.5f, 3f)
+internal val SpeedPresets = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f, 2.5f, 3f)
 
 /**
  * The card both pickers share ([shown] from [dropShown]): the overlay's glass, hanging 8 dp under its pill ([anchor], in this box's pixels;
@@ -1460,7 +1460,7 @@ fun SpeedSheet(state: PlayerState, onDismiss: () -> Unit) {
     }
 }
 
-private fun qualityTag(height: Int): String? = when {
+internal fun qualityTag(height: Int): String? = when {
     height >= 2160 -> "4K"
     height >= 1440 -> "QHD"
     height >= 1080 -> str(R.string.video_quality_full_hd)
@@ -1498,7 +1498,7 @@ private fun QualityRow(title: String, subtitle: String?, selected: Boolean, onCl
  * YouTube's own app, which isn't refused.
  */
 @Composable
-private fun BoxScope.ErrorPanel(message: String, state: PlayerState, onCollapse: () -> Unit) {
+internal fun BoxScope.ErrorPanel(message: String, state: PlayerState, onCollapse: () -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.72f)))
     Column(

@@ -446,15 +446,23 @@ object ThemeSettings {
 
     var seed by mutableStateOf<String?>(null)
         private set
-    /** "system", "light", "dark" or "amoled" (dark on pure black, Derek 2026-10-14). */
+    /** "system", "light" or "dark". */
     var mode by mutableStateOf("system")
         private set
-    val amoled: Boolean get() = mode == "amoled"
+    /**
+     * Dark on pure black (Derek 2026-10-14), whenever the app is dark: Dark, or System at night.
+     * A switch since 2026-11-06; before that "amoled" was a fourth mode (read as dark + this).
+     */
+    var amoled by mutableStateOf(false)
+        private set
 
     fun init(context: Context) {
         val p = context.getSharedPreferences("appearance", Context.MODE_PRIVATE).also { prefs = it }
         seed = p.getString("seed", null) ?: if (wallpaperAvailable) null else SEED_CREAM_ROSE
-        mode = p.getString("mode", "system") ?: "system"
+        val saved = p.getString("mode", "system") ?: "system"
+        amoled = p.getBoolean("amoled", saved == "amoled")
+        mode = if (saved == "amoled") "dark" else saved
+        if (saved == "amoled") p.edit().putString("mode", mode).putBoolean("amoled", true).apply()
     }
 
     fun choose(seedHex: String?) {
@@ -465,6 +473,11 @@ object ThemeSettings {
     fun chooseMode(value: String) {
         mode = value
         prefs?.edit()?.putString("mode", value)?.apply()
+    }
+
+    fun chooseAmoled(on: Boolean) {
+        amoled = on
+        prefs?.edit()?.putBoolean("amoled", on)?.apply()
     }
 }
 
@@ -536,7 +549,7 @@ fun themedScheme(context: Context, seedHex: String?, dark: Boolean): ColorScheme
 
 @Composable
 fun isDarkTheme(): Boolean = when (ThemeSettings.mode) {
-    "dark", "amoled" -> true
+    "dark" -> true
     "light" -> false
     else -> isSystemInDarkTheme()
 }

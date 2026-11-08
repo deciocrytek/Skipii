@@ -30,6 +30,11 @@
     <string name="settings_sb_summary">Skips %1$s, asks about %2$s</string>
     <string name="settings_mode">Mode</string>
     <string name="settings_theme">Theme</string>
+    <!-- Switch under the mode chips: dark mode on pure black. Keep "AMOLED" as it is. -->
+    <string name="settings_amoled_title">AMOLED black</string>
+    <string name="settings_amoled_line">Dark mode on pure black, for OLED screens</string>
+    <!-- The same switch's line while Light is picked (it does nothing then). -->
+    <string name="settings_amoled_light_line">Used when the app is dark: pick Dark or System</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s channel with the bell on</item>
         <item quantity="other">%1$s channels with the bell on</item>
@@ -74,4 +79,13 @@
     <string name="settings_chapters_open_line">Picking a chapter leaves the list open, so you can go from one to the next</string>
     <string name="settings_auto_pip_title">Picture-in-picture when you leave</string>
     <string name="settings_auto_pip_line">Going home while a video plays keeps it playing in a small window</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Live activity</string>
+    <string name="settings_live_line">Leaving Skipii while a video plays puts its controls in the status bar and on the lock screen</string>
+    <string name="settings_live_needs">Needs Android 16 QPR1 or later</string>
+    <string name="settings_live_refused">This phone shows it only as a normal notification, so the media controls stay on their own</string>
+    <string name="settings_live_allow_title">Allow Live updates</string>
+    <string name="settings_live_allow_line">Live updates are off for Skipii in Android\'s settings</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Live update, Now Bar, status bar chip, lock screen</string>
 </resources>

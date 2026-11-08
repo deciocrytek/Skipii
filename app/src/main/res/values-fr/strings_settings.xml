@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Saute %1$s, demande pour %2$s</string>
     <string name="settings_mode">Mode</string>
     <string name="settings_theme">Thème</string>
+    <string name="settings_amoled_title">Noir AMOLED</string>
+    <string name="settings_amoled_line">Mode sombre en noir pur, pour les écrans OLED</string>
+    <string name="settings_amoled_light_line">Utilisé quand l\'appli est sombre : choisissez Sombre ou Système</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s chaîne avec la cloche activée</item>
         <item quantity="many">%1$s de chaînes avec la cloche activée</item>
@@ -62,4 +65,13 @@
     <string name="settings_chapters_open_line">Choisir un chapitre laisse la liste ouverte, pour passer de l\'un à l\'autre</string>
     <string name="settings_auto_pip_title">Picture-in-picture en quittant</string>
     <string name="settings_auto_pip_line">Revenir à l\'écran d\'accueil pendant une vidéo la garde dans une petite fenêtre</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Activité en direct</string>
+    <string name="settings_live_line">Quitter Skipii pendant une vidéo place ses commandes dans la barre d\'état et sur l\'écran de verrouillage</string>
+    <string name="settings_live_needs">Nécessite Android 16 QPR1 ou version ultérieure</string>
+    <string name="settings_live_refused">Ce téléphone l\'affiche seulement comme une notification normale : seules les commandes multimédias restent</string>
+    <string name="settings_live_allow_title">Autoriser les mises à jour en direct</string>
+    <string name="settings_live_allow_line">Les mises à jour en direct sont désactivées pour Skipii dans les paramètres d\'Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Mise à jour en direct, Now Bar, barre d\'état, écran de verrouillage</string>
 </resources>

@@ -125,6 +125,7 @@ class PlaybackService : MediaSessionService() {
         resumeSaver = ResumeSaver(player).also(player::addListener)
         player.addListener(SessionSaver())
         watchTime = WatchTimeReporter(player).also(player::addListener)
+        live = LiveActivity(this, player, resolver)
         session = MediaSession.Builder(this, player)
             .setSessionActivity(openApp)
             .setCallback(SessionCallback())
@@ -150,10 +151,12 @@ class PlaybackService : MediaSessionService() {
 
     private var resumeSaver: ResumeSaver? = null
     private var watchTime: WatchTimeReporter? = null
+    private var live: LiveActivity? = null
 
     override fun onDestroy() {
         resumeSaver?.saveNow()
         watchTime?.finish()
+        live?.release()
         session?.run {
             player.release()
             release()

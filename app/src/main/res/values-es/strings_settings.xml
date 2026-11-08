@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Salta %1$s, pregunta por %2$s</string>
     <string name="settings_mode">Modo</string>
     <string name="settings_theme">Tema</string>
+    <string name="settings_amoled_title">Negro AMOLED</string>
+    <string name="settings_amoled_line">Modo oscuro en negro puro, para pantallas OLED</string>
+    <string name="settings_amoled_light_line">Se usa cuando la app está oscura: elige Oscuro o Sistema</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s canal con la campana activada</item>
         <item quantity="many">%1$s de canales con la campana activada</item>
@@ -62,4 +65,13 @@
     <string name="settings_chapters_open_line">Al elegir un capítulo, la lista sigue abierta para pasar de uno a otro</string>
     <string name="settings_auto_pip_title">Imagen en imagen al salir</string>
     <string name="settings_auto_pip_line">Si vas a la pantalla de inicio con un vídeo en marcha, sigue en una ventana pequeña</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Actividad en vivo</string>
+    <string name="settings_live_line">Al salir de Skipii mientras suena un vídeo, sus controles quedan en la barra de estado y en la pantalla de bloqueo</string>
+    <string name="settings_live_needs">Requiere Android 16 QPR1 o posterior</string>
+    <string name="settings_live_refused">Este teléfono solo la muestra como una notificación normal, así que quedan solo los controles multimedia</string>
+    <string name="settings_live_allow_title">Permitir actualizaciones en vivo</string>
+    <string name="settings_live_allow_line">Las actualizaciones en vivo están desactivadas para Skipii en los ajustes de Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Actualización en vivo, Now Bar, barra de estado, pantalla de bloqueo</string>
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV (Tv.kt): the hints under the player's keys. -->
+<resources>
+    <string name="tv_hint_seek">Перемотка</string>
+    <string name="tv_hint_play_pause">Воспроизвести / пауза</string>
+</resources>

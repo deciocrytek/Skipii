@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Melewati %1$s, menanyakan %2$s</string>
     <string name="settings_mode">Mode</string>
     <string name="settings_theme">Tema</string>
+    <string name="settings_amoled_title">Hitam AMOLED</string>
+    <string name="settings_amoled_line">Mode gelap dengan hitam pekat, untuk layar OLED</string>
+    <string name="settings_amoled_light_line">Dipakai saat aplikasi gelap: pilih Gelap atau Sistem</string>
     <plurals name="settings_bells_count">
         <item quantity="other">%1$s channel dengan lonceng aktif</item>
     </plurals>
@@ -60,4 +63,13 @@
     <string name="settings_chapters_open_line">Memilih bab membiarkan daftar tetap terbuka, jadi bisa lanjut dari satu ke berikutnya</string>
     <string name="settings_auto_pip_title">Picture-in-picture saat keluar</string>
     <string name="settings_auto_pip_line">Ke layar utama saat video diputar membuatnya tetap jalan di jendela kecil</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Aktivitas langsung</string>
+    <string name="settings_live_line">Keluar dari Skipii saat video diputar menaruh kontrolnya di status bar dan layar kunci</string>
+    <string name="settings_live_needs">Perlu Android 16 QPR1 atau lebih baru</string>
+    <string name="settings_live_refused">Ponsel ini hanya menampilkannya sebagai notifikasi biasa, jadi hanya kontrol media yang tersisa</string>
+    <string name="settings_live_allow_title">Izinkan Live Update</string>
+    <string name="settings_live_allow_line">Live Update dinonaktifkan untuk Skipii di setelan Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Live Update, Now Bar, status bar, layar kunci</string>
 </resources>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root{
+    --bg:#0f0f0f; --c1:#181818; --c2:#212121; --c3:#2c2c2c; --ink:#f1f1f1; --mute:#aaaaaa;
+    --pri:#ff3355; --onpri:#fff;
+  }
+  body{margin:0;padding:24px;background:#141414;--foreground:#eee;--muted-foreground:#9a9a9a;--radius:14px;--font-sans:system-ui}
+  .wrap{max-width:960px;margin:0 auto}
+  .wrap{display:flex;flex-direction:column;gap:22px;font-family:var(--font-sans),system-ui,sans-serif}
+  .cap{font-size:13px;color:var(--muted-foreground);margin:8px 2px 0;line-height:1.45}
+  .cap b{color:var(--foreground);font-weight:600}
+  .tv{position:relative;width:100%;aspect-ratio:16/9;container-type:inline-size;background:var(--bg);color:var(--ink);
+      overflow:hidden;border-radius:var(--radius);box-shadow:0 0 0 6px #050505, 0 10px 30px rgba(0,0,0,.35)}
+  .tv *{box-sizing:border-box}
+  .tv{--dp:calc(100cqw/960)}
+  .abs{position:absolute}
+  .t{font-size:calc(var(--dp)*15);font-weight:600;line-height:1.25}
+  .s{font-size:calc(var(--dp)*12.5);color:var(--mute);line-height:1.3}
+  .round{border-radius:calc(var(--dp)*14)}
+
+  /* ---- rail ---- */
+  .rail{left:0;top:0;bottom:0;width:calc(var(--dp)*84);display:flex;flex-direction:column;align-items:center;
+        padding-top:calc(var(--dp)*28);gap:calc(var(--dp)*14)}
+  .mark{width:calc(var(--dp)*40);height:calc(var(--dp)*30);background:var(--pri);border-radius:calc(var(--dp)*11);
+        display:grid;place-items:center;margin-bottom:calc(var(--dp)*14)}
+  .mark i{width:0;height:0;border-left:calc(var(--dp)*11) solid #fff;border-top:calc(var(--dp)*7) solid transparent;border-bottom:calc(var(--dp)*7) solid transparent}
+  .tab{width:calc(var(--dp)*54);height:calc(var(--dp)*34);border-radius:99px;display:grid;place-items:center}
+  .tab.on{background:var(--pri)}
+  .tab svg{width:calc(var(--dp)*22);height:calc(var(--dp)*22);fill:var(--mute)}
+  .tab.on svg{fill:#fff}
+  .ava{margin-top:auto;margin-bottom:calc(var(--dp)*26);width:calc(var(--dp)*34);height:calc(var(--dp)*34);border-radius:50%;
+       background:linear-gradient(135deg,#f6b26b,#c2185b)}
+
+  /* ---- home ---- */
+  .ambient{inset:0;background:radial-gradient(60% 55% at 42% 0%, rgba(255,140,60,.20), transparent 70%)}
+  .chips{left:calc(var(--dp)*112);top:calc(var(--dp)*30);display:flex;gap:calc(var(--dp)*26);font-size:calc(var(--dp)*15);color:var(--mute)}
+  .chips .on{color:var(--pri);font-weight:800;position:relative}
+  .chips .on:after{content:"";position:absolute;left:20%;right:20%;bottom:calc(var(--dp)*-9);height:calc(var(--dp)*4);border-radius:9px;background:var(--pri)}
+  .grid{left:calc(var(--dp)*112);right:calc(var(--dp)*28);top:calc(var(--dp)*82);display:grid;
+        grid-template-columns:repeat(4,1fr);column-gap:calc(var(--dp)*18);row-gap:calc(var(--dp)*20)}
+  .card{border-radius:calc(var(--dp)*20);padding:calc(var(--dp)*5);transition:none}
+  .thumb{position:relative;aspect-ratio:16/9;border-radius:calc(var(--dp)*15);overflow:hidden}
+  .dur{position:absolute;right:calc(var(--dp)*6);bottom:calc(var(--dp)*7);background:rgba(0,0,0,.78);color:#fff;
+       font-size:calc(var(--dp)*11);font-weight:600;padding:calc(var(--dp)*1.5) calc(var(--dp)*5);border-radius:calc(var(--dp)*5)}
+  .resume{position:absolute;left:0;bottom:0;height:calc(var(--dp)*3.5);background:var(--pri)}
+  .meta{display:flex;gap:calc(var(--dp)*9);padding:calc(var(--dp)*9) calc(var(--dp)*4) calc(var(--dp)*4)}
+  .cav{flex:none;width:calc(var(--dp)*28);height:calc(var(--dp)*28);border-radius:50%}
+  .card.focus{background:var(--c3);transform:scale(1.08);box-shadow:0 calc(var(--dp)*14) calc(var(--dp)*30) rgba(0,0,0,.6);position:relative;z-index:2}
+  .card.focus .t{color:#fff}
+  .card:not(.focus) .t{color:#dcdcdc;font-weight:500}
+  .hint{font-size:calc(var(--dp)*12);color:rgba(255,255,255,.62);display:flex;gap:calc(var(--dp)*16);align-items:center}
+  .k{display:inline-grid;place-items:center;min-width:calc(var(--dp)*20);height:calc(var(--dp)*20);padding:0 calc(var(--dp)*5);
+     border-radius:calc(var(--dp)*6);background:rgba(255,255,255,.14);color:#fff;font-size:calc(var(--dp)*11);font-weight:700;margin-right:calc(var(--dp)*4)}
+
+  /* ---- player ---- */
+  .scene{inset:0;background:
+     radial-gradient(18% 30% at 63% 52%, #fff6d8 0%, #ffd27a 35%, transparent 70%),
+     linear-gradient(180deg,#0b1a3a 0%,#26407a 38%,#d27b48 66%,#3a2416 67%,#1b120c 100%)}
+  .rocket{left:61%;top:24%;width:3.2%;height:33%;background:linear-gradient(90deg,#c9c9c9,#fff 45%,#bdbdbd);border-radius:40% 40% 6% 6%}
+  .scrimB{left:0;right:0;bottom:0;height:62%;background:linear-gradient(0deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 55%,transparent)}
+  .scrimT{left:0;right:0;top:0;height:30%;background:linear-gradient(180deg,rgba(0,0,0,.65),transparent)}
+  .ptitle{left:calc(var(--dp)*48);top:calc(var(--dp)*34);right:calc(var(--dp)*48);display:flex;align-items:center;gap:calc(var(--dp)*12)}
+  .ptitle .t{font-size:calc(var(--dp)*22);font-weight:700}
+  .track{left:calc(var(--dp)*48);right:calc(var(--dp)*48);top:calc(var(--dp)*388);height:calc(var(--dp)*5)}
+  .seg{position:absolute;top:0;bottom:0;border-radius:9px}
+  .knob{position:absolute;top:50%;width:calc(var(--dp)*15);height:calc(var(--dp)*15);border-radius:50%;background:var(--pri);transform:translate(-50%,-50%)}
+  .times{left:calc(var(--dp)*48);right:calc(var(--dp)*48);top:calc(var(--dp)*358);display:flex;justify-content:space-between;
+         font-size:calc(var(--dp)*14);font-weight:600}
+  .keys{left:0;right:0;top:calc(var(--dp)*414);display:flex;justify-content:center;align-items:center;gap:calc(var(--dp)*14)}
+  .key{width:calc(var(--dp)*56);height:calc(var(--dp)*56);border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;
+       font-size:calc(var(--dp)*14);font-weight:700}
+  .key svg{width:calc(var(--dp)*26);height:calc(var(--dp)*26);fill:#fff}
+  .key.big{width:calc(var(--dp)*78);height:calc(var(--dp)*78);background:var(--pri);transform:scale(1.1);box-shadow:0 calc(var(--dp)*8) calc(var(--dp)*24) rgba(255,51,85,.45)}
+  .key.big svg{width:calc(var(--dp)*36);height:calc(var(--dp)*36)}
+  .gap{width:calc(var(--dp)*18)}
+  .peek{left:calc(var(--dp)*48);right:0;bottom:calc(var(--dp)*-56);display:flex;gap:calc(var(--dp)*16)}
+  .peek div{flex:none;width:calc(var(--dp)*170);aspect-ratio:16/9;border-radius:calc(var(--dp)*13);opacity:.75}
+  .peeklabel{left:calc(var(--dp)*48);bottom:calc(var(--dp)*44)}
+
+  /* ---- shorts ---- */
+  .sbg{inset:-6%;filter:blur(calc(var(--dp)*40));opacity:.55;background:linear-gradient(160deg,#1e6b5b,#0d2c3f 55%,#c06a2a)}
+  .short{left:50%;top:calc(var(--dp)*24);bottom:calc(var(--dp)*24);aspect-ratio:9/16;transform:translateX(-50%);
+         border-radius:calc(var(--dp)*22);overflow:hidden;background:linear-gradient(170deg,#2a9b84 0%,#155a6a 45%,#0a2233 70%,#e08a3a 100%);
+         box-shadow:0 calc(var(--dp)*20) calc(var(--dp)*50) rgba(0,0,0,.6)}
+  .short .sc{position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent)}
+  .sline{position:absolute;left:calc(var(--dp)*14);right:calc(var(--dp)*14);bottom:calc(var(--dp)*14);height:calc(var(--dp)*3);border-radius:9px;background:rgba(255,255,255,.3)}
+  .sline i{position:absolute;left:0;top:0;bottom:0;width:38%;background:#fff;border-radius:9px}
+  .stext{position:absolute;left:calc(var(--dp)*16);right:calc(var(--dp)*16);bottom:calc(var(--dp)*30)}
+  .glass{left:calc(50% + var(--dp)*160);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:calc(var(--dp)*14);
+         padding:calc(var(--dp)*12);border-radius:99px;background:rgba(37,37,37,.38);backdrop-filter:blur(8px)}
+  .gk{width:calc(var(--dp)*52);height:calc(var(--dp)*52);border-radius:50%;display:grid;place-items:center;position:relative}
+  .gk svg{width:calc(var(--dp)*26);height:calc(var(--dp)*26);fill:#fff}
+  .gk.focus{background:var(--pri);transform:scale(1.12)}
+  .gk small{position:absolute;left:calc(100% + var(--dp)*10);white-space:nowrap;font-size:calc(var(--dp)*12);font-weight:600}
+  .arrow{left:50%;transform:translateX(-50%);font-size:calc(var(--dp)*12);color:rgba(255,255,255,.55)}
+</style></head>
+<body><div class="wrap">
+
+<!-- ============ HOME ============ -->
+<div>
+<div class="tv">
+  <div class="abs ambient"></div>
+  <div class="abs rail">
+    <div class="mark"><i></i></div>
+    <div class="tab on"><svg viewBox="0 0 24 24"><path d="M12 3 3 10v11h6v-6h6v6h6V10z"/></svg></div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2-4h12v2H6zm-2 8h16v12H4zm6 3v6l5-3z"/></svg></div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M17.8 10.1 14 8.4l3.3-1.7c1.6-.8 2.2-2.8 1.4-4.4C17.9.7 15.9.1 14.3.9L6.3 5c-1.1.6-1.8 1.8-1.7 3.1.1 1.3.9 2.4 2.1 2.9l3.8 1.7-3.3 1.7c-1.6.8-2.2 2.8-1.4 4.4.8 1.6 2.8 2.2 4.4 1.4l8-4.1c1.1-.6 1.8-1.8 1.7-3.1-.1-1.3-.9-2.4-2.1-2.9zM10 15V9l5 3z"/></svg></div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 9.5 16a6.5 6.5 0 0 0 4.2-1.6l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg></div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-8 12.5v-9l6 4.5z"/></svg></div>
+    <div class="ava"></div>
+  </div>
+
+  <div class="abs chips"><span class="on">All</span><span>Music</span><span>Space</span><span>Podcasts</span><span>Cooking</span><span>Recently uploaded</span></div>
+
+  <div class="abs grid">
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#3b5bdb,#15aabf)"><span class="dur">18:42</span><span class="resume" style="width:62%"></span></div>
+      <div class="meta"><div class="cav" style="background:#4dabf7"></div><div><div class="t">Why fjords look like that</div><div class="s">Geo Lens · 1.2M views · 3 days ago</div></div></div></div>
+    <div class="card focus"><div class="thumb" style="background:linear-gradient(160deg,#0b1a3a,#26407a 45%,#d27b48 70%,#2a1a10)"><span class="dur">38:17</span><span class="resume" style="width:31%"></span></div>
+      <div class="meta"><div class="cav" style="background:#ffa94d"></div><div><div class="t">How the Saturn V was built</div><div class="s">Apollo Archive · 4.8M views · 2 weeks ago</div></div></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#e8590c,#f59f00)"><span class="dur">11:05</span></div>
+      <div class="meta"><div class="cav" style="background:#ff8787"></div><div><div class="t">One-pan shakshuka, properly</div><div class="s">Small Kitchen · 640K views · 5 days ago</div></div></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#5f3dc4,#d6336c)"><span class="dur">1:02:11</span></div>
+      <div class="meta"><div class="cav" style="background:#b197fc"></div><div><div class="t">Synth jam no. 47</div><div class="s">Patchbay · 210K views · 1 day ago</div></div></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#2b8a3e,#94d82d)"></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#495057,#868e96)"></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#c2255c,#f783ac)"></div></div>
+    <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#1864ab,#74c0fc)"></div></div>
+  </div>
+</div>
+<p class="cap"><b>Home.</b> The tablet layout (rail + 4-column grid) driven by the remote. The focused card lifts: 1.08× scale, a lighter
+container and a deeper shadow, no outline (rule 7). Left from the first column opens the rail; the avatar at its foot is Settings.</p>
+</div>
+
+<!-- ============ PLAYER ============ -->
+<div>
+<div class="tv">
+  <div class="abs scene"></div><div class="abs rocket"></div>
+  <div class="abs scrimT"></div><div class="abs scrimB"></div>
+  <div class="abs ptitle"><div class="cav" style="background:#ffa94d;width:calc(var(--dp)*40);height:calc(var(--dp)*40)"></div>
+    <div><div class="t">How the Saturn V was built</div><div class="s" style="font-size:calc(var(--dp)*14)">Apollo Archive · 1080p</div></div></div>
+
+  <div class="abs times"><span>11:52 / 38:17 &nbsp;<span style="color:var(--mute);font-weight:500">· Stage one: the F-1 engines</span></span><span style="color:var(--mute);font-weight:500">−26:25</span></div>
+  <div class="abs track">
+    <div class="seg" style="left:0;width:100%;background:rgba(255,255,255,.28)"></div>
+    <div class="seg" style="left:0;width:31%;background:var(--pri)"></div>
+    <div class="seg" style="left:52%;width:5%;background:#00d400"></div>
+    <div class="seg" style="left:17.8%;width:.5%;background:#000"></div>
+    <div class="seg" style="left:44%;width:.5%;background:#000"></div>
+    <div class="seg" style="left:71%;width:.5%;background:#000"></div>
+    <div class="knob" style="left:31%"></div>
+  </div>
+
+  <div class="abs keys">
+    <div class="key">CC</div>
+    <div class="key" style="font-size:calc(var(--dp)*15)">1×</div>
+    <div class="gap"></div>
+    <div class="key"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/><text x="12" y="16.3" font-size="6.4" font-weight="800" text-anchor="middle" font-family="sans-serif">10</text></svg></div>
+    <div class="key big"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg></div>
+    <div class="key"><svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/><text x="12" y="16.3" font-size="6.4" font-weight="800" text-anchor="middle" font-family="sans-serif">10</text></svg></div>
+    <div class="gap"></div>
+    <div class="key"><svg viewBox="0 0 24 24"><path d="M3 5h2v2H3zm4 0h14v2H7zM3 11h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7z"/></svg></div>
+    <div class="key"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></div>
+  </div>
+
+  <div class="abs peeklabel hint"><span><span class="k">▼</span>More videos</span><span><span class="k">◀</span><span class="k">▶</span>seek 10 s · hold to scrub</span><span><span class="k">OK</span>play / pause</span></div>
+  <div class="abs peek">
+    <div style="background:linear-gradient(135deg,#3b5bdb,#15aabf)"></div><div style="background:linear-gradient(135deg,#e8590c,#f59f00)"></div>
+    <div style="background:linear-gradient(135deg,#5f3dc4,#d6336c)"></div><div style="background:linear-gradient(135deg,#2b8a3e,#94d82d)"></div>
+    <div style="background:linear-gradient(135deg,#1864ab,#74c0fc)"></div>
+  </div>
+</div>
+<p class="cap"><b>Player.</b> Always fullscreen; any key brings the overlay, it hides after a few seconds. The keys are the fullscreen
+overlay's (captions, speed, −10 · play · +10, chapters, ⋯ for quality / audio only / SponsorBlock / channel / save), the track is the
+portrait playback head with chapter gaps and SponsorBlock marks. ▼ pulls up More videos; comments open as a side panel from ⋯.</p>
+</div>
+
+<!-- ============ SHORTS ============ -->
+<div>
+<div class="tv">
+  <div class="abs sbg"></div>
+  <div class="abs arrow" style="top:calc(var(--dp)*4)">▲</div>
+  <div class="abs short"><div class="sc"></div>
+    <div class="stext"><div class="t" style="font-size:calc(var(--dp)*14)">Kayaking into a sea cave at low tide</div><div class="s" style="color:#ddd">@coastlines</div></div>
+    <div class="sline"><i></i></div></div>
+  <div class="abs glass">
+    <div class="gk focus"><svg viewBox="0 0 24 24"><path d="M2 21h4V9H2zm20-11a2 2 0 0 0-2-2h-6.3l1-4.6v-.3c0-.4-.2-.8-.4-1.1L13.2 1 6.6 7.6C6.2 7.9 6 8.4 6 9v10a2 2 0 0 0 2 2h9c.8 0 1.5-.5 1.8-1.2l3-7.1.2-.7z"/></svg><small>48K</small></div>
+    <div class="gk"><svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .6.4 1 1 1h11l4 4V7c0-.6-.4-1-1-1zm-4 6V3c0-.6-.4-1-1-1H3c-.6 0-1 .4-1 1v14l4-4h10c.6 0 1-.4 1-1z"/></svg><small>612</small></div>
+    <div class="gk"><div class="cav" style="width:calc(var(--dp)*36);height:calc(var(--dp)*36);background:linear-gradient(135deg,#63e6be,#1971c2)"></div></div>
+  </div>
+  <div class="abs arrow" style="bottom:calc(var(--dp)*4)">▼</div>
+</div>
+<p class="cap"><b>Shorts.</b> The wide-window short (full height, over its own blurred thumbnail), its glass bar turned upright beside it.
+▲ ▼ change short, ▶ walks into the bar, OK pauses, a double OK likes.</p>
+</div>
+
+</div></body></html>

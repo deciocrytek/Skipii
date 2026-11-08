@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Salta %1$s, chiede per %2$s</string>
     <string name="settings_mode">Modalità</string>
     <string name="settings_theme">Tema</string>
+    <string name="settings_amoled_title">Nero AMOLED</string>
+    <string name="settings_amoled_line">Modalità scura in nero puro, per schermi OLED</string>
+    <string name="settings_amoled_light_line">Si usa quando l\'app è scura: scegli Scuro o Sistema</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s canale con la campanella attiva</item>
         <item quantity="many">%1$s di canali con la campanella attiva</item>
@@ -62,4 +65,13 @@
     <string name="settings_chapters_open_line">Scegliendo un capitolo l\'elenco resta aperto, per passare dall\'uno all\'altro</string>
     <string name="settings_auto_pip_title">Picture in picture quando esci</string>
     <string name="settings_auto_pip_line">Tornando alla schermata Home durante un video, continua in una piccola finestra</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Attività dal vivo</string>
+    <string name="settings_live_line">Uscendo da Skipii mentre un video è in riproduzione, i comandi restano nella barra di stato e nella schermata di blocco</string>
+    <string name="settings_live_needs">Richiede Android 16 QPR1 o versioni successive</string>
+    <string name="settings_live_refused">Questo telefono la mostra solo come notifica normale, quindi restano solo i controlli multimediali</string>
+    <string name="settings_live_allow_title">Consenti aggiornamenti dal vivo</string>
+    <string name="settings_live_allow_line">Gli aggiornamenti dal vivo sono disattivati per Skipii nelle impostazioni di Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Aggiornamento dal vivo, Now Bar, barra di stato, schermata di blocco</string>
 </resources>

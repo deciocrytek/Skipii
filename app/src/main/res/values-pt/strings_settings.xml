@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">Pula %1$s, pergunta sobre %2$s</string>
     <string name="settings_mode">Modo</string>
     <string name="settings_theme">Tema</string>
+    <string name="settings_amoled_title">Preto AMOLED</string>
+    <string name="settings_amoled_line">Modo escuro em preto puro, para telas OLED</string>
+    <string name="settings_amoled_light_line">Usado quando o app está escuro: escolha Escuro ou Sistema</string>
     <plurals name="settings_bells_count">
         <item quantity="one">%1$s canal com o sino ativado</item>
         <item quantity="many">%1$s de canais com o sino ativado</item>
@@ -62,4 +65,13 @@
     <string name="settings_chapters_open_line">Escolher um capítulo deixa a lista aberta, para ir de um ao outro</string>
     <string name="settings_auto_pip_title">Picture-in-picture ao sair</string>
     <string name="settings_auto_pip_line">Ir para a tela inicial com um vídeo tocando o mantém numa janela pequena</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">Atividade ao vivo</string>
+    <string name="settings_live_line">Ao sair do Skipii com um vídeo tocando, os controles ficam na barra de status e na tela de bloqueio</string>
+    <string name="settings_live_needs">Requer Android 16 QPR1 ou mais recente</string>
+    <string name="settings_live_refused">Este celular a mostra só como notificação comum, então ficam apenas os controles de mídia</string>
+    <string name="settings_live_allow_title">Permitir atualizações ao vivo</string>
+    <string name="settings_live_allow_line">As atualizações ao vivo estão desativadas para o Skipii nas configurações do Android</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">Atualização ao vivo, Now Bar, barra de status, tela de bloqueio</string>
 </resources>

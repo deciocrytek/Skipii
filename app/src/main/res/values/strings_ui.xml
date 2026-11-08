@@ -67,7 +67,7 @@
     <string name="ui_shorts_on_line">Show the Shorts tab</string>
     <string name="ui_shorts_off_line">The Shorts tab is hidden and no Shorts are loaded</string>
     <string name="ui_appearance">Appearance</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">System</string>
     <string name="ui_mode_light">Light</string>
     <string name="ui_mode_dark">Dark</string>

@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube ha rifiutato la sessione (%1$s). Prova ad accedere di nuovo.</string>
     <string name="app_error_youtube_returned">YouTube ha restituito %1$s</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">Riproduzione in background</string>
+    <string name="app_live_channel_description">Controlli di riproduzione quando Skipii non è sullo schermo</string>
+    <string name="app_live_back">−%1$s s</string>
+    <string name="app_live_forward">+%1$s s</string>
 </resources>

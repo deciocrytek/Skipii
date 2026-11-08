@@ -62,4 +62,9 @@
     <!-- Errors shown on the signed-in feeds. %1$s is an HTTP status code ("403"). -->
     <string name="app_error_session_rejected">YouTube hat die Sitzung abgelehnt (%1$s). Melde dich noch einmal an.</string>
     <string name="app_error_youtube_returned">YouTube hat mit %1$s geantwortet</string>
+    <!-- The live activity's notification channel, and its skip buttons. %1$s = seconds ("10"). -->
+    <string name="app_live_channel">Wiedergabe im Hintergrund</string>
+    <string name="app_live_channel_description">Wiedergabesteuerung, während Skipii nicht auf dem Bildschirm ist</string>
+    <string name="app_live_back">−%1$s s</string>
+    <string name="app_live_forward">+%1$s s</string>
 </resources>

@@ -66,7 +66,7 @@
     <string name="ui_shorts_on_line">ショートタブを表示</string>
     <string name="ui_shorts_off_line">ショートタブは非表示で、ショートは読み込まれません</string>
     <string name="ui_appearance">外観</string>
-    <!-- Theme mode chips (~10 characters). "AMOLED" is the fourth and stays as it is. -->
+    <!-- Theme mode chips (~10 characters). -->
     <string name="ui_mode_system">システム</string>
     <string name="ui_mode_light">ライト</string>
     <string name="ui_mode_dark">ダーク</string>

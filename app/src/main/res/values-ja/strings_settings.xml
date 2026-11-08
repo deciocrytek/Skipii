@@ -21,6 +21,9 @@
     <string name="settings_sb_summary">%1$s 件をスキップ、%2$s 件は確認</string>
     <string name="settings_mode">モード</string>
     <string name="settings_theme">テーマ</string>
+    <string name="settings_amoled_title">AMOLED ブラック</string>
+    <string name="settings_amoled_line">純粋な黒のダークモード（OLED 画面向け）</string>
+    <string name="settings_amoled_light_line">アプリがダークのときに使われます：ダークかシステムを選んでください</string>
     <plurals name="settings_bells_count">
         <item quantity="other">ベルがオンのチャンネル %1$s 件</item>
     </plurals>
@@ -60,4 +63,13 @@
     <string name="settings_chapters_open_line">チャプターを選んでもリストが開いたままなので、次々に移動できます</string>
     <string name="settings_auto_pip_title">アプリを離れたらピクチャー イン ピクチャー</string>
     <string name="settings_auto_pip_line">動画の再生中にホームへ戻ると、小さなウィンドウで再生が続きます</string>
+    <!-- Settings › Playback: playback controls as a live activity (Android's Live Updates) while the app is off screen. -->
+    <string name="settings_live_title">ライブアクティビティ</string>
+    <string name="settings_live_line">動画の再生中に Skipii を離れると、操作ボタンがステータスバーとロック画面に表示されます</string>
+    <string name="settings_live_needs">Android 16 QPR1 以降が必要です</string>
+    <string name="settings_live_refused">このスマホでは通常の通知としてしか表示されないため、メディア操作だけが残ります</string>
+    <string name="settings_live_allow_title">ライブアップデートを許可</string>
+    <string name="settings_live_allow_line">Android の設定で Skipii のライブアップデートがオフになっています</string>
+    <!-- Only for Settings' search: other words people use for it. -->
+    <string name="settings_live_words">ライブアップデート、Now Bar、ステータスバー、ロック画面</string>
 </resources>
