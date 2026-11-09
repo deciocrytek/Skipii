@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -44,6 +45,38 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/**
+ * The ids a fresh-refresh feed has already put in front of the user, kept on disk so a new run
+ * of the app doesn't open with the same videos again: YouTube's signed-in web feed sends much
+ * the same first page every time. Oldest go first once [LIMIT] is reached.
+ */
+class SeenVideos(private val prefs: SharedPreferences, private val key: String) {
+    private val ids = LinkedHashSet<String>()
+
+    init {
+        prefs.getString(key, null)?.lineSequence()?.forEach { if (it.isNotBlank()) ids += it.trim() }
+    }
+
+    fun all(): List<String> = ids.toList()
+
+    fun add(more: Collection<String>) {
+        var changed = false
+        more.forEach { if (ids.add(it)) changed = true }
+        if (!changed) return
+        while (ids.size > LIMIT) ids.remove(ids.first())
+        prefs.edit().putString(key, ids.joinToString("\n")).apply()
+    }
+
+    fun clear() {
+        ids.clear()
+        prefs.edit().remove(key).apply()
+    }
+
+    private companion object {
+        const val LIMIT = 500
+    }
+}
+
 /** A pageable list of videos (the account's home, subscriptions, history; a playlist; a channel's tab). */
 @Stable
 class FeedState(
@@ -53,9 +86,12 @@ class FeedState(
     /**
      * Home: every refresh should bring different suggestions, as in the YouTube app. The
      * signed-in web feed returns much the same first page each time, so a refresh reads
-     * on into the recommendation stream and keeps only videos not yet shown this session.
+     * on into the recommendation stream and keeps only videos not yet shown (this session,
+     * and with [seen], in earlier runs too).
      */
     private val freshOnRefresh: Boolean = false,
+    /** Home: the ids shown in earlier runs, so a new run reads on instead of starting over. */
+    private val seen: SeenVideos? = null,
     private val loader: suspend (next: String?) -> FeedPage,
 ) {
     var videos by mutableStateOf<List<VideoItem>>(emptyList())
@@ -80,8 +116,8 @@ class FeedState(
     private var loaded = false
     /** When the first page shown last landed (elapsedRealtime); 0 before. */
     private var landedAt = 0L
-    /** Ids already put in front of the user this session (fresh-refresh feeds only). */
-    private val shown = HashSet<String>()
+    /** Ids already put in front of the user (fresh-refresh feeds only), from earlier runs too. */
+    private val shown = HashSet<String>().apply { seen?.all()?.let(::addAll) }
     private var job: Job? = null
     val hasMore get() = next != null
     /** The next page's token (for a pager that pages on by itself, like Shorts over a channel's list). */
@@ -136,7 +172,7 @@ class FeedState(
                     landedAt = android.os.SystemClock.elapsedRealtime()
                     if (pick == null) {
                         chips = it.chips
-                        if (freshOnRefresh) it.videos.forEach { v -> shown += v.id }
+                        if (freshOnRefresh) rememberSeen(it.videos)
                     }
                     it.videos.take(prefetchTop).forEach { v -> StreamCache.prefetch(v.id) }
                 }
@@ -156,10 +192,10 @@ class FeedState(
             if (!isActive) return@launch
             result
                 .onSuccess { page ->
-                    val seen = videos.mapTo(HashSet()) { it.id }
-                    val added = page.videos.filter { seen.add(it.id) }
+                    val known = videos.mapTo(HashSet()) { it.id }
+                    val added = page.videos.filter { known.add(it.id) }
                     videos = videos + added
-                    if (freshOnRefresh && pick == null) added.forEach { v -> shown += v.id }
+                    if (freshOnRefresh && pick == null) rememberSeen(added)
                     next = page.next
                 }
                 .onFailure { error = friendly(it) }
@@ -187,9 +223,24 @@ class FeedState(
         return FeedPage(fresh.values.toList(), token, first.chips)
     }
 
+    /** Notes [videos] as shown: this session, and (Home) the next run of the app. */
+    private fun rememberSeen(videos: List<VideoItem>) {
+        videos.forEach { shown += it.id }
+        seen?.add(videos.map { it.id })
+    }
+
+    /**
+     * The user opened [id] from this feed: it's been seen, so a later refresh doesn't offer it
+     * again. Fresh-refresh feeds only; the others show exactly what was asked for.
+     */
+    fun markSeen(id: String) {
+        if (!freshOnRefresh || !shown.add(id)) return
+        seen?.add(listOf(id))
+    }
+
     fun reset() {
         job?.cancel()
-        shown.clear()
+        shown.clear(); seen?.clear()
         videos = emptyList(); next = null; loaded = false; loading = false; error = null
         chips = emptyList(); chip = null; landedAt = 0L
     }
@@ -214,10 +265,12 @@ class FeedState(
  */
 @Stable
 class LibraryData(scope: CoroutineScope, context: Context) {
-    val home = FeedState(scope, prefetchTop = 2, freshOnRefresh = true) { InnerTube.home(it) }
+    private val prefs = context.getSharedPreferences(CHANNELS_PREFS, Context.MODE_PRIVATE)
+    /** Home's shown ids, kept on disk (see [SeenVideos]). */
+    private val seen = SeenVideos(prefs, KEY_SEEN)
+    val home = FeedState(scope, prefetchTop = 2, freshOnRefresh = true, seen = seen) { InnerTube.home(it) }
     val subscriptions = FeedState(scope, prefetchTop = 2) { InnerTube.subscriptionsFeed(it) }
     val history = FeedState(scope) { InnerTube.history(it) }
-    private val prefs = context.getSharedPreferences(CHANNELS_PREFS, Context.MODE_PRIVATE)
     var channels by mutableStateOf(readChannels())
         private set
     var playlists by mutableStateOf<List<PlaylistRef>>(emptyList())
@@ -247,6 +300,16 @@ class LibraryData(scope: CoroutineScope, context: Context) {
         if (!Account.signedIn) return
         subscriptions.ensureLoaded()
         ensureChannels()
+    }
+
+    /**
+     * The Home tab is on screen. A page that landed long ago is read again before it's seen, and
+     * so is one whose load failed: Home used to load once per run and then stay as it was for the
+     * whole session, however old (or however broken).
+     */
+    fun showHome() {
+        val failed = home.error != null && home.videos.isEmpty() && !home.loading
+        if (failed || home.olderThan(STALE_AHEAD_MS)) home.refresh() else home.ensureLoaded()
     }
 
     /**
@@ -287,6 +350,7 @@ class LibraryData(scope: CoroutineScope, context: Context) {
     private companion object {
         const val CHANNELS_PREFS = "library"
         const val KEY_CHANNELS = "channels"
+        const val KEY_SEEN = "home_seen"
         const val WARM_UP_WAIT_MS = 6_000L
         /** A Subscriptions page read ahead this long before the tab is first opened is read again. */
         const val STALE_AHEAD_MS = 10 * 60_000L

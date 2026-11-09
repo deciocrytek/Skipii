@@ -10,6 +10,13 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### Improved
+- Home asks YouTube for the country your connection is in, instead of always the US, so its suggestions match what youtube.com shows where you are (#52).
+
+### Fixed
+- Home no longer stays on the same videos for as long as the app is open: coming back to it after a while loads a fresh page.
+- Videos you've already seen on Home no longer come back when you reopen Skipii, and a video you've opened from Home isn't suggested again.
+
 ## 0.5.114
 
 ### Fixed

@@ -849,6 +849,16 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   "Service not registered" and killed the app. The process is frozen while cached, so the crash came when the app was
   opened again. Now SessionToken + MediaController.Builder take `applicationContext`. Never bind a service through an
   Activity context. Repro: force-stop, open (restores a paused video), Back, wait ~40 s, open again.
+- Unreleased (2026-11-09, GitHub #52, stale Home feed): three causes. (1) `HomeScreen` only called
+  `lib.home.ensureLoaded()`, and `FeedState` never reloads once loaded, so Home stayed as it was for the whole run;
+  `LibraryData.showHome()` now reloads a page older than `STALE_AHEAD_MS` (10 min) when the tab is entered or the
+  window comes back (ON_START), as Subscriptions does. (2) Home's
+  unseen filter (`FeedState.shown`) lived in memory only, so every restart opened with YouTube's same first page;
+  `SeenVideos` (prefs "library" `home_seen`, cap 500, oldest out) seeds `shown`, every shown or opened id is written back
+  (`markSeen` when a card opens), and `LibraryData.reset()` (sign-out / sign-in) clears it. (3) `InnerTube.post` asked as
+  `gl=US` and watch-time pings as `cr=US` for everyone, pulling another country's recommendations into Home (#52);
+  `Account` now parses the page's `"GL":"LY"` (`parseContentCountry`, persisted `content_country`) and falls back to the
+  phone's country, and `refreshClientConfig` (now `internal`) runs at start when signed in. Test: `AccountConfigTest`.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

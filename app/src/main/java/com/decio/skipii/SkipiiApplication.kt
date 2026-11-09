@@ -37,6 +37,10 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         ResumeStore.init(this)
         SavedSession.init(this)
         Account.init(this)
+        // youtube.com's client version, visitor id and this connection's content country change
+        // over time; signed in, fetch them off the main thread so this run's requests use the
+        // current ones (Home used to ask as the country of the last sign-in, or as "US").
+        if (Account.signedIn) kotlin.concurrent.thread(name = "account-config") { Account.refreshClientConfig() }
         Bells.init(this)
         NewVideos.schedule(this)
         SponsorBlock.init(this)
