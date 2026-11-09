@@ -69,6 +69,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -115,14 +116,25 @@ fun HomeScreen(
     shortsCard: (@Composable (Modifier) -> Unit)? = null,
 ) {
     val signedIn = Account.signedIn
-    LaunchedEffect(signedIn) { if (signedIn) lib.home.ensureLoaded() }
+    LaunchedEffect(signedIn) { if (signedIn) lib.showHome() }
+    // The process is cached for days: a window that comes back after a while reads a fresh page
+    // before it's seen (showHome() keeps it while the page is recent).
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_START && Account.signedIn) lib.showHome()
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
     CollapsingHeaderLayout(
         resetKey = scrollToTop to lib.home.generation,
         header = { ScreenHeader(title = "Skipii", brandMark = true) { UpdateAction(); AccountAction(onAccount) } },
     ) { top ->
         if (signedIn) {
             val home = lib.home
-            FeedList(home, contentPadding.withTop(top), onOpen, header = {
+            // A video opened from Home has been seen: the next refresh won't offer it again.
+            FeedList(home, contentPadding.withTop(top), onOpen = { v -> home.markSeen(v.id); onOpen(v) }, header = {
                 // Always present (empty until YouTube sends chips) so their arrival never shifts the list.
                 item(key = "chips") { if (home.chips.isNotEmpty()) HomeChips(home.chips, home.chip, home::selectChip) }
                 // A chip whose page held no videos: say so, never a blank page.

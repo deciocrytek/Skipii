@@ -126,12 +126,15 @@ object Account {
     private val cookies = linkedMapOf<String, String>()
     private var clientVersion = FALLBACK_CLIENT_VERSION
     private var visitorData: String? = null
+    /** The content country youtube.com reported for this connection ("LY"); null until it has. */
+    private var contentCountry: String? = null
 
     fun init(context: Context) {
         val s = SecureStore(context, "account").also { store = it }
         s.get(KEY_COOKIES)?.let { parseCookieHeader(it, cookies) }
         s.get(KEY_CLIENT_VERSION)?.let { clientVersion = it }
         visitorData = s.get(KEY_VISITOR)
+        contentCountry = s.get(KEY_COUNTRY)
         val name = s.get(KEY_NAME)
         if (name != null && cookies.containsKey("SAPISID")) {
             profile = Profile(name, s.get(KEY_HANDLE), s.get(KEY_AVATAR))
@@ -181,8 +184,13 @@ object Account {
         android.webkit.CookieManager.getInstance().apply { removeAllCookies(null); flush() }
     }
 
-    /** youtube.com embeds the current web client version; requests with a stale one get odd results. */
-    private fun refreshClientConfig() {
+    /**
+     * youtube.com embeds the current web client version, the visitor id and the content country
+     * of this connection; requests with a stale version, or asking as the wrong country, get odd
+     * results (a feed that doesn't match what youtube.com shows here). Called at sign-in and once
+     * at start, so a long-lived session doesn't keep an old one.
+     */
+    internal fun refreshClientConfig() {
         runCatching {
             val request = Request.Builder().url("https://www.youtube.com/?hl=en")
                 .header("User-Agent", Net.USER_AGENT)
@@ -193,14 +201,25 @@ object Account {
                 val html = r.body?.string().orEmpty()
                 Regex("\"INNERTUBE_CLIENT_VERSION\":\"([^\"]+)\"").find(html)?.groupValues?.get(1)?.let { clientVersion = it }
                 Regex("\"VISITOR_DATA\":\"([^\"]+)\"").find(html)?.groupValues?.get(1)?.let { visitorData = it }
+                parseContentCountry(html)?.let { contentCountry = it }
             }
             store?.put(KEY_CLIENT_VERSION, clientVersion)
             store?.put(KEY_VISITOR, visitorData)
+            store?.put(KEY_COUNTRY, contentCountry)
         }
     }
 
     internal fun clientVersion() = clientVersion
     internal fun visitorData() = visitorData
+
+    /**
+     * The country to ask YouTube as ([InnerTube.post]'s `gl`, watch-time's `cr`): the one it
+     * reported for this connection, else the phone's own. It used to be "US" for everyone, which
+     * pulled another country's recommendations into the feed (GitHub #52).
+     */
+    internal fun contentCountry(): String = contentCountry
+        ?: java.util.Locale.getDefault().country.takeIf { it.length == 2 && it.all { c -> c.isLetter() } }?.uppercase()
+        ?: "US"
 
     internal fun cookieHeader(): String = synchronized(cookies) { cookies.entries.joinToString("; ") { "${it.key}=${it.value}" } }
 
@@ -252,10 +271,15 @@ object Account {
     private const val KEY_COOKIES = "cookies"
     private const val KEY_CLIENT_VERSION = "client_version"
     private const val KEY_VISITOR = "visitor"
+    private const val KEY_COUNTRY = "content_country"
     private const val KEY_NAME = "name"
     private const val KEY_HANDLE = "handle"
     private const val KEY_AVATAR = "avatar"
 }
+
+/** The content country youtube.com reports for this connection (`"GL":"LY"`), or null. */
+internal fun parseContentCountry(html: String): String? =
+    Regex("\"GL\":\"([A-Za-z]{2})\"").find(html)?.groupValues?.get(1)?.uppercase()
 
 /**
  * YouTube's internal web API ("InnerTube"), signed in. Reads: home, subscriptions,
@@ -280,7 +304,7 @@ object InnerTube {
                     .put("clientName", "WEB")
                     .put("clientVersion", Account.clientVersion())
                     .put("hl", "en")
-                    .put("gl", "US")
+                    .put("gl", Account.contentCountry())
                     .apply { Account.visitorData()?.let { put("visitorData", it) } },
             ),
         )
@@ -709,7 +733,7 @@ object InnerTube {
             append("&state=").append(if (playing) "playing" else "paused")
             append("&rt=").append(rt).append("&rtn=").append(rt).append("&rti=").append(elapsedSec.toInt())
             append("&lact=").append(Random.nextInt(800, 4000))
-            append("&volume=100&muted=0&fs=0&hl=en_US&cr=US&c=WEB&cver=").append(Account.clientVersion())
+            append("&volume=100&muted=0&fs=0&hl=en_US&cr=").append(Account.contentCountry()).append("&c=WEB&cver=").append(Account.clientVersion())
             if (final) append("&final=1")
         }
         ping(session.watchtimeUrl, query)
