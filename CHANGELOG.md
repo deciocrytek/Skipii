@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.120
+
 ### New
 - **Open YouTube links in Skipii** (#59). Tap a youtube.com or youtu.be link in another app, or share one to Skipii: videos and Shorts play (from the time in the link), channels and playlists open. To make Skipii the default, go to **Settings › About › Open YouTube links** and add the links under "Open by default".
 - **Play all** and **Shuffle** on every playlist (#81). The rest of the playlist goes into your queue.
