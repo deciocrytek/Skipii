@@ -165,4 +165,29 @@
         <item quantity="many">Вперёд на %1$s секунд</item>
         <item quantity="other">Вперёд на %1$s секунды</item>
     </plurals>
+    <string name="ui_play_all">Воспроизвести все</string>
+    <string name="ui_shuffle">Перемешать</string>
+    <string name="ui_remove">Удалить</string>
+    <string name="ui_remove_from_watch_later">Удалить из «Смотреть позже»</string>
+    <string name="ui_remove_from_playlist">Удалить из «%1$s»</string>
+    <string name="ui_removed_from">Удалено из «%1$s»</string>
+    <string name="ui_remove_failed">Не удалось удалить из «%1$s»</string>
+    <string name="ui_queued_badge">В очереди #%1$s</string>
+    <string name="ui_continue_watching">Продолжить просмотр</string>
+    <string name="ui_remaining_under_min">Осталось &lt;1 мин</string>
+    <string name="ui_remaining_min">Осталось %1$s мин</string>
+    <string name="ui_remaining_hr">Осталось %1$s ч</string>
+    <string name="ui_remaining_hr_min">Осталось %1$s ч %2$s мин</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s видео</item>
+        <item quantity="few">%1$s видео</item>
+        <item quantity="many">%1$s видео</item>
+        <item quantity="other">%1$s видео</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 мин</string>
+    <string name="ui_duration_min">%1$s мин</string>
+    <string name="ui_duration_hr">%1$s ч</string>
+    <string name="ui_duration_hr_min">%1$s ч %2$s мин</string>
+    <string name="ui_reorder_queue">Изменить порядок</string>
+    <string name="ui_up_next_in">Далее через %1$s с</string>
 </resources>

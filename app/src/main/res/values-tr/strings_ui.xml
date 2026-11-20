@@ -159,4 +159,27 @@
         <item quantity="one">%1$s saniye ileri</item>
         <item quantity="other">%1$s saniye ileri</item>
     </plurals>
+    <string name="ui_play_all">Tümünü oynat</string>
+    <string name="ui_shuffle">Karıştır</string>
+    <string name="ui_remove">Kaldır</string>
+    <string name="ui_remove_from_watch_later">Daha sonra izle listesinden kaldır</string>
+    <string name="ui_remove_from_playlist">%1$s listesinden kaldır</string>
+    <string name="ui_removed_from">%1$s listesinden kaldırıldı</string>
+    <string name="ui_remove_failed">%1$s listesinden kaldırılamadı</string>
+    <string name="ui_queued_badge">Sırada #%1$s</string>
+    <string name="ui_continue_watching">İzlemeye devam et</string>
+    <string name="ui_remaining_under_min">&lt;1 dk kaldı</string>
+    <string name="ui_remaining_min">%1$s dk kaldı</string>
+    <string name="ui_remaining_hr">%1$s sa kaldı</string>
+    <string name="ui_remaining_hr_min">%1$s sa %2$s dk kaldı</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 dk</string>
+    <string name="ui_duration_min">%1$s dk</string>
+    <string name="ui_duration_hr">%1$s sa</string>
+    <string name="ui_duration_hr_min">%1$s sa %2$s dk</string>
+    <string name="ui_reorder_queue">Sırala</string>
+    <string name="ui_up_next_in">%1$s sn sonra sıradaki</string>
 </resources>

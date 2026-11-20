@@ -104,6 +104,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -185,6 +189,10 @@ private const val QualityPickedMs = 420L
 
 /** Springs for the bar's values; a tiny visibility threshold so nothing snaps at the end (0.5.7). */
 private val BarSpring = spring(dampingRatio = 0.78f, stiffness = 420f, visibilityThreshold = 0.0005f)
+internal val TickerHeight = 22.dp
+private val TickerCorner = 34.dp
+private const val TickerShowMs = 2_600L
+private val TickerSpring = spring(dampingRatio = 0.85f, stiffness = 420f, visibilityThreshold = 0.0005f)
 
 internal enum class BarTool { Speed, Quality, Captions, Pip, Fullscreen, Next }
 
@@ -210,6 +218,9 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
     var panelKind by mutableStateOf(BarPanel.Quality)
     /** Scrubbing on the play pill: 0 the bar … 1 the chapter track. */
     val scrub = Animatable(0f, visibilityThreshold = 0.0005f)
+    /** Living chapter + timestamp ticker at the top of the resting bar: 0 hidden … 1 visible. */
+    val ticker = Animatable(0f, visibilityThreshold = 0.0005f)
+    private var tickerJob: kotlinx.coroutines.Job? = null
     /** Where an ongoing scrub would land. */
     var previewMs by mutableStateOf<Long?>(null)
     /** Swiping up off a scrub: 0 … 1 the Cancel button fully out (follows the finger). */
@@ -222,6 +233,8 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
     var tools by mutableStateOf(listOf(BarTool.Speed, BarTool.Quality, BarTool.Fullscreen))
     /** The video has chapters (set by the bar): the card's bottom strip becomes the Chapters button. */
     var hasChapters by mutableStateOf(false)
+    /** Each chapter row's height, its whole title wrapped (set by the bar, [rememberChapterRowHeights]). */
+    var chapterRows by mutableStateOf<List<Dp>>(emptyList())
     /** The open panel's list (chapters, captions), so a pull down from its top closes the panel rather than scrolling. */
     var panelList: LazyListState? = null
     /** The captions panel lists every translation language, not just the likely ones. */
@@ -233,6 +246,7 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
     val cardShown by derivedStateOf { card.value > 0.001f }
     val panelShown by derivedStateOf { panel.value > 0.001f }
     val scrubShown by derivedStateOf { scrub.value > 0.001f }
+    val tickerShown by derivedStateOf { ticker.value > 0.001f }
     /** Taps on the tools only once the card is (being) opened, not while it folds away. */
     val cardLive by derivedStateOf { card.targetValue >= 1f }
     val panelLive by derivedStateOf { panel.targetValue >= 1f }
@@ -244,6 +258,25 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
     }
     fun snap(value: Animatable<Float, *>, to: Float) { scope.launch { value.snapTo(to) } }
 
+    /** Briefly breathes the bar top open with current timestamp + chapter title. */
+    fun pulseTicker(durationMs: Long = TickerShowMs) {
+        if (isOpen || scrubShown) return
+        tickerJob?.cancel()
+        tickerJob = scope.launch {
+            if (reduced) ticker.snapTo(1f) else ticker.animateTo(1f, TickerSpring)
+            delay(durationMs)
+            if (reduced) ticker.snapTo(0f) else ticker.animateTo(0f, TickerSpring)
+        }
+    }
+
+    fun hideTicker() {
+        tickerJob?.cancel()
+        tickerJob = null
+        if (ticker.value > 0f || ticker.targetValue > 0f) {
+            scope.launch { if (reduced) ticker.snapTo(0f) else ticker.animateTo(0f, TickerSpring) }
+        }
+    }
+
     /** The scrub is over: seek to where it landed unless it was [cancelled]; the track folds back. */
     fun endScrub(player: PlayerState, cancelled: Boolean) {
         if (!cancelled) previewMs?.let { player.seekTo(it) }
@@ -253,9 +286,9 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
         animate(cancel, 0f)
     }
 
-    fun openCard() { animate(panel, 0f); animate(card, 1f) }
-    fun openPanel(kind: BarPanel) { panelKind = kind; captionsAll = false; animate(card, 0f); animate(panel, 1f) }
-    fun closeAll() { hot = null; animate(card, 0f); animate(panel, 0f) }
+    fun openCard() { hideTicker(); animate(panel, 0f); animate(card, 1f) }
+    fun openPanel(kind: BarPanel) { hideTicker(); panelKind = kind; captionsAll = false; animate(card, 0f); animate(panel, 1f) }
+    fun closeAll() { hideTicker(); hot = null; animate(card, 0f); animate(panel, 0f) }
     /** A finger let go of [value] moving at [velocity] (units per second): open or close it. */
     fun settle(value: Animatable<Float, *>, velocity: Float, wasOpen: Boolean) {
         val open = when {
@@ -268,9 +301,15 @@ internal class PlayerBarState(private val scope: CoroutineScope) {
 }
 
 /** The values the bar's size and contents follow this frame, gated to the fully open player. */
-private class BarAmounts(val t: Float, val p: Float, val s: Float)
+private class BarAmounts(val t: Float, val p: Float, val s: Float, val k: Float)
 
-private fun PlayerBarState.amounts(gate: Float) = BarAmounts(card.value * gate, panel.value * gate, scrub.value * gate)
+private fun PlayerBarState.amounts(gate: Float): BarAmounts {
+    val t = card.value * gate
+    val p = panel.value * gate
+    val s = scrub.value * gate
+    val k = ticker.value * gate * (1f - maxOf(card.value, panel.value, scrub.value).coerceIn(0f, 1f))
+    return BarAmounts(t, p, s, k)
+}
 
 /** The card's strip under the resting bar: chapter · time, or the Chapters button. */
 private fun PlayerBarState.cardBelow(): Dp = if (hasChapters) CardBelowChapters else CardBelow
@@ -278,13 +317,13 @@ private fun PlayerBarState.cardBelow(): Dp = if (hasChapters) CardBelowChapters 
 /** Quality rows shown: Auto + every height. */
 private fun qualityRows(player: PlayerState) = 1 + (player.details?.qualities?.size ?: 0)
 
-private fun Density.panelSize(kind: BarPanel, player: PlayerState, captionsAll: Boolean): Size = when (kind) {
+private fun Density.panelSize(kind: BarPanel, player: PlayerState, captionsAll: Boolean, chapterRows: List<Dp>): Size = when (kind) {
     BarPanel.Quality -> Size(
         QualityWidth.toPx(),
         (ListHeader + PlayerBarHeight + 6.dp).toPx() + qualityRows(player).coerceAtMost(ListMaxRows) * (ListRowHeight + ListRowGap).toPx(),
     )
     BarPanel.Speed -> Size(SpeedWidth.toPx(), (SpeedPanelHeight + PlayerBarHeight + 6.dp).toPx())
-    BarPanel.Chapters -> Size(ChaptersWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + chapterRowsHeight(player)).toPx())
+    BarPanel.Chapters -> Size(ChaptersWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + chapterRowsHeight(player, chapterRows)).toPx())
     BarPanel.Captions -> Size(QualityWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + captionRowsHeight(player, captionsAll)).toPx())
 }
 
@@ -295,13 +334,51 @@ private fun captionRowsHeight(player: PlayerState, all: Boolean): Dp =
 private val ChaptersWidth = 380.dp
 private val ChapterRowHeight = 58.dp
 private const val ChapterMaxRows = 6
-private fun chapterRowsHeight(player: PlayerState): Dp =
-    (ChapterRowHeight + ListRowGap) * (player.details?.chapters?.size ?: 0).coerceIn(1, ChapterMaxRows)
+/** The chapter rows' padding above and below a title that wraps past the thumbnail's height. */
+private val ChapterRowPadV = 7.dp
+/** The width a chapter's title wraps in: the row minus its padding, the 80 dp thumb and the text's own padding. */
+private val ChapterTitleWidth = ChaptersWidth - 24.dp - 14.dp - 80.dp - 18.dp
+private const val ChapterTitleSp = 14
+private const val ChapterTimeSp = 12
+
+/**
+ * The chapter rows' height: every row as tall as its whole title needs ([rows], measured), shown up to
+ * [ChapterMaxRows] rows' worth (the list scrolls past that).
+ */
+private fun chapterRowsHeight(player: PlayerState, rows: List<Dp>): Dp {
+    val cap = (ChapterRowHeight + ListRowGap) * ChapterMaxRows
+    if (rows.isEmpty()) return (ChapterRowHeight + ListRowGap) * (player.details?.chapters?.size ?: 0).coerceIn(1, ChapterMaxRows)
+    var sum = 0.dp
+    for (h in rows) sum += h + ListRowGap
+    return sum.coerceAtMost(cap)
+}
+
+/** Each chapter row's height with its title wrapped in full (never cut to one line). */
+@Composable
+internal fun rememberChapterRowHeights(player: PlayerState): List<Dp> {
+    val chapters = player.details?.chapters.orEmpty()
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val base = LocalTextStyle.current
+    val untitled = stringResource(R.string.bar_chapter_untitled, 0)
+    return remember(chapters, density, base, untitled) {
+        if (chapters.isEmpty()) return@remember emptyList()
+        val width = with(density) { ChapterTitleWidth.roundToPx() }
+        val titleStyle = base.merge(TextStyle(fontSize = ChapterTitleSp.sp, fontWeight = FontWeight.ExtraBold))
+        val timeStyle = base.merge(TextStyle(fontSize = ChapterTimeSp.sp, fontWeight = FontWeight.Bold))
+        val timeH = measurer.measure("0:00", timeStyle, constraints = Constraints(maxWidth = width)).size.height
+        chapters.map { chapter ->
+            val title = chapter.title.ifBlank { untitled }
+            val titleH = measurer.measure(title, titleStyle, constraints = Constraints(maxWidth = width)).size.height
+            with(density) { ((titleH + timeH).toDp() + ChapterRowPadV * 2).coerceAtLeast(ChapterRowHeight) }
+        }
+    }
+}
 
 /** Where a scrolling panel's rows sit (the bar's own pixels, top to bottom). */
-private fun Density.panelListSpan(kind: BarPanel, barH: Float, player: PlayerState, captionsAll: Boolean): ClosedFloatingPointRange<Float> {
+private fun Density.panelListSpan(kind: BarPanel, barH: Float, player: PlayerState, captionsAll: Boolean, chapterRows: List<Dp>): ClosedFloatingPointRange<Float> {
     val bottom = barH - (PlayerBarHeight + 6.dp).toPx()
-    val rows = if (kind == BarPanel.Captions) captionRowsHeight(player, captionsAll) else chapterRowsHeight(player)
+    val rows = if (kind == BarPanel.Captions) captionRowsHeight(player, captionsAll) else chapterRowsHeight(player, chapterRows)
     return (bottom - rows.toPx())..bottom
 }
 
@@ -312,9 +389,9 @@ private fun Density.panelListSpan(kind: BarPanel, barH: Float, player: PlayerSta
 internal fun Density.playerBarSize(bar: PlayerBarState, player: PlayerState, restW: Float, restH: Float, maxW: Float, gate: Float): Size {
     val a = bar.amounts(gate)
     val cardW = CardWidth.toPx().coerceAtMost(maxW)
-    val pan = panelSize(bar.panelKind, player, bar.captionsAll)
+    val pan = panelSize(bar.panelKind, player, bar.captionsAll, bar.chapterRows)
     val w = restW + (cardW - restW) * a.t + (pan.width.coerceAtMost(maxW) - restW) * a.p + (ScrubBarWidth.toPx().coerceAtMost(maxW) - restW) * a.s
-    val h = restH + (CardHeight.toPx() + bar.cardBelow().toPx() - restH) * a.t + (pan.height - restH) * a.p + (ScrubBarHeight.toPx() - restH) * a.s
+    val h = restH + (CardHeight.toPx() + bar.cardBelow().toPx() - restH) * a.t + (pan.height - restH) * a.p + (ScrubBarHeight.toPx() - restH) * a.s + TickerHeight.toPx() * a.k
     return Size(w.coerceAtLeast(1f), h.coerceAtLeast(1f))
 }
 
@@ -327,15 +404,15 @@ internal fun Density.playerBarBelow(bar: PlayerBarState, gate: Float): Float = b
  */
 internal fun Density.playerBarShape(bar: PlayerBarState, size: Size, gate: Float): Shape {
     val a = bar.amounts(gate)
-    val r0 = if (a.t + a.p + a.s <= 0f) size.height / 2f else PlayerBarHeight.toPx() / 2f
+    val r0 = if (a.t + a.p + a.s + a.k <= 0f) size.height / 2f else PlayerBarHeight.toPx() / 2f
     val open = OpenCorner.toPx()
     val k = a.t + a.p + a.s
-    var topX = r0 + (open - r0) * k
+    var topX = r0 + (open - r0) * k + (TickerCorner.toPx() - r0) * a.k
     var topY = topX
-    var bottom = topX
+    var bottom = r0 + (open - r0) * k
     topX = topX.coerceIn(0f, size.width / 2f)
     bottom = bottom.coerceIn(0f, size.width / 2f)
-    if (topY + bottom > size.height) { val k = size.height / (topY + bottom); topY *= k; bottom *= k }
+    if (topY + bottom > size.height) { val scale = size.height / (topY + bottom); topY *= scale; bottom *= scale }
     return BarOutline(topX, topY.coerceAtLeast(0f), bottom.coerceAtLeast(0f))
 }
 
@@ -422,14 +499,14 @@ internal fun Modifier.playerBarGestures(
             val startCard = bar.card.value
             val startPanel = bar.panel.value
             val cardTravel = CardHeight.toPx() - restH
-            val panelTravel = panelSize(bar.panelKind, player, bar.captionsAll).height - restH
+            val panelTravel = panelSize(bar.panelKind, player, bar.captionsAll, bar.chapterRows).height - restH
             val duration = player.durationMs
             val trackPx = TrackWidth.toPx()
             // The knob sits under the thumb: the track (centred in the bar) maps straight onto the video.
             fun landingAt(x: Float): Long = (((x - size.width / 2f) / trackPx + 0.5f).coerceIn(0f, 1f) * duration).toLong()
             // The chapter and caption lists scroll under the finger; pulled down from the top they close like the panel.
             val panelList = bar.panelList.takeIf { panelOpen && (bar.panelKind == BarPanel.Chapters || bar.panelKind == BarPanel.Captions) }
-            val inList = panelList != null && down.position.y in panelListSpan(bar.panelKind, size.height.toFloat(), player, bar.captionsAll)
+            val inList = panelList != null && down.position.y in panelListSpan(bar.panelKind, size.height.toFloat(), player, bar.captionsAll, bar.chapterRows)
             val tracker = VelocityTracker()
             var moved = Offset.Zero
             tracker.addPosition(down.uptimeMillis, moved)
@@ -488,11 +565,14 @@ internal fun Modifier.playerBarGestures(
                             else -> 4
                         }
                         if (mode == 1) {
+                            bar.hideTicker()
                             scrubFromY = moved.y
                             val ms = landingAt(change.position.x)
                             bar.previewMs = ms
                             chapter = player.chapterAt(ms)
                             bar.animate(bar.scrub, 1f)
+                        } else if (mode == 2) {
+                            bar.hideTicker()
                         }
                     }
                     when (mode) {
@@ -615,6 +695,105 @@ internal fun BarAudioOnly(player: PlayerState, enabled: Boolean, modifier: Modif
             tint = if (on) c.onPrimary else c.onSurface, modifier = Modifier.size(19.dp),
         )
     }
+}
+
+/** Subtle pull-up affordance at the top centre of the resting player bar; fades out whenever the bar opens. */
+@Composable
+internal fun BarPullGrabber(bar: PlayerBarState, gate: () -> Float, modifier: Modifier = Modifier) {
+    val ink = MaterialTheme.colorScheme.onSurfaceVariant
+    Box(
+        modifier
+            .padding(top = 4.dp)
+            .size(width = 24.dp, height = 3.dp)
+            .graphicsLayer {
+                val busy = maxOf(bar.card.value, bar.panel.value, bar.scrub.value, bar.ticker.value).coerceIn(0f, 1f)
+                alpha = 0.30f * gate() * (1f - busy)
+            }
+            .clip(CircleShape)
+            .background(ink),
+    )
+}
+
+/**
+ * Living chapter + timestamp micro-ribbon that breathes the top of the resting player bar open
+ * briefly on chapter crossings and ±10 taps, then smoothly collapses back to the pure pill.
+ */
+@Composable
+internal fun BarTicker(
+    bar: PlayerBarState,
+    player: PlayerState,
+    gate: () -> Float,
+    modifier: Modifier = Modifier,
+) {
+    val c = MaterialTheme.colorScheme
+    val view = LocalView.current
+    val chapter = player.chapterAt(player.positionMs)
+    val live = bar.ticker.targetValue > 0.5f && bar.hasChapters
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(TickerHeight + PlayerTopRoom)
+            .padding(horizontal = 20.dp)
+            .graphicsLayer {
+                val busy = maxOf(bar.card.value, bar.panel.value, bar.scrub.value).coerceIn(0f, 1f)
+                val k = (bar.ticker.value * gate() * (1f - busy)).coerceIn(0f, 1f)
+                alpha = ramp(k, 0.15f, 1f)
+                translationY = (1f - k) * 4.dp.toPx()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            Modifier
+                .padding(top = 2.dp)
+                .then(
+                    if (!live) Modifier else Modifier.pressable {
+                        haptic(view, HapticFeedbackConstants.CONTEXT_CLICK)
+                        bar.openPanel(BarPanel.Chapters)
+                    },
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                "${formatDuration(player.positionMs)} / ${formatDuration(player.durationMs)}",
+                color = c.primary,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 1,
+            )
+            if (chapter != null) {
+                Text(
+                    " · ",
+                    color = c.onSurfaceVariant,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+                Text(
+                    chapter,
+                    color = c.onSurface,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
+        }
+    }
+}
+
+/** True when playback crossed into a new chapter and the bar ticker should briefly breathe open. */
+internal fun shouldTriggerChapterTicker(
+    previous: String?,
+    current: String?,
+    positionMs: Long,
+    isPlaying: Boolean,
+    barAvailable: Boolean,
+): Boolean {
+    if (!isPlaying || !barAvailable || current == null || current == previous) return false
+    // Avoid flashing right on video start when details arrive ~0.5s after playback begins.
+    return previous != null || positionMs >= 3_000L
 }
 
 /**
@@ -984,7 +1163,7 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
         onDispose { if (bar.panelList === state) bar.panelList = null }
     }
     val live = bar.panelLive
-    val rowsHeight = chapterRowsHeight(player)
+    val rowsHeight = chapterRowsHeight(player, bar.chapterRows)
     Box(Modifier.fillMaxSize()) {
         Row(
             Modifier
@@ -1017,7 +1196,7 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .height(ChapterRowHeight)
+                        .height(bar.chapterRows.getOrNull(index) ?: ChapterRowHeight)
                         .graphicsLayer {
                             val k = ramp(bar.panel.value * gate(), 0.12f + fromBottom * 0.04f, 0.62f + fromBottom * 0.04f)
                             alpha = k
@@ -1042,11 +1221,11 @@ private fun BarChaptersList(bar: PlayerBarState, player: PlayerState, gate: () -
                     Column(Modifier.weight(1f).padding(start = 12.dp, end = 6.dp)) {
                         Text(
                             chapter.title.ifBlank { stringResource(R.string.bar_chapter_untitled, index + 1) }, color = if (selected) c.onPrimary else c.onSurface,
-                            fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            fontSize = ChapterTitleSp.sp, fontWeight = FontWeight.ExtraBold,
                         )
                         Text(
                             formatDuration(chapter.startMs), color = if (selected) c.onPrimary.copy(alpha = 0.8f) else c.onSurfaceVariant,
-                            fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                            fontSize = ChapterTimeSp.sp, fontWeight = FontWeight.Bold, maxLines = 1,
                         )
                     }
                 }

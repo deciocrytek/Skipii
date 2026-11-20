@@ -117,4 +117,8 @@
     <string name="captions_kept_languages">Übersetzungssprachen auf diesem Smartphone</string>
     <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
     <string name="captions_remove_language">%1$s entfernen</string>
+    <string name="captions_error_translate">Diese Untertitel konnten nicht ins %1$s übersetzt werden.</string>
+    <string name="captions_word_by_word_title">Wort für Wort</string>
+    <string name="captions_word_by_word_line">Automatische Untertitel erscheinen Wort für Wort, wie in der YouTube-App</string>
+    <string name="captions_size_huger">Gigantisch</string>
 </resources>

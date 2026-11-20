@@ -75,6 +75,8 @@ import androidx.compose.material.icons.rounded.Contrast
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material.icons.rounded.Headphones
+import androidx.compose.material.icons.rounded.Subtitles
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.MailOutline
@@ -981,11 +983,13 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(pb, "swipe_brightness", str(R.string.settings_swipe_brightness_title), listOf(str(R.string.settings_swipe_brightness_line), str(R.string.settings_swipe_words))))
     add(Entry(pb, "swipe_volume", str(R.string.settings_swipe_volume_title), listOf(str(R.string.settings_swipe_volume_line), str(R.string.settings_swipe_words))))
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
+    add(Entry(pb, "background", str(R.string.settings_background_play_title), listOf(str(R.string.settings_background_play_on), str(R.string.settings_background_play_off))))
     add(Entry(pb, "live", str(R.string.settings_live_title), listOf(str(R.string.settings_live_line), str(R.string.settings_live_words))))
     val cc = SettingsPage.Captions
     add(Entry(cc, "show", str(R.string.captions_show), listOf(str(R.string.captions_show_never), str(R.string.captions_show_always))))
     add(Entry(cc, "look", str(R.string.captions_look), CaptionSettings.Look.entries.map { str(it.labelRes) }))
     add(Entry(cc, "size", str(R.string.captions_size), CaptionSettings.sizes.map { str(it.second) }))
+    add(Entry(cc, "word_by_word", str(R.string.captions_word_by_word_title), listOf(str(R.string.captions_word_by_word_line))))
     add(Entry(cc, "kept", str(R.string.captions_kept_languages), emptyList()))
     val sb = SettingsPage.SponsorBlock
     add(Entry(sb, "sb", str(R.string.settings_sponsorblock), listOf(str(R.string.ui_sponsorblock_line))))
@@ -1003,6 +1007,7 @@ private fun entries(): List<Entry> = buildList {
     val ab = SettingsPage.About
     add(Entry(ab, "version", str(R.string.settings_version, BuildConfig.VERSION_NAME), listOf(str(R.string.settings_checking))))
     add(Entry(ab, "crash", str(R.string.settings_crash_title), listOf(str(R.string.settings_crash_none), str(R.string.settings_crash_saved))))
+    add(Entry(ab, "links", str(R.string.settings_open_links_title), listOf(str(R.string.settings_open_links_line))))
     add(Entry(ab, "source", str(R.string.settings_source), listOf(str(R.string.settings_source_line), "GitHub")))
 }
 
@@ -1010,7 +1015,7 @@ private fun entries(): List<Entry> = buildList {
 private fun fold(s: String) = Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase()
 
 /** Rows a TV doesn't show (PlaybackPage): never found by a search there. */
-private val PhoneOnlyRows = setOf("controls", "chapters", "pip", "zoom", "swipe_brightness", "swipe_volume", "live")
+private val PhoneOnlyRows = setOf("controls", "chapters", "pip", "zoom", "swipe_brightness", "swipe_volume", "live", "links")
 
 private fun hits(query: String, tv: Boolean = false): List<Hit> {
     val q = fold(query.trim())
@@ -1261,7 +1266,7 @@ private fun PlaybackPage(player: PlayerState) {
         pipSupported -> listOf(0, 1, 2, 3)
         else -> listOf(0, 1, 2)
     }
-    val picture = if (tv) listOf(0, 1, 3) else listOf(0, 1, 2, 3)
+    val picture = if (tv) listOf(0, 1, 3, 4) else listOf(0, 1, 2, 3, 4)
     Spacer(Modifier.height(14.dp))
     // The controls and how they behave.
     Joined(controls.size) { i, shape ->
@@ -1325,13 +1330,21 @@ private fun PlaybackPage(player: PlayerState) {
                 FullscreenZoom.fill,
                 icon = Icons.Rounded.ZoomOutMap,
             ) { player.setZoomFillSetting(it) }
-            else -> SwitchSetting(
+            3 -> SwitchSetting(
                 "audio", shape,
                 stringResource(R.string.bar_audio_only),
                 stringResource(R.string.settings_audio_only_line),
                 AudioOnly.enabled,
                 icon = Icons.Rounded.Headphones,
             ) { player.setAudioOnly(it) }
+            // GitHub #68: off = leaving the app or turning the screen off pauses (PiP and audio only excepted).
+            else -> SwitchSetting(
+                "background", shape,
+                stringResource(R.string.settings_background_play_title),
+                stringResource(if (BackgroundPlay.on) R.string.settings_background_play_on else R.string.settings_background_play_off),
+                BackgroundPlay.on,
+                icon = Icons.Rounded.PlayCircle,
+            ) { BackgroundPlay.set(it) }
         }
     }
     // Fullscreen's side swipes (#62). A TV's player has no touch gestures.
@@ -1423,7 +1436,7 @@ private fun LiveActivitySetting(player: PlayerState) {
 private fun CaptionsPage() {
     val c = MaterialTheme.colorScheme
     val kept = CaptionTranslator.downloaded.filter { it != "en" }.sortedBy { CaptionNames.language(it) }
-    val rows = if (kept.isEmpty()) 4 else 5
+    val rows = if (kept.isEmpty()) 5 else 6
     Spacer(Modifier.height(14.dp))
     Joined(rows) { i, shape ->
         when (i) {
@@ -1443,6 +1456,14 @@ private fun CaptionsPage() {
                 CaptionSettings.sizes.map { it.first to stringResource(it.second) },
                 CaptionSettings.size,
             ) { CaptionSettings.chooseSize(it) }
+            // GitHub #87 / #7: auto-generated captions as each word is said (YouTube's app), instead of two whole lines.
+            4 -> SwitchSetting(
+                "word_by_word", shape,
+                stringResource(R.string.captions_word_by_word_title),
+                stringResource(R.string.captions_word_by_word_line),
+                CaptionSettings.wordByWord,
+                icon = Icons.Rounded.Subtitles,
+            ) { CaptionSettings.chooseWordByWord(it) }
             else -> SettingBox("kept", shape) {
                 Text(stringResource(R.string.captions_kept_languages), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(Modifier.height(12.dp))
@@ -1740,6 +1761,22 @@ private fun AboutPage(player: PlayerState) {
         } else {
             LinkSetting("source", shape, Icons.Rounded.Code, stringResource(R.string.settings_source), stringResource(R.string.settings_source_line)) {
                 context.openOrSay(Intent(Intent.ACTION_VIEW, Uri.parse(SourceUrl))) { player.actionMessage = it }
+            }
+        }
+    }
+    // GitHub #59: Skipii takes youtube.com / youtu.be links, but Android 12+ only hands them over once allowed
+    // under the app's "Open by default" (an app can't verify a domain that isn't its own). Not on a TV (no links there).
+    if (!LocalWindowLayout.current.tv) {
+        Spacer(Modifier.height(14.dp))
+        Joined(1) { _, shape ->
+            LinkSetting(
+                "links", shape, Icons.Rounded.Link,
+                stringResource(R.string.settings_open_links_title), stringResource(R.string.settings_open_links_line),
+            ) {
+                val pkg = Uri.parse("package:${context.packageName}")
+                val page = if (Build.VERSION.SDK_INT >= 31) Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, pkg)
+                else Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
+                context.openOrSay(page) { player.actionMessage = it }
             }
         }
     }

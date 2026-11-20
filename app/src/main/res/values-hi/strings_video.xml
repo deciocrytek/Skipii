@@ -70,4 +70,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">फिर से कोशिश करें</string>
     <string name="video_open_in_youtube">YouTube में खोलें</string>
+    <string name="video_lock">कंट्रोल लॉक करें</string>
+    <string name="video_hold_to_unlock">अनलॉक करने के लिए दबाकर रखें</string>
 </resources>

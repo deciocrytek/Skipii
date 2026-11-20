@@ -162,4 +162,28 @@
         <item quantity="many">Avançar %1$s segundos</item>
         <item quantity="other">Avançar %1$s segundos</item>
     </plurals>
+    <string name="ui_play_all">Tocar tudo</string>
+    <string name="ui_shuffle">Aleatório</string>
+    <string name="ui_remove">Remover</string>
+    <string name="ui_remove_from_watch_later">Remover de Assistir mais tarde</string>
+    <string name="ui_remove_from_playlist">Remover de %1$s</string>
+    <string name="ui_removed_from">Removido de %1$s</string>
+    <string name="ui_remove_failed">Não foi possível remover de %1$s</string>
+    <string name="ui_queued_badge">Na fila #%1$s</string>
+    <string name="ui_continue_watching">Continuar assistindo</string>
+    <string name="ui_remaining_under_min">Falta &lt;1 min</string>
+    <string name="ui_remaining_min">Faltam %1$s min</string>
+    <string name="ui_remaining_hr">Faltam %1$s h</string>
+    <string name="ui_remaining_hr_min">Faltam %1$s h %2$s min</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s vídeo</item>
+        <item quantity="many">%1$s vídeos</item>
+        <item quantity="other">%1$s vídeos</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 min</string>
+    <string name="ui_duration_min">%1$s min</string>
+    <string name="ui_duration_hr">%1$s h</string>
+    <string name="ui_duration_hr_min">%1$s h %2$s min</string>
+    <string name="ui_reorder_queue">Reordenar</string>
+    <string name="ui_up_next_in">A seguir em %1$s s</string>
 </resources>

@@ -150,6 +150,8 @@ class MainActivity : ComponentActivity() {
         }
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
         LiveControls.takeOpen(intent)
+        // Not when the window is rebuilt (the link was already handled; take() clears it anyway).
+        if (savedInstanceState == null) IncomingLinks.take(intent)
         setContent { SkipiiTheme { SkipiiApp() } }
     }
 
@@ -158,6 +160,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
         LiveControls.takeOpen(intent)
+        IncomingLinks.take(intent)
     }
 
     override fun onStart() {
@@ -183,9 +186,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-enum class Tab(@StringRes val labelRes: Int, val icon: ImageVector, val selectedIcon: ImageVector) {
+enum class Tab(
+    @StringRes val labelRes: Int, val icon: ImageVector, val selectedIcon: ImageVector,
+    /** Shown in the tab bar's selected pill when the full label doesn't fit (NavPill). */
+    @StringRes val shortLabelRes: Int? = null,
+) {
     Home(R.string.app_tab_home, Icons.Outlined.Home, Icons.Rounded.Home),
-    Subscriptions(R.string.app_tab_subscriptions, Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions),
+    Subscriptions(R.string.app_tab_subscriptions, Icons.Outlined.Subscriptions, Icons.Rounded.Subscriptions, R.string.app_tab_subscriptions_short),
     Shorts(R.string.app_tab_shorts, Icons.Outlined.SlowMotionVideo, Icons.Rounded.SlowMotionVideo),
     Search(R.string.app_tab_search, Icons.Rounded.Search, Icons.Rounded.Search),
     Library(R.string.app_tab_library, Icons.Outlined.VideoLibrary, Icons.Rounded.VideoLibrary);
@@ -211,6 +218,7 @@ fun SkipiiApp() {
     // Settings (Settings.kt): a page over the app, from the header avatar. Saveable: picking a language rebuilds the window.
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var openPlaylist by remember { mutableStateOf<PlaylistRef?>(null) }
+    var openHistory by rememberSaveable { mutableStateOf(false) }
     var openChannel by rememberSaveable { mutableStateOf<String?>(null) }
     // Kept after closing so the page can slide out with its content.
     var channelState by remember { mutableStateOf(openChannel?.let { ChannelState(it, scope) }) }
@@ -291,6 +299,9 @@ fun SkipiiApp() {
             when (event) {
                 // Not for a window being rebuilt (fold / unfold): the video track would go off and back on.
                 androidx.lifecycle.Lifecycle.Event.ON_STOP -> if (!host.isChangingConfigurations) {
+                    // Background play off (#68): leaving pauses, unless audio only asks for sound off screen.
+                    // (Picture-in-picture is still on screen and never stops the window.)
+                    if (!BackgroundPlay.on && !AudioOnly.enabled && !host.isInPictureInPictureMode) player.pause()
                     player.setBackground(true); shorts.setForeground(false); LiveControls.setOnScreen(false)
                 }
                 androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true); LiveControls.setOnScreen(true) }
@@ -306,6 +317,8 @@ fun SkipiiApp() {
     val stackBottom = navBottom.coerceAtLeast(8.dp) +
         if (WindowInsets.tappableElement.asPaddingValues().calculateBottomPadding() > 0.dp) 10.dp else 0.dp
     var optionsFor by remember { mutableStateOf<VideoItem?>(null) }
+    // Long-pressed in a playlist of the account's: the sheet also offers "Remove from …" (#65).
+    var optionsPlaylist by remember { mutableStateOf<PlaylistRef?>(null) }
     // On Shorts the app's video waits, paused, out of sight (no mini-player).
     val hasMini = player.current != null && tab != Tab.Shorts
     // Lists scroll fully clear of the floating nav (and mini-player when present). A wide window
@@ -368,6 +381,46 @@ fun SkipiiApp() {
         if (tab != Tab.Shorts) { shortsFrom = tab; tab = Tab.Shorts }
     }
 
+    // A YouTube link from another app (IncomingLinks, GitHub #59): routed like a description link.
+    LaunchedEffect(IncomingLinks.pending) {
+        val url = IncomingLinks.pending ?: return@LaunchedEffect
+        IncomingLinks.pending = null
+        settingsOpen = false
+        val playlistId = linkPlaylistId(url)
+        if (playlistId != null) {
+            player.expanded = false
+            if (tab == Tab.Shorts) tab = shortsFrom
+            openHistory = false
+            openChannel = null
+            playlistOverChannel = false
+            openPlaylist = PlaylistRef(playlistId, str(R.string.app_link_playlist), null, null)
+            return@LaunchedEffect
+        }
+        when (val target = linkTarget(url, player.current?.id)) {
+            is LinkTarget.Seek -> { player.seekTo(target.ms); player.current?.let { player.open(it) } }
+            is LinkTarget.Video -> {
+                if (tab == Tab.Shorts) tab = shortsFrom
+                player.open(
+                    VideoItem(
+                        id = target.id, title = "", channel = "", channelUrl = null,
+                        thumbnail = "https://i.ytimg.com/vi/${target.id}/hqdefault.jpg", avatar = null,
+                        durationSec = 0, views = -1, uploaded = null,
+                    ),
+                    startAtMs = linkStartMs(url),
+                )
+            }
+            is LinkTarget.Channel -> { if (tab == Tab.Shorts) tab = shortsFrom; showChannel(target.url) }
+            is LinkTarget.Search -> {
+                player.expanded = false
+                search.query = target.query
+                search.submit()
+                openHistory = false; openPlaylist = null; openChannel = null; tab = Tab.Search
+            }
+            // Never handed back to ACTION_VIEW: with Skipii as YouTube's default it would come straight back here.
+            is LinkTarget.Web -> player.actionMessage = str(R.string.app_link_unsupported)
+        }
+    }
+
     /** ‹ / Back on Shorts: to the tab it was opened from, or back to the channel page a short came from. */
     fun leaveShorts() {
         val back = shortsBackTo
@@ -391,7 +444,8 @@ fun SkipiiApp() {
         else if (tvPlayerWasOpen) { tvPlayerWasOpen = false; TvFocusMemory.opener?.focusWhenReady() }
     }
     BackHandler(enabled = player.expanded) { player.expanded = false }
-    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
+    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null && !openHistory) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
+    BackHandler(enabled = !player.expanded && openHistory) { openHistory = false }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
     BackHandler(enabled = signingIn) { signingIn = false }
     BackHandler(enabled = !player.expanded && openChannel != null && !(playlistOverChannel && openPlaylist != null)) { openChannel = null }
@@ -465,10 +519,11 @@ fun SkipiiApp() {
             selected == tab && playlistOverChannel && openPlaylist != null -> openPlaylist = null
             selected == tab && openChannel != null -> openChannel = null
             selected == tab && openPlaylist != null -> openPlaylist = null
+            selected == tab && openHistory -> openHistory = false
             selected == tab -> scrollToTop[selected] = (scrollToTop[selected] ?: 0) + 1
             else -> {
                 if (selected == Tab.Shorts) shortsFrom = tab
-                openPlaylist = null; openChannel = null; tab = selected
+                openPlaylist = null; openHistory = false; openChannel = null; tab = selected
             }
         }
     }
@@ -535,14 +590,30 @@ fun SkipiiApp() {
         val sharedSurface = remember(player) {
             androidx.compose.runtime.movableContentOf { m: Modifier -> VideoSurface(player.controller, m) }
         }
+        val queueAdd = remember(player) { { v: VideoItem -> player.addToQueue(v) } }
+        val queueIndex = remember(player.queue) {
+            buildMap { player.queue.forEachIndexed { i, v -> putIfAbsent(v.id, i + 1) } }
+        }
         CompositionLocalProvider(
             // In picture-in-picture only the PiP view below shows the video.
             LocalVideoSurface provides if (pip.active) NoVideoSurface else sharedSurface,
             LocalPictureInPicture provides pip,
-            LocalVideoMenu provides { optionsFor = it },
+            LocalVideoMenu provides { optionsPlaylist = null; optionsFor = it },
+            // Swiping a card right queues it (Swipe.kt); a TV remote can't swipe.
+            LocalQueueAdd provides if (tv) null else queueAdd,
+            LocalQueueIndex provides queueIndex,
             LocalChannelOpener provides { url -> showChannel(url) },
+            LocalSearchOpener provides { q ->
+                player.expanded = false
+                settingsOpen = false
+                search.query = q
+                search.submit()
+                openPlaylist = null; openHistory = false; openChannel = null; tab = Tab.Search
+            },
             LocalWindowLayout provides windowLayout,
         ) {
+        // Links in the player's comments (and description): read inside, so it sees the channel / search openers above.
+        CompositionLocalProvider(LocalLinkOpener provides rememberLinkOpener(player)) {
         Box(Modifier.padding(start = pagesStart)) {
         AnimatedContent(
             targetState = tab,
@@ -574,10 +645,22 @@ fun SkipiiApp() {
                 )
                 Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
                 Tab.Library -> LibraryScreen(
-                    lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openPlaylist = it },
+                    lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openHistory = false; openPlaylist = it },
                     onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
+                    onOpenHistory = { openHistory = true },
                     scrollToTop = scrollToTop[Tab.Library] ?: 0,
                 )
+            }
+        }
+
+        // Full watch history page (opened from Library's "History ›" header link).
+        AnimatedVisibility(
+            visible = openHistory,
+            enter = if (reduced) fadeIn(snap()) else slideInHorizontally(tween(340, easing = Motion.Emphasized)) { it } + fadeIn(tween(120)),
+            exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
+        ) {
+            Box(Modifier.tvPage(toRail = true)) {
+                HistoryScreen(lib.history, contentPadding, onBack = { openHistory = false }, onOpen = player::open)
             }
         }
 
@@ -588,10 +671,21 @@ fun SkipiiApp() {
             enter = if (reduced) fadeIn(snap()) else slideInHorizontally(tween(340, easing = Motion.Emphasized)) { it } + fadeIn(tween(120)),
             exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
         ) {
-            val pl = openPlaylist
-            val feed = playlistFeed
+            // Back sets openPlaylist to null at once, but the page is still sliding away: it keeps showing the
+            // playlist it had until the slide is over (it went blank on the first frame, so leaving had no animation).
+            val shown = remember { LastPlaylist() }
+            if (openPlaylist != null && playlistFeed != null) { shown.playlist = openPlaylist; shown.feed = playlistFeed }
+            val pl = shown.playlist
+            val feed = shown.feed
             if (pl != null && feed != null) Box(Modifier.tvPage(toRail = true)) {
-                PlaylistScreen(pl, feed, contentPadding, onBack = { openPlaylist = null }, onOpen = player::open)
+                // Watch later and the account's own playlists can lose videos (#65 / #85); the account refuses any other.
+                val editable = Account.signedIn && (pl.id == "WL" || lib.playlists.any { it.id == pl.id })
+                PlaylistScreen(
+                    pl, feed, contentPadding, onBack = { openPlaylist = null }, onOpen = player::open,
+                    onPlayAll = { shuffle -> player.playAll(feed.videos.filterNot(Dismissed::hides), shuffle) },
+                    onRemove = if (editable) { v -> removeFromPlaylist(scope, feed, pl, v, player) } else null,
+                    onOptions = if (editable) { v -> optionsPlaylist = pl; optionsFor = v } else null,
+                )
             }
         }
 
@@ -707,6 +801,7 @@ fun SkipiiApp() {
                     bottomClearance = if (PlayerControls.inBar) stackBottom + NavHeight + PlayerBarRaise + 16.dp else stackBottom + 16.dp,
                     layout = playerLayout,
                     statusBleed = playerStart,
+                    barBusy = playerBar.isOpen || playerBar.scrubShown,
                 )
             }
         }
@@ -833,7 +928,15 @@ fun SkipiiApp() {
             PlayerSheet.Queue -> QueueSheet(player, onDismiss = { player.sheet = null })
             null -> Unit
         }
-        optionsFor?.let { video -> VideoOptionsSheet(video, player, onDismiss = { optionsFor = null }) }
+        optionsFor?.let { video ->
+            val from = optionsPlaylist
+            val feed = playlistFeed
+            val remove: Pair<String, () -> Unit>? = if (from != null && feed != null && openPlaylist?.id == from.id) {
+                val label = if (from.id == "WL") str(R.string.ui_remove_from_watch_later) else str(R.string.ui_remove_from_playlist, from.title)
+                label to { removeFromPlaylist(scope, feed, from, video, player) }
+            } else null
+            VideoOptionsSheet(video, player, onDismiss = { optionsFor = null; optionsPlaylist = null }, remove = remove)
+        }
         // No taller than the comments panel opens (Derek): its top rests just under the video.
         player.playlistTarget?.let { video -> SaveToPlaylistSheet(player, video, maxHeight = maxHeight - panelRestTop(player)) }
         // Confirmations ("Added to queue") when the full player isn't showing its own.
@@ -851,21 +954,45 @@ fun SkipiiApp() {
             }
         }
         }
+        }
     }
 }
 
 @Composable
 private fun QueueMessage(player: PlayerState, modifier: Modifier) {
     val message = player.actionMessage ?: return
+    val undo = player.actionUndo?.takeIf { it.first == message }?.second
     LaunchedEffect(message) {
-        kotlinx.coroutines.delay(2_000)
-        player.actionMessage = null
+        kotlinx.coroutines.delay(if (undo != null) UndoWindowMs else 2_000)
+        if (player.actionMessage == message) player.actionMessage = null
+        if (player.actionUndo?.first == message) player.actionUndo = null
     }
     val c = MaterialTheme.colorScheme
-    Box(modifier.clip(RoundedCornerShape(50)).background(c.inverseSurface).padding(horizontal = 18.dp, vertical = 11.dp)) {
-        Text(message, color = c.inverseOnSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+    Row(
+        modifier.clip(RoundedCornerShape(50)).background(c.inverseSurface)
+            .padding(start = 18.dp, end = if (undo != null) 6.dp else 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(message, color = c.inverseOnSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.padding(vertical = 11.dp))
+        if (undo != null) {
+            Spacer(Modifier.width(6.dp))
+            Text(
+                str(R.string.video_undo), color = c.inversePrimary, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp,
+                modifier = Modifier.clip(RoundedCornerShape(50)).pressable {
+                    undo()
+                    player.actionUndo = null
+                    player.actionMessage = null
+                }.padding(horizontal = 12.dp, vertical = 11.dp),
+            )
+        }
     }
 }
 
 /** Moodii's spatial spring (Motion.spatial there): the default for anything that moves in space. */
 private fun <T> MoodiiSpatial() = spring<T>(dampingRatio = 0.86f, stiffness = 650f)
+
+/** The playlist page's last contents, kept while it slides away after Back (see the playlist overlay). */
+private class LastPlaylist {
+    var playlist: PlaylistRef? = null
+    var feed: FeedState? = null
+}

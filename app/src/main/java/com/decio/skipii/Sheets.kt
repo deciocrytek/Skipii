@@ -41,17 +41,35 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.WatchLater
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.zIndex
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -109,7 +127,11 @@ import android.view.inputmethod.InputMethodManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Unit) {
+fun VideoOptionsSheet(
+    video: VideoItem, player: PlayerState, onDismiss: () -> Unit,
+    /** Opened in a playlist of the account's: "Remove from …" and what it does (#65). */
+    remove: Pair<String, () -> Unit>? = null,
+) {
     val c = MaterialTheme.colorScheme
     val context = LocalContext.current
     ModalBottomSheet(
@@ -131,6 +153,7 @@ fun VideoOptionsSheet(video: VideoItem, player: PlayerState, onDismiss: () -> Un
             OptionRow(Icons.Rounded.WatchLater, stringResource(R.string.ui_save_to_watch_later)) { player.saveToWatchLater(video); onDismiss() }
             OptionRow(Icons.Rounded.LibraryAdd, stringResource(R.string.ui_save_to_playlist)) { onDismiss(); player.openPlaylists(video) }
         }
+        remove?.let { (label, action) -> OptionRow(Icons.Rounded.Delete, label) { onDismiss(); action() } }
         OptionRow(Icons.Rounded.Share, stringResource(R.string.ui_share)) {
             shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
@@ -447,21 +470,77 @@ fun QueueCard(player: PlayerState, onOpen: () -> Unit) {
 fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
     val c = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
+    val view = LocalView.current
+    val tv = LocalWindowLayout.current.tv
+    val reduced = rememberReducedMotion()
     val listState = rememberLazyListState()
     // Clear empties the queue at once; the rows it had stay on screen to slide away.
     var leavingRows by remember { mutableStateOf<List<VideoItem>?>(null) }
     /** Ms into the rows' staggered slide; on the animation clock so the close never starts early. */
     val sweep = remember { Animatable(0f) }
     val rows = leavingRows ?: player.queue
+    // A key per queue entry that follows it as it moves (the same video can be queued twice, so ids won't do).
+    var nextKey by remember { mutableIntStateOf(1) }
+    val rowKeys = remember { mutableStateListOf<Pair<Int, String>>() }
+    if (rowKeys.size != rows.size || rowKeys.indices.any { rowKeys[it].second != rows[it].id }) {
+        val pool = HashMap<String, ArrayDeque<Int>>()
+        rowKeys.forEach { (k, id) -> pool.getOrPut(id) { ArrayDeque() }.addLast(k) }
+        val rebuilt = rows.map { v -> (pool[v.id]?.removeFirstOrNull() ?: nextKey++) to v.id }
+        rowKeys.clear()
+        rowKeys.addAll(rebuilt)
+    }
+    fun indexOf(key: Int) = rowKeys.indexOfFirst { it.first == key }
+    // The row's key goes with it: matched again by video id, a twin of the same video queued twice took over the
+    // removed row's key, and with it the row's state (slid away, its red tray filling the slot).
+    fun remove(key: Int) {
+        val at = indexOf(key)
+        if (at < 0) return
+        rowKeys.removeAt(at)
+        player.removeFromQueue(at)
+    }
+    val reorder = remember(listState) { QueueReorder(listState) }
+    reorder.move = { from, to ->
+        if (from in rowKeys.indices && to in rowKeys.indices) {
+            rowKeys.add(to, rowKeys.removeAt(from))
+            player.moveInQueue(from, to)
+        }
+    }
+    val canReorder = !tv && leavingRows == null && rows.size > 1
+    // A row held against the list's top or bottom edge scrolls the list under it.
+    val edge = with(androidx.compose.ui.platform.LocalDensity.current) { QueueEdgeZone.toPx() to QueueEdgeSpeed.toPx() }
+    LaunchedEffect(reorder.key != null) {
+        while (reorder.key != null) {
+            androidx.compose.runtime.withFrameNanos { }
+            val speed = reorder.edgeScroll(edge.first, edge.second)
+            if (speed != 0f) {
+                listState.scrollBy(speed)
+                if (reorder.reslot()) view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+            }
+        }
+    }
     /** 0 = the list, 1 = the empty state; between, the space closes from one height to the other. */
     val emptied = remember { Animatable(if (player.queue.isEmpty()) 1f else 0f, visibilityThreshold = 0.0005f) }
     LaunchedEffect(player.queue.isEmpty()) {
         if (leavingRows == null) emptied.animateTo(if (player.queue.isEmpty()) 1f else 0f, QueueCloseSpec)
     }
     val clearAlpha by animateFloatAsState(if (leavingRows == null && player.queue.isNotEmpty()) 1f else 0f, label = "clearAlpha")
+    val totalSec = remember(player.queue) { queueTotalDurationSec(player.queue) }
+    val runtime = compactDurationFromMs(totalSec * 1000L)?.let { formatCompactDuration(it) }
+    val summary = if (player.queue.isNotEmpty()) {
+        listOfNotNull(
+            plural(R.plurals.ui_queue_videos_count, player.queue.size.toLong(), player.queue.size),
+            runtime,
+        ).joinDots()
+    } else null
+
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = c.surfaceContainerLow) {
-        Row(Modifier.padding(horizontal = 20.dp).padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.ui_queue), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp, modifier = Modifier.weight(1f))
+        Row(Modifier.padding(horizontal = 20.dp).padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.ui_queue), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
+                if (summary != null) {
+                    Text(summary, color = c.onSurfaceVariant, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp)
+                }
+            }
             Text(
                 stringResource(R.string.ui_clear), color = c.primary, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp,
                 modifier = Modifier
@@ -484,15 +563,88 @@ fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
         }
         Layout(
             content = {
-                LazyColumn(Modifier.fillMaxHeight(0.7f), state = listState) {
-                    itemsIndexed(rows, key = { i, v -> "$i-${v.id}" }) { index, video ->
+                LazyColumn(
+                    Modifier
+                        .fillMaxHeight(0.7f)
+                        .queueReorder(reorder, enabled = canReorder, handleZone = QueueRowInset + 4.dp + QueueHandleSize, onFeel = { view.performHapticFeedback(it) }),
+                    state = listState,
+                ) {
+                    itemsIndexed(rows, key = { i, _ -> rowKeys.getOrNull(i)?.first ?: -i - 1 }) { index, video ->
+                        val rowKey = rowKeys.getOrNull(index)?.first ?: (-index - 1)
+                        val dragging = reorder.key == rowKey
+                        val settling = reorder.settlingKey == rowKey
+                        val lift by animateFloatAsState(
+                            if (dragging) 1f else 0f,
+                            if (reduced) snap() else spring(dampingRatio = 0.8f, stiffness = 550f),
+                            label = "queueLift",
+                        )
                         // Top to bottom, one after another, counted from the first row on screen.
                         val order = (index - listState.firstVisibleItemIndex).coerceAtLeast(0)
+                        val liftBg = c.surfaceContainerHighest
                         SlideAway(slide = { Motion.Exit.transform(((sweep.value - SlideAwayStaggerMs * order) / SlideAwayMs).coerceIn(0f, 1f)) }) {
-                            Box(Modifier.padding(horizontal = 20.dp)) {
-                                VideoRow(video, onClick = { player.playFromQueue(index); onDismiss() }) {
-                                    Box(Modifier.size(40.dp).pressable { player.removeFromQueue(index) }, contentAlignment = Alignment.Center) {
-                                        Icon(Icons.Rounded.Close, stringResource(R.string.ui_remove_from_queue), tint = c.onSurfaceVariant)
+                            Box(
+                                Modifier
+                                    // The held row floats over the others (drawn where the finger is, not in its
+                                    // slot); the rest glide into the slots it leaves.
+                                    .then(if (dragging || settling) Modifier.zIndex(2f) else Modifier.animateItem())
+                                    .fillMaxWidth()
+                                    .padding(horizontal = QueueRowInset, vertical = 1.dp)
+                                    .graphicsLayer {
+                                        translationY = when {
+                                            dragging -> reorder.offset
+                                            settling -> reorder.settle.value
+                                            else -> 0f
+                                        }
+                                        val s = 1f + 0.025f * lift
+                                        scaleX = s
+                                        scaleY = s
+                                        shadowElevation = 12.dp.toPx() * lift
+                                        shape = RoundedCornerShape(18.dp)
+                                        clip = lift > 0.01f
+                                        ambientShadowColor = Color.Black
+                                        spotShadowColor = Color.Black
+                                    }
+                                    .drawBehind {
+                                        if (lift > 0.01f) drawRoundRect(liftBg, cornerRadius = CornerRadius(18.dp.toPx()), alpha = lift)
+                                    },
+                            ) {
+                                // Swipe left takes it out of the queue (the X does too).
+                                SwipeVideo(
+                                    video,
+                                    inset = VideoRowInset,
+                                    corner = VideoRowCorner,
+                                    queue = false,
+                                    onSwipeLeft = if (leavingRows == null && !dragging) { { remove(rowKey) } } else null,
+                                ) {
+                                    Row(Modifier.fillMaxWidth().padding(end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        if (canReorder) {
+                                            // Touch and move: the list's [queueReorder] picks the row up from here at once
+                                            // (anywhere else on the row, after a hold).
+                                            Box(Modifier.padding(start = 4.dp).size(QueueHandleSize), contentAlignment = Alignment.Center) {
+                                                Icon(
+                                                    Icons.Rounded.DragHandle,
+                                                    contentDescription = stringResource(R.string.ui_reorder_queue),
+                                                    tint = if (dragging) c.primary else c.onSurfaceVariant.copy(alpha = 0.65f),
+                                                    modifier = Modifier.size(22.dp),
+                                                )
+                                            }
+                                        } else {
+                                            Spacer(Modifier.width(8.dp))
+                                        }
+                                        Box(Modifier.weight(1f)) {
+                                            VideoRow(video, longPressMenu = false, onClick = {
+                                                val idx = indexOf(rowKey).takeIf { it >= 0 } ?: index
+                                                player.playFromQueue(idx)
+                                                onDismiss()
+                                            }) {
+                                                Box(
+                                                    Modifier.size(38.dp).pressable { remove(rowKey) },
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    Icon(Icons.Rounded.Close, stringResource(R.string.ui_remove_from_queue), tint = c.onSurfaceVariant)
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -518,6 +670,149 @@ fun QueueSheet(player: PlayerState, onDismiss: () -> Unit) {
         Spacer(Modifier.height(24.dp))
     }
 }
+
+@Composable
+internal fun formatCompactDuration(parts: CompactDuration): String = when {
+    parts.underOneMinute -> stringResource(R.string.ui_duration_under_min)
+    parts.hours > 0 && parts.minutes > 0 -> stringResource(R.string.ui_duration_hr_min, parts.hours, parts.minutes)
+    parts.hours > 0 -> stringResource(R.string.ui_duration_hr, parts.hours)
+    else -> stringResource(R.string.ui_duration_min, parts.minutes)
+}
+
+/** The queue's rows sit this far in from the sheet's edges. */
+private val QueueRowInset = 12.dp
+/** A row's drag handle (its touch target; the glyph is 22 dp). */
+private val QueueHandleSize = 40.dp
+/** A held row this close to the list's top or bottom edge scrolls the list, up to [QueueEdgeSpeed] a frame. */
+private val QueueEdgeZone = 56.dp
+private val QueueEdgeSpeed = 14.dp
+
+/**
+ * Moving a row of the queue (Derek, 2026-11-19: "drag to rearrange isn't working"). The gesture is read on the LIST,
+ * never inside a row: a row changes slots as it's dragged, and a detector inside it saw its own node jump under the
+ * finger. The held row is drawn at [offset] from its slot, which keeps it under the finger whatever slot it's in.
+ */
+@androidx.compose.runtime.Stable
+internal class QueueReorder(private val list: androidx.compose.foundation.lazy.LazyListState) {
+    /** The row being moved. */
+    var key by mutableStateOf<Any?>(null)
+        private set
+    /** Moves queue entry [from] to [to] (the list's items are the queue, in order). Set by the sheet. */
+    var move: (from: Int, to: Int) -> Unit = { _, _ -> }
+    /** Where the row was when it was picked up, and how far the finger has gone since. */
+    private var startTop = 0
+    private var travel by mutableFloatStateOf(0f)
+    /** The slot the row was just moved to: no further move until the list has laid it out there. */
+    private var pendingIndex: Int? = null
+    /** The row let go of, gliding from where it was dropped into its slot ([settle]). */
+    var settlingKey by mutableStateOf<Any?>(null)
+        private set
+    val settle = Animatable(0f)
+
+    private fun held() = key?.let { k -> list.layoutInfo.visibleItemsInfo.firstOrNull { it.key == k } }
+
+    /** How far the held row is drawn from its slot. */
+    val offset: Float get() = held()?.let { startTop + travel - it.offset } ?: 0f
+
+    /** Picks up the row at [y] (px from the list's top); false when there's none there. */
+    fun pickUp(y: Float): Boolean {
+        val row = list.layoutInfo.visibleItemsInfo.firstOrNull { y >= it.offset && y < it.offset + it.size } ?: return false
+        key = row.key
+        startTop = row.offset
+        travel = 0f
+        pendingIndex = null
+        return true
+    }
+
+    /** The finger moved [dy]; true when the row changed places (a tick). */
+    fun dragBy(dy: Float): Boolean {
+        travel += dy
+        return reslot()
+    }
+
+    /** Moves the held row into the slot its middle is over; true when it moved. */
+    fun reslot(): Boolean {
+        val row = held() ?: return false
+        pendingIndex?.let { if (row.index != it) return false else pendingIndex = null }
+        val middle = row.offset + offset + row.size / 2f
+        val target = list.layoutInfo.visibleItemsInfo.firstOrNull { it.key != key && middle >= it.offset && middle < it.offset + it.size }
+            ?: return false
+        // The list keeps its place by its first visible row's key: moving that row would scroll the list along
+        // with it (the row jumped away from the finger). Pin the place by index instead.
+        if (row.index == list.firstVisibleItemIndex || target.index == list.firstVisibleItemIndex) {
+            list.requestScrollToItem(list.firstVisibleItemIndex, list.firstVisibleItemScrollOffset)
+        }
+        move(row.index, target.index)
+        pendingIndex = target.index
+        return true
+    }
+
+    /** Px a frame to scroll the list while the held row is pushed against its top or bottom edge (the way it's going). */
+    fun edgeScroll(zone: Float, maxSpeed: Float): Float {
+        val row = held() ?: return 0f
+        val top = row.offset + offset
+        val bottom = top + row.size
+        val info = list.layoutInfo
+        return when {
+            travel > 0f && bottom > info.viewportEndOffset - zone ->
+                maxSpeed * ((bottom - (info.viewportEndOffset - zone)) / zone).coerceIn(0f, 1f)
+            travel < 0f && top < info.viewportStartOffset + zone ->
+                -maxSpeed * (((info.viewportStartOffset + zone) - top) / zone).coerceIn(0f, 1f)
+            else -> 0f
+        }
+    }
+
+    /** Lets go: the row glides from where it is into its slot. */
+    suspend fun drop(reduced: Boolean) {
+        val k = key ?: return
+        val from = offset
+        key = null
+        travel = 0f
+        pendingIndex = null
+        settlingKey = k
+        settle.snapTo(from)
+        if (!reduced) settle.animateTo(0f, spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f))
+        if (settlingKey == k) settlingKey = null
+    }
+}
+
+/**
+ * The queue list's reorder gesture: touching a row's handle (the first [handleZone] from the list's left edge)
+ * picks it up at once, holding anywhere else on a row picks it up after the long-press timeout. Once held, every
+ * move is taken on the Initial pass, before the list's scroll, the row's swipe or its click can see it.
+ */
+internal fun Modifier.queueReorder(reorder: QueueReorder, enabled: Boolean, handleZone: Dp, onFeel: (Int) -> Unit): Modifier =
+    if (!enabled) this else composed {
+        val scope = rememberCoroutineScope()
+        val reduced = rememberReducedMotion()
+        val feel by androidx.compose.runtime.rememberUpdatedState(onFeel)
+        pointerInput(reorder, reduced) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val picked = if (down.position.x <= handleZone.toPx()) {
+                    reorder.pickUp(down.position.y)
+                } else {
+                    val held = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                    reorder.pickUp(held.position.y)
+                }
+                if (!picked) return@awaitEachGesture
+                feel(HapticFeedbackConstants.LONG_PRESS)
+                try {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        val dy = change.positionChangeIgnoreConsumed().y
+                        // Taken whole, the lift too: the row's click never fires when it's let go.
+                        change.consume()
+                        if (!change.pressed) break
+                        if (dy != 0f && reorder.dragBy(dy)) feel(HapticFeedbackConstants.CLOCK_TICK)
+                    }
+                } finally {
+                    scope.launch { reorder.drop(reduced) }
+                }
+            }
+        }
+    }
 
 private const val SlideAwayMs = 300
 private const val SlideAwayStaggerMs = 40

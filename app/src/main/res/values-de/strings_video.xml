@@ -69,4 +69,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Erneut versuchen</string>
     <string name="video_open_in_youtube">In YouTube öffnen</string>
+    <string name="video_lock">Steuerung sperren</string>
+    <string name="video_hold_to_unlock">Zum Entsperren halten</string>
 </resources>

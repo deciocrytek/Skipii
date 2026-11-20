@@ -79,4 +79,9 @@
     <string name="settings_swipe_volume_line">Im Vollbild auf der rechten Seite des Videos nach oben oder unten wischen.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">Geste, Gesten, wischen, Helligkeit, Lautstärke, Ton</string>
+    <string name="settings_background_play_title">Wiedergabe im Hintergrund</string>
+    <string name="settings_background_play_on">Spielt weiter, wenn du Skipii verlässt oder der Bildschirm ausgeht</string>
+    <string name="settings_background_play_off">Pausiert, wenn du Skipii verlässt oder der Bildschirm ausgeht (Nur Audio spielt weiter)</string>
+    <string name="settings_open_links_title">YouTube-Links öffnen</string>
+    <string name="settings_open_links_line">Skipii Links von youtube.com und youtu.be aus anderen Apps öffnen lassen: Standardmäßig öffnen › Links hinzufügen</string>
 </resources>

@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">عناصر التحكم في التشغيل عندما لا يكون Skipii على الشاشة</string>
     <string name="app_live_back">−%1$s ث</string>
     <string name="app_live_forward">+%1$s ث</string>
+    <string name="app_tab_subscriptions_short">اشتراكات</string>
+    <string name="app_link_playlist">قائمة تشغيل</string>
+    <string name="app_link_unsupported">لا يمكن لـ Skipii فتح هذا الرابط</string>
 </resources>

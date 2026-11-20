@@ -163,6 +163,29 @@ object SeekStep {
  * Picking a chapter leaves the chapter list open (#46), so you can go through them one after another;
  * it closes on a tap outside it, ✕ or Back. Off (YouTube's way): the list folds once a chapter is picked.
  */
+/**
+ * Background play (GitHub #68, default on): off, leaving the app or turning the screen off pauses the video
+ * (MainActivity's ON_STOP) — unless it's in picture-in-picture (still on screen) or audio only is on (the
+ * "sound in my pocket" mode, which says it wants to keep playing).
+ */
+object BackgroundPlay {
+    private const val KEY = "background_play"
+    private var prefs: SharedPreferences? = null
+
+    var on by mutableStateOf(true)
+        private set
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
+        on = prefs?.getBoolean(KEY, true) != false
+    }
+
+    fun set(value: Boolean) {
+        on = value
+        prefs?.edit()?.putBoolean(KEY, value)?.apply()
+    }
+}
+
 object ChaptersStayOpen {
     private const val KEY = "chapters_stay_open"
     private var prefs: SharedPreferences? = null

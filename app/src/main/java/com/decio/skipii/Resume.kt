@@ -47,6 +47,12 @@ object ResumeStore {
         return if (dur > 0) (pos.toFloat() / dur).coerceIn(0f, 1f) else null
     }
 
+    /** Unwatched time left in ms, or null if not partially watched. */
+    fun remainingMs(id: String): Long? {
+        val (pos, dur) = positions[id] ?: return null
+        return if (dur > 0L) (dur - pos).coerceAtLeast(0L) else null
+    }
+
     fun save(id: String, positionMs: Long, durationMs: Long) {
         if (id.isBlank() || durationMs <= 0 || durationMs == C.TIME_UNSET) return
         if (positionMs < EDGE_MS || positionMs > durationMs - EDGE_MS) {
@@ -66,6 +72,16 @@ object ResumeStore {
         extra.forEach { positions.remove(it); edit?.remove(it) }
         edit?.apply()
     }
+}
+
+/** Rounded hours & minutes for short human labels ("14m left", "1h 12m left", "47 min"). */
+internal data class CompactDuration(val hours: Int, val minutes: Int, val underOneMinute: Boolean)
+
+internal fun compactDurationFromMs(ms: Long): CompactDuration? {
+    if (ms <= 0L) return null
+    if (ms < 60_000L) return CompactDuration(0, 0, underOneMinute = true)
+    val totalMin = ((ms + 30_000L) / 60_000L).toInt().coerceAtLeast(1)
+    return CompactDuration(totalMin / 60, totalMin % 60, underOneMinute = false)
 }
 
 /**

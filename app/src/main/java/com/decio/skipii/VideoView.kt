@@ -66,6 +66,7 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -162,6 +163,10 @@ fun VideoContent(
     onInactiveTap: () -> Unit = {},
     /** Portrait with the controls on the video: the scrub on the video's bottom edge. */
     edge: EdgeScrub? = null,
+    /** Fullscreen's screen lock (#63): the video takes no touches; a tap shows [LockPill], held it unlocks. */
+    locked: Boolean = false,
+    onLock: (() -> Unit)? = null,
+    onUnlock: () -> Unit = {},
 ) {
     val overlay = fullscreen || !PlayerControls.inBar
     // Hidden until the video is tapped: opening the player (from the mini-player too) and
@@ -210,6 +215,12 @@ fun VideoContent(
     LaunchedEffect(controlsVisible, fullscreen) { if (!controlsVisible || !fullscreen) drop = null }
     BackHandler(enabled = drop != null) { drop = null }
     val currentInteractive by androidx.compose.runtime.rememberUpdatedState(interactive)
+    val currentLocked by androidx.compose.runtime.rememberUpdatedState(locked)
+    // Locked: when the unlock pill was last asked for (a tap anywhere, or the lock itself); it shows for a while.
+    var lockHintAt by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(locked) {
+        if (locked) { controlsVisible = false; burstActive = false; drop = null; lockHintAt = System.nanoTime() }
+    }
     val currentInactiveTap by androidx.compose.runtime.rememberUpdatedState(onInactiveTap)
     fun toggleControls() { if (overlay) { controlsVisible = !controlsVisible; touched() } }
     SideEffect { edge?.controlsShown = controlsVisible && interactive }
@@ -261,7 +272,7 @@ fun VideoContent(
                         if (event.changes.none { it.pressed }) return@awaitEachGesture
                         event = awaitPointerEvent(PointerEventPass.Initial)
                     }
-                    if (state.holdingFast || state.error != null || !currentInteractive) return@awaitEachGesture
+                    if (state.holdingFast || state.error != null || !currentInteractive || currentLocked) return@awaitEachGesture
                     val fill = fillScale(size.width.toFloat(), size.height.toFloat(), state.videoAspect)
                     val from = 1f + (fill - 1f) * zoom.value
                     var total = 1f
@@ -315,9 +326,19 @@ fun VideoContent(
             var pendingAt = 0L
             awaitEachGesture {
                 val down = awaitFirstDown()
-                // Held still on the right side: 2× until it lifts (GitHub #36). Moving first (a swipe,
-                // the volume slide, a scrub) takes the gesture away from it before the timeout.
-                val holdable = currentInteractive && state.error == null && !burstActive && down.position.x / size.width > 0.6f
+                if (currentLocked) {
+                    // Every touch is the lock's (nothing seeks, slides or pinches); a tap brings up the unlock pill.
+                    down.consume()
+                    do {
+                        val event = awaitPointerEvent()
+                        event.changes.forEach { it.consume() }
+                    } while (event.changes.any { it.pressed })
+                    lockHintAt = System.nanoTime()
+                    return@awaitEachGesture
+                }
+                // Held still anywhere on the video: 2× until it lifts (GitHub #36, #51: both sides, as YouTube).
+                // Moving first (a swipe, the brightness / volume slide, a scrub) takes the gesture away before the timeout.
+                val holdable = currentInteractive && state.error == null && !burstActive
                 val up = (if (!holdable) waitForUpOrCancellation() else try {
                     withTimeout(viewConfiguration.longPressTimeoutMillis) { waitForUpOrCancellation() }
                 } catch (_: PointerEventTimeoutCancellationException) {
@@ -451,7 +472,7 @@ fun VideoContent(
         }
         SkippedNote(state, Modifier.align(Alignment.TopCenter).padding(top = 12.dp).graphicsLayer { alpha = controlsAlpha() })
         // The Ask pill stays reachable while the controls are hidden.
-        if (!controlsVisible) {
+        if (!controlsVisible && !locked) {
             state.askSegment?.let { segment ->
                 SkipSegmentPill(segment, enabled = true, modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
                     touched(); state.skipSegment(segment)
@@ -496,6 +517,11 @@ fun VideoContent(
                 ) {
                     // No minimize button: swipe the player down (or Back) instead.
                     if (fullscreen) {
+                        if (onLock != null) {
+                            OverlayTile(stringResource(R.string.video_lock), enabled, tool, onClick = { onLock() }) { ink ->
+                                Icon(Icons.Rounded.Lock, null, tint = ink, modifier = Modifier.size(tool * 0.5f))
+                            }
+                        }
                         Text(
                             state.current?.title.orEmpty(),
                             color = Color.White,
@@ -626,8 +652,85 @@ fun VideoContent(
             }
         }
         if (edge != null) EdgeScrubPreview(state, edge)
+        if (fullscreen) LockPill(locked, lockHintAt, onUnlock, Modifier.align(Alignment.BottomCenter).padding(bottom = 28.dp))
     }
 }
+
+/**
+ * Fullscreen's screen lock (#63, mockup docs/design/qol-batch.html): while locked, a tap anywhere shows this
+ * pill for [LockHintMs]; holding it fills its ring over [UnlockHoldMs] and unlocks (Back unlocks too). Hidden,
+ * it has no pointer input at all, so it never catches a touch meant for the lock.
+ */
+@Composable
+private fun LockPill(locked: Boolean, hintAt: Long, onUnlock: () -> Unit, modifier: Modifier) {
+    val reduced = rememberReducedMotion()
+    var shown by remember { mutableStateOf(false) }
+    val fill = remember { Animatable(0f) }
+    LaunchedEffect(locked, hintAt) {
+        shown = locked && hintAt != 0L
+        if (!shown) return@LaunchedEffect
+        delay(LockHintMs)
+        // Not while a finger is still filling the ring.
+        while (fill.value > 0f) delay(200)
+        shown = false
+    }
+    val alpha by animateFloatAsState(
+        if (shown) 1f else 0f,
+        if (reduced) tween(0) else tween(220, easing = Motion.Emphasized), label = "lockPill",
+    )
+    if (alpha == 0f && !shown) return
+    val view = LocalView.current
+    val scope = rememberCoroutineScope()
+    val c = MaterialTheme.colorScheme
+    Row(
+        modifier
+            .graphicsLayer { this.alpha = alpha; val k = 0.92f + 0.08f * alpha; scaleX = k; scaleY = k }
+            .clip(CircleShape)
+            .background(Color(0xFF1E1E1E).copy(alpha = 0.78f))
+            .then(
+                if (!shown) Modifier else Modifier.pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown().consume()
+                        val run = scope.launch {
+                            fill.animateTo(1f, tween(UnlockHoldMs, easing = androidx.compose.animation.core.LinearEasing))
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            onUnlock()
+                            fill.snapTo(0f)
+                        }
+                        do {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach { it.consume() }
+                        } while (event.changes.any { it.pressed })
+                        if (run.isActive) {
+                            run.cancel()
+                            scope.launch { fill.animateTo(0f, tween(180)) }
+                        }
+                    }
+                },
+            )
+            .padding(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(34.dp), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize()) {
+                val stroke = 3.dp.toPx()
+                val inset = stroke / 2f
+                drawCircle(Color.White.copy(alpha = 0.18f), radius = size.minDimension / 2f - inset, style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
+                drawArc(
+                    c.primary, startAngle = -90f, sweepAngle = 360f * fill.value, useCenter = false,
+                    topLeft = Offset(inset, inset), size = Size(size.width - stroke, size.height - stroke),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+                )
+            }
+            Icon(Icons.Rounded.Lock, null, tint = Color.White, modifier = Modifier.size(16.dp))
+        }
+        Spacer(Modifier.width(10.dp))
+        Text(stringResource(R.string.video_hold_to_unlock), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
+    }
+}
+
+private const val LockHintMs = 2_500L
+private const val UnlockHoldMs = 900
 
 /**
  * The stage in audio only (Derek, 2026-10-13): no picture, just the playback controls, always
@@ -1089,15 +1192,21 @@ fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
     var drag by remember { mutableStateOf(0f) }
     // Up/down on the left = brightness, on the right = volume; the middle swipes down to exit.
     val sliders = rememberFullscreenSliders()
+    // Screen lock (#63): for this stay in fullscreen only; Back unlocks before it leaves.
+    var locked by remember { mutableStateOf(false) }
+    BackHandler(enabled = locked) { locked = false }
     Box(Modifier.fillMaxSize()) {
         VideoContent(
             state = state,
             fullscreen = true,
             onCollapse = onExit,
             onToggleFullscreen = onExit,
+            locked = locked,
+            onLock = { locked = true },
+            onUnlock = { locked = false },
             modifier = Modifier
                 .fillMaxSize()
-                .fullscreenGestures(sliders, onPull = { drag = it }, onSwipeDown = onExit)
+                .then(if (locked) Modifier else Modifier.fullscreenGestures(sliders, onPull = { drag = it }, onSwipeDown = onExit))
                 .graphicsLayer {
                     // A little give while dragging, so the gesture is visibly being heard.
                     translationY = if (reduced) 0f else drag * 0.35f

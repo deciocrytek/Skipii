@@ -69,4 +69,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Réessayer</string>
     <string name="video_open_in_youtube">Ouvrir dans YouTube</string>
+    <string name="video_lock">Verrouiller les commandes</string>
+    <string name="video_hold_to_unlock">Maintenez pour déverrouiller</string>
 </resources>

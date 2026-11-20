@@ -70,4 +70,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">إعادة المحاولة</string>
     <string name="video_open_in_youtube">فتح في YouTube</string>
+    <string name="video_lock">قفل عناصر التحكم</string>
+    <string name="video_hold_to_unlock">اضغط مطولاً لإلغاء القفل</string>
 </resources>

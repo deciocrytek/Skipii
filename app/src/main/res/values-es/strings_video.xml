@@ -69,4 +69,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Reintentar</string>
     <string name="video_open_in_youtube">Abrir en YouTube</string>
+    <string name="video_lock">Bloquear controles</string>
+    <string name="video_hold_to_unlock">Mantén para desbloquear</string>
 </resources>

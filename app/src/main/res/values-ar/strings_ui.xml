@@ -171,4 +171,31 @@
         <item quantity="many">تقديم %1$s ثانية</item>
         <item quantity="other">تقديم %1$s ثانية</item>
     </plurals>
+    <string name="ui_play_all">تشغيل الكل</string>
+    <string name="ui_shuffle">ترتيب عشوائي</string>
+    <string name="ui_remove">إزالة</string>
+    <string name="ui_remove_from_watch_later">إزالة من المشاهدة لاحقًا</string>
+    <string name="ui_remove_from_playlist">إزالة من %1$s</string>
+    <string name="ui_removed_from">تمت الإزالة من %1$s</string>
+    <string name="ui_remove_failed">تعذّرت الإزالة من %1$s</string>
+    <string name="ui_queued_badge">في القائمة #%1$s</string>
+    <string name="ui_continue_watching">متابعة المشاهدة</string>
+    <string name="ui_remaining_under_min">أقل من دقيقة</string>
+    <string name="ui_remaining_min">متبقّي %1$s د</string>
+    <string name="ui_remaining_hr">متبقّي %1$s س</string>
+    <string name="ui_remaining_hr_min">متبقّي %1$s س %2$s د</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="zero">%1$s فيديو</item>
+        <item quantity="one">فيديو واحد</item>
+        <item quantity="two">فيديوهان</item>
+        <item quantity="few">%1$s فيديوهات</item>
+        <item quantity="many">%1$s فيديو</item>
+        <item quantity="other">%1$s فيديو</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 د</string>
+    <string name="ui_duration_min">%1$s د</string>
+    <string name="ui_duration_hr">%1$s س</string>
+    <string name="ui_duration_hr_min">%1$s س %2$s د</string>
+    <string name="ui_reorder_queue">إعادة الترتيب</string>
+    <string name="ui_up_next_in">التالي خلال %1$s ث</string>
 </resources>

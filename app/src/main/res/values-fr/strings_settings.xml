@@ -80,4 +80,9 @@
     <string name="settings_swipe_volume_line">En plein écran, glissez vers le haut ou le bas sur le côté droit de la vidéo.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">geste, gestes, glisser, balayer, luminosité, volume, son</string>
+    <string name="settings_background_play_title">Lecture en arrière-plan</string>
+    <string name="settings_background_play_on">Continue de jouer quand vous quittez Skipii ou que l\'écran s\'éteint</string>
+    <string name="settings_background_play_off">Se met en pause quand vous quittez Skipii ou que l\'écran s\'éteint (l\'audio seul continue)</string>
+    <string name="settings_open_links_title">Ouvrir les liens YouTube</string>
+    <string name="settings_open_links_line">Laissez Skipii ouvrir les liens youtube.com et youtu.be des autres applis : Ouvrir par défaut › Ajouter des liens</string>
 </resources>

@@ -29,6 +29,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         FullscreenSwipes.init(this)
         SeekStep.init(this)
         ChaptersStayOpen.init(this)
+        BackgroundPlay.init(this)
         AutoPip.init(this)
         LiveControls.init(this)
         CaptionSettings.init(this)

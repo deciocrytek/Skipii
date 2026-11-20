@@ -97,6 +97,29 @@ object PlayerFallback {
         }
     }
 
+    /**
+     * A fresh player answer for [videoId] from this client on its own (captions' second try, GitHub #64: a caption
+     * link that came back empty or expired). It needs a visitor id, else it may answer with a bot check.
+     */
+    internal fun freshAnswer(videoId: String): JSONObject {
+        val context = JSONObject().put(
+            "client",
+            JSONObject().put("clientName", CLIENT_NAME).put("clientVersion", CLIENT_VERSION).put("hl", "en").put("gl", "US"),
+        )
+        val visitor = okhttp3.Request.Builder()
+            .url("https://www.youtube.com/youtubei/v1/visitor_id?prettyPrint=false")
+            .post(JSONObject().put("context", context).toString().toRequestBody("application/json".toMediaType()))
+            .header("User-Agent", USER_AGENT)
+            .header("X-YouTube-Client-Name", CLIENT_ID)
+            .header("X-YouTube-Client-Version", CLIENT_VERSION)
+            .build()
+        val visitorData = Net.client.newCall(visitor).execute().use { response ->
+            if (!response.isSuccessful) null
+            else runCatching { JSONObject(response.body!!.string()).optJSONObject("responseContext")?.optString("visitorData") }.getOrNull()
+        }.orEmpty()
+        return ask(JSONObject().put("videoId", videoId), JSONObject().put("visitorData", visitorData))
+    }
+
     private fun ask(player: JSONObject, original: JSONObject?): JSONObject {
         val visitorData = original?.optString("visitorData").orEmpty()
         val client = JSONObject()

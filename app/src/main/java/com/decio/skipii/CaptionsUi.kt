@@ -125,7 +125,7 @@ fun CaptionLayer(state: PlayerState, bottom: Dp, modifier: Modifier = Modifier, 
             // Paused, the position only moves on seeks: a few checks a second are plenty.
             if (!state.isPlaying && frame++ % 6 != 0) continue
             val t = if (state.isPlaying) state.controller?.currentPosition ?: state.positionMs else state.positionMs
-            val now = if (pages != null) captionPageAt(pages, t) else captionLinesAt(cues, t)
+            val now = if (pages != null) captionPageAt(pages, t, CaptionSettings.wordByWord) else captionLinesAt(cues, t)
             if (now != lines) lines = now
         }
     }

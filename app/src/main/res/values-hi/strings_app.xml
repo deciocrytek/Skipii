@@ -68,4 +68,7 @@
     <string name="app_live_channel_description">Skipii स्क्रीन पर न होने पर प्लेबैक कंट्रोल</string>
     <string name="app_live_back">−%1$s से॰</string>
     <string name="app_live_forward">+%1$s से॰</string>
+    <string name="app_tab_subscriptions_short">सदस्यता</string>
+    <string name="app_link_playlist">प्लेलिस्ट</string>
+    <string name="app_link_unsupported">Skipii यह लिंक नहीं खोल सकता</string>
 </resources>

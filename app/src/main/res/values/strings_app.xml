@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">Playback controls while Skipii is off screen</string>
     <string name="app_live_back">−%1$s s</string>
     <string name="app_live_forward">+%1$s s</string>
+    <string name="app_tab_subscriptions_short">Subs</string>
+    <string name="app_link_playlist">Playlist</string>
+    <string name="app_link_unsupported">Skipii can\'t open this link</string>
 </resources>

@@ -70,4 +70,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Tekrar dene</string>
     <string name="video_open_in_youtube">YouTube\'da aç</string>
+    <string name="video_lock">Kontrolleri kilitle</string>
+    <string name="video_hold_to_unlock">Kilidi açmak için basılı tut</string>
 </resources>

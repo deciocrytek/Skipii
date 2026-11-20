@@ -156,4 +156,26 @@
     <plurals name="ui_seek_forward">
         <item quantity="other">Tới %1$s giây</item>
     </plurals>
+    <string name="ui_play_all">Phát tất cả</string>
+    <string name="ui_shuffle">Trộn bài</string>
+    <string name="ui_remove">Xóa</string>
+    <string name="ui_remove_from_watch_later">Xóa khỏi Xem sau</string>
+    <string name="ui_remove_from_playlist">Xóa khỏi %1$s</string>
+    <string name="ui_removed_from">Đã xóa khỏi %1$s</string>
+    <string name="ui_remove_failed">Không xóa được khỏi %1$s</string>
+    <string name="ui_queued_badge">Hàng đợi #%1$s</string>
+    <string name="ui_continue_watching">Tiếp tục xem</string>
+    <string name="ui_remaining_under_min">Còn &lt;1 phút</string>
+    <string name="ui_remaining_min">Còn %1$s phút</string>
+    <string name="ui_remaining_hr">Còn %1$s giờ</string>
+    <string name="ui_remaining_hr_min">Còn %1$s giờ %2$s phút</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 phút</string>
+    <string name="ui_duration_min">%1$s phút</string>
+    <string name="ui_duration_hr">%1$s giờ</string>
+    <string name="ui_duration_hr_min">%1$s giờ %2$s phút</string>
+    <string name="ui_reorder_queue">Sắp xếp lại</string>
+    <string name="ui_up_next_in">Tiếp theo sau %1$s giây</string>
 </resources>

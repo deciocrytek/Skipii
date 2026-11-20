@@ -159,4 +159,27 @@
         <item quantity="one">%1$s सेकंड आगे</item>
         <item quantity="other">%1$s सेकंड आगे</item>
     </plurals>
+    <string name="ui_play_all">सभी चलाएं</string>
+    <string name="ui_shuffle">शफ़ल करें</string>
+    <string name="ui_remove">हटाएं</string>
+    <string name="ui_remove_from_watch_later">बाद में देखें से हटाएं</string>
+    <string name="ui_remove_from_playlist">%1$s से हटाएं</string>
+    <string name="ui_removed_from">%1$s से हटाया गया</string>
+    <string name="ui_remove_failed">%1$s से हटाया नहीं जा सका</string>
+    <string name="ui_queued_badge">सूची #%1$s</string>
+    <string name="ui_continue_watching">देखना जारी रखें</string>
+    <string name="ui_remaining_under_min">&lt;1 मि बाकी</string>
+    <string name="ui_remaining_min">%1$s मि बाकी</string>
+    <string name="ui_remaining_hr">%1$s घं बाकी</string>
+    <string name="ui_remaining_hr_min">%1$s घं %2$s मि बाकी</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s वीडियो</item>
+        <item quantity="other">%1$s वीडियो</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 मि</string>
+    <string name="ui_duration_min">%1$s मि</string>
+    <string name="ui_duration_hr">%1$s घं</string>
+    <string name="ui_duration_hr_min">%1$s घं %2$s मि</string>
+    <string name="ui_reorder_queue">क्रम बदलें</string>
+    <string name="ui_up_next_in">अगला %1$s से में</string>
 </resources>

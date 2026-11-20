@@ -24,7 +24,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   CC BY-NC-SA credit live in Settings › SponsorBlock (0.5.81; the account sheet before). No commercial use.
 - No minimize button on the player (swipe down / Back). Tab bar = Castii's NavPill, but the
   selected tab uses full `primary` / `onPrimary` for contrast (not primaryContainer).
-- Queue: playlist is always [current, ...queue]; long-press any video → Play next / Add to queue.
+- Queue: playlist is always [current, ...queue]; long-press any video → Play next / Add to queue; a FULL swipe right on
+  any video card or row → Add to queue (0.5.119, `SwipeVideo`); the queue sheet reorders by handle or hold.
 - 0.5.0 (2026-10-05): YouTube theme (`SEED_YOUTUBE`, Skipii's own, listed first); YouTube-style
   launcher icon (red rounded rect + double play, white background baked in, cut-out monochrome).
   Resume: `ResumeStore` (positions written by the service's `ResumeSaver`, read on open, thin
@@ -849,6 +850,91 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   "Service not registered" and killed the app. The process is frozen while cached, so the crash came when the app was
   opened again. Now SessionToken + MediaController.Builder take `applicationContext`. Never bind a service through an
   Activity context. Repro: force-stop, open (restores a paused video), Back, wait ~40 s, open again.
+- 0.5.115 description links (2026-11-15, Derek's 6967.png: "can't see full link / tap on links"). `VideoDetails.description` is a
+  `Description` (Description.kt): NewPipe's HTML kept with its `<a href>`s (it was flattened to text, losing every target), a
+  link whose words are its address cut short ("…/apps/de...") shown WHOLE (`shownText`), youtube.com/redirect unwrapped, bare
+  http(s) addresses linked too. `DescriptionText` draws them in primary (SemiBold, LinkAnnotation.Clickable); `linkTarget`
+  routes a tap: this video's t= → seek, another video / short → `player.open` (bare id: `show` now fills `current` from the
+  details when its title was blank), /channel/ /@ /c/ /user/ → channel page, /hashtag/ → Search (`LocalSearchOpener`,
+  MainActivity), anything else (playlists included) → ACTION_VIEW. Tested by `DescriptionLinksTest`; verified on skipii_qa
+  with BZy7DKrNbDU: full Play Store / GitHub links, 05:51 seeked to 351000, a web link opened Chrome.
+- 0.5.116 (2026-11-15, Derek: "chapters need to show the full chapter size"): the bar's chapter list shows every title WHOLE
+  (no maxLines / ellipsis). Rows are as tall as their wrapped title + time (min 58 dp, 7 dp above/below):
+  `rememberChapterRowHeights` (NavBar measures with a TextMeasurer at `ChapterTitleWidth`, the title's real wrap width) →
+  `PlayerBarState.chapterRows`, read by the rows, `panelSize` and `panelListSpan`. The panel shows up to six 58 dp rows' worth
+  and scrolls past that. Keep `ChapterTitleWidth` in step with the row's paddings / thumb if they change. Verified on skipii_qa.
+- 0.5.117 quick batch (2026-11-17, Derek: "yes to everything" on `docs/design/qol-batch.html`, from GitHub issues).
+  Links from other apps (#59): manifest VIEW filters (youtube.com / www / m: /watch /shorts/ /live/ /playlist /channel/ /@;
+  youtu.be) + SEND text/plain → `IncomingLinks` (Description.kt) → MainActivity routes like a description link
+  (`linkTarget`; `linkPlaylistId` opens the playlist page; `linkStartMs` → `player.open(startAtMs)`, which wins over the
+  resume spot); a link Skipii can't take only says so (never ACTION_VIEW: it would come straight back). Not a verified
+  domain: Android 12+ needs Settings › Apps › Skipii › Open by default › Add links (Settings › About › "Open YouTube links"
+  opens that page). Description / comment links share `LinkedText` + `rememberLinkOpener` via `LocalLinkOpener`
+  (MainActivity provides it; Shorts' comments get null = plain text). Comment timestamps (#66): `commentLinks` finds them
+  by shape (comment data has text only). Hold for 2× anywhere on the video (#51; was the right 40%). Play all / Shuffle
+  (#81): `PlayerState.playAll` queues the rest at once behind the current item (so they survive a first video that
+  fails), an empty player queues them in `startPlayback` (`pendingList`). Remove from playlist (#65 / #85): Watch later +
+  `lib.playlists` while signed in; long-press row "Remove from …" (`VideoOptionsSheet(remove)`, `optionsPlaylist`) and
+  `SwipeAwayCard` (Feeds.kt, one column, 40% or a flick, errorContainer under the card); `removeFromPlaylist` takes it
+  out locally, `actionUndo` (QueueMessage's Undo, `UndoWindowMs` 4 s) and only then sends edit_playlist (put back on
+  failure). Screen lock (#63): `FullscreenPlayer.locked` (per stay; Back unlocks first), drops `fullscreenGestures`; in
+  `VideoContent` the pinch backs off and the tap handler eats every touch, a tap shows `LockPill` (2.5 s; hold 900 ms
+  fills its ring and unlocks). Background play (#68, `BackgroundPlay`, prefs "playback" `background_play`, default on):
+  off = ON_STOP pauses unless audio only or PiP. Title (#34, Derek: only past three lines): measured
+  (`TitleMaxLines`); longer = one line + chevron, tapping it toggles `descriptionOpen` (full title + description). Tab
+  label (#39 / #70): the selected pill uses `Tab.shortLabelRes` ("Subs") when the full label won't fit its settled width
+  (`TabLabelMargin`). Wide windows ask for hq720 thumbnails (`sharperThumbnail`, hqdefault on error; #18). Captions (#64):
+  probed 2026-11-17, the extractor's caption links (ANDROID / VISIONOS / IOS / ANDROID_VR) still load; only the WEB
+  page's carry `exp=xpe` and come back empty (PO token). Links expire after ~7 h (404). `CaptionFiles.load` logs code /
+  emptiness / exp=xpe; a failed file asks `CaptionRescue` once per video (VISIONOS `PlayerFallback.freshAnswer`, with a
+  visitor id) for fresh links and retries; a translation failure says `captions_error_translate` (it said "Couldn't
+  load"). Word by word (#87 / #7, `CaptionSettings.wordByWord`): `captionPageAt` shows each line's words said so far, the
+  page still cuts whole. Size "Giant" 1.85. Tested by `QolBatchTest`. Verified on skipii_qa (debug): youtu.be?t=43 →
+  0:43, playlist link → page, Play all, Subs at font 1.5 / full at 1.0, settings rows, background off pauses on Home,
+  lock / tap / swipe-down blocked / hold to unlock / Back. NOT verified: signed-in removal (swipe + sheet), the caption
+  rescue against a real refusal, a title past three lines on screen (the emulator was bot-checked for new videos).
+- 0.5.118 (2026-11-19, Gemini, Derek picked 2 / 4 / 6 / 10 of its ten proposals; built by Gemini, documented here after). Swipe
+  right to queue on feed cards (reworked in 0.5.119, below). Player bar (#4): `BarPullGrabber` (24×3 dp capsule in
+  `PlayerTopRoom`, hints the card opens upward) and `BarTicker` — the resting bar grows `TickerHeight` 22 dp for `TickerShowMs`
+  2.6 s showing "pos / dur · chapter" (`PlayerBarState.ticker`, `pulseTicker`) when playback crosses into a new chapter
+  (`shouldTriggerChapterTicker`: playing, not in the first 3 s) or after a −/+ tap; tapping it opens the Chapters panel; any
+  card / panel / scrub hides it. Library (#6): Continue watching (history videos with a `ResumeStore` spot, `ContinueWatchingCard`
+  with "14m left" from `remainingMs` / `compactDurationFromMs`) heads the page with a "History ›" link to `HistoryScreen` (a page
+  over the tabs, `openHistory` in MainActivity); Watch later + Liked are a joined `LibraryQuickBar`; playlists are 16:9 cover
+  tiles with a count pill. Queue (#10): the sheet's header says "5 videos · 1 h 45 min" (`queueTotalDurationSec`);
+  `PlayerState.moveInQueue` (reorder, rewritten in 0.5.119); "Up next" (`UpNextPill`, PlayerUi.kt): the last `UpNextWindowMs`
+  8 s of a video ≥ 15 s with something queued, a countdown ring around play-now and Cancel; Cancel = `UpNextHold` (service:
+  ExoPlayer `pauseAtEndOfMediaItems`) for that video only, cleared by the next `show` / `playFromQueue` / replay from the end.
+  Tested by `DesignUpgradesTest`. 0.5.119 fixed its shadow (alpha layer around a `.shadow()`, 0.10-ish shadow colours).
+- 0.5.119 swipe to queue + queue reorder (2026-11-19, Derek on 0.5.118: "too easy to accidentally add something to queue …
+  remove Play next … require the full swipe … everywhere we show a video card … drag to rearrange inside the queue isn't
+  working … a playlist has no back animation"). `SwipeVideo` (Swipe.kt) wraps EVERY video card and row: `videoCards` (Home,
+  Subscriptions, Search, History, playlists, the channel's Videos tab and featured video; grids too) and More videos (phone
+  list + `MoreVideosColumn`). Right = `LocalQueueAdd` (MainActivity → `player.addToQueue`; null on TV); left = `onSwipeLeft`
+  (the account's playlists #85, queue rows). Only a real swipe queues: `QueueSwipeShare` a THIRD of the card's width (0.5.120,
+  Derek's screenshots: "activate around here", not at 0.5.119's 60%), distance only (no flick, no "Play next" stage — that was
+  Gemini's 20% / flick detent and caused the accidents); past the line the card follows at 0.45× up to 60%. A drag is a swipe only if it's ≥ 1.65× wider than tall at touch slop (`SwipeSideways`),
+  else it's left to the list. The tray (`SwipeTray`) grows from the card's resting edge to 4 dp short of the card, in the
+  card's own shape (`VideoCardInset` / `VideoCardCorner`, `VideoRowInset` / `VideoRowCorner`), primaryContainer → full primary
+  + check glyph + Android's threshold haptic once letting go would queue. The gesture is read on the OUTER box: Gemini's
+  `draggable` sat after the `graphicsLayer` translation, so the card lagged the finger. TalkBack queues from the long-press menu.
+  `QueuedBadge` ("Queued #2", UiKit.kt) springs in on the thumbnail when queued (not when scrolled into view already queued),
+  on VideoRow too (small; not in the queue itself). The channel's Home shelves are sideways rows: they keep long-press only.
+  The long-press menu keeps Play next. Queue sheet reorder: `QueueReorder` + `Modifier.queueReorder` (Sheets.kt) on the LIST,
+  never in a row (Gemini's handle detector was inside the row, which changes slots under the finger): the handle (first 56 dp)
+  picks a row up at once, a hold anywhere else after the long-press timeout (VideoRow `longPressMenu = false` there); once
+  held every move is consumed on the Initial pass (so the list's scroll, the row's swipe and its click never see it — letting
+  go doesn't play the row). The held row is drawn at `startTop + travel − slot offset`; a swap when its middle crosses
+  another row (no second swap until the list has laid out the first, `pendingIndex`); moving the first visible row calls
+  `requestScrollToItem` first (the list anchors on the first visible KEY and jumped with it); held against an edge the list
+  scrolls (`edgeScroll`). Rows keep per-entry keys (a video can be queued twice); a removed row's key is dropped BEFORE the
+  removal, or its twin inherited the slid-away state (a stuck red tray). Playlist page: Back nulls `openPlaylist` at once, so
+  the exit slide had nothing to show; it keeps the last playlist + feed (`LastPlaylist`) while it slides away. Service:
+  `onAddMediaItems` keeps an item it can't resolve (bot check, offline) instead of failing the whole add ("Added to queue" and
+  nothing queued); `StreamRecoverer` also fetches links for a current item that has none (`StreamCache.get` null) on any error.
+  Verified on skipii_qa (debug, bot-checked: no playback): swipe tracking, line + haptic tray, short swipe / flick / slanted
+  scroll do nothing, badges, handle + hold reorder (order kept in the controller), swipe-remove incl. a duplicate, playlist
+  exit slide (animator scale 6). NOT verified: More videos (no details under the bot check), the feel on Derek's Pixel.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)
@@ -893,6 +979,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   proguard-rules.pro. Check `adb logcat -s Skipii:I | grep "media source"` (should say
   "video itag … + audio itag …", never "combined fallback") and the quality sheet's "Playing …" line. Release is signed with the debug key,
   so it installs over debug builds.
+- **Big code changes → drop release APK in Drive**: after any substantial code change, bump `versionCode` / `versionName`, build `./gradlew assembleRelease`, and copy `app/build/outputs/apk/release/app-release.apk` to `~/Library/CloudStorage/GoogleDrive-decioarruda7c@gmail.com/My Drive/Skipii-<versionName>.apk`.
 - Double taps can't be driven with `adb shell input tap` (each call takes ~0.3 s). Use `adb root` and
   write raw evdev events (24-byte input_event structs: slot/tracking id/x/y scaled to 0..32767, touch
   major, pressure, BTN_TOUCH, SYN) for both taps in ONE file, then `cat` it to /dev/input/event1.
@@ -937,7 +1024,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   `PlaybackService.SponsorSkipper` (PlayerMessage at each segment start, 300 ms fade out → seek →
   450 ms fade in; logs "SponsorBlock: skipping …"). UI: scrubber marks, Ask pill, Skipped·Undo.
 - `PlaybackModes.kt` (`PlaybackSpeed`, `AudioOnly`) and `SpeedPanel.kt` (speed/audio buttons, ruler panel, `SpeedHaptics`).
-- `Sheets.kt` — long-press options, queue card + sheet, SponsorBlock settings.
+- `Sheets.kt` — long-press options, queue card + sheet (`QueueReorder`), SponsorBlock settings.
+- `Swipe.kt` — `SwipeVideo`: swipe right to queue / left to remove on every video card and row, `LocalQueueAdd`.
 - `SecureStore.kt` (Keystore AES-GCM prefs), `SignIn.kt` (WebView sign-in, header account button),
   `Settings.kt` (the Settings page: folding title, search, quick toggles, categories),
   `Feeds.kt` (`FeedState` paging, `LibraryData`, `FeedList`).

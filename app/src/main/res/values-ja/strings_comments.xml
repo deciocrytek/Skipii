@@ -116,4 +116,8 @@
     <string name="captions_kept_languages">このスマートフォンにある翻訳言語</string>
     <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
     <string name="captions_remove_language">%1$sを削除</string>
+    <string name="captions_error_translate">この字幕を%1$sに翻訳できませんでした。</string>
+    <string name="captions_word_by_word_title">単語ごとに表示</string>
+    <string name="captions_word_by_word_line">自動生成字幕を YouTube アプリのように話された単語から表示します</string>
+    <string name="captions_size_huger">超特大</string>
 </resources>

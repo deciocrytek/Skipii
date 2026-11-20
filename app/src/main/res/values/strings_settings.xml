@@ -94,4 +94,9 @@
     <string name="settings_swipe_volume_line">In fullscreen, swipe up or down on the right side of the video.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">gesture, gestures, swipe, slide, brightness, volume, sound</string>
+    <string name="settings_background_play_title">Background play</string>
+    <string name="settings_background_play_on">Keeps playing when you leave Skipii or the screen turns off</string>
+    <string name="settings_background_play_off">Pauses when you leave Skipii or the screen turns off (audio only keeps playing)</string>
+    <string name="settings_open_links_title">Open YouTube links</string>
+    <string name="settings_open_links_line">Let Skipii open youtube.com and youtu.be links from other apps: Open by default › Add links</string>
 </resources>

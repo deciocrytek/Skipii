@@ -395,7 +395,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
     }
 
     private fun ShortsBank.Entry.details() = VideoDetails(
-        item = item, description = "", likes = -1, subscribers = -1, related = emptyList(),
+        item = item, description = Description.Empty, likes = -1, subscribers = -1, related = emptyList(),
         playable = true, quality = null, qualities = emptyList(), aspect = aspect,
     )
 
@@ -1315,6 +1315,8 @@ fun ShortsScreen(
             }
         }
         if (shorts.commentsOpen) {
+            // A short's comments: timestamps / links stay plain (the opener drives the app's player, not this short).
+            androidx.compose.runtime.CompositionLocalProvider(LocalLinkOpener provides null) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 // Wide: beside the short (where its details are), so it keeps playing in full view.
                 val height = maxHeight
@@ -1323,6 +1325,7 @@ fun ShortsScreen(
                 else Box(Modifier.padding(start = margin.first).width(margin.second).padding(horizontal = 12.dp)) {
                     CommentsPanel(shorts.comments, partialTop = height * 0.1f, onClose = { shorts.commentsOpen = false })
                 }
+            }
             }
         }
     }

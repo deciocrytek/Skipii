@@ -80,4 +80,9 @@
     <string name="settings_swipe_volume_line">A schermo intero, scorri in su o in giù sul lato destro del video.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">gesto, gesti, scorrere, luminosità, volume, audio</string>
+    <string name="settings_background_play_title">Riproduzione in background</string>
+    <string name="settings_background_play_on">Continua a riprodurre quando esci da Skipii o lo schermo si spegne</string>
+    <string name="settings_background_play_off">Va in pausa quando esci da Skipii o lo schermo si spegne (solo audio continua)</string>
+    <string name="settings_open_links_title">Apri i link di YouTube</string>
+    <string name="settings_open_links_line">Lascia che Skipii apra i link youtube.com e youtu.be dalle altre app: Apri per impostazione predefinita › Aggiungi link</string>
 </resources>

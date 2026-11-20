@@ -1,5 +1,8 @@
 package com.decio.skipii
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +32,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ThumbUp
@@ -351,6 +355,7 @@ fun LibraryScreen(
     onOpenPlaylist: (PlaylistRef) -> Unit,
     onSignIn: () -> Unit,
     onAccount: () -> Unit,
+    onOpenHistory: () -> Unit = {},
     scrollToTop: Int = 0,
 ) {
     val signedIn = Account.signedIn
@@ -373,6 +378,9 @@ fun LibraryScreen(
         // Resolved here: the list's builder below isn't composable.
         val watchLater = stringResource(R.string.ui_watch_later)
         val likedVideos = stringResource(R.string.ui_liked_videos)
+        val history = lib.history.videos
+        val unfinished = history.filter { ResumeStore.progress(it.id) != null }
+        val showContinue = unfinished.isNotEmpty()
         LazyColumn(state = rememberScrollToTop(scrollToTop), contentPadding = contentPadding.withTop(top)) {
             if (!signedIn) {
                 item {
@@ -385,10 +393,23 @@ fun LibraryScreen(
                 }
                 return@LazyColumn
             }
-            item(key = "historyTitle") { SectionTitle(stringResource(R.string.ui_history)) }
+            item(key = "historyTitle") {
+                LibrarySectionHeader(
+                    title = stringResource(if (showContinue) R.string.ui_continue_watching else R.string.ui_history),
+                    actionLabel = if (history.isNotEmpty()) stringResource(if (showContinue) R.string.ui_history else R.string.ui_see_all) else null,
+                    onAction = onOpenHistory,
+                )
+            }
             item(key = "history") {
-                val history = lib.history.videos
                 when {
+                    showContinue -> LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(unfinished.take(15), key = { "cw-" + it.id }) { video ->
+                            ContinueWatchingCard(video) { onOpen(video) }
+                        }
+                    }
                     history.isNotEmpty() -> LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -405,18 +426,150 @@ fun LibraryScreen(
                     )
                 }
             }
-            item(key = "playlistsTitle") { SectionTitle(stringResource(R.string.ui_playlists)) }
-            val pinned = listOf(
-                PlaylistRef("WL", watchLater, null, null),
-                PlaylistRef("LL", likedVideos, null, null),
-            )
-            items((pinned + lib.playlists).chunked(2), key = { row -> row.joinToString { it.id } }) { row ->
-                Row(Modifier.padding(horizontal = 16.dp, vertical = 5.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    row.forEach { pl -> PlaylistTile(pl, Modifier.weight(1f)) { onOpenPlaylist(pl) } }
-                    if (row.size == 1) Spacer(Modifier.weight(1f))
+            item(key = "quickBar") {
+                LibraryQuickBar(
+                    watchLater = PlaylistRef("WL", watchLater, null, null),
+                    likedVideos = PlaylistRef("LL", likedVideos, null, null),
+                    onOpenPlaylist = onOpenPlaylist,
+                )
+            }
+            if (lib.playlists.isNotEmpty()) {
+                item(key = "playlistsTitle") { SectionTitle(stringResource(R.string.ui_playlists)) }
+                items(lib.playlists.chunked(2), key = { row -> row.joinToString { it.id } }) { row ->
+                    Row(Modifier.padding(horizontal = 16.dp, vertical = 5.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        row.forEach { pl -> PlaylistTile(pl, Modifier.weight(1f)) { onOpenPlaylist(pl) } }
+                        if (row.size == 1) Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
+        }
+    }
+}
+
+@Composable
+private fun LibrarySectionHeader(title: String, actionLabel: String?, onAction: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 12.dp, top = 22.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            fontFamily = RoundedHeavy,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 21.sp,
+            letterSpacing = (-0.6).sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (actionLabel != null) {
+            Row(
+                Modifier
+                    .pressable(onClick = onAction)
+                    .clip(CircleShape)
+                    .padding(start = 10.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(actionLabel, color = c.primary, fontSize = 13.5.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = c.primary, modifier = Modifier.size(18.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContinueWatchingCard(video: VideoItem, onClick: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val menu = LocalVideoMenu.current
+    val remaining = ResumeStore.remainingMs(video.id)?.let(::compactDurationFromMs)?.let { formatRemainingLabel(it) }
+    Column(
+        Modifier
+            .width(178.dp)
+            .prefetchOnPress(video.id)
+            .pressable(pressedScale = 0.97f, onLongClick = { menu(video) }, onClick = onClick),
+    ) {
+        Box {
+            Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = 20)
+            if (remaining != null) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .padding(7.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.72f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                ) {
+                    Text(remaining, color = Color.White, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                }
+            }
+            ResumeBar(video.id, Modifier.align(Alignment.BottomStart))
+        }
+        Spacer(Modifier.height(7.dp))
+        Text(video.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        if (video.channel.isNotBlank()) {
+            Spacer(Modifier.height(2.dp))
+            Text(video.channel, color = c.onSurfaceVariant, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
+private fun formatRemainingLabel(parts: CompactDuration): String = when {
+    parts.underOneMinute -> stringResource(R.string.ui_remaining_under_min)
+    parts.hours > 0 && parts.minutes > 0 -> stringResource(R.string.ui_remaining_hr_min, parts.hours, parts.minutes)
+    parts.hours > 0 -> stringResource(R.string.ui_remaining_hr, parts.hours)
+    else -> stringResource(R.string.ui_remaining_min, parts.minutes)
+}
+
+/** Joined tonal quick-bar for Watch later and Liked videos (outer 24 dp, inner 10 dp corners). */
+@Composable
+private fun LibraryQuickBar(
+    watchLater: PlaylistRef,
+    likedVideos: PlaylistRef,
+    onOpenPlaylist: (PlaylistRef) -> Unit,
+) {
+    val c = MaterialTheme.colorScheme
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        val leftShape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 10.dp, bottomEnd = 10.dp)
+        val rightShape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp, topEnd = 24.dp, bottomEnd = 24.dp)
+        Row(
+            Modifier
+                .weight(1f)
+                .height(56.dp)
+                .pressable(pressedScale = 0.97f) { onOpenPlaylist(watchLater) }
+                .clip(leftShape)
+                .background(c.surfaceContainerHigh)
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(Icons.Rounded.WatchLater, contentDescription = null, tint = c.primary, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(watchLater.title, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Row(
+            Modifier
+                .weight(1f)
+                .height(56.dp)
+                .pressable(pressedScale = 0.97f) { onOpenPlaylist(likedVideos) }
+                .clip(rightShape)
+                .background(c.surfaceContainerHigh)
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(Icons.Rounded.ThumbUp, contentDescription = null, tint = c.tertiary, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(likedVideos.title, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -428,16 +581,18 @@ private fun HistoryCard(video: VideoItem, onClick: () -> Unit) {
         Box {
             Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = 20)
             DurationPill(video.durationSec, Modifier.align(Alignment.BottomEnd).padding(6.dp), small = true)
+            ResumeBar(video.id, Modifier.align(Alignment.BottomStart))
         }
         Spacer(Modifier.height(7.dp))
         Text(video.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }
 
+/** Full-bleed cover playlist tile: edge-to-edge 16:9 artwork inside a 24 dp tonal card. */
 @Composable
 private fun PlaylistTile(playlist: PlaylistRef, modifier: Modifier, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(26.dp)
+    val shape = RoundedCornerShape(24.dp)
     val (icon, tone) = when (playlist.id) {
         "WL" -> Icons.Rounded.WatchLater to c.primaryContainer
         "LL" -> Icons.Rounded.ThumbUp to c.tertiaryContainer
@@ -445,31 +600,99 @@ private fun PlaylistTile(playlist: PlaylistRef, modifier: Modifier, onClick: () 
     }
     Column(
         modifier = modifier
-            .height(132.dp)
             .pressable(pressedScale = 0.97f, onClick = onClick)
             .clip(shape)
-            .background(c.surfaceContainerLow)
-            .padding(14.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
+            .background(c.surfaceContainerLow),
     ) {
-        if (playlist.thumbnail != null) {
-            Thumbnail(playlist.thumbnail, Modifier.size(width = 72.dp, height = 44.dp), radius = 12)
-        } else {
-            Box(Modifier.size(52.dp).clip(CookieShape).background(tone), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = contentColorFor(tone))
+        Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(tone)) {
+            if (playlist.thumbnail != null) {
+                Thumbnail(playlist.thumbnail, Modifier.fillMaxSize(), radius = 0)
+            } else {
+                Box(
+                    Modifier
+                        .align(Alignment.Center)
+                        .size(48.dp)
+                        .clip(CookieShape)
+                        .background(c.surface.copy(alpha = 0.35f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(icon, null, tint = contentColorFor(tone))
+                }
+            }
+            playlist.subtitle?.takeIf { it.isNotBlank() }?.let { sub ->
+                Row(
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(7.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.72f))
+                        .padding(horizontal = 7.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.AutoMirrored.Rounded.PlaylistPlay, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+                    Spacer(Modifier.width(3.dp))
+                    Text(sub, color = Color.White, fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                }
             }
         }
-        Column {
-            Text(playlist.title, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            playlist.subtitle?.let { Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Text(playlist.title, fontWeight = FontWeight.ExtraBold, fontSize = 14.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** Full scrollable watch history page opened from Library's "History ›" header link. */
+@Composable
+fun HistoryScreen(
+    feed: FeedState,
+    contentPadding: PaddingValues,
+    onBack: () -> Unit,
+    onOpen: (VideoItem) -> Unit,
+) {
+    LaunchedEffect(Unit) { feed.ensureLoaded() }
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        CollapsingHeaderLayout(
+            resetKey = feed.generation,
+            header = {
+                Row(
+                    Modifier.fillMaxWidth().statusBarsPadding().padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircleAction(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.ui_back), onBack)
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        stringResource(R.string.ui_history),
+                        fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, letterSpacing = (-0.8).sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            },
+        ) { top ->
+            if (feed.videos.isEmpty() && !feed.loading && feed.error == null && !feed.hasMore) {
+                Box(Modifier.padding(top = top)) {
+                    EmptyState(Icons.Rounded.History, stringResource(R.string.ui_history), stringResource(R.string.ui_history_empty))
+                }
+            } else {
+                FeedList(feed, contentPadding.withTop(top), onOpen, indicatorTop = top)
+            }
         }
     }
 }
 
 /** A playlist's videos (Watch later, Liked, or the user's own). */
 @Composable
-fun PlaylistScreen(playlist: PlaylistRef, feed: FeedState, contentPadding: PaddingValues, onBack: () -> Unit, onOpen: (VideoItem) -> Unit) {
+fun PlaylistScreen(
+    playlist: PlaylistRef, feed: FeedState, contentPadding: PaddingValues, onBack: () -> Unit, onOpen: (VideoItem) -> Unit,
+    /** Play all (false) / Shuffle (true): the loaded videos, as the queue (#81). */
+    onPlayAll: (shuffle: Boolean) -> Unit = {},
+    /** The account's own list: a card swiped left comes out (#85). */
+    onRemove: ((VideoItem) -> Unit)? = null,
+    /** The account's own list: a long-press opens the sheet with "Remove from …" (#65). */
+    onOptions: ((VideoItem) -> Unit)? = null,
+) {
     LaunchedEffect(playlist.id) { feed.ensureLoaded() }
+    val menu = LocalVideoMenu.current
+    CompositionLocalProvider(LocalVideoMenu provides (onOptions ?: menu)) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
     CollapsingHeaderLayout(
         resetKey = feed.generation,
@@ -491,9 +714,40 @@ fun PlaylistScreen(playlist: PlaylistRef, feed: FeedState, contentPadding: Paddi
         if (feed.videos.isEmpty() && !feed.loading && feed.error == null && !feed.hasMore) {
             Box(Modifier.padding(top = top)) { EmptyState(Icons.Rounded.VideoLibrary, stringResource(R.string.ui_playlist_empty_title), stringResource(R.string.ui_playlist_empty_body)) }
         } else {
-            FeedList(feed, contentPadding.withTop(top), onOpen, indicatorTop = top)
+            FeedList(
+                feed, contentPadding.withTop(top), onOpen, indicatorTop = top,
+                header = {
+                    if (feed.videos.isNotEmpty()) item(key = "play-all") { PlayAllRow(onPlayAll) }
+                },
+                onSwipeAway = onRemove,
+            )
         }
     }
+    }
+    }
+}
+
+/** A playlist's Play all (full primary) and Shuffle (tonal) pills, over its videos (#81). */
+@Composable
+private fun PlayAllRow(onPlayAll: (shuffle: Boolean) -> Unit) {
+    val c = MaterialTheme.colorScheme
+    Row(Modifier.padding(start = 14.dp, end = 14.dp, top = 2.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(false, true).forEach { shuffle ->
+            val bg = if (shuffle) c.surfaceContainerHigh else c.primary
+            val ink = if (shuffle) c.onSurface else c.onPrimary
+            Row(
+                Modifier.pressable { onPlayAll(shuffle) }.height(44.dp).clip(CircleShape).background(bg)
+                    .padding(start = 14.dp, end = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(if (shuffle) Icons.Rounded.Shuffle else Icons.Rounded.PlayArrow, null, tint = ink, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    stringResource(if (shuffle) R.string.ui_shuffle else R.string.ui_play_all),
+                    color = ink, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1,
+                )
+            }
+        }
     }
 }
 

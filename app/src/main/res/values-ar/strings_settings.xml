@@ -83,4 +83,9 @@
     <string name="settings_swipe_volume_line">في وضع ملء الشاشة، اسحب لأعلى أو لأسفل على الجانب الأيمن من الفيديو.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">إيماءة، إيماءات، سحب، تمرير، السطوع، مستوى الصوت، الصوت</string>
+    <string name="settings_background_play_title">التشغيل في الخلفية</string>
+    <string name="settings_background_play_on">يستمر التشغيل عند مغادرة Skipii أو انطفاء الشاشة</string>
+    <string name="settings_background_play_off">يتوقف مؤقتًا عند مغادرة Skipii أو انطفاء الشاشة (وضع الصوت فقط يستمر)</string>
+    <string name="settings_open_links_title">فتح روابط YouTube</string>
+    <string name="settings_open_links_line">دع Skipii يفتح روابط youtube.com وyoutu.be من التطبيقات الأخرى: الفتح تلقائيًا › إضافة روابط</string>
 </resources>

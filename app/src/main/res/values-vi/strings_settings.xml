@@ -78,4 +78,9 @@
     <string name="settings_swipe_volume_line">Khi toàn màn hình, vuốt lên hoặc xuống ở bên phải video.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">cử chỉ, vuốt, độ sáng, âm lượng, âm thanh</string>
+    <string name="settings_background_play_title">Phát trong nền</string>
+    <string name="settings_background_play_on">Vẫn phát khi bạn rời Skipii hoặc màn hình tắt</string>
+    <string name="settings_background_play_off">Tạm dừng khi bạn rời Skipii hoặc màn hình tắt (chế độ chỉ âm thanh vẫn phát)</string>
+    <string name="settings_open_links_title">Mở liên kết YouTube</string>
+    <string name="settings_open_links_line">Cho Skipii mở liên kết youtube.com và youtu.be từ ứng dụng khác: Mở theo mặc định › Thêm đường liên kết</string>
 </resources>

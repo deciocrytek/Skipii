@@ -79,4 +79,9 @@
     <string name="settings_swipe_volume_line">Tam ekranda videonun sağ tarafında yukarı veya aşağı kaydırın.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">hareket, hareketler, kaydırma, parlaklık, ses, ses düzeyi</string>
+    <string name="settings_background_play_title">Arka planda oynatma</string>
+    <string name="settings_background_play_on">Skipii\'den çıktığınızda veya ekran kapandığında oynatmaya devam eder</string>
+    <string name="settings_background_play_off">Skipii\'den çıktığınızda veya ekran kapandığında duraklar (yalnızca ses devam eder)</string>
+    <string name="settings_open_links_title">YouTube bağlantılarını aç</string>
+    <string name="settings_open_links_line">Skipii diğer uygulamalardaki youtube.com ve youtu.be bağlantılarını açsın: Varsayılan olarak aç › Bağlantı ekle</string>
 </resources>

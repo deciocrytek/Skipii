@@ -160,4 +160,27 @@
         <item quantity="one">%1$s Sekunde vor</item>
         <item quantity="other">%1$s Sekunden vor</item>
     </plurals>
+    <string name="ui_play_all">Alle abspielen</string>
+    <string name="ui_shuffle">Zufällig</string>
+    <string name="ui_remove">Entfernen</string>
+    <string name="ui_remove_from_watch_later">Aus „Später ansehen“ entfernen</string>
+    <string name="ui_remove_from_playlist">Aus %1$s entfernen</string>
+    <string name="ui_removed_from">Aus %1$s entfernt</string>
+    <string name="ui_remove_failed">Konnte nicht aus %1$s entfernt werden</string>
+    <string name="ui_queued_badge">Warteschlange #%1$s</string>
+    <string name="ui_continue_watching">Weiterschauen</string>
+    <string name="ui_remaining_under_min">&lt;1 Min. übrig</string>
+    <string name="ui_remaining_min">Noch %1$s Min.</string>
+    <string name="ui_remaining_hr">Noch %1$s Std.</string>
+    <string name="ui_remaining_hr_min">Noch %1$s Std. %2$s Min.</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s Video</item>
+        <item quantity="other">%1$s Videos</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 Min.</string>
+    <string name="ui_duration_min">%1$s Min.</string>
+    <string name="ui_duration_hr">%1$s Std.</string>
+    <string name="ui_duration_hr_min">%1$s Std. %2$s Min.</string>
+    <string name="ui_reorder_queue">Neu anordnen</string>
+    <string name="ui_up_next_in">Als Nächstes in %1$s s</string>
 </resources>

@@ -93,6 +93,19 @@ class FeedState(
 
     fun ensureLoaded() { if (!loaded && !loading) refresh() }
 
+    /** Takes video [id] out of the list at once (removed from a playlist); where it was, or -1. */
+    fun removeLocally(id: String): Int {
+        val i = videos.indexOfFirst { it.id == id }
+        if (i >= 0) videos = videos.toMutableList().also { it.removeAt(i) }
+        return i
+    }
+
+    /** Puts [video] back at [index] (an Undo, or the account refused the removal). */
+    fun putBack(index: Int, video: VideoItem) {
+        if (videos.any { it.id == video.id }) return
+        videos = videos.toMutableList().also { it.add(index.coerceIn(0, it.size), video) }
+    }
+
     /** The first page shown landed more than [ms] ago (false while nothing has). */
     fun olderThan(ms: Long) = landedAt != 0L && android.os.SystemClock.elapsedRealtime() - landedAt > ms
 
@@ -337,11 +350,26 @@ fun LazyListScope.videoCards(
     extra: (@Composable (Modifier) -> Unit)? = null,
     /** Given to the first card, so a TV remote can be put there (fresh search results). */
     firstFocus: FocusRequester? = null,
+    /** A card swiped left is taken out (a playlist of the account's, #85). */
+    onSwipeAway: ((VideoItem) -> Unit)? = null,
 ) {
     val videos = videos.filterNot(Dismissed::hides)
     fun Modifier.first(video: VideoItem) = if (firstFocus != null && video === videos.firstOrNull()) focusRequester(firstFocus) else this
+    // Swipe right to queue on every card, swipe left to take it out where the list allows (Swipe.kt).
+    @Composable
+    fun Card(video: VideoItem, modifier: Modifier) = SwipeVideo(
+        video,
+        modifier = modifier,
+        inset = VideoCardInset,
+        corner = VideoCardCorner,
+        onSwipeLeft = onSwipeAway?.let { remove -> { remove(video) } },
+    ) {
+        VideoCard(video, onClick = { onOpen(video) }, modifier = Modifier.first(video))
+    }
     if (columns <= 1) {
-        items(videos, key = { it.id }) { video -> VideoCard(video, onClick = { onOpen(video) }, modifier = Modifier.first(video)) }
+        items(videos, key = { it.id }) { video ->
+            Card(video, if (onSwipeAway != null) Modifier.animateItem() else Modifier)
+        }
         return
     }
     val cells: List<Any> = if (extra != null && videos.isNotEmpty()) videos.take(1) + ExtraCell + videos.drop(1) else videos
@@ -349,13 +377,38 @@ fun LazyListScope.videoCards(
     items(cells.chunked(columns), key = { row -> "row-" + (row.first() as VideoItem).id }) { row ->
         Row(Modifier.fillMaxWidth().padding(horizontal = 5.dp)) {
             row.forEach { cell ->
-                if (cell is VideoItem) VideoCard(cell, onClick = { onOpen(cell) }, modifier = Modifier.weight(1f).first(cell))
+                if (cell is VideoItem) Card(cell, Modifier.weight(1f))
                 else extra?.invoke(Modifier.weight(1f))
             }
             repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
         }
     }
 }
+
+/**
+ * Takes [video] out of [playlist] (#65 / #85): gone from [feed] at once, with an Undo; the account is told once
+ * the Undo has had its time (so an Undo never needs a second request), and the card comes back if it refuses.
+ */
+fun removeFromPlaylist(scope: CoroutineScope, feed: FeedState, playlist: PlaylistRef, video: VideoItem, player: PlayerState) {
+    val at = feed.removeLocally(video.id)
+    if (at < 0) return
+    val name = if (playlist.id == "WL") str(R.string.ui_watch_later) else playlist.title
+    val job = scope.launch {
+        kotlinx.coroutines.delay(UndoWindowMs)
+        runCatching { InnerTube.setInPlaylist(playlist.id, video.id, add = false) }
+            .onFailure {
+                android.util.Log.w("Skipii", "remove ${video.id} from ${playlist.id}", it)
+                feed.putBack(at, video)
+                player.actionMessage = str(R.string.ui_remove_failed, name)
+            }
+    }
+    val message = str(R.string.ui_removed_from, name)
+    player.actionMessage = message
+    player.actionUndo = message to { job.cancel(); feed.putBack(at, video) }
+}
+
+/** How long a removal can be undone before it's sent (the message stays that long). */
+const val UndoWindowMs = 4_000L
 
 /** Where [videoCards]' extra card goes among the videos. */
 private object ExtraCell
@@ -392,6 +445,8 @@ fun FeedList(
     indicatorTop: Dp = 0.dp,
     /** A card of its own in a grid's second spot (wide windows only). */
     gridExtra: (@Composable (Modifier) -> Unit)? = null,
+    /** Cards swiped left come out ([SwipeVideo]). */
+    onSwipeAway: ((VideoItem) -> Unit)? = null,
 ) {
     val c = MaterialTheme.colorScheme
     val list = rememberScrollToTop(scrollToTop)
@@ -408,7 +463,7 @@ fun FeedList(
     PullToRefresh(enabled = pullToRefresh, refreshing = feed.refreshing, onRefresh = feed::refresh, topPadding = indicatorTop) {
     LazyColumn(state = list, contentPadding = contentPadding) {
         header()
-        videoCards(feed.videos, columns, onOpen, extra = gridExtra)
+        videoCards(feed.videos, columns, onOpen, extra = gridExtra, onSwipeAway = onSwipeAway)
         when {
             // No keys on these trailing items: a keyed loader at index 0 makes LazyColumn
             // hold it in view when videos arrive above it, landing at the bottom of the page.

@@ -78,4 +78,9 @@
     <string name="settings_swipe_volume_line">全画面で動画の右側を上下にスワイプします。</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">ジェスチャー、スワイプ、明るさ、輝度、音量、サウンド</string>
+    <string name="settings_background_play_title">バックグラウンド再生</string>
+    <string name="settings_background_play_on">Skipii を離れても画面が消えても再生を続けます</string>
+    <string name="settings_background_play_off">Skipii を離れるか画面が消えると一時停止します（音声のみは再生を続けます）</string>
+    <string name="settings_open_links_title">YouTube のリンクを開く</string>
+    <string name="settings_open_links_line">ほかのアプリの youtube.com と youtu.be のリンクを Skipii で開きます: デフォルトで開く › リンクを追加</string>
 </resources>

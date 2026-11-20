@@ -69,4 +69,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Coba lagi</string>
     <string name="video_open_in_youtube">Buka di YouTube</string>
+    <string name="video_lock">Kunci kontrol</string>
+    <string name="video_hold_to_unlock">Tahan untuk membuka kunci</string>
 </resources>

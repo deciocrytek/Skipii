@@ -40,20 +40,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.LibraryAdd
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -101,6 +108,8 @@ import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 
 // The video runs edge to edge as a plain rectangle, right under the status bar (Derek).
 internal val StageTopGap = 0.dp
+/** A longer title folds to one line with a chevron (#34). */
+private const val TitleMaxLines = 3
 /** How far up the screen (share of its height) the video's top edge gets before the status bar starts turning black. */
 private const val StatusBlackFromUp = 0.25f
 /** Morph progress by which the status bar over the video is fully black. */
@@ -153,6 +162,8 @@ fun PlayerScreen(
     layout: PlayerLayout = PlayerLayout.Phone,
     /** How far left of the player the black status strip reaches (over the rail beside a tablet's player). */
     statusBleed: Dp = 0.dp,
+    /** True while the floating player bar has its card, panel, or scrub track open. */
+    barBusy: Boolean = false,
 ) {
     val c = MaterialTheme.colorScheme
     val item = state.current ?: return
@@ -227,6 +238,15 @@ fun PlayerScreen(
                 .background(Brush.verticalGradient(listOf(c.primaryContainer.copy(alpha = 0.75f), c.surface))),
         )
         ActionMessage(state, Modifier.align(Alignment.BottomCenter).zIndex(1f).padding(bottom = bottomClearance + 8.dp))
+        UpNextPill(
+            state = state,
+            suppressed = barBusy || state.sheet != null || state.actionMessage != null || !state.expanded || morph.dragging,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .zIndex(1f)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = bottomClearance + 8.dp),
+        )
         // The details (and on a phone More videos; on a wide window the comments) in one list that
         // rides along under the video's bottom edge as the player opens and only fades in for the
         // last stretch, so they never overlap the video mid-morph.
@@ -246,21 +266,51 @@ fun PlayerScreen(
             item(key = "info") {
                     Column(Modifier.padding(horizontal = 20.dp)) {
                         Spacer(Modifier.height(18.dp))
-                        Text(
-                            item.title,
-                            fontFamily = RoundedHeavy,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 22.sp,
-                            lineHeight = 26.sp,
-                            letterSpacing = (-0.6).sp,
+                        // GitHub #34 (Derek: only when it runs past three lines): a long title shows one line and a
+                        // chevron; tapping it (or "…more") opens the whole title with the description.
+                        val titleStyle = LocalTextStyle.current.merge(
+                            androidx.compose.ui.text.TextStyle(
+                                fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold,
+                                fontSize = 22.sp, lineHeight = 26.sp, letterSpacing = (-0.6).sp,
+                            ),
                         )
+                        val titleMeasurer = androidx.compose.ui.text.rememberTextMeasurer()
+                        androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
+                            val chevron = 30.dp
+                            val long = remember(item.title, constraints.maxWidth, titleStyle) {
+                                titleMeasurer.measure(
+                                    item.title, titleStyle,
+                                    constraints = androidx.compose.ui.unit.Constraints(maxWidth = constraints.maxWidth),
+                                ).lineCount > TitleMaxLines
+                            }
+                            if (!long) {
+                                Text(item.title, style = titleStyle)
+                            } else {
+                                val turn by animateFloatAsState(if (descriptionOpen) 180f else 0f, label = "titleChevron")
+                                Row(
+                                    Modifier.fillMaxWidth().pressable(pressedScale = 0.98f) { descriptionOpen = !descriptionOpen },
+                                    verticalAlignment = Alignment.Top,
+                                ) {
+                                    Text(
+                                        item.title, style = titleStyle, modifier = Modifier.weight(1f).animateContentSize(),
+                                        maxLines = if (descriptionOpen) Int.MAX_VALUE else 1, overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Icon(
+                                        Icons.Rounded.ExpandMore,
+                                        contentDescription = stringResource(if (descriptionOpen) R.string.player_description_less else R.string.player_description_more),
+                                        tint = c.onSurfaceVariant,
+                                        modifier = Modifier.padding(start = 4.dp, top = 1.dp).size(chevron - 4.dp).graphicsLayer { rotationZ = turn },
+                                    )
+                                }
+                            }
+                        }
                         Spacer(Modifier.height(6.dp))
                         val stats = listOfNotNull(
                             item.views.takeIf { it >= 0 }?.let { viewsLine(it) },
                             displayAge(item.uploaded)?.ifBlank { null },
                             details?.likes?.takeIf { it > 0 }?.let { plural(R.plurals.player_likes, compactQuantity(it), formatCount(it)) },
                         ).joinDots()
-                        val hasDescription = !details?.description.isNullOrBlank()
+                        val hasDescription = !details?.description?.text.isNullOrBlank()
                         // One text: "…more" follows the stats and wraps with them. As a second Text in a Row it got
                         // only what the stats left, and a long line (Spanish) stood it up a letter a line.
                         val more = if (hasDescription) stringResource(if (descriptionOpen) R.string.player_description_less else R.string.player_description_more) else null
@@ -276,14 +326,7 @@ fun PlayerScreen(
                             color = c.onSurfaceVariant, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
                         )
                         if (descriptionOpen && details != null) {
-                            Text(
-                                details.description,
-                                modifier = Modifier.padding(top = 10.dp),
-                                color = c.onSurfaceVariant,
-                                fontSize = 14.sp,
-                                lineHeight = 20.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
+                            DescriptionText(details.description, state, Modifier.padding(top = 10.dp))
                         }
                         Spacer(Modifier.height(16.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -326,7 +369,10 @@ fun PlayerScreen(
                     if (related.isNotEmpty()) {
                         item(key = "moreTitle") { SectionTitle(stringResource(R.string.player_more_videos)) }
                         items(related, key = { "rel-" + it.id }) { video ->
-                            Box(Modifier.padding(horizontal = 20.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
+                            // Swipe right to queue, as on every list of videos (Swipe.kt).
+                            SwipeVideo(video, Modifier.padding(horizontal = 20.dp), inset = VideoRowInset, corner = VideoRowCorner) {
+                                VideoRow(video, onClick = { onOpen(video) })
+                            }
                         }
                     } else if (state.loading) {
                         item(key = "loading") {
@@ -471,7 +517,9 @@ private fun MoreVideosColumn(state: PlayerState, onOpen: (VideoItem) -> Unit, co
             }
         }
         items(shown, key = { "more-" + it.id }) { video ->
-            Box(Modifier.padding(horizontal = 16.dp)) { VideoRow(video, onClick = { onOpen(video) }) }
+            SwipeVideo(video, Modifier.padding(horizontal = 16.dp), inset = VideoRowInset, corner = VideoRowCorner) {
+                VideoRow(video, onClick = { onOpen(video) })
+            }
         }
         if (related.isEmpty() && state.loading) item(key = "loading") {
             Box(Modifier.fillMaxWidth().padding(top = 40.dp), Alignment.Center) {
@@ -928,3 +976,150 @@ private fun MorphingMiniDetails(state: PlayerState, morph: PlayerMorph) {
         verticalAlignment = Alignment.CenterVertically,
     ) { MiniDetails(state, interactive = false) }
 }
+
+/**
+ * Calm "Up Next" countdown pill in the final 8 seconds of a video when a queue item follows.
+ * Never dims the video: sits quietly above the floating player bar with Play Now + Cancel.
+ */
+@Composable
+private fun UpNextPill(
+    state: PlayerState,
+    suppressed: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val c = MaterialTheme.colorScheme
+    val reduced = rememberReducedMotion()
+    val liveCountdown = if (suppressed) null else state.upNextCountdown
+    val liveNext = if (liveCountdown != null) state.queue.firstOrNull() else null
+    val active = liveCountdown != null && liveNext != null
+    // Hold the last displayed item during exit so the pill glides out cleanly instead of snapping empty.
+    var shownNext by remember { mutableStateOf<VideoItem?>(null) }
+    var shownCountdown by remember { mutableStateOf<UpNextCountdown?>(null) }
+    if (active) {
+        shownNext = liveNext
+        shownCountdown = liveCountdown
+    }
+    val progress by animateFloatAsState(
+        if (active) 1f else 0f,
+        if (reduced) snap() else if (active) spring(dampingRatio = 0.82f, stiffness = 460f) else tween(180, easing = Motion.Emphasized),
+        label = "upNextPill",
+    )
+    if (progress <= 0.005f) {
+        if (!active) { shownNext = null; shownCountdown = null }
+        return
+    }
+    val next = shownNext ?: return
+    val countdown = shownCountdown ?: return
+    val ringProgress by animateFloatAsState(
+        countdown.progress,
+        if (reduced) snap() else tween(110),
+        label = "upNextRing",
+    )
+    val shape = RoundedCornerShape(24.dp)
+    Row(
+        modifier
+            .widthIn(max = 390.dp)
+            .fillMaxWidth()
+            // ONE layer holds the fade, the shape and the shadow: a fading layer around a separate
+            // .shadow() crops the shadow to a hard-edged box (0.5.46). Full black shadow colours:
+            // Android already scales them down (0.5.35).
+            .graphicsLayer {
+                alpha = progress
+                translationY = (1f - progress) * 16.dp.toPx()
+                val s = 0.96f + 0.04f * progress
+                scaleX = s
+                scaleY = s
+                this.shape = shape
+                clip = true
+                shadowElevation = 14.dp.toPx()
+                ambientShadowColor = Color.Black
+                spotShadowColor = Color.Black
+            }
+            .background(c.surfaceContainerHighest)
+            .padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Thumbnail(next.thumbnail, Modifier.width(56.dp).aspectRatio(16f / 9f), radius = 12)
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.ui_up_next_in, countdown.secondsLeft),
+                color = c.primary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.3.sp,
+                maxLines = 1,
+            )
+            Text(
+                next.title,
+                color = c.onSurface,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Box(
+            Modifier
+                .pressable(enabled = active) { state.cancelUpNext() }
+                .clip(CircleShape)
+                .background(c.surfaceContainerHigh)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                stringResource(R.string.ui_cancel),
+                color = c.onSurfaceVariant,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 1,
+            )
+        }
+        Spacer(Modifier.width(6.dp))
+        val trackColor = c.primary.copy(alpha = 0.22f)
+        val arcColor = c.primary
+        Box(
+            Modifier
+                .size(40.dp)
+                .pressable(enabled = active) { state.playNextUp() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val stroke = 3.dp.toPx()
+                val inset = stroke / 2f
+                val arcSize = androidx.compose.ui.geometry.Size(size.width - stroke, size.height - stroke)
+                drawArc(
+                    color = trackColor,
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = stroke, cap = StrokeCap.Round),
+                )
+                drawArc(
+                    color = arcColor,
+                    startAngle = -90f,
+                    sweepAngle = 360f * ringProgress.coerceIn(0f, 1f),
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = stroke, cap = StrokeCap.Round),
+                )
+            }
+            Box(
+                Modifier.size(30.dp).clip(CircleShape).background(c.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Rounded.PlayArrow,
+                    contentDescription = stringResource(R.string.bar_tool_next),
+                    tint = c.onPrimaryContainer,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
+    }
+}
+

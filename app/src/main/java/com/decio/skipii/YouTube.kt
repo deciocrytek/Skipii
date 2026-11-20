@@ -8,7 +8,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.text.HtmlCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -30,7 +29,6 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQu
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.AudioTrackType
 import org.schabi.newpipe.extractor.stream.DeliveryMethod
-import org.schabi.newpipe.extractor.stream.Description
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
@@ -67,7 +65,8 @@ data class CardFeedback(val notInterested: String?, val dontRecommend: String?)
 @Immutable
 data class VideoDetails(
     val item: VideoItem,
-    val description: String,
+    /** The description with its links (Description.kt). */
+    val description: Description,
     val likes: Long,
     val subscribers: Long,
     val related: List<VideoItem>,
@@ -203,9 +202,9 @@ object YouTube {
                 uploaded = uploadedText(info.textualUploadDate, info.uploadDate),
             ),
             description = info.description?.let { d ->
-                if (d.type == Description.HTML) HtmlCompat.fromHtml(d.content, HtmlCompat.FROM_HTML_MODE_COMPACT).toString().trim()
-                else d.content.trim()
-            }.orEmpty(),
+                if (d.type == org.schabi.newpipe.extractor.stream.Description.HTML) Description.fromHtml(d.content)
+                else Description.fromPlain(d.content)
+            } ?: Description.Empty,
             likes = info.likeCount,
             subscribers = info.uploaderSubscriberCount,
             related = info.relatedItems.filterIsInstance<StreamInfoItem>().mapNotNull { it.toVideoItem() },

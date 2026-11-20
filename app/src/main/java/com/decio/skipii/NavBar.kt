@@ -49,6 +49,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -100,6 +103,8 @@ internal val NavWidth = 328.dp
 // 0.5.50: five tabs (Shorts); the active pill keeps about the width it had among four, so
 // "Subscriptions" still fits. With Shorts turned off ([ShortsSetting]) it's four tabs again.
 private fun selectedTabWeight(tabs: Int) = if (tabs > 4) 3.5f else 2.2f
+/** Room kept on each side of the selected tab's icon + label before it switches to the short label. */
+private val TabLabelMargin = 8.dp
 // The open player's bar is compact (Derek, 2026-10-19: play pill ~60% of its first 161 dp,
 // the ±10 buttons tight beside it): it narrows from the tab bar's width as the player opens.
 // 0.5.32 (Derek, 2026-10-25: mockup A "Lift" in docs/design/player-bar-reach.html): a size up
@@ -190,6 +195,8 @@ internal fun NavPill(
     val reduced = rememberReducedMotion()
     SideEffect { bar.reduced = reduced }
     val density = LocalDensity.current
+    var tabsWidth by remember { mutableIntStateOf(0) }
+    val labelMeasurer = androidx.compose.ui.text.rememberTextMeasurer()
     // The card may use the whole width between the screen's 16 dp margins.
     val maxBarWidth = with(density) { (LocalConfiguration.current.screenWidthDp.dp - 32.dp).toPx() }
     val pip = LocalPictureInPicture.current
@@ -201,7 +208,8 @@ internal fun NavPill(
     val onPick: (BarTool) -> Unit = { tool -> pickTool(tool, bar, player, pip, onFullscreen) }
     val tools = barTools(player, pip)
     val hasChapters = !player.details?.chapters.isNullOrEmpty()
-    SideEffect { bar.tools = tools; bar.hasChapters = hasChapters }
+    val chapterRows = rememberChapterRowHeights(player)
+    SideEffect { bar.tools = tools; bar.hasChapters = hasChapters; bar.chapterRows = chapterRows }
     val sheets = rememberStoryboardSheets(player)
     // The player's row is wider than the tab bar; on a narrower window it shrinks to fit.
     val rowScale = with(density) { (maxBarWidth / CompactBarWidth.toPx()).coerceAtMost(1f) }
@@ -211,6 +219,28 @@ internal fun NavPill(
     val playInteraction = remember { MutableInteractionSource() }
     val playPressed by playInteraction.collectIsPressedAsState()
     val playScale = animateFloatAsState(if (playPressed && !reduced) 0.94f else 1f, spring(dampingRatio = 0.6f, stiffness = 1400f), label = "playPress")
+
+    // Living chapter ticker: breathe the bar top open briefly whenever playback crosses a chapter boundary.
+    LaunchedEffect(player.current?.id) {
+        var initialized = false
+        var previous: String? = null
+        snapshotFlow { player.chapterAt(player.positionMs) }.collect { chapter ->
+            if (!initialized) {
+                initialized = true
+                previous = chapter
+            } else if (chapter != previous) {
+                val trigger = shouldTriggerChapterTicker(
+                    previous = previous,
+                    current = chapter,
+                    positionMs = player.positionMs,
+                    isPlaying = player.isPlaying,
+                    barAvailable = controlsActive && !bar.isOpen && !bar.scrubShown && player.durationMs > 0L,
+                )
+                previous = chapter
+                if (trigger) bar.pulseTicker()
+            }
+        }
+    }
 
     Box(modifier.widthIn(max = NavWidth).height(NavHeight).fillMaxWidth().onPlaced { anchors.outer = it }) {
         Box(
@@ -293,11 +323,27 @@ internal fun NavPill(
                             val tabs = measurable.measure(Constraints.fixed(full, constraints.maxHeight))
                             layout(constraints.maxWidth, constraints.maxHeight) { tabs.place((constraints.maxWidth - full) / 2, 0) }
                         }
-                        .padding(BarPadding),
+                        .padding(BarPadding)
+                        .onSizeChanged { tabsWidth = it.width },
                     horizontalArrangement = Arrangement.spacedBy(BarGap),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val shown = Tab.entries.filter { it != Tab.Shorts || ShortsSetting.enabled }
+                    // The selected tab's label in full when it fits its pill (at its settled width), else its
+                    // short form (GitHub #39 / #70: "Subscriptions" filled or clipped its pill, worse with big fonts).
+                    val labelStyle = LocalTextStyle.current.merge(TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp))
+                    val selectedPillPx = run {
+                        val w = selectedTabWeight(shown.size)
+                        (tabsWidth - with(density) { BarGap.toPx() } * (shown.size - 1)) * w / (w + shown.size - 1)
+                    }
+                    fun labelFor(t: Tab): String {
+                        val full = t.label
+                        val short = t.shortLabelRes ?: return full
+                        if (tabsWidth <= 0) return full
+                        val text = labelMeasurer.measure(full, labelStyle, maxLines = 1, softWrap = false).size.width
+                        val room = selectedPillPx - with(density) { (22.dp + 8.dp + TabLabelMargin * 2).toPx() }
+                        return if (text <= room) full else str(short)
+                    }
                     shown.forEachIndexed { i, t ->
                         val active = t == selected
                         val spec = if (reduced) snap<Float>() else tween(260, easing = Motion.Emphasized)
@@ -349,7 +395,7 @@ internal fun NavPill(
                                         enter = if (reduced) fadeIn(snap()) else fadeIn(tween(160, easing = Motion.Emphasized)) + expandHorizontally(tween(200, easing = Motion.Emphasized)),
                                         exit = if (reduced) fadeOut(snap()) else fadeOut(tween(90)) + shrinkHorizontally(tween(160, easing = Motion.Emphasized)),
                                     ) {
-                                        Text(t.label, modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, softWrap = false)
+                                        Text(labelFor(t), modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, softWrap = false)
                                     }
                                 }
                             }
@@ -373,18 +419,20 @@ internal fun NavPill(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     BarAudioOnly(player, enabled = controlsActive, modifier = Modifier.barEnter(progress, KeyEnterStart).then(scrubFade))
-                    SeekButton(-1, player, progress, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    SeekButton(-1, player, progress, anchors, burst, controlsActive, onSeek = { if (player.durationMs > 0L) bar.pulseTicker() }, modifier = Modifier.width(SeekSlotWidth).then(scrubFade))
                     PlaySlot(player, progress, anchors, playInteraction, playScale, controlsActive, Modifier.width(PlaySlotWidth))
-                    SeekButton(1, player, progress, anchors, burst, controlsActive, Modifier.width(SeekSlotWidth).then(scrubFade))
+                    SeekButton(1, player, progress, anchors, burst, controlsActive, onSeek = { if (player.durationMs > 0L) bar.pulseTicker() }, modifier = Modifier.width(SeekSlotWidth).then(scrubFade))
                     BarKey(bar, enabled = controlsActive, modifier = Modifier.barEnter(progress, KeyEnterStart).then(scrubFade))
                 }
+                BarPullGrabber(bar, gate, Modifier.align(Alignment.TopCenter))
+                if (bar.tickerShown) BarTicker(bar, player, gate, Modifier.align(Alignment.TopCenter))
                 BarProgress(bar, player, played, gate)
                 if (bar.cardShown) BarCard(bar, player, gate, onPick)
                 if (bar.panelShown) BarPanelContent(bar, player, gate, scope, sheets)
             }
           }
         }
-        BurstBubble(burst, anchors)
+        BurstBubble(burst, anchors, bar)
         // The landing frame and Cancel, over the scrub track (outside the bar's clip).
         ScrubOverlay(bar, player, sheets, gate) { anchors.rect(anchors.bar, within = anchors.outer) }
     }
@@ -499,6 +547,7 @@ private fun SeekButton(
     anchors: BarAnchors,
     burst: BarBurst,
     enabled: Boolean,
+    onSeek: () -> Unit,
     modifier: Modifier,
 ) {
     val c = MaterialTheme.colorScheme
@@ -514,6 +563,7 @@ private fun SeekButton(
             .pressable(enabled = enabled) {
                 view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                 burst.tap(side, player.seekBy(side * SeekStep.ms))
+                onSeek()
                 // The arrow kicks the way it seeks.
                 if (!reduced) scope.launch { spin.animateTo(0f, keyframes { durationMillis = 420; side * 50f at 150 }) }
             },
@@ -549,7 +599,7 @@ private class BarBurst {
  * squishes on every tap, fades once the burst is over.
  */
 @Composable
-private fun BurstBubble(burst: BarBurst, anchors: BarAnchors) {
+private fun BurstBubble(burst: BarBurst, anchors: BarAnchors, bar: PlayerBarState) {
     val c = MaterialTheme.colorScheme
     val reduced = rememberReducedMotion()
     LaunchedEffect(burst.taps) {
@@ -575,12 +625,12 @@ private fun BurstBubble(burst: BarBurst, anchors: BarAnchors) {
     Row(
         Modifier
             .layout { measurable, _ ->
-                // Centred over its button, 10 dp above the lifted bar (drawn outside the slot's bounds).
+                // Centred over its button, 10 dp above the lifted bar (including any open ticker).
                 val bubble = measurable.measure(Constraints())
                 layout(0, 0) {
                     val button = anchors.rect(anchors.controls[if (side < 0) 0 else 2], within = anchors.outer)
                     val x = (button?.center?.x ?: 0f) - bubble.width / 2f
-                    val top = (button?.top ?: 0f) - PlayerBarPadding.toPx()
+                    val top = (button?.top ?: 0f) - PlayerBarPadding.toPx() - TickerHeight.toPx() * bar.ticker.value
                     bubble.place(x.roundToInt(), (top - bubble.height - 10.dp.toPx()).roundToInt())
                 }
             }

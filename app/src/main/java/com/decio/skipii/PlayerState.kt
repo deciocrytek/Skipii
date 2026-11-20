@@ -138,6 +138,8 @@ class PlayerState(private val scope: CoroutineScope) {
     private var originalLike = LikeStatus.None
     /** A short message after an account action fails (shown briefly over the player). */
     var actionMessage by mutableStateOf<String?>(null)
+    /** An Undo offered with the message it belongs to (shown only while that message is). */
+    var actionUndo by mutableStateOf<Pair<String, () -> Unit>?>(null)
 
     private var loadJob: Job? = null
     /** A video picked before the service connection finished; started on connect. */
@@ -151,13 +153,34 @@ class PlayerState(private val scope: CoroutineScope) {
     /** Videos after the current one, in play order. */
     var queue by mutableStateOf<List<VideoItem>>(emptyList())
         private set
+    /** The video ID for which the user cancelled the "Up Next" auto-advance countdown. */
+    var upNextCancelledFor by mutableStateOf<String?>(null)
+        private set
 
-    fun open(item: VideoItem, expand: Boolean = true) {
+    val upNextCountdown: UpNextCountdown?
+        get() = upNextCountdown(
+            positionMs = positionMs,
+            durationMs = durationMs,
+            hasNext = queue.isNotEmpty(),
+            isPlaying = isPlaying,
+            cancelled = upNextCancelledFor != null && upNextCancelledFor == current?.id,
+        )
+
+    fun cancelUpNext() {
+        upNextCancelledFor = current?.id
+        UpNextHold.setHold(true)
+    }
+
+    fun open(item: VideoItem, expand: Boolean = true, startAtMs: Long? = null) {
         if (expand) expanded = true
-        if (current?.id == item.id && error == null) return
+        if (current?.id == item.id && error == null) { startAtMs?.let(::seekTo); return }
         known[item.id] = item
+        startAt = startAtMs?.let { item.id to it }
         show(item, startPlayback = true)
     }
+
+    /** A link's t= for the video being opened (IncomingLinks): wins over the resume position. */
+    private var startAt: Pair<String, Long>? = null
 
     /**
      * Shows [item] as the current video: details, comments and account state load; with
@@ -170,6 +193,8 @@ class PlayerState(private val scope: CoroutineScope) {
         openedAt = android.os.SystemClock.elapsedRealtime()
         Log.i("SkipiiTime", "open ${item.id}")
         if (startPlayback) Net.prewarmMediaConnection()
+        upNextCancelledFor = null
+        UpNextHold.setHold(false)
         current = item
         details = null
         error = null
@@ -197,7 +222,9 @@ class PlayerState(private val scope: CoroutineScope) {
                     // page fetch and only slowed down the critical path.
                     comments.load(item.id)
                     known[item.id] = d.item
-                    captions.useTracks(d.captions)
+                    // Opened from a bare id (a description link): the details fill in the title, channel, etc.
+                    if (current?.id == d.item.id && current?.title.isNullOrBlank()) current = d.item
+                    captions.useTracks(d.captions, d.item.id)
                     if (!d.playable) error = str(R.string.player_error_no_stream)
                     else if (startPlayback) startPlayback(d.item)
                 }
@@ -230,6 +257,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 .setTitle(item.title)
                 .setArtist(item.channel)
                 .setArtworkUri(item.thumbnail?.toUri())
+                .apply { if (item.durationSec > 0) setDurationMs(item.durationSec * 1000L) }
                 .build(),
         )
         .build()
@@ -237,8 +265,53 @@ class PlayerState(private val scope: CoroutineScope) {
     private fun startPlayback(item: VideoItem) {
         val player = controller ?: run { pendingStart = item; return }
         // Pick up where this video was left off (ResumeStore; written by the service).
-        replaceCurrent(player, item, positionMs = ResumeStore.startPosition(item.id))
+        val linked = startAt?.takeIf { it.first == item.id }?.second
+        startAt = null
+        replaceCurrent(player, item, positionMs = linked ?: ResumeStore.startPosition(item.id))
+        pendingList?.takeIf { it.first == item.id }?.let { (_, rest) ->
+            pendingList = null
+            clearQueue()
+            rest.forEach { known[it.id] = it }
+            player.addMediaItems(rest.map(::mediaItemFor))
+        }
         player.play()
+    }
+
+    /** Play all / Shuffle's videos after the first, queued once the first is in the current slot. */
+    private var pendingList: Pair<String, List<VideoItem>>? = null
+
+    /**
+     * A whole list (a playlist's Play all / Shuffle, GitHub #81): the first plays now, the rest
+     * becomes the queue, replacing what was queued.
+     */
+    fun playAll(items: List<VideoItem>, shuffle: Boolean = false) {
+        val list = (if (shuffle) items.shuffled() else items).distinctBy { it.id }
+        val first = list.firstOrNull() ?: return
+        pendingList = first.id to list.drop(1)
+        if (current?.id == first.id && error == null) {
+            // Already the current video: open() wouldn't restart it, so queue the rest here.
+            expanded = true
+            controller?.let { player ->
+                pendingList = null
+                clearQueue()
+                list.drop(1).forEach { known[it.id] = it }
+                player.addMediaItems(list.drop(1).map(::mediaItemFor))
+                player.seekTo(player.currentMediaItemIndex, 0L)
+                if (player.playbackState == Player.STATE_IDLE) player.prepare()
+                player.play()
+            }
+            return
+        }
+        // Something in the player already: queue the rest now, behind it, so they're there (and Next works) even if the
+        // first one fails to load; opening it then swaps the current slot and keeps the queue. An empty player has no
+        // slot to queue behind, so the rest waits for the first to start (startPlayback).
+        controller?.takeIf { it.mediaItemCount > 0 }?.let { player ->
+            pendingList = null
+            clearQueue()
+            list.drop(1).forEach { known[it.id] = it }
+            player.addMediaItems(list.drop(1).map(::mediaItemFor))
+        }
+        open(first)
     }
 
     /**
@@ -304,9 +377,22 @@ class PlayerState(private val scope: CoroutineScope) {
     /** [index] into [queue]. */
     fun playFromQueue(index: Int) {
         val player = controller ?: return
+        upNextCancelledFor = null
+        UpNextHold.setHold(false)
         player.seekTo(player.currentMediaItemIndex + 1 + index, 0L)
         if (player.playbackState == Player.STATE_IDLE) player.prepare()
         player.play()
+    }
+
+    /** Moves queued item at [from] to [to] (0-based indices into [queue]). */
+    fun moveInQueue(from: Int, to: Int) {
+        val player = controller ?: return
+        val next = reorderList(queue, from, to) ?: return
+        queue = next
+        val base = player.currentMediaItemIndex + 1
+        if (base + from < player.mediaItemCount && base + to < player.mediaItemCount) {
+            player.moveMediaItem(base + from, base + to)
+        }
     }
 
     fun removeFromQueue(index: Int) {
@@ -333,7 +419,7 @@ class PlayerState(private val scope: CoroutineScope) {
         channelUrl = null,
         thumbnail = media.mediaMetadata.artworkUri?.toString(),
         avatar = null,
-        durationSec = 0,
+        durationSec = (media.mediaMetadata.durationMs ?: 0L) / 1000L,
         views = -1,
         uploaded = null,
     ).also { known[media.mediaId] = it }
@@ -547,10 +633,20 @@ class PlayerState(private val scope: CoroutineScope) {
         }
     }
 
+    fun pause() {
+        controller?.pause()
+    }
+
     fun togglePlay() {
         val player = controller ?: return
         if (player.isPlaying) player.pause() else {
-            if (player.playbackState == Player.STATE_ENDED) player.seekTo(0)
+            val atEnd = player.playbackState == Player.STATE_ENDED ||
+                (upNextCancelledFor == current?.id && durationMs > 0L && positionMs >= durationMs - 600L)
+            if (atEnd) {
+                upNextCancelledFor = null
+                UpNextHold.setHold(false)
+                player.seekTo(0)
+            }
             if (player.playbackState == Player.STATE_IDLE) player.prepare()
             player.play()
         }
@@ -696,6 +792,8 @@ class PlayerState(private val scope: CoroutineScope) {
         loadJob?.cancel()
         controller?.run { stop(); clearMediaItems() }
         queue = emptyList()
+        upNextCancelledFor = null
+        UpNextHold.setHold(false)
         expanded = false
         fullscreen = false
         sheet = null
@@ -740,7 +838,7 @@ class PlayerState(private val scope: CoroutineScope) {
         comments.clearFor(item.id)
         loadAccountState(item.id)
         loadJob = scope.launch {
-            runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item; captions.useTracks(it.captions) }
+            runCatching { YouTube.details(item.id) }.onSuccess { details = it; current = it.item; captions.useTracks(it.captions, it.item.id) }
             comments.load(item.id)
         }
     }
@@ -871,7 +969,7 @@ fun rememberPlayerState(): PlayerState {
     LaunchedEffect(state.isPlaying) {
         while (isActive && state.isPlaying) {
             state.syncFromPlayer()
-            delay(250)
+            delay(if (state.upNextCountdown != null) 80 else 250)
         }
     }
     return state
@@ -881,5 +979,32 @@ enum class PlayerSheet { Quality, Speed, Comments, Queue, Captions, Transcript }
 
 /** Comments and the transcript open as a panel inside the player (PlayerScreen), not a sheet. */
 val PlayerSheet?.isPanel: Boolean get() = this == PlayerSheet.Comments || this == PlayerSheet.Transcript
+
+internal const val UpNextWindowMs = 8_000L
+internal const val UpNextMinVideoMs = 15_000L
+
+data class UpNextCountdown(val remainingMs: Long, val secondsLeft: Int, val progress: Float)
+
+internal fun upNextCountdown(
+    positionMs: Long,
+    durationMs: Long,
+    hasNext: Boolean,
+    isPlaying: Boolean,
+    cancelled: Boolean,
+): UpNextCountdown? {
+    if (!hasNext || !isPlaying || cancelled || durationMs < UpNextMinVideoMs) return null
+    val rem = durationMs - positionMs
+    if (rem !in 1L..UpNextWindowMs) return null
+    val secs = ((rem + 999L) / 1000L).toInt().coerceIn(1, (UpNextWindowMs / 1000L).toInt())
+    return UpNextCountdown(rem, secs, (rem.toFloat() / UpNextWindowMs).coerceIn(0f, 1f))
+}
+
+internal fun <T> reorderList(items: List<T>, from: Int, to: Int): List<T>? {
+    if (from == to || from !in items.indices || to !in items.indices) return null
+    return items.toMutableList().apply { add(to, removeAt(from)) }
+}
+
+internal fun queueTotalDurationSec(items: List<VideoItem>): Long =
+    items.sumOf { it.durationSec.coerceAtLeast(0L) }
 
 private const val TAG = "Skipii"

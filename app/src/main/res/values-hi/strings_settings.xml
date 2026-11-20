@@ -79,4 +79,9 @@
     <string name="settings_swipe_volume_line">फ़ुलस्क्रीन में वीडियो के दाईं ओर ऊपर या नीचे स्वाइप करें।</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">जेस्चर, स्वाइप, ब्राइटनेस, चमक, वॉल्यूम, आवाज़</string>
+    <string name="settings_background_play_title">बैकग्राउंड में चलाएं</string>
+    <string name="settings_background_play_on">Skipii छोड़ने या स्क्रीन बंद होने पर भी चलता रहता है</string>
+    <string name="settings_background_play_off">Skipii छोड़ने या स्क्रीन बंद होने पर रुक जाता है (सिर्फ़ ऑडियो चलता रहता है)</string>
+    <string name="settings_open_links_title">YouTube लिंक खोलें</string>
+    <string name="settings_open_links_line">दूसरे ऐप्लिकेशन से youtube.com और youtu.be लिंक Skipii में खुलें: डिफ़ॉल्ट रूप से खोलें › लिंक जोड़ें</string>
 </resources>

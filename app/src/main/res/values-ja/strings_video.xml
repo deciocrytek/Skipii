@@ -69,4 +69,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">再試行</string>
     <string name="video_open_in_youtube">YouTube で開く</string>
+    <string name="video_lock">操作をロック</string>
+    <string name="video_hold_to_unlock">長押しでロック解除</string>
 </resources>

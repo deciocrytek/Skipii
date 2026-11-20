@@ -126,6 +126,7 @@ class PlaybackService : MediaSessionService() {
         player.addListener(SessionSaver())
         watchTime = WatchTimeReporter(player).also(player::addListener)
         live = LiveActivity(this, player, resolver)
+        UpNextHold.bind(player)
         session = MediaSession.Builder(this, player)
             .setSessionActivity(openApp)
             .setCallback(SessionCallback())
@@ -154,6 +155,7 @@ class PlaybackService : MediaSessionService() {
     private var live: LiveActivity? = null
 
     override fun onDestroy() {
+        UpNextHold.unbind()
         resumeSaver?.saveNow()
         watchTime?.finish()
         live?.release()
@@ -179,16 +181,24 @@ class PlaybackService : MediaSessionService() {
         ): ListenableFuture<MutableList<MediaItem>> = resolver.submit<MutableList<MediaItem>> {
             mediaItems.map { item ->
                 // An opened video is already loaded (the player waited for it); this resolves
-                // restored and queued items, which nobody is waiting for yet.
-                val info = BotCheck.withoutWaiting(item.mediaId) { StreamCache.getOrLoad(item.mediaId) }
+                // restored and queued items, which nobody is waiting for yet. One that won't resolve
+                // now (a bot check, no network) is still queued with what the app knows about it: its
+                // streams load when it comes up. Failing here dropped the whole add, so "Added to queue"
+                // showed and the queue stayed empty.
+                val info = try {
+                    BotCheck.withoutWaiting(item.mediaId) { StreamCache.getOrLoad(item.mediaId) }
+                } catch (e: Exception) {
+                    Log.w("Skipii", "queued ${item.mediaId} unresolved (${e.javaClass.simpleName}); loads when it plays")
+                    null
+                }
                 item.buildUpon()
                     .setUri(YouTube.watchUrl(item.mediaId))
                     .setMediaMetadata(
                         item.mediaMetadata.buildUpon()
-                            .setTitle(item.mediaMetadata.title ?: info.name)
-                            .setArtist(item.mediaMetadata.artist ?: info.uploaderName)
+                            .setTitle(item.mediaMetadata.title ?: info?.name)
+                            .setArtist(item.mediaMetadata.artist ?: info?.uploaderName)
                             // Kept with the saved session, so a restored queue shows lengths.
-                            .setDurationMs(item.mediaMetadata.durationMs ?: info.duration.takeIf { it > 0 }?.times(1000))
+                            .setDurationMs(item.mediaMetadata.durationMs ?: info?.duration?.takeIf { it > 0 }?.times(1000))
                             .setMediaType(MediaMetadata.MEDIA_TYPE_VIDEO)
                             .build(),
                     )
@@ -210,6 +220,32 @@ object StreamRecovery {
 }
 
 /**
+ * Cancelling the "Up Next" countdown holds playback at the end of the current video instead
+ * of auto-advancing into the queue (without deleting the user's queue).
+ */
+@OptIn(UnstableApi::class)
+object UpNextHold {
+    private val main = Handler(Looper.getMainLooper())
+    @Volatile private var player: ExoPlayer? = null
+    @Volatile private var held = false
+
+    internal fun bind(exo: ExoPlayer) {
+        player = exo
+        exo.pauseAtEndOfMediaItems = held
+    }
+
+    internal fun unbind() {
+        player = null
+        held = false
+    }
+
+    fun setHold(hold: Boolean) {
+        held = hold
+        main.post { player?.pauseAtEndOfMediaItems = hold }
+    }
+}
+
+/**
  * YouTube refuses a stream URL (HTTP 403) once it expires or the phone's address changes —
  * mobile data does that mid-video without the default network changing. Fetches fresh
  * links and resumes at the same spot; in the service, so background audio recovers too.
@@ -227,9 +263,12 @@ private class StreamRecoverer(
     private var lastPositionMs = 0L
 
     override fun onPlayerError(error: PlaybackException) {
-        if (error.errorCode != PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS) return
         val item = player.currentMediaItem ?: return
         val id = item.mediaId
+        // Also a video queued while its links couldn't load (onAddMediaItems keeps it): its source was only
+        // the watch page, which can't play. Its links are fetched now, the same way.
+        val unresolved = StreamCache.get(id) == null
+        if (error.errorCode != PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && !unresolved) return
         val position = player.currentPosition
         if (id == lastId && position < lastPositionMs + PROGRESS_MS) {
             Log.w("Skipii", "stream refused again for $id at ${position / 1000}s; giving up")
@@ -237,7 +276,7 @@ private class StreamRecoverer(
         }
         lastId = id
         lastPositionMs = position
-        Log.i("Skipii", "stream refused for $id; re-extracting and resuming at ${position / 1000}s")
+        Log.i("Skipii", if (unresolved) "no links yet for $id (queued unresolved); extracting" else "stream refused for $id; re-extracting and resuming at ${position / 1000}s")
         StreamRecovery.failed = null
         StreamRecovery.recovering = id
         StreamCache.invalidate(id)

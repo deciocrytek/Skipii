@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">Skipii ekranda değilken oynatma kontrolleri</string>
     <string name="app_live_back">−%1$s sn</string>
     <string name="app_live_forward">+%1$s sn</string>
+    <string name="app_tab_subscriptions_short">Abonelik</string>
+    <string name="app_link_playlist">Oynatma listesi</string>
+    <string name="app_link_unsupported">Skipii bu bağlantıyı açamıyor</string>
 </resources>

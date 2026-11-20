@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">Kontrol pemutaran saat Skipii tidak di layar</string>
     <string name="app_live_back">−%1$s dtk</string>
     <string name="app_live_forward">+%1$s dtk</string>
+    <string name="app_tab_subscriptions_short">Langg.</string>
+    <string name="app_link_playlist">Playlist</string>
+    <string name="app_link_unsupported">Skipii tidak bisa membuka tautan ini</string>
 </resources>

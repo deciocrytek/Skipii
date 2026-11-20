@@ -156,4 +156,26 @@
     <plurals name="ui_seek_forward">
         <item quantity="other">%1$s 秒進む</item>
     </plurals>
+    <string name="ui_play_all">すべて再生</string>
+    <string name="ui_shuffle">シャッフル</string>
+    <string name="ui_remove">削除</string>
+    <string name="ui_remove_from_watch_later">「後で見る」から削除</string>
+    <string name="ui_remove_from_playlist">%1$s から削除</string>
+    <string name="ui_removed_from">%1$s から削除しました</string>
+    <string name="ui_remove_failed">%1$s から削除できませんでした</string>
+    <string name="ui_queued_badge">キュー #%1$s</string>
+    <string name="ui_continue_watching">視聴を再開</string>
+    <string name="ui_remaining_under_min">残り1分未満</string>
+    <string name="ui_remaining_min">残り %1$s 分</string>
+    <string name="ui_remaining_hr">残り %1$s 時間</string>
+    <string name="ui_remaining_hr_min">残り %1$s 時間 %2$s 分</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="other">%1$s 本の動画</item>
+    </plurals>
+    <string name="ui_duration_under_min">1分未満</string>
+    <string name="ui_duration_min">%1$s 分</string>
+    <string name="ui_duration_hr">%1$s 時間</string>
+    <string name="ui_duration_hr_min">%1$s 時間 %2$s 分</string>
+    <string name="ui_reorder_queue">並べ替え</string>
+    <string name="ui_up_next_in">次を %1$s 秒後に再生</string>
 </resources>

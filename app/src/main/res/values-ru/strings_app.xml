@@ -68,4 +68,7 @@
     <string name="app_live_channel_description">Управление воспроизведением, пока Skipii не на экране</string>
     <string name="app_live_back">−%1$s с</string>
     <string name="app_live_forward">+%1$s с</string>
+    <string name="app_tab_subscriptions_short">Подп.</string>
+    <string name="app_link_playlist">Плейлист</string>
+    <string name="app_link_unsupported">Skipii не может открыть эту ссылку</string>
 </resources>

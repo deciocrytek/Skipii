@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">Controles de reproducción mientras Skipii no está en pantalla</string>
     <string name="app_live_back">−%1$s s</string>
     <string name="app_live_forward">+%1$s s</string>
+    <string name="app_tab_subscriptions_short">Suscr.</string>
+    <string name="app_link_playlist">Lista de reproducción</string>
+    <string name="app_link_unsupported">Skipii no puede abrir este enlace</string>
 </resources>

@@ -164,4 +164,27 @@
         <item quantity="one">Forward %1$s second</item>
         <item quantity="other">Forward %1$s seconds</item>
     </plurals>
+    <string name="ui_play_all">Play all</string>
+    <string name="ui_shuffle">Shuffle</string>
+    <string name="ui_remove">Remove</string>
+    <string name="ui_remove_from_watch_later">Remove from Watch later</string>
+    <string name="ui_remove_from_playlist">Remove from %1$s</string>
+    <string name="ui_removed_from">Removed from %1$s</string>
+    <string name="ui_remove_failed">Couldn\'t remove it from %1$s</string>
+    <string name="ui_queued_badge">Queued #%1$s</string>
+    <string name="ui_continue_watching">Continue watching</string>
+    <string name="ui_remaining_under_min">&lt;1m left</string>
+    <string name="ui_remaining_min">%1$sm left</string>
+    <string name="ui_remaining_hr">%1$sh left</string>
+    <string name="ui_remaining_hr_min">%1$sh %2$sm left</string>
+    <plurals name="ui_queue_videos_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="other">%1$s videos</item>
+    </plurals>
+    <string name="ui_duration_under_min">&lt;1 min</string>
+    <string name="ui_duration_min">%1$s min</string>
+    <string name="ui_duration_hr">%1$s h</string>
+    <string name="ui_duration_hr_min">%1$s h %2$s min</string>
+    <string name="ui_reorder_queue">Reorder</string>
+    <string name="ui_up_next_in">Up next in %1$ss</string>
 </resources>

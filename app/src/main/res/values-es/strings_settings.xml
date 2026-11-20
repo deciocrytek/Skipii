@@ -80,4 +80,9 @@
     <string name="settings_swipe_volume_line">En pantalla completa, desliza hacia arriba o abajo en el lado derecho del video.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">gesto, gestos, deslizar, brillo, volumen, sonido</string>
+    <string name="settings_background_play_title">Reproducción en segundo plano</string>
+    <string name="settings_background_play_on">Sigue sonando al salir de Skipii o al apagarse la pantalla</string>
+    <string name="settings_background_play_off">Se pausa al salir de Skipii o al apagarse la pantalla (solo audio sigue sonando)</string>
+    <string name="settings_open_links_title">Abrir enlaces de YouTube</string>
+    <string name="settings_open_links_line">Deja que Skipii abra enlaces de youtube.com y youtu.be de otras apps: Abrir de forma predeterminada › Añadir enlaces</string>
 </resources>

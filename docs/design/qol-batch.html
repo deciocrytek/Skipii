@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii QoL batch</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:'Google Sans Flex','Roboto Flex',Roboto,system-ui,sans-serif;
+  --primary:#E6002E;--on-primary:#fff;--pc:#FFE3E8;--on-pc:#5C0012;
+  --surface:#fff;--on:#0F0F0F;--on-var:#606060;
+  --sv:#E5E5E5;--scl:#F9F9F9;--sc:#F2F2F2;--sch:#EAEAEA;
+  --err:#B3261E;--err-c:#FFDAD6;--on-err-c:#410E0B;
+  --page:#ECECEC;--ink:#1a1a1a;--ink2:#5d5d5d;
+  --shadow:0 10px 28px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary:#FF8A9C;--on-primary:#5C0012;--pc:#7A0019;--on-pc:#FFE3E8;
+  --surface:#0F0F0F;--on:#F1F1F1;--on-var:#AAAAAA;
+  --sv:#303030;--scl:#161616;--sc:#1F1F1F;--sch:#272727;
+  --err:#FFB4AB;--err-c:#8C1D18;--on-err-c:#FFDAD6;
+  --page:#050505;--ink:#eee;--ink2:#a5a5a5;--shadow:0 12px 30px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --primary:#FF8A9C;--on-primary:#5C0012;--pc:#7A0019;--on-pc:#FFE3E8;
+  --surface:#0F0F0F;--on:#F1F1F1;--on-var:#AAAAAA;
+  --sv:#303030;--scl:#161616;--sc:#1F1F1F;--sch:#272727;
+  --err:#FFB4AB;--err-c:#8C1D18;--on-err-c:#FFDAD6;
+  --page:#050505;--ink:#eee;--ink2:#a5a5a5;--shadow:0 12px 30px rgba(0,0,0,.7);
+}
+body{font-family:var(--font);background:var(--page);color:var(--ink);padding:32px 16px 64px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:30px;font-weight:850;letter-spacing:-.8px}
+.lede{color:var(--ink2);margin:6px 0 28px;max-width:720px;line-height:1.45}
+section{margin:0 0 44px}
+h2{font-size:19px;font-weight:800;letter-spacing:-.3px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 .iss{font-size:13px;font-weight:600;color:var(--ink2)}
+.note{color:var(--ink2);font-size:14px;line-height:1.45;margin:6px 0 16px;max-width:760px}
+.row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.cap{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin:0 0 8px}
+.phone{width:300px;background:var(--surface);color:var(--on);border-radius:34px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.land{width:520px;max-width:100%;aspect-ratio:2.17;background:#000;border-radius:30px;box-shadow:var(--shadow);overflow:hidden;position:relative;color:#fff}
+.vid{position:absolute;inset:0;background:radial-gradient(120% 90% at 30% 40%,#3b6b8a,#13242f 60%,#070b0e)}
+.vid::after{content:"";position:absolute;inset:0;background:radial-gradient(40% 50% at 70% 60%,rgba(255,190,120,.35),transparent 70%)}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.38)}
+.tile{position:absolute;width:40px;height:40px;border-radius:14px;background:rgba(48,48,48,.92);display:grid;place-items:center}
+.tile svg{width:22px;height:22px;fill:#fff}
+.tile.on{background:var(--primary)}
+.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:var(--primary);display:grid;place-items:center}
+.play svg{width:32px;height:32px;fill:var(--on-primary)}
+.seek{position:absolute;top:50%;width:46px;height:46px;margin-top:-23px;border-radius:16px;background:rgba(48,48,48,.92);display:grid;place-items:center;font-weight:800;font-size:13px}
+.scrub{position:absolute;left:22px;right:22px;bottom:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}
+.scrub i{position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--primary);border-radius:2px}
+.scrub b{position:absolute;left:38%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--primary)}
+.time{position:absolute;left:22px;bottom:34px;font-size:12px;font-weight:700}
+.lockpill{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:24px;background:rgba(30,30,30,.72);backdrop-filter:blur(10px);font-size:13px;font-weight:700;white-space:nowrap}
+.lockpill .ring{width:34px;height:34px;border-radius:50%;background:conic-gradient(var(--primary) 0 62%,rgba(255,255,255,.18) 62% 100%);display:grid;place-items:center}
+.lockpill .ring span{width:28px;height:28px;border-radius:50%;background:#1e1e1e;display:grid;place-items:center}
+.lockpill svg{width:16px;height:16px;fill:#fff}
+.hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.7);font-weight:600}
+/* pages */
+.bar{display:flex;align-items:center;gap:10px;padding:18px 14px 10px}
+.circ{width:38px;height:38px;border-radius:50%;background:var(--sc);display:grid;place-items:center;flex:none}
+.circ svg{width:20px;height:20px;fill:var(--on)}
+.ptitle{font-size:22px;font-weight:850;letter-spacing:-.7px}
+.pills{display:flex;gap:8px;padding:2px 14px 12px}
+.pill{height:40px;border-radius:20px;padding:0 16px 0 12px;display:flex;align-items:center;gap:6px;font-weight:750;font-size:14px;background:var(--sc)}
+.pill.pri{background:var(--primary);color:var(--on-primary)}
+.pill svg{width:20px;height:20px;fill:currentColor}
+.meta{padding:0 14px 8px;font-size:12px;color:var(--on-var);font-weight:600}
+.card{margin:0 6px 6px;border-radius:24px;background:var(--surface);display:flex;gap:10px;padding:6px;position:relative}
+.thumb{width:118px;aspect-ratio:16/9;border-radius:16px;flex:none;background:linear-gradient(135deg,#c9a17a,#6a4a3a)}
+.t2{background:linear-gradient(135deg,#7aa6c9,#2e4a63)}.t3{background:linear-gradient(135deg,#a6c97a,#3e5a2a)}.t4{background:linear-gradient(135deg,#c97aa6,#5a2a4a)}
+.ct{font-size:13px;font-weight:700;line-height:1.25}
+.cm{font-size:11px;color:var(--on-var);margin-top:4px;display:flex;align-items:center;gap:5px}
+.av{width:16px;height:16px;border-radius:50%;flex:none;background:linear-gradient(135deg,#f3b,#93f)}
+.swipe{margin:0 6px 6px;border-radius:24px;background:var(--err-c);position:relative;overflow:hidden;height:78px}
+.swipe .rm{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px;color:var(--on-err-c);font-weight:800;font-size:13px}
+.swipe .rm svg{width:22px;height:22px;fill:currentColor}
+.swipe .card{position:absolute;left:-104px;right:104px;top:0;margin:0;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.sheet{margin:10px 8px 8px;border-radius:28px;background:var(--scl);padding:8px 0 10px}
+.handle{width:32px;height:4px;border-radius:2px;background:var(--on-var);opacity:.4;margin:4px auto 10px}
+.opt{display:flex;align-items:center;gap:14px;padding:11px 20px;font-size:14px;font-weight:600}
+.opt svg{width:22px;height:22px;fill:var(--on-var)}
+.opt.new{color:var(--primary)}.opt.new svg{fill:var(--primary)}
+.newtag{margin-left:auto;font-size:10px;font-weight:800;background:var(--pc);color:var(--on-pc);padding:2px 7px;border-radius:8px}
+/* player details */
+.stage{aspect-ratio:16/9;background:radial-gradient(120% 90% at 30% 40%,#3b6b8a,#13242f 60%,#070b0e);position:relative}
+.det{padding:12px 14px}
+.title{font-size:17px;font-weight:800;line-height:1.25;letter-spacing:-.2px;display:flex;gap:6px;align-items:flex-start}
+.title span{flex:1}
+.one span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title svg{width:22px;height:22px;fill:var(--on-var);flex:none;margin-top:-1px}
+.sub{font-size:12px;color:var(--on-var);margin-top:4px;font-weight:600}
+.chan{display:flex;align-items:center;gap:10px;margin-top:12px}
+.chan .a{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f3b,#93f)}
+.chan b{font-size:14px}
+.subbtn{margin-left:auto;height:34px;border-radius:17px;padding:0 14px;background:var(--on);color:var(--surface);font-weight:800;font-size:13px;display:grid;place-items:center}
+.cmt{margin:12px 8px 10px;border-radius:24px;background:var(--sc);padding:12px 14px}
+.cmt .h{font-size:13px;font-weight:800;margin-bottom:8px}
+.c{display:flex;gap:10px;font-size:13px;line-height:1.4;margin-top:8px}
+.c .a{width:26px;height:26px;border-radius:50%;flex:none;background:linear-gradient(135deg,#7af,#3c6)}
+.ts{color:var(--primary);font-weight:700}
+/* nav */
+.navwrap{padding:18px 10px 14px;background:var(--surface)}
+.nav{height:62px;border-radius:31px;background:var(--sv);display:flex;align-items:center;padding:6px;gap:2px}
+.tab{flex:1;height:50px;border-radius:25px;display:grid;place-items:center;min-width:0}
+.tab svg{width:24px;height:24px;fill:var(--on)}
+.tab.sel{flex:3.5;background:var(--primary);color:var(--on-primary);display:flex;justify-content:center;gap:6px;font-weight:800;font-size:14px;padding:0 8px;white-space:nowrap;overflow:hidden}
+.tab.sel svg{fill:var(--on-primary);flex:none}
+.tab.sel.tight{flex:2.6}
+.clip{text-overflow:clip;overflow:hidden}
+/* settings */
+.set{padding:16px 10px}
+.sh{font-size:12px;font-weight:800;color:var(--primary);padding:0 10px 8px;letter-spacing:.3px}
+.srow{background:var(--sc);padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:3px}
+.srow:first-of-type{border-radius:21px 21px 7px 7px}.srow.last{border-radius:7px 7px 21px 21px}
+.srow .tx{flex:1}.srow .tx b{display:block;font-size:14px}.srow .tx span{font-size:12px;color:var(--on-var);line-height:1.35;display:block;margin-top:2px}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--primary);position:relative;flex:none}
+.sw::after{content:"";position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:50%;background:var(--on-primary)}
+.sw.off{background:var(--sv)}.sw.off::after{left:8px;right:auto;top:8px;width:16px;height:16px;background:var(--on-var)}
+.newrow{box-shadow:inset 0 0 0 999px rgba(230,0,46,.06)}
+@media (max-width:560px){.land{width:100%}.phone{width:100%;max-width:340px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Quick quality-of-life batch</h1>
+<p class="lede">Mockups for the batch's visible changes, in the YouTube theme. Linking YouTube URLs, hold for 2× anywhere, sharper tablet thumbnails and the captions fix change behaviour only, so they have no mockup.</p>
+
+<section>
+<h2>1 · Screen lock in fullscreen <span class="iss">#63 · #55</span></h2>
+<p class="note">A lock tile joins the overlay's top row. Locked, the video takes no touches: no seeking, swipes, brightness/volume or pinch. A tap shows only the lock pill. Holding the pill for 1 s fills its ring and unlocks. Back also unlocks. The lock lasts until you leave fullscreen.</p>
+<div class="row">
+ <div><p class="cap">Overlay, lock tile added</p>
+  <div class="land"><div class="vid"></div><div class="dim"></div>
+   <div class="tile" style="left:22px;top:18px"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></div>
+   <div class="tile" style="right:118px;top:18px"><svg viewBox="0 0 24 24"><path d="M10 8v8l6-4-6-4zm9-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg></div>
+   <div class="tile" style="right:70px;top:18px;font-size:10px;font-weight:800">1×</div>
+   <div class="tile" style="right:22px;top:18px;width:40px;font-size:10px;font-weight:800">1080</div>
+   <div class="seek" style="left:30%">−10</div>
+   <div class="play"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></div>
+   <div class="seek" style="right:30%">+10</div>
+   <div class="time">6:12 / 16:40</div>
+   <div class="scrub"><i></i><b></b></div>
+  </div></div>
+ <div><p class="cap">Locked, after a tap</p>
+  <div class="land"><div class="vid"></div>
+   <div class="hint">Controls locked</div>
+   <div class="lockpill"><div class="ring"><span><svg viewBox="0 0 24 24"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6z"/></svg></span></div>Hold to unlock</div>
+  </div></div>
+</div>
+</section>
+
+<section>
+<h2>2 · Playlists: Play all, Shuffle, remove a video <span class="iss">#81 · #65 · #85</span></h2>
+<p class="note">Play all and Shuffle sit under the playlist title and queue the whole list ([current, ...queue]). On Watch later and your own playlists, swipe a card left to reveal Remove; letting go past the line removes it, with an Undo message. The long-press sheet also gets "Remove from Watch later" / "Remove from &lt;playlist&gt;". Both use the existing <code>setInPlaylist(add = false)</code>.</p>
+<div class="row">
+ <div><p class="cap">Watch later</p>
+  <div class="phone">
+   <div class="bar"><div class="circ"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></div><div class="ptitle">Watch later</div></div>
+   <div class="meta">38 videos</div>
+   <div class="pills"><div class="pill pri"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Play all</div><div class="pill"><svg viewBox="0 0 24 24"><path d="M10.6 9.2 5.4 4 4 5.4l5.2 5.2 1.4-1.4zM14.5 4l2 2L4 18.6 5.4 20 18 7.5l2 2V4h-5.5zm.3 9.4-1.4 1.4 3.1 3.1-2 2.1H20v-5.5l-2 2-3.2-3.1z"/></svg>Shuffle</div></div>
+   <div class="card"><div class="thumb"></div><div><div class="ct">I rebuilt my entire desk setup for under $200</div><div class="cm"><span class="av"></span>Desk Lab · 1.2M views</div></div></div>
+   <div class="swipe"><div class="rm"><svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remove</div>
+    <div class="card"><div class="thumb t2"></div><div><div class="ct">The physics of a perfect skipping stone</div><div class="cm"><span class="av"></span>Veritasium · 3.4M views</div></div></div></div>
+   <div class="card"><div class="thumb t3"></div><div><div class="ct">Sourdough, the lazy way (no stretch &amp; fold)</div><div class="cm"><span class="av"></span>Joshua · 880K views</div></div></div>
+   <div class="card"><div class="thumb t4"></div><div><div class="ct">Every Pixel camera, compared</div><div class="cm"><span class="av"></span>MKBHD · 2.1M views</div></div></div>
+   <div style="height:10px"></div>
+  </div></div>
+ <div><p class="cap">Long-press in Watch later</p>
+  <div class="phone" style="background:var(--sch)">
+   <div style="height:150px;background:rgba(0,0,0,.08)"></div>
+   <div class="sheet"><div class="handle"></div>
+    <div class="opt"><svg viewBox="0 0 24 24"><path d="M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm13-1v8l6-4z"/></svg>Play next</div>
+    <div class="opt"><svg viewBox="0 0 24 24"><path d="M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm14-4v4h-4v2h4v4h2v-4h4v-2h-4v-4z"/></svg>Add to queue</div>
+    <div class="opt"><svg viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM3 16h7v-2H3v2z"/></svg>Save to playlist</div>
+    <div class="opt new"><svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remove from Watch later<span class="newtag">NEW</span></div>
+    <div class="opt"><svg viewBox="0 0 24 24"><path d="M18 16.1c-.8 0-1.4.3-2 .8l-7.1-4.2c.1-.2.1-.5.1-.7s0-.5-.1-.7L16 7.2c.5.5 1.2.8 2 .8a3 3 0 1 0-3-3c0 .2 0 .5.1.7L8 9.8C7.5 9.3 6.8 9 6 9a3 3 0 1 0 0 6c.8 0 1.5-.3 2-.8l7.1 4.2c-.1.2-.1.4-.1.6a2.9 2.9 0 1 0 3-2.9z"/></svg>Share</div>
+   </div>
+  </div></div>
+</div>
+</section>
+
+<section>
+<h2>3 · One-line title, tappable timestamps in comments <span class="iss">#34 · #66</span></h2>
+<p class="note">The player's title shows one line with a chevron; a tap expands the full title and the description as it does now. In comments, times like <span class="ts">4:21</span> are links. A tap seeks the open video, using the same link code as description links (0.5.115). Links in comments become tappable too.</p>
+<div class="row">
+ <div><p class="cap">Now</p>
+  <div class="phone"><div class="stage"></div><div class="det">
+   <div class="title"><span>I spent 30 days building a tiny cabin in the woods with only hand tools — here's everything that went wrong</span></div>
+   <div class="sub">1.2M views · 3 days ago</div>
+   <div class="chan"><div class="a"></div><b>Woodnook</b><div class="subbtn">Subscribe</div></div></div>
+   <div class="cmt"><div class="h">Comments 2.4K</div><div class="c"><div class="a"></div><div>the part at 4:21 where the roof beam slips 💀</div></div></div>
+  </div></div>
+ <div><p class="cap">After</p>
+  <div class="phone"><div class="stage"></div><div class="det">
+   <div class="title one"><span>I spent 30 days building a tiny cabin in the woods with only hand tools — here's everything that went wrong</span><svg viewBox="0 0 24 24"><path d="M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z"/></svg></div>
+   <div class="sub">1.2M views · 3 days ago</div>
+   <div class="chan"><div class="a"></div><b>Woodnook</b><div class="subbtn">Subscribe</div></div></div>
+   <div class="cmt"><div class="h">Comments 2.4K</div><div class="c"><div class="a"></div><div>the part at <span class="ts">4:21</span> where the roof beam slips 💀</div></div><div class="c"><div class="a" style="background:linear-gradient(135deg,#fa7,#c63)"></div><div><span class="ts">11:05</span> to <span class="ts">12:30</span> is pure therapy</div></div></div>
+  </div></div>
+</div>
+</section>
+
+<section>
+<h2>4 · "Subscriptions" fits the tab bar <span class="iss">#39 · #70</span></h2>
+<p class="note">With five tabs, "Subscriptions" fills or clips its pill (worse at large font sizes). The selected tab measures its label and uses a short form ("Subs", <code>tab_subscriptions_short</code>, translated) when the full word won't fit with its usual padding. Big phones that fit the full word keep it.</p>
+<div class="row">
+ <div><p class="cap">Now · clipped at 1.15× font</p>
+  <div class="phone navwrap" style="padding:18px 10px">
+   <div class="nav"><div class="tab"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+   <div class="tab sel clip"><svg viewBox="0 0 24 24"><path d="M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2zm-6 4-6-3.3v6.5z"/></svg><span class="clip" style="font-size:15.5px">Subscriptions</span></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M17.8 10.7 16.6 10l1.3-.7a3.7 3.7 0 0 0-3.4-6.6L6.8 6.9a3.7 3.7 0 0 0 .1 6.6l1.3.6-1.3.7a3.7 3.7 0 0 0 3.4 6.6l7.7-4.2a3.7 3.7 0 0 0-.2-6.5zM10 14.5v-5l4.3 2.5z"/></svg></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg></div></div>
+  </div></div>
+ <div><p class="cap">After · short label when tight</p>
+  <div class="phone navwrap" style="padding:18px 10px">
+   <div class="nav"><div class="tab"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+   <div class="tab sel tight"><svg viewBox="0 0 24 24"><path d="M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2zm-6 4-6-3.3v6.5z"/></svg><span>Subs</span></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M17.8 10.7 16.6 10l1.3-.7a3.7 3.7 0 0 0-3.4-6.6L6.8 6.9a3.7 3.7 0 0 0 .1 6.6l1.3.6-1.3.7a3.7 3.7 0 0 0 3.4 6.6l7.7-4.2a3.7 3.7 0 0 0-.2-6.5zM10 14.5v-5l4.3 2.5z"/></svg></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg></div>
+   <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg></div></div>
+  </div></div>
+</div>
+</section>
+
+<section>
+<h2>5 · Background play switch <span class="iss">#68</span></h2>
+<p class="note">Settings › Playback gets a "Background play" switch, on by default. When it's off, leaving the app or turning the screen off pauses the video, unless picture-in-picture or audio only is on (audio only is the "I want sound in my pocket" mode). It takes effect immediately.</p>
+<div class="row">
+ <div><p class="cap">Settings › Playback</p>
+  <div class="phone set">
+   <div class="sh">PLAYBACK</div>
+   <div class="srow"><div class="tx"><b>Remember speed</b><span>Every video plays at the speed you last picked</span></div><div class="sw off"></div></div>
+   <div class="srow newrow"><div class="tx"><b>Background play</b><span>Keep playing when you leave Skipii or the screen turns off</span></div><div class="sw"></div></div>
+   <div class="srow last"><div class="tx"><b>Picture-in-picture on leave</b><span>Leaving a playing video shrinks it into a window</span></div><div class="sw off"></div></div>
+  </div></div>
+</div>
+</section>
+</div>
+</body>
+</html>

@@ -67,4 +67,7 @@
     <string name="app_live_channel_description">Skipii が画面に出ていないときの再生操作</string>
     <string name="app_live_back">−%1$s 秒</string>
     <string name="app_live_forward">+%1$s 秒</string>
+    <string name="app_tab_subscriptions_short">登録</string>
+    <string name="app_link_playlist">再生リスト</string>
+    <string name="app_link_unsupported">Skipii ではこのリンクを開けません</string>
 </resources>

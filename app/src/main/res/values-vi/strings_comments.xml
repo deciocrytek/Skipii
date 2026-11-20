@@ -117,4 +117,8 @@
     <string name="captions_kept_languages">Ngôn ngữ dịch trên điện thoại này</string>
     <!-- Accessibility label of a downloaded language's X. %1$s = the language. -->
     <string name="captions_remove_language">Xóa %1$s</string>
+    <string name="captions_error_translate">Không dịch được phụ đề này sang %1$s.</string>
+    <string name="captions_word_by_word_title">Từng từ một</string>
+    <string name="captions_word_by_word_line">Phụ đề tự động hiện theo từng từ được nói, như trong ứng dụng YouTube</string>
+    <string name="captions_size_huger">Khổng lồ</string>
 </resources>

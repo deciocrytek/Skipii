@@ -84,7 +84,7 @@ fun captionLinesAt(cues: List<CaptionCue>, t: Long): List<CaptionLine> {
 
 /** Lines of an auto-generated track shown together, from [startMs] to [endMs]. */
 @Immutable
-data class CaptionPage(val startMs: Long, val endMs: Long, val lines: List<CaptionLine>)
+data class CaptionPage(val startMs: Long, val endMs: Long, val lines: List<CaptionLine>, val cues: List<CaptionCue> = emptyList())
 
 /**
  * An auto-generated track as YouTube shows it (Derek, 0.5.77): two lines at a time, both at once, then a hard cut
@@ -108,12 +108,15 @@ fun captionPages(cues: List<CaptionCue>): List<CaptionPage> {
     }
     return groups.mapIndexed { k, group ->
         val next = groups.getOrNull(k + 1)?.first()?.startMs ?: Long.MAX_VALUE
-        CaptionPage(group.first().startMs, minOf(group.maxOf { it.endMs }, next), group.map { CaptionLine(it.text, it.sound) })
+        CaptionPage(group.first().startMs, minOf(group.maxOf { it.endMs }, next), group.map { CaptionLine(it.text, it.sound) }, group)
     }
 }
 
-/** The page's lines showing at [t], or none between pages. */
-fun captionPageAt(pages: List<CaptionPage>, t: Long): List<CaptionLine> {
+/**
+ * The page's lines showing at [t], or none between pages. [wordByWord] (Settings › Captions, GitHub #87): each line
+ * shows only the words said so far, as YouTube's app does; the page still cuts to the next pair whole.
+ */
+fun captionPageAt(pages: List<CaptionPage>, t: Long, wordByWord: Boolean = false): List<CaptionLine> {
     var lo = 0
     var hi = pages.size - 1
     var last = -1
@@ -122,7 +125,17 @@ fun captionPageAt(pages: List<CaptionPage>, t: Long): List<CaptionLine> {
         if (pages[mid].startMs <= t) { last = mid; lo = mid + 1 } else hi = mid - 1
     }
     val page = pages.getOrNull(last) ?: return emptyList()
-    return if (t < page.endMs) page.lines else emptyList()
+    if (t >= page.endMs) return emptyList()
+    if (!wordByWord || page.cues.isEmpty()) return page.lines
+    return page.cues.mapNotNull { cue ->
+        val words = cue.words
+        when {
+            t < cue.startMs -> null
+            cue.sound || words.isNullOrEmpty() -> CaptionLine(cue.text, cue.sound)
+            else -> words.filter { cue.startMs + it.offsetMs <= t }.joinToString("") { it.text }.trim()
+                .ifEmpty { null }?.let { CaptionLine(it, false) }
+        }
+    }
 }
 
 /** Two auto-generated lines further apart than this aren't shown as one page. */
@@ -214,11 +227,13 @@ object CaptionSettings {
     val sizes = listOf(
         0.85f to R.string.captions_size_small, 1f to R.string.captions_size_medium,
         1.22f to R.string.captions_size_large, 1.5f to R.string.captions_size_huge,
+        1.85f to R.string.captions_size_huger,
     )
 
     private const val KEY_SHOW = "show"
     private const val KEY_LOOK = "look"
     private const val KEY_SIZE = "size"
+    private const val KEY_WORD_BY_WORD = "word_by_word"
     private const val KEY_LANGUAGE = "language"
     private var prefs: SharedPreferences? = null
 
@@ -227,6 +242,9 @@ object CaptionSettings {
     var look by mutableStateOf(Look.Skipii)
         private set
     var size by mutableFloatStateOf(1f)
+        private set
+    /** Auto-generated captions appear word by word as they're said ([captionPageAt]); off = two whole lines. */
+    var wordByWord by mutableStateOf(false)
         private set
     /** The language last picked, if one was. */
     private var pickedLanguage by mutableStateOf<String?>(null)
@@ -241,11 +259,13 @@ object CaptionSettings {
         show = prefs?.getString(KEY_SHOW, null)?.let { s -> Show.entries.firstOrNull { it.name == s } } ?: Show.Foreign
         look = prefs?.getString(KEY_LOOK, null)?.let { s -> Look.entries.firstOrNull { it.name == s } } ?: Look.Skipii
         size = prefs?.getFloat(KEY_SIZE, 1f) ?: 1f
+        wordByWord = prefs?.getBoolean(KEY_WORD_BY_WORD, false) == true
         pickedLanguage = prefs?.getString(KEY_LANGUAGE, null)
     }
 
     fun chooseShow(value: Show) { show = value; prefs?.edit()?.putString(KEY_SHOW, value.name)?.apply() }
     fun chooseLook(value: Look) { look = value; prefs?.edit()?.putString(KEY_LOOK, value.name)?.apply() }
+    fun chooseWordByWord(value: Boolean) { wordByWord = value; prefs?.edit()?.putBoolean(KEY_WORD_BY_WORD, value)?.apply() }
     fun chooseSize(value: Float) { size = value; prefs?.edit()?.putFloat(KEY_SIZE, value)?.apply() }
     fun rememberLanguage(value: String) { pickedLanguage = value; prefs?.edit()?.putString(KEY_LANGUAGE, value)?.apply() }
 }
@@ -256,15 +276,40 @@ object CaptionFiles {
 
     suspend fun load(track: CaptionTrack): List<CaptionCue> = cache.get(track.url) ?: withContext(Dispatchers.IO) {
         val request = okhttp3.Request.Builder().url(track.url).header("User-Agent", Net.USER_AGENT).build()
+        // A link YouTube wants a PO token for carries exp=xpe (the web page's do, the mobile clients' didn't on
+        // 2026-11-17); an expired link (~7 h) answers 404; both a token refusal and a broken link answer an empty 200.
+        val xpe = "exp=xpe" in track.url
         val body = Net.client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
+            if (!response.isSuccessful) throw IOException("caption file HTTP ${response.code}${if (xpe) ", exp=xpe" else ""}")
             response.body?.string().orEmpty()
         }
-        // An empty answer is how YouTube refuses a file it wants a token for.
-        if (body.isBlank()) throw IOException("empty caption file")
+        if (body.isBlank()) throw IOException("empty caption file${if (xpe) " (exp=xpe: wants a PO token)" else ""}")
         Srv3.parse(body, timedWords = track.auto).also {
             Log.i(TAG, "captions: ${track.language}${if (track.auto) " (auto)" else ""} ${it.size} lines")
             cache.put(track.url, it)
+        }
+    }
+}
+
+/**
+ * Caption links asked for again (GitHub #64): when a track's file comes back empty or refused, a fresh player
+ * answer from VISIONOS (PlayerFallback) lists the tracks with new links. Once per video.
+ */
+object CaptionRescue {
+    suspend fun tracks(videoId: String): List<CaptionTrack> = withContext(Dispatchers.IO) {
+        val answer = PlayerFallback.freshAnswer(videoId)
+        parseTracks(answer).also { Log.i(TAG, "captions: fresh links for $videoId, ${it.size} tracks") }
+    }
+
+    /** A player answer's caption tracks, each link asking for srv3. */
+    internal fun parseTracks(answer: org.json.JSONObject): List<CaptionTrack> {
+        val list = answer.optJSONObject("captions")?.optJSONObject("playerCaptionsTracklistRenderer")
+            ?.optJSONArray("captionTracks") ?: return emptyList()
+        return (0 until list.length()).mapNotNull { i ->
+            val t = list.optJSONObject(i) ?: return@mapNotNull null
+            val url = t.optString("baseUrl").ifBlank { null } ?: return@mapNotNull null
+            val bare = url.replace(Regex("&fmt=[^&]*"), "")
+            CaptionTrack(t.optString("languageCode"), t.optString("kind") == "asr", "$bare&fmt=srv3")
         }
     }
 }
@@ -353,6 +398,10 @@ private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { cont 
  */
 @Stable
 class CaptionsState(private val scope: CoroutineScope, private val positionMs: () -> Long) {
+    /** The video these tracks are for (fresh links are asked for by id). */
+    private var videoId: String? = null
+    /** Fresh links were already asked for this video (CaptionRescue): never twice. */
+    private var rescued = false
     var tracks by mutableStateOf<List<CaptionTrack>>(emptyList())
         private set
     var choice by mutableStateOf<CaptionChoice?>(null)
@@ -394,8 +443,10 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
     }
 
     /** A video's tracks are in: choose and turn on as the settings say. */
-    fun useTracks(list: List<CaptionTrack>) {
+    fun useTracks(list: List<CaptionTrack>, videoId: String) {
         clear()
+        this.videoId = videoId
+        rescued = false
         Log.i(TAG, "captions: ${list.size} tracks ${list.map { it.language + if (it.auto) " (auto)" else "" }}")
         // The language last picked, then the app's, then the rest by name; auto-generated after the creator's in each.
         tracks = list.sortedWith(
@@ -462,29 +513,62 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
         error = null
         loading = true
         job = scope.launch {
+            var now = c
+            var loaded = false
             try {
-                val source = CaptionFiles.load(c.track)
-                val target = c.translateTo
+                val source = try {
+                    CaptionFiles.load(c.track)
+                } catch (e: IOException) {
+                    // The link was refused or has expired: once per video, ask for fresh links and try again.
+                    val fresh = rescue(c.track) ?: throw e
+                    Log.w(TAG, "captions: ${c.track.language} failed (${e.message}); trying fresh links")
+                    now = c.copy(track = fresh)
+                    if (loadedFor == c) { loadedFor = now; choice = now }
+                    CaptionFiles.load(fresh)
+                }
+                loaded = true
+                val target = now.translateTo
                 if (target == null) {
                     cues = source
                 } else {
-                    val from = CaptionTranslator.code(c.track.base) ?: throw IOException("can't translate ${c.track.base}")
+                    val from = CaptionTranslator.code(now.track.base) ?: throw IOException("can't translate ${now.track.base}")
                     CaptionTranslator.prepare(from, target)
                     translate(source, from, target)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.w(TAG, "captions: ${c.track.language} → ${c.translateTo ?: "-"} failed", e)
-                if (loadedFor == c) {
-                    error = if (c.translateTo != null && c.translateTo !in CaptionTranslator.downloaded) str(R.string.captions_error_download, c.label)
-                    else str(R.string.captions_error_load)
+                Log.w(TAG, "captions: ${now.track.language} → ${now.translateTo ?: "-"} failed", e)
+                if (loadedFor == now) {
+                    error = when {
+                        now.translateTo != null && now.translateTo !in CaptionTranslator.downloaded -> str(R.string.captions_error_download, now.label)
+                        // The file was fine; the phone's translation wasn't (it used to say "Couldn't load", as if YouTube had refused).
+                        loaded -> str(R.string.captions_error_translate, now.label)
+                        else -> str(R.string.captions_error_load)
+                    }
                     loadedFor = null
                 }
             } finally {
-                if (loadedFor == c || loadedFor == null) loading = false
+                if (loadedFor == now || loadedFor == null) loading = false
             }
         }
+    }
+
+    /** [track] with fresh links (CaptionRescue), the track list updated with them; null if none came back. */
+    private suspend fun rescue(track: CaptionTrack): CaptionTrack? {
+        val id = videoId ?: return null
+        if (rescued) return null
+        rescued = true
+        val fresh = runCatching { CaptionRescue.tracks(id) }
+            .onFailure { if (it is CancellationException) throw it; Log.w(TAG, "captions: fresh links for $id failed", it) }
+            .getOrNull().orEmpty()
+        if (fresh.isEmpty() || videoId != id) return null
+        val match = fresh.firstOrNull { it.language == track.language && it.auto == track.auto }
+            ?: fresh.firstOrNull { it.base == track.base && it.auto == track.auto }
+            ?: return null
+        // Every track gets its fresh link (the next pick would fail the same way), kept in the same order.
+        tracks = tracks.map { old -> fresh.firstOrNull { it.language == old.language && it.auto == old.auto } ?: old }
+        return match
     }
 
     /**

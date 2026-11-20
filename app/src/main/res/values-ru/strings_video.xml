@@ -70,4 +70,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Повторить попытку</string>
     <string name="video_open_in_youtube">Открыть в YouTube</string>
+    <string name="video_lock">Заблокировать управление</string>
+    <string name="video_hold_to_unlock">Удерживайте, чтобы разблокировать</string>
 </resources>

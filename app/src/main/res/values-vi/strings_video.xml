@@ -70,4 +70,6 @@
     <!-- Button on the playback error panel. -->
     <string name="video_try_again">Thử lại</string>
     <string name="video_open_in_youtube">Mở trong YouTube</string>
+    <string name="video_lock">Khóa điều khiển</string>
+    <string name="video_hold_to_unlock">Giữ để mở khóa</string>
 </resources>

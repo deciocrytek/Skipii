@@ -10,6 +10,33 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- **Open YouTube links in Skipii** (#59). Tap a youtube.com or youtu.be link in another app, or share one to Skipii: videos and Shorts play (from the time in the link), channels and playlists open. To make Skipii the default, go to **Settings › About › Open YouTube links** and add the links under "Open by default".
+- **Play all** and **Shuffle** on every playlist (#81). The rest of the playlist goes into your queue.
+- **Remove videos from Watch later and your own playlists** (#65, #85). Swipe a video left, or long-press it and choose **Remove from …**. **Undo** brings it back.
+- **Screen lock in fullscreen** (#63). Tap the lock at the top left and the video ignores touches, so nothing seeks or swipes by accident. To unlock, tap anywhere and hold the **Hold to unlock** button, or press Back.
+- **Background play** switch in **Settings › Playback** (#68). Turn it off and the video pauses when you leave Skipii or the screen turns off. Audio only keeps playing either way.
+- **Word by word** captions in **Settings › Captions** (#87, #7). Auto-generated captions then appear as each word is said, as in YouTube's app. There's also a bigger **Giant** caption size.
+- **Swipe a video right to add it to your queue**, on every list of videos: Home, Subscriptions, Search, channels, playlists, History and More videos under the player. It takes a real swipe, about a third of the way across, so scrolling or a quick flick never queues anything by accident. A "Queued #2" badge on the thumbnail shows its place in line.
+- **Rearrange your queue**: drag a video by its handle, or press and hold it anywhere and move it. Swipe a video left to take it out. The queue also shows how many videos it holds and how long they run.
+- **Up next**: in the last seconds of a video, when something is queued, a countdown shows what plays next. Play it now, or Cancel to stop at the end of this one.
+- **Library** starts with **Continue watching** (videos you didn't finish, with the time left) and a link to your whole **History**. Watch later and Liked sit side by side, and your playlists show their covers.
+- The player bar briefly shows the time and chapter when a new chapter starts or after you jump back or forward. Tap it to open the chapter list.
+
+### Improved
+- Hold anywhere on the video for 2×, not just on the right side (#51).
+- Timestamps in comments are links (#66): tap "4:21" to jump there. Web links in comments open too.
+- A video title longer than three lines shows one line with an arrow; tap it to see the whole title and the description (#34).
+- When "Subscriptions" doesn't fit in the tab bar (big fonts, narrow phones), it says "Subs" instead of being cut off (#39, #70).
+- Sharper thumbnails on tablets, open foldables and TVs (#18).
+
+### Fixed
+- Captions that fail to load now try again with fresh links before giving up (#64). When translating them is what fails, the message now says so instead of "Couldn't load these captions."
+- Links in a video's description show the whole address (YouTube cuts long ones short with "...") and can be tapped: a timestamp jumps there in the video, another YouTube video plays in Skipii, a channel or @mention opens its page, a #hashtag searches, and any other link opens in your browser.
+- Chapter names in the player bar's chapter list show in full, on as many lines as they need, instead of being cut off after one line.
+- Going back from a playlist slides it away, as a channel page does. It used to vanish with no animation.
+- A video added to the queue while YouTube was checking the connection is kept, and loads when its turn comes. It used to disappear even though Skipii said "Added to queue".
+
 ## 0.5.114
 
 ### Fixed

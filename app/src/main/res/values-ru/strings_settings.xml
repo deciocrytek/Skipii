@@ -81,4 +81,9 @@
     <string name="settings_swipe_volume_line">В полноэкранном режиме проведите вверх или вниз по правой стороне видео.</string>
     <!-- Only for Settings' search: other words people use for them. -->
     <string name="settings_swipe_words">жест, жесты, свайп, провести, яркость, громкость, звук</string>
+    <string name="settings_background_play_title">Фоновое воспроизведение</string>
+    <string name="settings_background_play_on">Играет дальше, когда вы выходите из Skipii или экран гаснет</string>
+    <string name="settings_background_play_off">Пауза, когда вы выходите из Skipii или экран гаснет (режим «только звук» играет дальше)</string>
+    <string name="settings_open_links_title">Открывать ссылки YouTube</string>
+    <string name="settings_open_links_line">Пусть Skipii открывает ссылки youtube.com и youtu.be из других приложений: Открывать по умолчанию › Добавить ссылки</string>
 </resources>

@@ -68,4 +68,7 @@
     <string name="app_live_channel_description">Nút điều khiển phát khi Skipii không ở trên màn hình</string>
     <string name="app_live_back">−%1$s giây</string>
     <string name="app_live_forward">+%1$s giây</string>
+    <string name="app_tab_subscriptions_short">Đăng ký</string>
+    <string name="app_link_playlist">Danh sách phát</string>
+    <string name="app_link_unsupported">Skipii không mở được liên kết này</string>
 </resources>

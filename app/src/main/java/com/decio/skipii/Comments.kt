@@ -110,7 +110,9 @@ class CommentsState(private val scope: CoroutineScope) {
     /** The watch page the first comments come from also carries the video's chapters. */
     var onChapters: ((videoId: String, chapters: List<Chapter>) -> Unit)? = null
 
-    private var videoId: String? = null
+    /** The video these comments are under. */
+    var videoId: String? = null
+        private set
     var comments by mutableStateOf<List<Comment>>(emptyList())
         private set
     var total by mutableStateOf(-1)
@@ -615,7 +617,12 @@ private fun CommentRow(comment: Comment, state: CommentsState, isReply: Boolean 
                 displayAge(comment.ago)?.let { Text(it, color = c.onSurfaceVariant, fontSize = 12.sp, maxLines = 1) }
             }
             Spacer(Modifier.height(3.dp))
-            Text(comment.text, fontSize = 14.sp, lineHeight = 20.sp)
+            // Timestamps seek, links open (#66), where the open player provides LocalLinkOpener.
+            val onLink = LocalLinkOpener.current
+            val linked = remember(comment.text, state.videoId, onLink != null) {
+                if (onLink == null) Description(comment.text) else commentLinks(comment.text, state.videoId)
+            }
+            LinkedText(linked, onLink)
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Like (signed in): pops like the video's like, and the count follows.

@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorPath
+import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -44,7 +45,12 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.focus.onFocusChanged
@@ -55,6 +61,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -226,16 +233,33 @@ fun Modifier.prefetchOnPress(videoId: String): Modifier = pointerInput(videoId) 
 /** Long-pressing any video opens its options (Play next, Add to queue, …). Provided by the app shell. */
 val LocalVideoMenu = staticCompositionLocalOf<(VideoItem) -> Unit> { {} }
 
+/** Each queued video's place in the queue (1 = next), for the "Queued #N" badge on its thumbnail. */
+val LocalQueueIndex = compositionLocalOf<Map<String, Int>> { emptyMap() }
+
 @Composable
 fun Thumbnail(url: String?, modifier: Modifier = Modifier, radius: Int = 22) {
+    // Wide windows (tablets, open foldables, TVs) draw cards far past hqdefault's 480 × 270 picture
+    // (GitHub #18: blurry on a tablet): ask for hq720 there, and fall back to hqdefault where a
+    // video has none (old uploads answer 404).
+    val wide = LocalWindowLayout.current.let { it.wide || it.tv }
+    var sharpFailed by remember(url) { mutableStateOf(false) }
+    val sharp = if (wide && !sharpFailed) sharperThumbnail(url) else null
     AsyncImage(
-        model = url,
+        model = sharp ?: url,
+        onError = { if (sharp != null) sharpFailed = true },
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = modifier
             .clip(RoundedCornerShape(radius.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest),
     )
+}
+
+/** hq720 (1280 × 720) for an i.ytimg.com hqdefault / mqdefault link; null for anything else. */
+internal fun sharperThumbnail(url: String?): String? {
+    if (url == null || !url.contains("ytimg.com/vi/")) return null
+    val swapped = url.replace(Regex("/(hq|mq|sd)default\\.jpg(\\?.*)?$"), "/hq720.jpg")
+    return swapped.takeIf { it != url }
 }
 
 @Composable
@@ -248,6 +272,52 @@ fun DurationPill(seconds: Long, modifier: Modifier = Modifier, small: Boolean = 
             .padding(horizontal = if (small) 7.dp else 9.dp, vertical = if (small) 2.dp else 4.dp),
     ) {
         Text(formatDuration(seconds * 1000), color = Color.White, fontSize = if (small) 11.sp else 12.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+/**
+ * "Queued #2" on a thumbnail while the video waits in the queue. It springs in when the video is queued (a swipe,
+ * the menu) and fades when it leaves, but a card scrolled into view that was already queued just shows it.
+ */
+@Composable
+fun QueuedBadge(videoId: String, modifier: Modifier = Modifier, small: Boolean = false) {
+    val position = LocalQueueIndex.current[videoId]
+    // The number it showed, kept while it fades out.
+    var shown by remember { mutableIntStateOf(position ?: 0) }
+    if (position != null) shown = position
+    val reduced = rememberReducedMotion()
+    val appear = remember { androidx.compose.animation.core.Animatable(if (position != null) 1f else 0f) }
+    LaunchedEffect(position != null) {
+        val target = if (position != null) 1f else 0f
+        if (reduced) appear.snapTo(target)
+        else appear.animateTo(target, if (target > 0f) spring(dampingRatio = 0.55f, stiffness = 600f) else tween(160))
+    }
+    if (shown == 0) return
+    val c = MaterialTheme.colorScheme
+    Row(
+        modifier = modifier
+            .graphicsLayer {
+                val a = appear.value
+                alpha = a.coerceIn(0f, 1f)
+                val s = 0.6f + 0.4f * a
+                scaleX = s
+                scaleY = s
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0f)
+            }
+            .clip(CircleShape)
+            .background(c.primary)
+            .padding(start = if (small) 5.dp else 7.dp, end = if (small) 7.dp else 9.dp, top = if (small) 2.dp else 4.dp, bottom = if (small) 2.dp else 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.AutoMirrored.Rounded.PlaylistPlay, contentDescription = null, tint = c.onPrimary, modifier = Modifier.size(if (small) 12.dp else 14.dp))
+        Spacer(Modifier.width(3.dp))
+        Text(
+            stringResource(R.string.ui_queued_badge, shown),
+            color = c.onPrimary,
+            fontSize = if (small) 10.sp else 11.sp,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+        )
     }
 }
 
@@ -274,6 +344,10 @@ fun ChannelAvatar(url: String?, name: String, size: Int = 40) {
     }
 }
 
+/** Where [VideoCard]'s card sits inside its slot, and its corners ([SwipeVideo] lines its trays up with them). */
+val VideoCardInset = PaddingValues(horizontal = 6.dp, vertical = 7.dp)
+val VideoCardCorner = 28.dp
+
 /**
  * Full-width feed card: rounded thumbnail inside a 28 dp card, then avatar + title + meta.
  * The thumbnail sits 11 dp from the screen's edge (6 + 5), half the old 22 (Derek, 2026-10-31: wider thumbnails).
@@ -282,7 +356,7 @@ fun ChannelAvatar(url: String?, name: String, size: Int = 40) {
 fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = MaterialTheme.colorScheme
     val menu = LocalVideoMenu.current
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(VideoCardCorner)
     // On a remote (TV) the focused card lifts: a lighter container and a shadow under its scale-up.
     val tv = LocalWindowLayout.current.tv
     var focused by remember { mutableStateOf(false) }
@@ -291,7 +365,7 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
     val opener = remember { FocusRequester() }
     Column(
         modifier = modifier
-            .padding(horizontal = 6.dp, vertical = 7.dp)
+            .padding(VideoCardInset)
             .fillMaxWidth()
             .prefetchOnPress(video.id)
             .onFocusChanged { focused = it.isFocused }
@@ -306,6 +380,7 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifi
     ) {
         Box {
             Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = 23)
+            QueuedBadge(video.id, Modifier.align(Alignment.TopStart).padding(10.dp))
             DurationPill(video.durationSec, Modifier.align(Alignment.BottomEnd).padding(10.dp))
             ResumeBar(video.id, Modifier.align(Alignment.BottomStart))
         }
@@ -365,22 +440,35 @@ private fun CardMeta(video: VideoItem) {
     }
 }
 
-/** Compact row used for "More videos" under the player. */
+/** Where [VideoRow]'s thumbnail sits inside it, and its corners ([SwipeVideo] lines its trays up with them). */
+val VideoRowInset = PaddingValues(vertical = 6.dp)
+val VideoRowCorner = 16.dp
+
+/** Compact row used for "More videos" under the player (and the queue). */
 @Composable
-fun VideoRow(video: VideoItem, onClick: () -> Unit, trailing: (@Composable () -> Unit)? = null) {
+fun VideoRow(
+    video: VideoItem,
+    onClick: () -> Unit,
+    /** False in the queue, where holding a row picks it up to move it. */
+    longPressMenu: Boolean = true,
+    trailing: (@Composable () -> Unit)? = null,
+) {
     val c = MaterialTheme.colorScheme
     val menu = LocalVideoMenu.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .prefetchOnPress(video.id)
-            .pressable(pressedScale = 0.97f, onLongClick = { menu(video) }, onClick = onClick)
-            .padding(vertical = 6.dp),
+            .pressable(pressedScale = 0.97f, onLongClick = if (longPressMenu) { { menu(video) } } else null, onClick = onClick)
+            .padding(VideoRowInset),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.width(140.dp)) {
-            Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = 16)
+            Thumbnail(video.thumbnail, Modifier.fillMaxWidth().aspectRatio(16f / 9f), radius = VideoRowCorner.value.toInt())
             DurationPill(video.durationSec, Modifier.align(Alignment.BottomEnd).padding(6.dp), small = true)
+            // Not in the queue itself, where every row is queued.
+            if (longPressMenu) QueuedBadge(video.id, Modifier.align(Alignment.TopStart).padding(6.dp), small = true)
+            ResumeBar(video.id, Modifier.align(Alignment.BottomStart))
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
