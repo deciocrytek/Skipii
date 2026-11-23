@@ -178,4 +178,15 @@
     <string name="ui_duration_hr_min">%1$s giờ %2$s phút</string>
     <string name="ui_reorder_queue">Sắp xếp lại</string>
     <string name="ui_up_next_in">Tiếp theo sau %1$s giây</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">Tìm trong %1$s</string>
+    <string name="ui_search_history">Tìm trong lịch sử gần đây</string>
+    <string name="ui_search_history_note">YouTube chỉ tìm trong lịch sử gần đây của bạn</string>
+    <string name="ui_search_found_so_far">Đã tìm thấy %1$s…</string>
+    <string name="ui_search_count_of">%1$s / %2$s</string>
+    <string name="ui_search_no_matches">Không có kết quả</string>
+    <string name="ui_search_no_matches_in">Không có gì trong %1$s khớp với “%2$s”.</string>
+    <string name="ui_search_history_no_matches">Không có gì trong lịch sử gần đây khớp với “%1$s”.</string>
+    <string name="ui_search_load_failed">Không thể tải toàn bộ %1$s</string>
 </resources>

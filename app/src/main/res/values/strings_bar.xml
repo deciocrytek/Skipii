@@ -15,6 +15,8 @@
     <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
     <string name="bar_tool_speed">Speed</string>
     <string name="bar_tool_quality">Quality</string>
+    <!-- Audio track (dubbed languages). Very short. -->
+    <string name="bar_tool_audio">Audio</string>
     <!-- Picture-in-picture, abbreviated. -->
     <string name="bar_tool_pip">PiP</string>
     <string name="bar_tool_captions">Captions</string>
@@ -44,6 +46,8 @@
 
     <!-- Captions list title (next to an on/off switch). -->
     <string name="bar_captions">Captions</string>
+    <!-- Audio track list title (dubbed languages). -->
+    <string name="bar_audio_track">Audio track</string>
     <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into. -->
     <string name="bar_captions_translated">TRANSLATED ON YOUR PHONE</string>
     <!-- Captions list row that shows every language. -->

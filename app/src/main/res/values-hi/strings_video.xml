@@ -10,6 +10,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">सिर्फ़ ऑडियो चालू है</string>
     <string name="video_playback_speed">प्लेबैक स्पीड</string>
+    <string name="video_audio_track">ऑडियो ट्रैक</string>
     <string name="video_captions">कैप्शन</string>
     <string name="video_quality">क्वालिटी</string>
     <string name="video_pip">पिक्चर में पिक्चर</string>
@@ -42,6 +43,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">कैप्शन</string>
+    <string name="video_drop_audio">ऑडियो ट्रैक</string>
     <string name="video_drop_quality">क्वालिटी</string>
     <string name="video_drop_speed">स्पीड</string>
 
@@ -49,6 +51,11 @@
     <string name="video_captions_off">बंद</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">ऑटो</string>
+    <string name="audio_track_original">ओरिजिनल</string>
+    <string name="audio_track_dubbed">डब्ड</string>
+    <string name="audio_track_auto_dubbed">ऑटो-डब्ड</string>
+    <string name="audio_track_descriptive">ऑडियो विवरण</string>
+    <string name="audio_track_secondary">सेकेंडरी</string>
     <string name="video_captions_tag_downloading">डाउनलोड हो रही है</string>
     <string name="video_captions_tag_translated">अनुवादित</string>
     <string name="video_captions_tag_download">डाउनलोड करें</string>

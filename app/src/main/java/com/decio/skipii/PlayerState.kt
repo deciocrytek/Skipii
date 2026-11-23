@@ -607,7 +607,53 @@ class PlayerState(private val scope: CoroutineScope) {
         replaceCurrent(player, item, position)
         player.playWhenReady = playWhenReady
         val info = StreamCache.get(item.id) ?: return
-        details = details?.copy(quality = StreamSelection.pick(info).playedHeight?.let { "${it}p" })
+        details = details?.copy(quality = StreamSelection.pick(info, item.id).playedHeight?.let { "${it}p" })
+    }
+
+    /** Distinct audio tracks for the open video (empty when the video has only one). */
+    val audioTracks: List<AudioTrack> get() = details?.audioTracks.orEmpty()
+
+    /** The audio track currently playing (null when the video has only one track). */
+    val activeAudioTrack: AudioTrack?
+        get() {
+            val d = details ?: return null
+            if (d.audioTracks.size <= 1) return null
+            return d.audioTracks.firstOrNull { it.id == d.audioTrackId } ?: d.audioTracks.firstOrNull { it.isOriginal }
+        }
+
+    /** True when the open multi-audio video is playing a dubbed / non-original track. */
+    val isDubbedAudio: Boolean get() = activeAudioTrack?.let { !it.isOriginal } == true
+
+    /**
+     * Switches audio track for the current video, keeping the exact position, play/pause state,
+     * and queue intact. Only affects this video unless Settings › Playback is set to "Last picked".
+     */
+    fun setAudioTrack(track: AudioTrack) {
+        val item = details?.item ?: current ?: return
+        val before = details?.audioTrackId
+        AudioTrackPreference.setForVideo(item.id, track)
+        details = details?.copy(audioTrackId = track.id)
+        if (before == track.id) return
+        val player = controller ?: return
+        val position = player.currentPosition
+        val playWhenReady = player.playWhenReady
+        replaceCurrent(player, item, position)
+        player.playWhenReady = playWhenReady
+    }
+
+    /** Called when the Settings › Playback audio default changes: applies immediately to the open video if it changed. */
+    fun refreshAudioTrackForSetting() {
+        val d = details ?: return
+        if (d.audioTracks.size <= 1) return
+        val item = d.item
+        val nextId = AudioTrackPreference.resolveTrackId(d.audioTracks)
+        if (nextId == null || nextId == d.audioTrackId) return
+        details = d.copy(audioTrackId = nextId)
+        val player = controller ?: return
+        val position = player.currentPosition
+        val playWhenReady = player.playWhenReady
+        replaceCurrent(player, item, position)
+        player.playWhenReady = playWhenReady
     }
 
     private fun fail(t: Throwable) {
@@ -975,7 +1021,7 @@ fun rememberPlayerState(): PlayerState {
     return state
 }
 
-enum class PlayerSheet { Quality, Speed, Comments, Queue, Captions, Transcript }
+enum class PlayerSheet { Quality, Speed, Audio, Comments, Queue, Captions, Transcript }
 
 /** Comments and the transcript open as a panel inside the player (PlayerScreen), not a sheet. */
 val PlayerSheet?.isPanel: Boolean get() = this == PlayerSheet.Comments || this == PlayerSheet.Transcript

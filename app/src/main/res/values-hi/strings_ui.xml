@@ -182,4 +182,15 @@
     <string name="ui_duration_hr_min">%1$s घं %2$s मि</string>
     <string name="ui_reorder_queue">क्रम बदलें</string>
     <string name="ui_up_next_in">अगला %1$s से में</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">%1$s में खोजें</string>
+    <string name="ui_search_history">हाल का इतिहास खोजें</string>
+    <string name="ui_search_history_note">YouTube सिर्फ़ आपका हाल का इतिहास खोजता है</string>
+    <string name="ui_search_found_so_far">अब तक %1$s मिले…</string>
+    <string name="ui_search_count_of">%2$s में से %1$s</string>
+    <string name="ui_search_no_matches">कोई मिलान नहीं</string>
+    <string name="ui_search_no_matches_in">%1$s में “%2$s” से मेल खाता कुछ नहीं है।</string>
+    <string name="ui_search_history_no_matches">आपके हाल के इतिहास में “%1$s” से मेल खाता कुछ नहीं है।</string>
+    <string name="ui_search_load_failed">पूरी %1$s लोड नहीं हो सकी</string>
 </resources>

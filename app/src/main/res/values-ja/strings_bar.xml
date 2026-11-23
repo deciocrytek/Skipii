@@ -15,6 +15,7 @@
     <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
     <string name="bar_tool_speed">速度</string>
     <string name="bar_tool_quality">画質</string>
+    <string name="bar_tool_audio">音声</string>
     <!-- Picture-in-picture, abbreviated. -->
     <string name="bar_tool_pip">PiP</string>
     <string name="bar_tool_captions">字幕</string>
@@ -44,6 +45,7 @@
 
     <!-- Captions list title (next to an on/off switch). -->
     <string name="bar_captions">字幕</string>
+    <string name="bar_audio_track">音声トラック</string>
     <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into. -->
     <string name="bar_captions_translated">スマートフォンで翻訳</string>
     <!-- Captions list row that shows every language. -->

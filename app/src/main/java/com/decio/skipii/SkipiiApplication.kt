@@ -22,6 +22,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor.setFetchIosClient(false)
         ThemeSettings.init(this)
         QualityPreference.init(this)
+        AudioTrackPreference.init(this)
         PlaybackSpeed.init(this)
         AudioOnly.init(this)
         PlayerControls.init(this)
@@ -44,6 +45,12 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         ShortsSetting.init(this)
         ShortsBank.init(this)
         AppUpdate.init(this)
+        // Compose state kept in an object must be created here, on the main thread, before any
+        // composition. An object first touched on a background thread (BotCheck from PlayerFallback's
+        // request) made its state after the player's composition snapshot was taken, and reading it
+        // there crashed: "Reading a state that was created after the snapshot was taken" (2026-11-21).
+        listOf<Any>(BotCheck, StreamRecovery, ChannelNames, Dismissed, IncomingLinks, StatusBarOverVideo, SharedVideoTexture)
+            .forEach { it.hashCode() }
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.
         getSystemService(android.net.ConnectivityManager::class.java)?.registerDefaultNetworkCallback(
             object : android.net.ConnectivityManager.NetworkCallback() {

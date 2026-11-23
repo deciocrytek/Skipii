@@ -180,6 +180,41 @@ class FeedState(
         }
     }
 
+    /** [loadAll] is paging through to the end. */
+    var loadingAll by mutableStateOf(false)
+        private set
+
+    /**
+     * Pages on to the end of the list, each page shown as it lands: a search inside Watch later / Liked videos
+     * has to see every video (1,667 of them in 17 pages, ~11 s, on Derek's Watch later, 2026-11-20). Waits for a
+     * load already running; a refresh cancels it ([job]); stops at the first failure ([error] set, Try again
+     * calls this again).
+     */
+    fun loadAll() {
+        if (next == null || loadingAll) return
+        loadingAll = true
+        error = null
+        val previous = job
+        job = scope.launch {
+            try {
+                previous?.join()
+                loading = true
+                while (isActive) {
+                    val token = next ?: break
+                    val result = runCatching { loader(token) }
+                    if (!isActive) return@launch
+                    val page = result.getOrElse { error = friendly(it); break }
+                    val seen = videos.mapTo(HashSet()) { it.id }
+                    videos = videos + page.videos.filter { seen.add(it.id) }
+                    next = page.next
+                }
+                loading = false
+            } finally {
+                loadingAll = false
+            }
+        }
+    }
+
     /**
      * Unseen videos only: reads up to [FRESH_PAGES] pages into the feed until there are
      * [FRESH_TARGET]. If YouTube has nothing new at all, falls back to the plain first page.
@@ -447,11 +482,19 @@ fun FeedList(
     gridExtra: (@Composable (Modifier) -> Unit)? = null,
     /** Cards swiped left come out ([SwipeVideo]). */
     onSwipeAway: ((VideoItem) -> Unit)? = null,
+    /** What's shown: the feed's videos, or a search's matches among them. */
+    videos: List<VideoItem> = feed.videos,
+    /** A change scrolls back to the top, like a refresh (a new search). */
+    scrollKey: Any? = null,
+    /** The trailing spinner while the feed loads / has more. */
+    showLoader: Boolean = true,
+    /** Items after the videos (a search's "no matches"). */
+    footer: LazyListScope.() -> Unit = {},
 ) {
     val c = MaterialTheme.colorScheme
     val list = rememberScrollToTop(scrollToTop)
-    // Fresh content always starts at the top (first load and every refresh).
-    LaunchedEffect(feed.generation) { list.scrollToItem(0) }
+    // Fresh content always starts at the top (first load, every refresh, a new search).
+    LaunchedEffect(feed.generation, scrollKey) { list.scrollToItem(0) }
     val nearEnd by remember {
         derivedStateOf {
             val last = list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
@@ -463,7 +506,7 @@ fun FeedList(
     PullToRefresh(enabled = pullToRefresh, refreshing = feed.refreshing, onRefresh = feed::refresh, topPadding = indicatorTop) {
     LazyColumn(state = list, contentPadding = contentPadding) {
         header()
-        videoCards(feed.videos, columns, onOpen, extra = gridExtra, onSwipeAway = onSwipeAway)
+        videoCards(videos, columns, onOpen, extra = gridExtra, onSwipeAway = onSwipeAway)
         when {
             // No keys on these trailing items: a keyed loader at index 0 makes LazyColumn
             // hold it in view when videos arrive above it, landing at the bottom of the page.
@@ -475,12 +518,13 @@ fun FeedList(
                     action = { PillButton(stringResource(R.string.ui_try_again), { feed.refresh() }) },
                 )
             }
-            feed.loading || feed.hasMore -> item {
+            showLoader && (feed.loading || feed.hasMore) -> item {
                 Box(Modifier.fillMaxWidth().padding(28.dp), Alignment.Center) {
                     CircularProgressIndicator(color = c.primary, strokeWidth = 4.dp, modifier = Modifier.size(32.dp))
                 }
             }
         }
+        footer()
     }
     }
 }

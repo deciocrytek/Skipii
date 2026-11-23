@@ -178,4 +178,15 @@
     <string name="ui_duration_hr_min">%1$s 時間 %2$s 分</string>
     <string name="ui_reorder_queue">並べ替え</string>
     <string name="ui_up_next_in">次を %1$s 秒後に再生</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">%1$s内を検索</string>
+    <string name="ui_search_history">最近の履歴を検索</string>
+    <string name="ui_search_history_note">YouTube は最近の履歴のみを検索します</string>
+    <string name="ui_search_found_so_far">これまでに %1$s 件…</string>
+    <string name="ui_search_count_of">%1$s / %2$s 件</string>
+    <string name="ui_search_no_matches">一致なし</string>
+    <string name="ui_search_no_matches_in">%1$s に「%2$s」に一致する動画はありません。</string>
+    <string name="ui_search_history_no_matches">最近の履歴に「%1$s」に一致する動画はありません。</string>
+    <string name="ui_search_load_failed">%1$s をすべて読み込めませんでした</string>
 </resources>

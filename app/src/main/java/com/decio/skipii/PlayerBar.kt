@@ -64,6 +64,7 @@ import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -194,15 +195,16 @@ private val TickerCorner = 34.dp
 private const val TickerShowMs = 2_600L
 private val TickerSpring = spring(dampingRatio = 0.85f, stiffness = 420f, visibilityThreshold = 0.0005f)
 
-internal enum class BarTool { Speed, Quality, Captions, Pip, Fullscreen, Next }
+internal enum class BarTool { Speed, Quality, Audio, Captions, Pip, Fullscreen, Next }
 
 /** What the bar can turn into besides the card. */
-internal enum class BarPanel { Quality, Speed, Chapters, Captions }
+internal enum class BarPanel { Quality, Speed, Audio, Chapters, Captions }
 
-/** The card's tools, left to right: Captions only when the video has some, Next only when the queue really has something next. */
+/** The card's tools, left to right: Audio only when a video has multiple tracks, Captions only when it has some, Next only when queued. */
 internal fun barTools(player: PlayerState, pip: PipController?): List<BarTool> = buildList {
     add(BarTool.Speed)
     add(BarTool.Quality)
+    if (player.audioTracks.size > 1) add(BarTool.Audio)
     if (player.captions.tracks.isNotEmpty()) add(BarTool.Captions)
     if (pip?.supported == true) add(BarTool.Pip)
     add(BarTool.Fullscreen)
@@ -323,9 +325,14 @@ private fun Density.panelSize(kind: BarPanel, player: PlayerState, captionsAll: 
         (ListHeader + PlayerBarHeight + 6.dp).toPx() + qualityRows(player).coerceAtMost(ListMaxRows) * (ListRowHeight + ListRowGap).toPx(),
     )
     BarPanel.Speed -> Size(SpeedWidth.toPx(), (SpeedPanelHeight + PlayerBarHeight + 6.dp).toPx())
+    BarPanel.Audio -> Size(QualityWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + audioRowsHeight(player)).toPx())
     BarPanel.Chapters -> Size(ChaptersWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + chapterRowsHeight(player, chapterRows)).toPx())
     BarPanel.Captions -> Size(QualityWidth.toPx(), (ListHeader + PlayerBarHeight + 6.dp + captionRowsHeight(player, captionsAll)).toPx())
 }
+
+/** The audio panel's rows: every track YouTube offers; scrolls past ListMaxRows. */
+private fun audioRowsHeight(player: PlayerState): Dp =
+    (ListRowHeight + ListRowGap) * player.audioTracks.size.coerceIn(1, ListMaxRows)
 
 /** The captions panel's rows: every option ([captionOptions]) and Transcript; it scrolls past ListMaxRows. */
 private fun captionRowsHeight(player: PlayerState, all: Boolean): Dp =
@@ -378,7 +385,11 @@ internal fun rememberChapterRowHeights(player: PlayerState): List<Dp> {
 /** Where a scrolling panel's rows sit (the bar's own pixels, top to bottom). */
 private fun Density.panelListSpan(kind: BarPanel, barH: Float, player: PlayerState, captionsAll: Boolean, chapterRows: List<Dp>): ClosedFloatingPointRange<Float> {
     val bottom = barH - (PlayerBarHeight + 6.dp).toPx()
-    val rows = if (kind == BarPanel.Captions) captionRowsHeight(player, captionsAll) else chapterRowsHeight(player, chapterRows)
+    val rows = when (kind) {
+        BarPanel.Captions -> captionRowsHeight(player, captionsAll)
+        BarPanel.Audio -> audioRowsHeight(player)
+        else -> chapterRowsHeight(player, chapterRows)
+    }
     return (bottom - rows.toPx())..bottom
 }
 
@@ -504,8 +515,8 @@ internal fun Modifier.playerBarGestures(
             val trackPx = TrackWidth.toPx()
             // The knob sits under the thumb: the track (centred in the bar) maps straight onto the video.
             fun landingAt(x: Float): Long = (((x - size.width / 2f) / trackPx + 0.5f).coerceIn(0f, 1f) * duration).toLong()
-            // The chapter and caption lists scroll under the finger; pulled down from the top they close like the panel.
-            val panelList = bar.panelList.takeIf { panelOpen && (bar.panelKind == BarPanel.Chapters || bar.panelKind == BarPanel.Captions) }
+            // The chapter, caption and audio lists scroll under the finger; pulled down from the top they close like the panel.
+            val panelList = bar.panelList.takeIf { panelOpen && (bar.panelKind == BarPanel.Chapters || bar.panelKind == BarPanel.Captions || bar.panelKind == BarPanel.Audio) }
             val inList = panelList != null && down.position.y in panelListSpan(bar.panelKind, size.height.toFloat(), player, bar.captionsAll, bar.chapterRows)
             val tracker = VelocityTracker()
             var moved = Offset.Zero
@@ -863,6 +874,7 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                 tools.forEach { tool ->
                     val hot = bar.hot == tool
                     val sticky = tool == BarTool.Speed && PlaybackSpeed.remember && !PlaybackSpeed.isNormal(player.speed) ||
+                        tool == BarTool.Audio && player.isDubbedAudio ||
                         tool == BarTool.Captions && player.captions.on
                     val filled = hot || sticky
                     Column(
@@ -876,10 +888,11 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                     ) {
                         val ink = if (filled) c.onPrimary else c.onSurface
                         val sub = if (filled) c.onPrimary else c.onSurfaceVariant
-                        val glyph = Modifier.size(21.dp)
+                        val glyph = Modifier.size(if (tools.size >= 7) 19.dp else 21.dp)
                         when (tool) {
                             BarTool.Speed -> Text(PlaybackSpeed.label(player.speed) + "×", color = ink, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.height(21.dp))
                             BarTool.Quality -> Text(QualityPreference.height?.let { "${it}p" } ?: stringResource(R.string.bar_quality_auto), color = ink, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.height(21.dp))
+                            BarTool.Audio -> Icon(Icons.Rounded.RecordVoiceOver, null, tint = ink, modifier = glyph)
                             BarTool.Captions -> Icon(Icons.Rounded.ClosedCaption, null, tint = ink, modifier = glyph)
                             BarTool.Pip -> Icon(Icons.Rounded.PictureInPictureAlt, null, tint = ink, modifier = glyph)
                             BarTool.Fullscreen -> Icon(Icons.Rounded.Fullscreen, null, tint = ink, modifier = glyph)
@@ -889,6 +902,7 @@ internal fun BarCard(bar: PlayerBarState, player: PlayerState, gate: () -> Float
                             when (tool) {
                                 BarTool.Speed -> stringResource(R.string.bar_tool_speed)
                                 BarTool.Quality -> stringResource(R.string.bar_tool_quality)
+                                BarTool.Audio -> player.activeAudioTrack?.takeIf { !it.isOriginal }?.shortLabel() ?: stringResource(R.string.bar_tool_audio)
                                 BarTool.Pip -> stringResource(R.string.bar_tool_pip)
                                 BarTool.Captions -> player.captions.choice?.takeIf { player.captions.on }?.label ?: stringResource(R.string.bar_tool_captions)
                                 BarTool.Fullscreen -> stringResource(R.string.bar_tool_fullscreen)
@@ -1041,6 +1055,7 @@ internal fun BarProgress(bar: PlayerBarState, player: PlayerState, played: Anima
 internal fun BarPanelContent(bar: PlayerBarState, player: PlayerState, gate: () -> Float, scope: CoroutineScope, sheets: StoryboardSheets) {
     when (bar.panelKind) {
         BarPanel.Quality -> BarQualityList(bar, player, gate, scope)
+        BarPanel.Audio -> BarAudioList(bar, player, gate, scope)
         BarPanel.Chapters -> BarChaptersList(bar, player, gate, scope, sheets)
         BarPanel.Captions -> BarCaptionsList(bar, player, gate, scope)
         BarPanel.Speed -> Box(Modifier.fillMaxSize()) {
@@ -1361,11 +1376,102 @@ private fun qualityNote(height: Int): String? = when {
     else -> null
 }
 
+/**
+ * Every audio track YouTube offers for the open video (original, creator dubs, auto-dubs, audio
+ * description): original pinned at the top, followed by the app's language and the rest. A tap
+ * switches the audio stream at the current position, lands its check, and folds the bar down.
+ */
+@Composable
+private fun BarAudioList(bar: PlayerBarState, player: PlayerState, gate: () -> Float, scope: CoroutineScope) {
+    val c = MaterialTheme.colorScheme
+    val view = LocalView.current
+    val tracks = player.audioTracks
+    if (tracks.isEmpty()) return
+    val active = player.activeAudioTrack
+    var pickedId by remember(player.details?.item?.id, active?.id) { mutableStateOf(active?.id) }
+    val currentIndex = tracks.indexOfFirst { it.id == pickedId }.coerceAtLeast(0)
+    val state = rememberLazyListState(initialFirstVisibleItemIndex = (currentIndex - 1).coerceAtLeast(0))
+    DisposableEffect(state) {
+        bar.panelList = state
+        onDispose { if (bar.panelList === state) bar.panelList = null }
+    }
+    val live = bar.panelLive
+    val rowsHeight = audioRowsHeight(player)
+    Box(Modifier.fillMaxSize()) {
+        Row(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = PlayerBarHeight + 6.dp + rowsHeight + 10.dp)
+                .width(QualityWidth - 36.dp)
+                .graphicsLayer {
+                    val l = (bar.panel.value * gate()).coerceIn(0f, 1f)
+                    alpha = ramp(l, 0.5f, 1f)
+                    translationY = 10.dp.toPx() * (1f - l)
+                },
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(stringResource(R.string.bar_audio_track), color = c.onSurface, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+            active?.let { current ->
+                val status = if (current.isOriginal) current.tagText() else stringResource(R.string.bar_quality_playing, current.title(tracks))
+                Text(status, color = c.onSurfaceVariant, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+        LazyColumn(
+            state = state,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = PlayerBarHeight + 6.dp)
+                .width(QualityWidth - 24.dp)
+                .height(rowsHeight),
+            verticalArrangement = Arrangement.spacedBy(ListRowGap),
+        ) {
+            itemsIndexed(tracks, key = { _, t -> t.id }) { index, track ->
+                val selected = pickedId == track.id
+                val fromBottom = (tracks.size - 1 - index).coerceAtMost(ListMaxRows)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(ListRowHeight)
+                        .graphicsLayer {
+                            val k = ramp(bar.panel.value * gate(), 0.12f + fromBottom * 0.05f, 0.62f + fromBottom * 0.05f)
+                            alpha = k
+                            translationY = 18.dp.toPx() * (1f - Motion.Emphasized.transform(k))
+                        }
+                        .pressable(enabled = live, pressedScale = 0.97f) {
+                            haptic(view, HapticFeedbackConstants.CONTEXT_CLICK)
+                            pickedId = track.id
+                            player.setAudioTrack(track)
+                            scope.launch { delay(QualityPickedMs); bar.closeAll() }
+                        }
+                        .clip(RoundedCornerShape(50))
+                        .background(if (selected) c.primary else c.primary.copy(alpha = 0f))
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val ink = if (selected) c.onPrimary else c.onSurface
+                    Text(track.title(tracks), color = ink, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        " · ${track.tagText()}",
+                        color = if (selected) c.onPrimary.copy(alpha = 0.8f) else c.onSurfaceVariant,
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Icon(
+                        Icons.Rounded.Check, if (selected) stringResource(R.string.bar_selected) else null, tint = c.onPrimary,
+                        modifier = Modifier.size(20.dp).graphicsLayer { alpha = if (selected) 1f else 0f },
+                    )
+                }
+            }
+        }
+    }
+}
+
 /** Runs a picked tool: speed and quality open their panel; the others close the card and act. */
 internal fun pickTool(tool: BarTool, bar: PlayerBarState, player: PlayerState, pip: PipController?, onFullscreen: () -> Unit) {
     when (tool) {
         BarTool.Speed -> bar.openPanel(BarPanel.Speed)
         BarTool.Quality -> bar.openPanel(BarPanel.Quality)
+        BarTool.Audio -> bar.openPanel(BarPanel.Audio)
         // Turns captions on at once (Derek: no second press), and opens the list to pick another language.
         BarTool.Captions -> { player.captions.turn(true); bar.openPanel(BarPanel.Captions) }
         BarTool.Pip -> {

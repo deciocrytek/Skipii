@@ -12,8 +12,8 @@ android {
         applicationId = "com.skipii"
         minSdk = 26
         targetSdk = 36
-        versionCode = 129
-        versionName = "0.5.120"
+        versionCode = 138
+        versionName = "0.5.129"
     }
 
     buildTypes {

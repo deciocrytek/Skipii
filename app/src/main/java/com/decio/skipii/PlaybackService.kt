@@ -589,18 +589,19 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
 
     override fun createMediaSource(mediaItem: MediaItem): MediaSource {
         val info = StreamCache.get(mediaItem.mediaId) ?: return fallback.createMediaSource(mediaItem)
-        val picked = StreamSelection.pick(info)
+        val picked = StreamSelection.pick(info, mediaItem.mediaId)
+        val trackNote = picked.audio?.audioTrackId?.let { " [$it]" }.orEmpty()
         // Auto: every quality as one adaptive set. A chosen quality stays pinned below.
         if (QualityPreference.height == null && picked.audio != null) {
             val adaptive = adaptiveVideo(info, mediaItem)
             if (adaptive != null) {
-                Log.i("Skipii", "media source ${mediaItem.mediaId}: adaptive video ${StreamSelection.autoLadder(info).joinToString("/") { "${it.height}" }}p + audio itag ${picked.audio.itag}")
+                Log.i("Skipii", "media source ${mediaItem.mediaId}: adaptive video ${StreamSelection.autoLadder(info).joinToString("/") { "${it.height}" }}p + audio itag ${picked.audio.itag}$trackNote")
                 return MergingMediaSource(true, true, adaptive, source(picked.audio, info.duration, mediaItem))
             }
         }
         Log.i(
             "Skipii",
-            "media source ${mediaItem.mediaId}: " + if (picked.usesSeparate) "video itag ${picked.video?.itag} (${picked.video?.height}p) + audio itag ${picked.audio?.itag}"
+            "media source ${mediaItem.mediaId}: " + if (picked.usesSeparate) "video itag ${picked.video?.itag} (${picked.video?.height}p) + audio itag ${picked.audio?.itag}$trackNote"
             else "combined fallback itag ${picked.muxed?.itag} (${picked.muxed?.height}p); video=${picked.video != null} audio=${picked.audio != null}; " +
                 "audio offered: " + info.audioStreams.joinToString { "${it.itag}/${it.format}/${it.deliveryMethod}/url=${it.isUrl}/${it.audioTrackType}" },
         )

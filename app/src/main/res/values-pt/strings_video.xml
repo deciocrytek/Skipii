@@ -9,6 +9,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">Somente áudio ativado</string>
     <string name="video_playback_speed">Velocidade da reprodução</string>
+    <string name="video_audio_track">Faixa de áudio</string>
     <string name="video_captions">Legendas</string>
     <string name="video_quality">Qualidade</string>
     <string name="video_pip">Picture-in-picture</string>
@@ -41,6 +42,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">LEGENDAS</string>
+    <string name="video_drop_audio">FAIXA DE ÁUDIO</string>
     <string name="video_drop_quality">QUALIDADE</string>
     <string name="video_drop_speed">VELOCIDADE</string>
 
@@ -48,6 +50,11 @@
     <string name="video_captions_off">Desativadas</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">auto</string>
+    <string name="audio_track_original">Original</string>
+    <string name="audio_track_dubbed">Dublado</string>
+    <string name="audio_track_auto_dubbed">Dublagem automática</string>
+    <string name="audio_track_descriptive">Audiodescrição</string>
+    <string name="audio_track_secondary">Secundário</string>
     <string name="video_captions_tag_downloading">baixando</string>
     <string name="video_captions_tag_translated">traduzida</string>
     <string name="video_captions_tag_download">baixar</string>

@@ -44,6 +44,7 @@ import androidx.compose.material.icons.rounded.HighQuality
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
@@ -248,7 +249,7 @@ private const val TvControlsHideMs = 5_000L
 /** A scrub seeks once ◀ ▶ have rested this long. */
 private const val ScrubSettleMs = 800L
 
-private enum class TvPanel { Speed, Quality, Captions, Chapters, More }
+private enum class TvPanel { Speed, Quality, Audio, Captions, Chapters, More }
 
 private fun KeyEvent.isOk() = key == Key.DirectionCenter || key == Key.Enter || key == Key.NumPadEnter
 
@@ -658,6 +659,13 @@ private fun TvSidePanel(state: PlayerState, panel: TvPanel, onDone: () -> Unit, 
             listOf(TvRowSpec(stringResource(R.string.video_quality_auto), playing, chosen == null) { state.setQuality(null); true }) +
                 details?.qualities.orEmpty().map { h -> TvRowSpec("${h}p", qualityTag(h), chosen == h) { if (h != QualityPreference.height) state.setQuality(h); true } }
         }
+        TvPanel.Audio -> {
+            val tracks = state.audioTracks
+            val active = state.activeAudioTrack
+            tracks.map { track ->
+                TvRowSpec(track.title(tracks), track.tagText(), active?.id == track.id) { state.setAudioTrack(track); true }
+            }
+        }
         TvPanel.Captions -> {
             val cap = state.captions
             val options = remember { captionOptions(cap, all = false).filterIsInstance<CaptionOption.Pick>() }
@@ -692,6 +700,16 @@ private fun TvSidePanel(state: PlayerState, panel: TvPanel, onDone: () -> Unit, 
                 val label = if (QualityPreference.height == null) listOfNotNull(stringResource(R.string.video_quality_auto), now).joinDots() else "${QualityPreference.height}p"
                 add(TvRowSpec(stringResource(R.string.video_quality), label, false, icon = Icons.Rounded.HighQuality) { onSwitch(TvPanel.Quality); false })
             }
+            if (state.audioTracks.size > 1) {
+                add(
+                    TvRowSpec(
+                        stringResource(R.string.video_audio_track),
+                        state.activeAudioTrack?.title(state.audioTracks),
+                        false,
+                        icon = Icons.Rounded.RecordVoiceOver,
+                    ) { onSwitch(TvPanel.Audio); false },
+                )
+            }
             add(TvRowSpec(stringResource(R.string.video_audio_only), null, AudioOnly.enabled, toggle = true, icon = Icons.Rounded.Headphones) { state.setAudioOnly(!AudioOnly.enabled); false })
             if (state.queue.isNotEmpty()) add(TvRowSpec(stringResource(R.string.video_next), state.queue.first().title, false, icon = Icons.Rounded.SkipNext) { state.playNextUp(); true })
             item?.channelUrl?.let { url ->
@@ -703,6 +721,7 @@ private fun TvSidePanel(state: PlayerState, panel: TvPanel, onDone: () -> Unit, 
         when (panel) {
             TvPanel.Speed -> R.string.video_playback_speed
             TvPanel.Quality -> R.string.video_quality
+            TvPanel.Audio -> R.string.video_audio_track
             TvPanel.Captions -> R.string.video_captions
             TvPanel.Chapters -> R.string.bar_chapters
             TvPanel.More -> R.string.bar_more_controls

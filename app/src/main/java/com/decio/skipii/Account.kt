@@ -382,6 +382,18 @@ object InnerTube {
     }
     suspend fun history(next: String? = null) = browse("FEhistory", next)
 
+    /**
+     * YouTube's own "Search watch history" (the history page's searchBoxRenderer: FEhistory + `query`), a page at a
+     * time. It searches only the RECENT part of a long history: probed on Derek's account 2026-11-20, a title from
+     * page 39 was found, three exact titles from page ~195 (mid-2024) answered with no results. The whole history
+     * (200+ pages, 17,000+ videos) is too much to fetch and filter on the phone, so the UI says "recent".
+     */
+    suspend fun historySearch(query: String, next: String? = null): FeedPage = withContext(Dispatchers.IO) {
+        val body = if (next != null) JSONObject().put("continuation", next)
+        else JSONObject().put("browseId", "FEhistory").put("query", query)
+        parseFeed(post("browse", body))
+    }
+
     /** A playlist's videos; anonymous when signed out, so a channel's public playlists open too. */
     suspend fun playlist(id: String, next: String? = null): FeedPage = withContext(Dispatchers.IO) {
         val body = if (next != null) JSONObject().put("continuation", next) else JSONObject().put("browseId", "VL$id")

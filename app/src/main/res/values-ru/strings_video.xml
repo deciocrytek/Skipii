@@ -10,6 +10,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">Режим «Только аудио» включён</string>
     <string name="video_playback_speed">Скорость воспроизведения</string>
+    <string name="video_audio_track">Аудиодорожка</string>
     <string name="video_captions">Субтитры</string>
     <string name="video_quality">Качество</string>
     <string name="video_pip">Картинка в картинке</string>
@@ -42,6 +43,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">СУБТИТРЫ</string>
+    <string name="video_drop_audio">АУДИОДОРОЖКА</string>
     <string name="video_drop_quality">КАЧЕСТВО</string>
     <string name="video_drop_speed">СКОРОСТЬ</string>
 
@@ -49,6 +51,11 @@
     <string name="video_captions_off">Выкл.</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">авто</string>
+    <string name="audio_track_original">Оригинал</string>
+    <string name="audio_track_dubbed">Дубляж</string>
+    <string name="audio_track_auto_dubbed">Автодубляж</string>
+    <string name="audio_track_descriptive">Аудиодескрипция</string>
+    <string name="audio_track_secondary">Дополнительная</string>
     <string name="video_captions_tag_downloading">скачивание</string>
     <string name="video_captions_tag_translated">перевод</string>
     <string name="video_captions_tag_download">скачать</string>

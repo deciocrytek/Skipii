@@ -198,4 +198,15 @@
     <string name="ui_duration_hr_min">%1$s س %2$s د</string>
     <string name="ui_reorder_queue">إعادة الترتيب</string>
     <string name="ui_up_next_in">التالي خلال %1$s ث</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">ابحث في %1$s</string>
+    <string name="ui_search_history">ابحث في السجل الحديث</string>
+    <string name="ui_search_history_note">يبحث YouTube في سجلك الحديث فقط</string>
+    <string name="ui_search_found_so_far">تم العثور على %1$s حتى الآن…</string>
+    <string name="ui_search_count_of">%1$s من %2$s</string>
+    <string name="ui_search_no_matches">لا توجد نتائج</string>
+    <string name="ui_search_no_matches_in">لا شيء في %1$s يطابق «%2$s».</string>
+    <string name="ui_search_history_no_matches">لا شيء في سجلك الحديث يطابق «%1$s».</string>
+    <string name="ui_search_load_failed">تعذّر تحميل %1$s بالكامل</string>
 </resources>

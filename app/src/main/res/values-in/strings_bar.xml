@@ -15,6 +15,7 @@
     <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
     <string name="bar_tool_speed">Kecepatan</string>
     <string name="bar_tool_quality">Kualitas</string>
+    <string name="bar_tool_audio">Audio</string>
     <!-- Picture-in-picture, abbreviated. -->
     <string name="bar_tool_pip">PiP</string>
     <string name="bar_tool_captions">Subtitel</string>
@@ -44,6 +45,7 @@
 
     <!-- Captions list title (next to an on/off switch). -->
     <string name="bar_captions">Subtitel</string>
+    <string name="bar_audio_track">Trek audio</string>
     <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into. -->
     <string name="bar_captions_translated">DITERJEMAHKAN DI PONSEL ANDA</string>
     <!-- Captions list row that shows every language. -->

@@ -190,4 +190,15 @@
     <string name="ui_duration_hr_min">%1$s ч %2$s мин</string>
     <string name="ui_reorder_queue">Изменить порядок</string>
     <string name="ui_up_next_in">Далее через %1$s с</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">Поиск в «%1$s»</string>
+    <string name="ui_search_history">Поиск по недавней истории</string>
+    <string name="ui_search_history_note">YouTube ищет только в недавней истории</string>
+    <string name="ui_search_found_so_far">Пока найдено: %1$s…</string>
+    <string name="ui_search_count_of">%1$s из %2$s</string>
+    <string name="ui_search_no_matches">Ничего не найдено</string>
+    <string name="ui_search_no_matches_in">В «%1$s» нет ничего по запросу «%2$s».</string>
+    <string name="ui_search_history_no_matches">В недавней истории нет ничего по запросу «%1$s».</string>
+    <string name="ui_search_load_failed">Не удалось загрузить «%1$s» целиком</string>
 </resources>

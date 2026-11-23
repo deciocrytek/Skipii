@@ -39,6 +39,8 @@ import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.WatchLater
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Box
@@ -426,12 +428,13 @@ fun LibraryScreen(
                     )
                 }
             }
-            item(key = "quickBar") {
-                LibraryQuickBar(
-                    watchLater = PlaylistRef("WL", watchLater, null, null),
-                    likedVideos = PlaylistRef("LL", likedVideos, null, null),
-                    onOpenPlaylist = onOpenPlaylist,
-                )
+            item(key = "pinnedLists") {
+                // Watch later + Liked videos as the pre-0.5.118 tiles (Derek, 2026-11-20: back from the joined bar).
+                Row(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    listOf(PlaylistRef("WL", watchLater, null, null), PlaylistRef("LL", likedVideos, null, null)).forEach { pl ->
+                        PinnedListTile(pl, Modifier.weight(1f)) { onOpenPlaylist(pl) }
+                    }
+                }
             }
             if (lib.playlists.isNotEmpty()) {
                 item(key = "playlistsTitle") { SectionTitle(stringResource(R.string.ui_playlists)) }
@@ -526,51 +529,31 @@ private fun formatRemainingLabel(parts: CompactDuration): String = when {
 }
 
 /** Joined tonal quick-bar for Watch later and Liked videos (outer 24 dp, inner 10 dp corners). */
+/** Watch later / Liked videos: a 132 dp tile, its icon in a cookie badge, the title at the bottom (as before 0.5.118). */
 @Composable
-private fun LibraryQuickBar(
-    watchLater: PlaylistRef,
-    likedVideos: PlaylistRef,
-    onOpenPlaylist: (PlaylistRef) -> Unit,
-) {
+private fun PinnedListTile(playlist: PlaylistRef, modifier: Modifier, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp),
+    // Bold on every theme (Derek, 7641.png: on surfaceContainerLow with a pale badge they blended into a light page):
+    // the tile takes its container tone, the badge the full colour.
+    val wl = playlist.id == "WL"
+    val icon = if (wl) Icons.Rounded.WatchLater else Icons.Rounded.ThumbUp
+    val tile = if (wl) c.primaryContainer else c.tertiaryContainer
+    val ink = if (wl) c.onPrimaryContainer else c.onTertiaryContainer
+    val badge = if (wl) c.primary else c.tertiary
+    val badgeInk = if (wl) c.onPrimary else c.onTertiary
+    Column(
+        modifier = modifier
+            .height(132.dp)
+            .pressable(pressedScale = 0.97f, onClick = onClick)
+            .clip(RoundedCornerShape(26.dp))
+            .background(tile)
+            .padding(14.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        val leftShape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 10.dp, bottomEnd = 10.dp)
-        val rightShape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp, topEnd = 24.dp, bottomEnd = 24.dp)
-        Row(
-            Modifier
-                .weight(1f)
-                .height(56.dp)
-                .pressable(pressedScale = 0.97f) { onOpenPlaylist(watchLater) }
-                .clip(leftShape)
-                .background(c.surfaceContainerHigh)
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Icon(Icons.Rounded.WatchLater, contentDescription = null, tint = c.primary, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(watchLater.title, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Box(Modifier.size(52.dp).clip(CookieShape).background(badge), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = badgeInk)
         }
-        Row(
-            Modifier
-                .weight(1f)
-                .height(56.dp)
-                .pressable(pressedScale = 0.97f) { onOpenPlaylist(likedVideos) }
-                .clip(rightShape)
-                .background(c.surfaceContainerHigh)
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Icon(Icons.Rounded.ThumbUp, contentDescription = null, tint = c.tertiary, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(likedVideos.title, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
+        Text(playlist.title, color = ink, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -650,6 +633,20 @@ fun HistoryScreen(
     onOpen: (VideoItem) -> Unit,
 ) {
     LaunchedEffect(Unit) { feed.ensureLoaded() }
+    // YouTube's own history search (recent history only, said under the field): applied 400 ms after typing
+    // stops, or at once on the keyboard's Search.
+    var query by rememberSaveable { mutableStateOf("") }
+    var applied by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(query) {
+        if (query.isNotBlank()) kotlinx.coroutines.delay(400)
+        applied = query.trim()
+    }
+    val scope = rememberCoroutineScope()
+    val searchFeed = remember(applied) {
+        if (applied.isEmpty()) null else FeedState(scope) { InnerTube.historySearch(applied, it) }
+    }
+    LaunchedEffect(searchFeed) { searchFeed?.ensureLoaded() }
+    val shown = searchFeed ?: feed
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         CollapsingHeaderLayout(
             resetKey = feed.generation,
@@ -673,7 +670,24 @@ fun HistoryScreen(
                     EmptyState(Icons.Rounded.History, stringResource(R.string.ui_history), stringResource(R.string.ui_history_empty))
                 }
             } else {
-                FeedList(feed, contentPadding.withTop(top), onOpen, indicatorTop = top)
+                FeedList(
+                    shown, contentPadding.withTop(top), onOpen, indicatorTop = top,
+                    header = {
+                        item(key = "search") {
+                            ListSearchField(
+                                query, { query = it }, stringResource(R.string.ui_search_history),
+                                onSubmit = { applied = query.trim() },
+                            )
+                        }
+                        if (query.isNotBlank()) item(key = "search-note") { ListSearchNote(stringResource(R.string.ui_search_history_note)) }
+                    },
+                    scrollKey = applied,
+                    footer = {
+                        if (searchFeed != null && searchFeed.loadedEmpty) item(key = "search-empty") {
+                            ListSearchEmpty(stringResource(R.string.ui_search_history_no_matches, applied))
+                        }
+                    },
+                )
             }
         }
     }
@@ -691,6 +705,8 @@ fun PlaylistScreen(
     onOptions: ((VideoItem) -> Unit)? = null,
 ) {
     LaunchedEffect(playlist.id) { feed.ensureLoaded() }
+    val searchable = playlist.id == "WL" || playlist.id == "LL"
+    var query by rememberSaveable(playlist.id) { mutableStateOf("") }
     val menu = LocalVideoMenu.current
     CompositionLocalProvider(LocalVideoMenu provides (onOptions ?: menu)) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -713,6 +729,45 @@ fun PlaylistScreen(
     ) { top ->
         if (feed.videos.isEmpty() && !feed.loading && feed.error == null && !feed.hasMore) {
             Box(Modifier.padding(top = top)) { EmptyState(Icons.Rounded.VideoLibrary, stringResource(R.string.ui_playlist_empty_title), stringResource(R.string.ui_playlist_empty_body)) }
+        } else if (searchable) {
+            // Watch later / Liked videos aren't really playlists (Derek): no Play all / Shuffle, a search instead,
+            // over every video in the list — the first search pages it to its end (FeedState.loadAll).
+            val words = remember(query) { queryWords(query) }
+            val searching = words.isNotEmpty()
+            LaunchedEffect(searching) { if (searching) feed.loadAll() }
+            val index = remember(feed) { ListSearchIndex() }
+            val matches = remember(feed.videos, words) { index.filter(feed.videos, words) }
+            val stillLoading = feed.loading || (feed.hasMore && feed.error == null)
+            FeedList(
+                feed, contentPadding.withTop(top), onOpen, indicatorTop = top,
+                header = {
+                    item(key = "search") {
+                        ListSearchField(query, { query = it }, stringResource(R.string.ui_search_in_list, playlist.title))
+                    }
+                    if (searching && (matches.isNotEmpty() || stillLoading)) item(key = "search-note") {
+                        ListSearchNote(
+                            if (stillLoading) stringResource(R.string.ui_search_found_so_far, wholeCount(matches.size))
+                            else stringResource(R.string.ui_search_count_of, wholeCount(matches.size), wholeCount(feed.videos.size)),
+                        )
+                    }
+                },
+                onSwipeAway = onRemove,
+                videos = matches,
+                scrollKey = words,
+                showLoader = !(searching && feed.error != null),
+                footer = {
+                    if (searching && feed.error != null && feed.hasMore) item(key = "search-error") {
+                        EmptyState(
+                            icon = Icons.Rounded.CloudOff,
+                            title = stringResource(R.string.ui_search_load_failed, playlist.title),
+                            body = feed.error.orEmpty(),
+                            action = { PillButton(stringResource(R.string.ui_try_again), { feed.loadAll() }) },
+                        )
+                    } else if (searching && matches.isEmpty() && !stillLoading) item(key = "search-empty") {
+                        ListSearchEmpty(stringResource(R.string.ui_search_no_matches_in, playlist.title, query.trim()))
+                    }
+                },
+            )
         } else {
             FeedList(
                 feed, contentPadding.withTop(top), onOpen, indicatorTop = top,

@@ -9,6 +9,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">Yalnızca ses açık</string>
     <string name="video_playback_speed">Oynatma hızı</string>
+    <string name="video_audio_track">Ses parçası</string>
     <string name="video_captions">Altyazılar</string>
     <string name="video_quality">Kalite</string>
     <string name="video_pip">Pencere içinde pencere</string>
@@ -41,6 +42,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">ALTYAZILAR</string>
+    <string name="video_drop_audio">SES PARÇASI</string>
     <string name="video_drop_quality">KALİTE</string>
     <string name="video_drop_speed">HIZ</string>
 
@@ -48,6 +50,11 @@
     <string name="video_captions_off">Kapalı</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">otomatik</string>
+    <string name="audio_track_original">Orijinal</string>
+    <string name="audio_track_dubbed">Dublajlı</string>
+    <string name="audio_track_auto_dubbed">Otomatik dublaj</string>
+    <string name="audio_track_descriptive">Sesli betimleme</string>
+    <string name="audio_track_secondary">İkincil</string>
     <string name="video_captions_tag_downloading">indiriliyor</string>
     <string name="video_captions_tag_translated">çevrildi</string>
     <string name="video_captions_tag_download">indir</string>

@@ -186,4 +186,15 @@
     <string name="ui_duration_hr_min">%1$s h %2$s min</string>
     <string name="ui_reorder_queue">Réorganiser</string>
     <string name="ui_up_next_in">À suivre dans %1$s s</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">Rechercher dans %1$s</string>
+    <string name="ui_search_history">Rechercher dans l\'historique récent</string>
+    <string name="ui_search_history_note">YouTube ne recherche que dans votre historique récent</string>
+    <string name="ui_search_found_so_far">%1$s trouvés pour l\'instant…</string>
+    <string name="ui_search_count_of">%1$s sur %2$s</string>
+    <string name="ui_search_no_matches">Aucun résultat</string>
+    <string name="ui_search_no_matches_in">Rien dans %1$s ne correspond à « %2$s ».</string>
+    <string name="ui_search_history_no_matches">Rien dans votre historique récent ne correspond à « %1$s ».</string>
+    <string name="ui_search_load_failed">Impossible de charger « %1$s » en entier</string>
 </resources>

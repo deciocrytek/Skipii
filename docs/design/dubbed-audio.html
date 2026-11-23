@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Dubbed Audio Mockup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif);
+  color:var(--foreground);
+  line-height:1.4;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block;flex:none}
+
+/* Layout: fluid inside T3's 728px desktop / ~360px phone reply width, no outer card or page bg */
+.root{display:flex;flex-direction:column;gap:20px;width:100%}
+
+/* Top interactive control strip */
+.topbar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+}
+.hint-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:600;color:var(--muted-foreground);
+}
+.hint-dot{width:7px;height:7px;border-radius:50%;background:var(--primary)}
+.mode-pills{display:flex;gap:6px;flex-wrap:wrap}
+.mpill{
+  height:28px;padding:0 11px;border-radius:999px;
+  font-size:12px;font-weight:650;
+  background:var(--secondary);color:var(--secondary-foreground,var(--muted-foreground));
+  border:1px solid var(--border);
+  transition:background .2s,color .2s,transform .15s;
+}
+.mpill:active{transform:scale(.95)}
+.mpill.on{background:var(--primary);color:var(--primary-foreground);border-color:transparent}
+
+/* Section headers */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:750;color:var(--foreground)}
+.step-num{
+  width:20px;height:20px;border-radius:7px;
+  background:var(--primary);color:var(--primary-foreground);
+  font-size:11px;font-weight:800;display:inline-grid;place-items:center;flex:none;
+}
+.sec-sub{font-size:12px;color:var(--muted-foreground)}
+
+/* Two-up phones grid */
+.phones{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  align-items:start;
+}
+@media (max-width:620px){
+  .phones{grid-template-columns:1fr}
+}
+
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.col-note{font-size:12px;color:var(--muted-foreground);line-height:1.45}
+.col-note b{color:var(--foreground);font-weight:650}
+
+/* Skipii M3 Expressive tokens (dark default, light toggleable) */
+.skipii{
+  --sk-primary:#CDBDFF;--sk-on-primary:#2A1F55;
+  --sk-pc:#4A3C86;--sk-on-pc:#E8DEFF;
+  --sk-surface:#141218;--sk-on:#E9E0EF;--sk-on-var:#B3A7C0;
+  --sk-sv:#2B2633;--sk-scl:#1E1B24;--sk-sch:#2E2936;
+  --sk-tile:#3A3444;
+  --sk-track:#544A6E;
+  --sk-shadow:0 8px 22px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.35);
+}
+.skipii.light{
+  --sk-primary:#6A4FD0;--sk-on-primary:#FFFFFF;
+  --sk-pc:#E6DEFF;--sk-on-pc:#22105E;
+  --sk-surface:#F7F1FB;--sk-on:#2A2140;--sk-on-var:#76689A;
+  --sk-sv:#EEE5F6;--sk-scl:#F1EAF8;--sk-sch:#E6DCEF;
+  --sk-tile:#FBF7FE;
+  --sk-track:#C8BBE6;
+  --sk-shadow:0 8px 20px rgba(42,24,88,.18),0 2px 5px rgba(42,24,88,.10);
+}
+
+/* Phone device frame */
+.device{
+  width:100%;
+  background:#0D0C10;
+  border-radius:32px;
+  padding:8px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.10) inset,0 12px 28px rgba(0,0,0,.28);
+}
+.screen{
+  position:relative;
+  width:100%;
+  height:568px;
+  border-radius:25px;
+  overflow:hidden;
+  background:var(--sk-surface);
+  color:var(--sk-on);
+  display:flex;
+  flex-direction:column;
+  user-select:none;
+  transition:background .3s,color .3s;
+}
+
+/* Status bar */
+.sbar{
+  height:26px;background:#000;color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;font-size:11px;font-weight:700;flex:none;
+}
+.sbar-r{display:flex;align-items:center;gap:5px;font-size:10px;opacity:.9}
+.batt{padding:1px 5px;border-radius:4px;background:#fff;color:#000;font-size:9px;font-weight:800}
+
+/* 16:9 video stage */
+.vid{
+  position:relative;width:100%;aspect-ratio:16/9;flex:none;overflow:hidden;background:#000;
+}
+.scene{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(64px 64px at 74% 32%,#ffd89b 0,#f89b55 38%,rgba(248,155,85,0) 74%),
+    linear-gradient(180deg,#251d47 0%,#6d3866 40%,#d97459 64%,#e8b27c 72%,#302238 73%,#171424 100%);
+}
+.scene::before{
+  content:"";position:absolute;left:-6%;right:-6%;bottom:0;height:44%;
+  background:
+    radial-gradient(56% 90% at 24% 100%,#151226 0 60%,transparent 61%),
+    radial-gradient(52% 82% at 80% 100%,#1f1933 0 60%,transparent 61%);
+}
+/* subtle presenter silhouette / studio prop */
+.scene::after{
+  content:"";position:absolute;left:28%;top:22%;width:16%;height:62%;border-radius:9px;
+  background:linear-gradient(155deg,#3e3a4c,#17151f);
+  box-shadow:inset 0 0 0 2px #5c5670,0 8px 20px rgba(0,0,0,.45);
+  transform:rotate(-7deg);
+}
+.vid-toast{
+  position:absolute;left:50%;top:10px;transform:translateX(-50%);
+  height:24px;padding:0 10px;border-radius:12px;
+  background:rgba(16,13,24,.78);backdrop-filter:blur(6px);
+  color:#fff;font-size:10.5px;font-weight:750;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.12);
+  transition:opacity .25s,transform .25s;
+}
+.vid-toast .dot{width:6px;height:6px;border-radius:50%;background:#CDBDFF}
+.vid-toast.hidden{opacity:0;transform:translate(-50%,-4px);pointer-events:none}
+.vid-edge{position:absolute;left:0;right:0;bottom:0;height:2.5px;background:rgba(255,255,255,.28)}
+.vid-edge b{position:absolute;left:0;top:0;bottom:0;width:36%;background:var(--sk-primary)}
+
+/* Video details under player */
+.det{padding:12px 14px;flex:1;overflow:hidden;position:relative}
+.vtitle{font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.22}
+.vmeta{font-size:11px;font-weight:600;color:var(--sk-on-var);margin-top:5px}
+.vmeta b{color:var(--sk-on);font-weight:750}
+.chan{display:flex;align-items:center;gap:9px;margin-top:11px}
+.chan .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#66b3ff,#3b5bdb);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:850;flex:none}
+.chan .nm{flex:1;min-width:0}
+.chan .nm b{display:block;font-size:12.5px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chan .nm small{font-size:10.5px;font-weight:600;color:var(--sk-on-var)}
+.chan .sub{height:30px;padding:0 12px;border-radius:15px;background:var(--sk-scl);font-size:11.5px;font-weight:750;display:grid;place-items:center}
+.acts{display:flex;gap:6px;margin-top:11px;overflow:hidden}
+.acts span{
+  height:32px;padding:0 11px;border-radius:12px;background:var(--sk-sv);
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.cmt{margin-top:11px;background:var(--sk-scl);border-radius:16px;padding:10px 12px}
+.cmt .h{font-size:11.5px;font-weight:750;display:flex;justify-content:space-between}
+.cmt .h span{color:var(--sk-on-var);font-weight:600}
+.cmt p{font-size:11px;color:var(--sk-on-var);margin-top:6px;line-height:1.35}
+.pvig{
+  position:absolute;left:0;right:0;bottom:0;height:190px;pointer-events:none;
+  background:linear-gradient(transparent,color-mix(in srgb,var(--sk-surface) 72%,transparent) 55%,var(--sk-surface));
+}
+
+/* Home indicator */
+.gest{
+  position:absolute;bottom:6px;left:50%;width:84px;height:3.5px;margin-left:-42px;
+  border-radius:2px;background:var(--sk-on);opacity:.45;pointer-events:none;z-index:20;
+}
+
+/* ── Player Bar: Resting Pill vs Tools Card (Left phone) ── */
+.pbar-wrap{
+  position:absolute;left:12px;right:12px;bottom:16px;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+}
+.rest-pill{
+  width:276px;max-width:100%;height:68px;border-radius:34px;
+  background:var(--sk-sv);box-shadow:var(--sk-shadow);
+  padding:8px 10px 10px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.trow{display:flex;align-items:center;justify-content:space-between;width:100%}
+.side-btn{
+  width:35px;height:35px;border-radius:50%;background:var(--sk-tile);color:var(--sk-on);
+  display:grid;place-items:center;transition:transform .15s,background .2s;position:relative;
+}
+.side-btn:active{transform:scale(.92)}
+.side-btn.pulse{box-shadow:0 0 0 2px var(--sk-primary)}
+.seek-btn{
+  width:40px;height:40px;border-radius:50%;color:var(--sk-on);
+  display:grid;place-items:center;font-size:10px;font-weight:850;position:relative;
+}
+.play-btn{
+  width:84px;height:42px;border-radius:21px;background:var(--sk-primary);color:var(--sk-on-primary);
+  display:grid;place-items:center;
+}
+.hair{
+  position:absolute;left:28px;right:28px;bottom:5px;height:2.5px;border-radius:2px;
+  background:var(--sk-track);overflow:hidden;
+}
+.hair b{position:absolute;left:0;top:0;bottom:0;width:36%;background:var(--sk-primary)}
+
+/* Open Tools Card */
+.tools-card{
+  width:100%;border-radius:26px;background:var(--sk-sv);box-shadow:var(--sk-shadow);
+  padding:12px 10px 9px;display:flex;flex-direction:column;gap:10px;
+}
+.tool-row{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;
+}
+.tool-btn{
+  aspect-ratio:1;border-radius:50%;background:var(--sk-tile);color:var(--sk-on);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  padding:2px;min-width:0;transition:background .2s,color .2s,transform .15s;
+}
+.tool-btn:active{transform:scale(.92)}
+.tool-btn .g{font-size:10.5px;font-weight:850;line-height:1;height:16px;display:grid;place-items:center}
+.tool-btn .l{
+  font-size:8px;font-weight:750;color:var(--sk-on-var);
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;
+}
+.tool-btn.active{background:var(--sk-primary);color:var(--sk-on-primary)}
+.tool-btn.active .l{color:var(--sk-on-primary)}
+.tool-btn.callout{box-shadow:0 0 0 2px var(--sk-primary)}
+
+.card-trow{padding:0 12px}
+.card-hair{height:2.5px;margin:0 28px;border-radius:2px;background:var(--sk-track);overflow:hidden;position:relative}
+.card-hair b{position:absolute;left:0;top:0;bottom:0;width:36%;background:var(--sk-primary)}
+.chap-strip{
+  align-self:center;height:28px;padding:0 12px;border-radius:14px;
+  background:var(--sk-tile);color:var(--sk-on-var);
+  font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;
+}
+.chap-strip b{color:var(--sk-on)}
+
+/* ── Player Bar: Audio Track Panel (Right phone) ── */
+.audio-panel{
+  width:100%;border-radius:26px;background:var(--sk-sv);box-shadow:var(--sk-shadow);
+  padding:13px 10px 10px;display:flex;flex-direction:column;gap:8px;
+}
+.ap-head{
+  display:flex;align-items:baseline;justify-content:space-between;padding:0 8px 2px;gap:8px;
+}
+.ap-head b{font-size:14.5px;font-weight:850;letter-spacing:-.2px}
+.ap-head span{font-size:10.5px;font-weight:700;color:var(--sk-on-var);white-space:nowrap}
+.ap-list{display:flex;flex-direction:column;gap:3px}
+.ap-row{
+  width:100%;height:34px;border-radius:17px;padding:0 13px;
+  display:flex;align-items:center;gap:6px;text-align:left;
+  color:var(--sk-on);transition:background .2s,color .2s,transform .15s;
+}
+.ap-row:hover{background:color-mix(in srgb,var(--sk-tile) 65%,transparent)}
+.ap-row:active{transform:scale(.98)}
+.ap-row .lang{font-size:12.5px;font-weight:800;white-space:nowrap}
+.ap-row .tag{
+  font-size:10.5px;font-weight:700;color:var(--sk-on-var);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ap-row .sp{flex:1}
+.ap-row .ck{
+  width:17px;height:17px;display:grid;place-items:center;opacity:0;transform:scale(.5);
+  transition:opacity .2s,transform .22s;
+}
+.ap-row.sel{background:var(--sk-primary);color:var(--sk-on-primary)}
+.ap-row.sel:hover{background:var(--sk-primary)}
+.ap-row.sel .tag{color:color-mix(in srgb,var(--sk-on-primary) 82%,transparent)}
+.ap-row.sel .ck{opacity:1;transform:scale(1)}
+
+.ap-trow{padding:4px 12px 2px}
+
+/* ── Fullscreen Landscape Preview ── */
+.fs-frame{
+  width:100%;background:#0D0C10;border-radius:26px;padding:7px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.10) inset,0 12px 26px rgba(0,0,0,.26);
+}
+.fs-screen{
+  position:relative;width:100%;height:302px;border-radius:20px;overflow:hidden;
+  background:#000;color:#fff;user-select:none;
+}
+.fs-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.58) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.62) 100%)}
+.fs-top{
+  position:absolute;left:12px;right:12px;top:10px;
+  display:flex;align-items:center;gap:6px;z-index:5;
+}
+.fs-title{
+  flex:1;min-width:0;font-size:13px;font-weight:750;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:2px;
+}
+.fs-tile{
+  height:32px;min-width:32px;padding:0 7px;border-radius:16px;
+  background:rgba(43,38,51,.88);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  font-size:11px;font-weight:750;white-space:nowrap;
+  transition:background .2s,color .2s,transform .15s;
+}
+.fs-tile:active{transform:scale(.94)}
+.fs-tile.filled{background:var(--sk-primary);color:var(--sk-on-primary)}
+.fs-tile.ring{box-shadow:0 0 0 2px #fff}
+
+.fs-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:flex;align-items:center;gap:22px;z-index:2;
+}
+.fs-seek{
+  width:44px;height:44px;border-radius:50%;background:rgba(43,38,51,.84);
+  display:grid;place-items:center;font-size:11px;font-weight:850;
+}
+.fs-play{
+  width:56px;height:56px;border-radius:50%;background:var(--sk-primary);color:var(--sk-on-primary);
+  display:grid;place-items:center;
+}
+.fs-bot{
+  position:absolute;left:14px;right:14px;bottom:12px;z-index:3;
+  display:flex;flex-direction:column;gap:7px;
+}
+.fs-times{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:750}
+.fs-times span{opacity:.76}
+.fs-scrub{height:3.5px;border-radius:2px;background:rgba(255,255,255,.30);position:relative}
+.fs-scrub b{position:absolute;left:0;top:0;bottom:0;width:36%;border-radius:2px;background:var(--sk-primary)}
+.fs-scrub i{position:absolute;left:36%;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--sk-primary)}
+
+/* Anchored Fullscreen DropKind.Audio card */
+.fs-drop{
+  position:absolute;right:126px;top:48px;width:222px;
+  border-radius:20px;background:var(--sk-sv);color:var(--sk-on);
+  box-shadow:0 14px 32px rgba(0,0,0,.62);padding:8px;z-index:10;
+  transition:opacity .2s,transform .22s;
+}
+@media (max-width:520px){.fs-drop{right:12px}}
+.fs-drop.closed{opacity:0;transform:translateY(-6px) scale(.96);pointer-events:none}
+.fs-drop-h{font-size:11.5px;font-weight:850;padding:2px 9px 5px;display:flex;justify-content:space-between;color:var(--sk-on)}
+.fs-drop-h span{color:var(--sk-on-var);font-weight:700;font-size:10px}
+.fs-drop .ap-list{gap:2px}
+.fs-drop .ap-row{height:28px;padding:0 10px;border-radius:14px}
+.fs-drop .ap-row .lang{font-size:11.5px}
+.fs-drop .ap-row .tag{font-size:9.5px}
+
+/* ── Settings › Playback Card ── */
+.settings-shell{
+  border-radius:var(--radius,16px);
+  background:var(--sk-surface);
+  color:var(--sk-on);
+  padding:14px;
+  border:1px solid var(--border);
+}
+.set-crumb{
+  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--sk-primary);margin-bottom:8px;padding:0 4px;
+}
+.joined{display:flex;flex-direction:column;gap:3px}
+.jrow{
+  background:var(--sk-scl);padding:12px 14px;
+  display:flex;flex-direction:column;gap:9px;
+}
+.jrow:first-child{border-radius:20px 20px 6px 6px}
+.jrow:last-child{border-radius:6px 6px 20px 20px}
+.jrow:only-child{border-radius:20px}
+.jtop{display:flex;align-items:center;gap:11px}
+.jico{
+  width:32px;height:32px;border-radius:11px;background:var(--sk-sv);color:var(--sk-on);
+  display:grid;place-items:center;flex:none;
+}
+.jtx{flex:1;min-width:0}
+.jtx b{display:block;font-size:13px;font-weight:750}
+.jtx span{display:block;font-size:11.5px;color:var(--sk-on-var);margin-top:1px;line-height:1.35}
+.schips{display:flex;flex-wrap:wrap;gap:6px;padding-left:43px}
+@media (max-width:460px){.schips{padding-left:0}}
+.schip{
+  height:30px;padding:0 12px;border-radius:15px;
+  background:var(--sk-sv);color:var(--sk-on);
+  font-size:12px;font-weight:750;
+  transition:background .2s,color .2s,transform .15s;
+}
+.schip:active{transform:scale(.94)}
+.schip.on{background:var(--sk-primary);color:var(--sk-on-primary)}
+
+/* M3 Switch */
+.sw{
+  width:44px;height:26px;border-radius:13px;background:var(--sk-sch);
+  position:relative;flex:none;transition:background .2s;
+  border:1.5px solid color-mix(in srgb,var(--sk-on-var) 45%,transparent);
+}
+.sw::after{
+  content:"";position:absolute;left:4px;top:50%;width:14px;height:14px;
+  margin-top:-7px;border-radius:50%;background:var(--sk-on-var);
+  transition:left .22s,width .22s,height .22s,margin-top .22s,background .2s;
+}
+.sw.on{background:var(--sk-primary);border-color:transparent}
+.sw.on::after{left:22px;width:18px;height:18px;margin-top:-9px;background:var(--sk-on-primary)}
+.jrow.muted{opacity:.64;pointer-events:none}
+
+/* Little badge on Left Phone toggle */
+.mini-toggle{
+  display:inline-flex;background:var(--secondary);border-radius:999px;padding:2px;gap:2px;
+  border:1px solid var(--border);
+}
+.mini-toggle button{
+  height:22px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:650;
+  color:var(--muted-foreground);
+}
+.mini-toggle button.on{background:var(--primary);color:var(--primary-foreground)}
+</style>
+</head>
+<body>
+<div class="root skipii" id="app">
+
+  <!-- Interactive controls strip -->
+  <div class="topbar">
+    <div class="hint-pill">
+      <span class="hint-dot"></span>
+      <span>Interactive mockup — click tracks, <b>⋮</b>, or Fullscreen Audio</span>
+    </div>
+    <div class="mode-pills">
+      <button class="mpill on" id="themeDark" type="button">Skipii Dark</button>
+      <button class="mpill" id="themeLight" type="button">Skipii Light</button>
+    </div>
+  </div>
+
+  <!-- Section 1: Player Pill Activation Flow (2 phones side by side) -->
+  <div>
+    <div class="sec-head">
+      <div class="sec-title"><span class="step-num">1</span> Player Pill — Activate &amp; Switch Audio Track</div>
+      <div class="mini-toggle" aria-label="Left phone bar state">
+        <button type="button" id="barRestBtn">Resting pill</button>
+        <button type="button" id="barCardBtn" class="on">Tools card (⋮)</button>
+      </div>
+    </div>
+
+    <div class="phones">
+      <!-- LEFT PHONE: Resting pill <-> Tools card -->
+      <div class="col">
+        <div class="device">
+          <div class="screen">
+            <div class="sbar"><span>6:44</span><span class="sbar-r">5G <span class="batt">84</span></span></div>
+            <div class="vid">
+              <div class="scene"></div>
+              <div class="vid-toast" id="toast1"><span class="dot"></span><span class="ttext">Audio: Spanish · Dubbed</span></div>
+              <div class="vid-edge"><b></b></div>
+            </div>
+            <div class="det">
+              <div class="vtitle">I Built a World-Record Domino Robot</div>
+              <div class="vmeta">14.2M views · 3 days ago <b>…more</b></div>
+              <div class="chan">
+                <div class="av">MR</div>
+                <div class="nm"><b>Mark Rober</b><small>62.4M subscribers</small></div>
+                <div class="sub">Subscribed</div>
+              </div>
+              <div class="acts">
+                <span>👍 642K</span>
+                <span>↗ Share</span>
+                <span>＋ Save</span>
+              </div>
+              <div class="cmt">
+                <div class="h">Comments <span>18.4K</span></div>
+                <p>The engineering breakdown at 4:18 is wild, and the Spanish dub actually matches his energy.</p>
+              </div>
+              <div class="pvig"></div>
+            </div>
+
+            <!-- Bar area: Resting Pill OR Tools Card -->
+            <div class="pbar-wrap">
+              <!-- Resting pill -->
+              <div class="rest-pill" id="restPill" style="display:none">
+                <div class="trow">
+                  <button class="side-btn" title="Audio only" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">−10</button>
+                  <button class="play-btn" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">+10</button>
+                  <button class="side-btn pulse" id="openCardBtn" title="Open tools" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+                  </button>
+                </div>
+                <div class="hair"><b></b></div>
+              </div>
+
+              <!-- Expanded Tools Card -->
+              <div class="tools-card" id="toolsCard">
+                <div class="tool-row">
+                  <button class="tool-btn" type="button"><span class="g">1×</span><span class="l">Speed</span></button>
+                  <button class="tool-btn" type="button"><span class="g">Auto</span><span class="l">Quality</span></button>
+                  <!-- NEW AUDIO TRACK TOOL -->
+                  <button class="tool-btn active callout" id="audioToolBtn" type="button">
+                    <span class="g">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 13c2.67 0 8 1.34 8 4v3H1v-3c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7.76-5.85 1.42-1.42A8.95 8.95 0 0 1 21 10a8.95 8.95 0 0 1-2.82 6.27l-1.42-1.42A6.97 6.97 0 0 0 19 10c0-1.93-.78-3.68-2.24-4.85zm-2.83 2.83 1.42-1.42A4.98 4.98 0 0 1 17 10c0 1.38-.56 2.63-1.65 3.44l-1.42-1.42c.65-.49 1.07-1.19 1.07-2.02s-.42-1.53-1.07-2.02z"/></svg>
+                    </span>
+                    <span class="l" id="audioToolLabel">Spanish</span>
+                  </button>
+                  <button class="tool-btn" type="button">
+                    <span class="g">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
+                    </span>
+                    <span class="l">Captions</span>
+                  </button>
+                  <button class="tool-btn" type="button">
+                    <span class="g">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-8v6h8v-6zm4 8V5a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2zm-2 0H3V5h18v14z"/></svg>
+                    </span>
+                    <span class="l">PiP</span>
+                  </button>
+                  <button class="tool-btn" type="button">
+                    <span class="g">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </span>
+                    <span class="l">Full</span>
+                  </button>
+                </div>
+
+                <div class="trow card-trow">
+                  <button class="side-btn" title="Audio only" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">−10</button>
+                  <button class="play-btn" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">+10</button>
+                  <button class="side-btn" id="closeCardBtn" title="Close tools" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  </button>
+                </div>
+                <div class="card-hair"><b></b></div>
+                <div class="chap-strip">☰ <b>The Gear Train</b> · 4:18 / 11:42 ⌃</div>
+              </div>
+            </div>
+
+            <div class="gest"></div>
+          </div>
+        </div>
+        <div class="col-note">Tap <b>⋮</b> (or swipe up on the pill). The <b>Audio</b> circle only appears on multi-track videos, uses a voice icon (distinct from Headphones = Audio only), and fills primary with the language name when a dub is active.</div>
+      </div>
+
+      <!-- RIGHT PHONE: Audio Track Panel -->
+      <div class="col">
+        <div class="device">
+          <div class="screen">
+            <div class="sbar"><span>6:44</span><span class="sbar-r">5G <span class="batt">84</span></span></div>
+            <div class="vid">
+              <div class="scene"></div>
+              <div class="vid-toast" id="toast2"><span class="dot"></span><span class="ttext">Audio: Spanish · Dubbed</span></div>
+              <div class="vid-edge"><b></b></div>
+            </div>
+            <div class="det">
+              <div class="vtitle">I Built a World-Record Domino Robot</div>
+              <div class="vmeta">14.2M views · 3 days ago <b>…more</b></div>
+              <div class="pvig"></div>
+            </div>
+
+            <!-- Open Audio Track Panel (BarPanel.Audio) -->
+            <div class="pbar-wrap">
+              <div class="audio-panel">
+                <div class="ap-head">
+                  <b>Audio track</b>
+                  <span id="panelStatus">Playing · Spanish</span>
+                </div>
+                <div class="ap-list" id="panelList"></div>
+                <div class="trow ap-trow">
+                  <button class="side-btn" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">−10</button>
+                  <button class="play-btn" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                  </button>
+                  <button class="seek-btn" type="button">+10</button>
+                  <button class="side-btn" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="gest"></div>
+          </div>
+        </div>
+        <div class="col-note">Tapping <b>Audio</b> morphs the pill into the track list (same rhythm as Quality &amp; Captions). Picking a language swaps the audio stream seamlessly at <b>4:18</b>, lands the check, and folds the bar down.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Fullscreen & On-Video Controls -->
+  <div>
+    <div class="sec-head">
+      <div class="sec-title"><span class="step-num">2</span> Fullscreen &amp; On-Video Controls</div>
+      <div class="sec-sub">Anchored dropdown in fullscreen (sheet in portrait on-video mode)</div>
+    </div>
+    <div class="fs-frame">
+      <div class="fs-screen">
+        <div class="scene"></div>
+        <div class="fs-dim"></div>
+
+        <!-- Top overlay row -->
+        <div class="fs-top">
+          <div class="fs-tile" title="Lock">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6a3.1 3.1 0 0 1 6.2 0v2z"/></svg>
+          </div>
+          <div class="fs-title">I Built a World-Record Domino Robot</div>
+          <div class="fs-tile">1×</div>
+          <!-- NEW AUDIO PILL -->
+          <button class="fs-tile filled ring" id="fsAudioBtn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 13c2.67 0 8 1.34 8 4v3H1v-3c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7.76-5.85 1.42-1.42A8.95 8.95 0 0 1 21 10a8.95 8.95 0 0 1-2.82 6.27l-1.42-1.42A6.97 6.97 0 0 0 19 10c0-1.93-.78-3.68-2.24-4.85zm-2.83 2.83 1.42-1.42A4.98 4.98 0 0 1 17 10c0 1.38-.56 2.63-1.65 3.44l-1.42-1.42c.65-.49 1.07-1.19 1.07-2.02s-.42-1.53-1.07-2.02z"/></svg>
+            <span id="fsAudioText">ES</span>
+          </button>
+          <div class="fs-tile">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
+          </div>
+          <div class="fs-tile">Auto · 1080p</div>
+          <div class="fs-tile">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-8v6h8v-6zm4 8V5a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2zm-2 0H3V5h18v14z"/></svg>
+          </div>
+        </div>
+
+        <!-- Anchored Dropdown Card -->
+        <div class="fs-drop" id="fsDrop">
+          <div class="fs-drop-h">Audio track <span id="fsDropCount">6 tracks</span></div>
+          <div class="ap-list" id="fsList"></div>
+        </div>
+
+        <!-- Center transport -->
+        <div class="fs-center">
+          <div class="fs-seek">−10</div>
+          <div class="fs-play">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </div>
+          <div class="fs-seek">+10</div>
+        </div>
+
+        <!-- Bottom scrubber -->
+        <div class="fs-bot">
+          <div class="fs-times">
+            <div>4:18 <span>/ 11:42 · The Gear Train</span></div>
+            <div style="opacity:.85">⤢</div>
+          </div>
+          <div class="fs-scrub"><b></b><i></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Settings › Playback Default Behavior -->
+  <div>
+    <div class="sec-head">
+      <div class="sec-title"><span class="step-num">3</span> Settings › Playback — Default Audio Behavior</div>
+      <div class="sec-sub">Defaults to Original so auto-dubs never surprise you</div>
+    </div>
+    <div class="settings-shell">
+      <div class="set-crumb">Settings › Playback › Sound</div>
+      <div class="joined">
+        <div class="jrow">
+          <div class="jtop">
+            <div class="jico">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 13c2.67 0 8 1.34 8 4v3H1v-3c0-2.66 5.33-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7.76-5.85 1.42-1.42A8.95 8.95 0 0 1 21 10a8.95 8.95 0 0 1-2.82 6.27l-1.42-1.42A6.97 6.97 0 0 0 19 10c0-1.93-.78-3.68-2.24-4.85zm-2.83 2.83 1.42-1.42A4.98 4.98 0 0 1 17 10c0 1.38-.56 2.63-1.65 3.44l-1.42-1.42c.65-.49 1.07-1.19 1.07-2.02s-.42-1.53-1.07-2.02z"/></svg>
+            </div>
+            <div class="jtx">
+              <b>Audio track</b>
+              <span id="prefDesc">Always start videos in their original spoken language.</span>
+            </div>
+          </div>
+          <div class="schips" id="prefChips">
+            <button class="schip on" data-pref="original" type="button">Original</button>
+            <button class="schip" data-pref="app" type="button">App language</button>
+            <button class="schip" data-pref="last" type="button">Last picked</button>
+          </div>
+        </div>
+        <div class="jrow muted" id="autoDubRow">
+          <div class="jtop">
+            <div class="jico">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm7 9a1 1 0 0 1 1 1 8 8 0 0 1-7 7.93V22h-2v-2.07A8 8 0 0 1 4 12a1 1 0 1 1 2 0 6 6 0 0 0 12 0 1 1 0 0 1 1-1z"/></svg>
+            </div>
+            <div class="jtx">
+              <b>Allow YouTube auto-dubs</b>
+              <span id="autoDubDesc">Only use human-dubbed tracks automatically; skip AI auto-dubs.</span>
+            </div>
+            <button class="sw" id="autoDubSw" type="button" aria-label="Allow YouTube auto-dubs"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TRACKS = [
+  { id:'en-orig', name:'English',    code:'EN', note:'Original',          dub:false },
+  { id:'es-dub',  name:'Spanish',    code:'ES', note:'Dubbed',            dub:true  },
+  { id:'pt-dub',  name:'Portuguese', code:'PT', note:'Dubbed',            dub:true  },
+  { id:'fr-dub',  name:'French',     code:'FR', note:'Dubbed',            dub:true  },
+  { id:'de-auto', name:'German',     code:'DE', note:'Auto-dubbed',       dub:true  },
+  { id:'en-desc', name:'English',    code:'AD', note:'Audio description', dub:true  },
+];
+
+let selectedId = 'es-dub';
+let fsOpen = true;
+let pref = 'original';
+let allowAutoDub = false;
+
+const checkSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+
+function renderTracks(){
+  const cur = TRACKS.find(t => t.id === selectedId) || TRACKS[0];
+
+  ['panelList','fsList'].forEach(containerId => {
+    const el = document.getElementById(containerId);
+    el.innerHTML = TRACKS.map(t => {
+      const sel = t.id === selectedId;
+      return `<button type="button" class="ap-row${sel?' sel':''}" data-tid="${t.id}">
+        <span class="lang">${t.name}</span>
+        <span class="tag">· ${t.note}</span>
+        <span class="sp"></span>
+        <span class="ck">${checkSvg}</span>
+      </button>`;
+    }).join('');
+    el.querySelectorAll('.ap-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedId = btn.dataset.tid;
+        renderTracks();
+      });
+    });
+  });
+
+  // Update Left Phone Tools Card Audio button
+  const toolBtn = document.getElementById('audioToolBtn');
+  const toolLbl = document.getElementById('audioToolLabel');
+  toolBtn.classList.toggle('active', cur.dub);
+  toolLbl.textContent = cur.dub ? cur.name : 'Audio';
+
+  // Update Right Phone panel status
+  document.getElementById('panelStatus').textContent = cur.dub ? `Playing · ${cur.name}` : 'Original';
+
+  // Update video toasts
+  [document.getElementById('toast1'), document.getElementById('toast2')].forEach(toast => {
+    toast.classList.toggle('hidden', !cur.dub);
+    toast.querySelector('.ttext').textContent = `Audio: ${cur.name} · ${cur.note}`;
+  });
+
+  // Update Fullscreen Audio button
+  const fsBtn = document.getElementById('fsAudioBtn');
+  const fsTxt = document.getElementById('fsAudioText');
+  fsBtn.classList.toggle('filled', cur.dub);
+  fsTxt.textContent = cur.dub ? cur.code : 'Audio';
+}
+
+// Resting pill <-> Tools card toggle
+function setBarOpen(open){
+  document.getElementById('restPill').style.display = open ? 'none' : 'flex';
+  document.getElementById('toolsCard').style.display = open ? 'flex' : 'none';
+  document.getElementById('barCardBtn').classList.toggle('on', open);
+  document.getElementById('barRestBtn').classList.toggle('on', !open);
+}
+document.getElementById('barRestBtn').addEventListener('click', () => setBarOpen(false));
+document.getElementById('barCardBtn').addEventListener('click', () => setBarOpen(true));
+document.getElementById('openCardBtn').addEventListener('click', () => setBarOpen(true));
+document.getElementById('closeCardBtn').addEventListener('click', () => setBarOpen(false));
+
+// Fullscreen dropdown toggle
+document.getElementById('fsAudioBtn').addEventListener('click', () => {
+  fsOpen = !fsOpen;
+  document.getElementById('fsDrop').classList.toggle('closed', !fsOpen);
+  document.getElementById('fsAudioBtn').classList.toggle('ring', fsOpen);
+});
+
+// Skipii Dark / Light theme toggle
+document.getElementById('themeDark').addEventListener('click', () => {
+  document.getElementById('app').classList.remove('light');
+  document.getElementById('themeDark').classList.add('on');
+  document.getElementById('themeLight').classList.remove('on');
+});
+document.getElementById('themeLight').addEventListener('click', () => {
+  document.getElementById('app').classList.add('light');
+  document.getElementById('themeLight').classList.add('on');
+  document.getElementById('themeDark').classList.remove('on');
+});
+
+// Settings chips + auto-dub switch
+const PREF_DESCS = {
+  original: 'Always start videos in their original spoken language.',
+  app:      'Start in your Skipii language when a dub exists; otherwise Original.',
+  last:     'Remember the last dubbed language you picked when available.'
+};
+function renderSettings(){
+  document.querySelectorAll('#prefChips .schip').forEach(b => {
+    b.classList.toggle('on', b.dataset.pref === pref);
+  });
+  document.getElementById('prefDesc').textContent = PREF_DESCS[pref];
+  const row = document.getElementById('autoDubRow');
+  row.classList.toggle('muted', pref === 'original');
+  document.getElementById('autoDubSw').classList.toggle('on', allowAutoDub);
+  document.getElementById('autoDubDesc').textContent = allowAutoDub
+    ? 'Use YouTube’s AI auto-dubs automatically when no creator dub exists.'
+    : 'Only pick creator-dubbed tracks automatically; AI auto-dubs stay manual.';
+}
+document.querySelectorAll('#prefChips .schip').forEach(b => {
+  b.addEventListener('click', () => { pref = b.dataset.pref; renderSettings(); });
+});
+document.getElementById('autoDubSw').addEventListener('click', () => {
+  allowAutoDub = !allowAutoDub;
+  renderSettings();
+});
+
+renderTracks();
+renderSettings();
+</script>
+</body>
+</html>

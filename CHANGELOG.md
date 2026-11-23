@@ -10,6 +10,21 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.5.129
+
+### New
+- **Search inside Watch later and Liked videos.** A search field sits at the top of each list and searches every video in it, by title or channel, even in lists with thousands of videos. Play all and Shuffle are gone from these two lists.
+- **Search your History.** This uses YouTube's own history search, which only covers your recent history, so very old videos may not turn up.
+- **Dubbed audio.** When a video has other audio languages (a creator's dubs, YouTube's auto-dubs, audio description), an **Audio** button lets you switch, and the video carries on from the same spot. Find it under ⋮ in the player bar, next to speed on the video, or in fullscreen. Videos always start in their original language unless you pick a language in **Settings › Captions & Dubbing › Audio track**. YouTube's AI auto-dubs are only picked for you if you allow them there. Videos with a single audio track look and sound exactly as before.
+
+### Improved
+- **Watch later and Liked videos are back to their tiles** in Library, each in its own bold colour so they stand out from the page in light and dark themes.
+
+### Fixed
+- **Swiping down to leave fullscreen** (#94) no longer slides the video down and shows the top of the Home page behind it. The video now shrinks in place over black as you pull, the mirror of how it grows when you swipe up into fullscreen, and eases back if you let go early.
+- **Leaving fullscreen is quicker.** Skipii now asks the phone to turn back the moment you let go, and brings the status and navigation bars back first, so the pause before the screen turns is about a quarter shorter.
+- **A rare crash when opening a video** while YouTube was checking the connection is fixed.
+
 ## 0.5.120
 
 ### New

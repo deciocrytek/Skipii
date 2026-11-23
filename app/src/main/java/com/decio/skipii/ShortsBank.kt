@@ -123,7 +123,7 @@ object ShortsBank {
         val video = (family.filter { shortSide(it.width, it.height) <= side }.ifEmpty { family })
             .maxWithOrNull(compareBy({ if (shortSide(it.width, it.height) <= side) shortSide(it.width, it.height) else -shortSide(it.width, it.height) }, { it.fps }))
             ?: return null
-        val audio = StreamSelection.pick(info).audio?.takeIf { it.itagItem != null } ?: return null
+        val audio = StreamSelection.pick(info, info.id).audio?.takeIf { it.itagItem != null } ?: return null
         fun track(s: org.schabi.newpipe.extractor.stream.Stream): Track? = runCatching {
             val itag = s.itagItem!!
             val xml = YoutubeProgressiveDashManifestCreator.fromProgressiveStreamingUrl(s.content, itag, durationSec)

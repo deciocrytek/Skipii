@@ -935,6 +935,72 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Verified on skipii_qa (debug, bot-checked: no playback): swipe tracking, line + haptic tray, short swipe / flick / slanted
   scroll do nothing, badges, handle + hold reorder (order kept in the controller), swipe-remove incl. a duplicate, playlist
   exit slide (animator scale 6). NOT verified: More videos (no details under the bot check), the feel on Derek's Pixel.
+- 0.5.121 list search (2026-11-20, Derek picked variation A "Field under the title"; ListSearch.kt). Library's Watch later +
+  Liked videos are the pre-0.5.118 tiles again (`PinnedListTile`: 132 dp, cookie badge, title at the bottom; 0.5.122, Derek's 7641.png: on surfaceContainerLow with a pale
+  badge they blended into a light page, so the tile is primaryContainer / tertiaryContainer, the badge full primary / tertiary; the joined
+  `LibraryQuickBar` is gone; playlists keep their covers). Watch later / Liked (`PlaylistScreen`, ids WL / LL) have NO Play
+  all / Shuffle (Derek: not really playlists) and a search field as the list's first item (`ListSearchField`, Settings'
+  search look; scrolls away). It searches EVERY video: the first search runs `FeedState.loadAll` (pages to the end, each page
+  shown as it lands, "N found so far…" then "N of M"; a failure stops with Try again) and filters on the phone (title +
+  channel, every word, case + accents folded; `ListSearchIndex` folds each video once — re-folding 3,671 videos per
+  keystroke dropped typed letters; the field also keeps its own `TextFieldState`, reported one way, since a String-valued
+  field still lost letters typed in a burst while pages landed). History (`HistoryScreen`) has the same field over YouTube's OWN history search
+  (`InnerTube.historySearch`: browse FEhistory + `query`, applied 400 ms after typing), labelled "Search recent history" /
+  "YouTube only searches your recent history". Probed signed in on Derek's account (2026-11-20, skipii_qa): Watch later
+  paged to its end (17 pages, 1,667 videos, ~11 s; its header says 1,783 — YouTube never sends the other 116, presumably
+  deleted/private), Liked to its end (37 pages, 3,671, ~30 s). History did NOT end after 200 pages (16,840 videos, 3.5 min),
+  and YouTube's history search found a page-39 title but none of three exact titles from page ~195 (mid-2024): it covers
+  recent history only, so searching all of History isn't possible (fetching it all is too slow and too many requests).
+  Never commit captures of Derek's account (the repo is public). Tested by `ListSearchTest`; verified on skipii_qa (debug,
+  signed in): tiles, both list searches to the end, no matches, Search key closes the keyboard, history search + note.
+- 0.5.123 dubbed audio (2026-11-20, Derek: "normal English videos aren't affected for me and other dubbed languages are an
+  option"; mockup `docs/design/dubbed-audio.html`; AudioTracks.kt). Each audio track comes as its own extractor stream
+  (reported present in VISIONOS answers for MrBeast / Mark Rober videos, not re-checked: bot check) (`AudioStream.audioTrackId` "en-US.4" / "es-419.3", `audioLocale`, `audioTrackType` ORIGINAL / DUBBED / DESCRIPTIVE /
+  SECONDARY); `AudioTracks.from` groups them by track id (one group = single-track video = empty list, NO picker anywhere),
+  marks YouTube's AI dubs (`acont=dubbed-auto` in the URL's xtags, or "(auto-dubbed)" in the name), skips the DRC copy
+  (`drc=1`) and sorts Original, app language, last picked, creator dubs, auto-dubs, description. `StreamSelection.pick(info,
+  videoId)` plays `AudioTrackPreference.resolveTrackId`: a per-video pick (in memory, `setForVideo`) wins; else Settings ›
+  Playback "Audio track" (prefs "playback" `audio_track_mode`): Original (DEFAULT — every video starts in its own language),
+  App language, Last picked (`audio_last_language`); those two never move a video whose original is already that language
+  and take auto-dubs only with `audio_allow_auto_dub`. `VideoDetails.audioTracks` / `audioTrackId`; `PlayerState.setAudioTrack`
+  rebuilds the item at the same position (as a quality switch; the service logs "media source … audio itag N [track id]").
+  Pickers: bar card tool `BarTool.Audio` → `BarPanel.Audio` (`BarAudioList`, filled + language name while dubbed; seven
+  tools shrink the circles), overlay `OverlayAudioButton` (round tile, filled capsule with "ES" while dubbed — portrait only
+  shows the code on windows ≥ 400 dp, a 360 dp row has no room) → `AudioDrop` in fullscreen (264 dp, wider than the other
+  cards) / `AudioSheet` in portrait, the audio-only stage's tile, tabletop `AudioTrackKey`, TV ⋯ → `TvPanel.Audio`. Shorts
+  (`ShortsBank`) follow the setting. Tested by `AudioTracksTest` (incl. `StreamSelection.pick` on a built StreamInfo).
+  Verified on skipii_qa (debug) with a THROWAWAY build feeding a fake 7-track StreamInfo of public ExoPlayer test media (the
+  Mac's network was bot-checked: no YouTube stream played): bar panel, fullscreen card, on-video pill + sheet, audio-only
+  tile, Settings; every pick reached the service ("[es-419.3]", "[fr.3]", back to "[en-US.4]") at the same position. NOT
+  verified: a real dubbed video's tracks on screen / switching sound (bot check), tabletop + TV pickers on screen, signed in.
+- 0.5.125–0.5.126 captions & dubbing settings (2026-11-20, Derek: move audio track dubbing to Captions, rename to "Captions & Dubbing",
+  remove App language + Last picked, keep only Original and Choose language). `SettingsPage.Captions` now uses
+  `settings_captions_dubbing` ("Captions & Dubbing") and hosts the Audio track (`Original` / `Choose language`), Dub language
+  (`DubLanguageSheet`), and Allow YouTube auto-dubs rows (`AudioTrackPreference.Mode` simplified to `Original` / `Custom`;
+  any stored old mode falls back to `Original`). 0.5.127 (Derek: the sheet's top sat under the status bar with the keyboard
+  open): `DubLanguageSheet` caps its content at the room left under the handle minus the status bar and 16 dp. The keyboard /
+  focus / view used to hide the keyboard are read INSIDE a ModalBottomSheet's content (it's its own window; the page's ones
+  can't hide that keyboard).
+- 0.5.128 (2026-11-21, GitHub #94, @nsk-47): fullscreen's swipe down slid the video down (`translationY` 0.35 × pull) and the
+  page under `FullscreenPlayer` showed through above it (Home's header). Now `FullscreenPlayer`'s root is black and the pull
+  SHRINKS the picture around its centre (rubber band: `ExitShrink` 12% max, `ExitShrinkRange` 140 dp, the swipe-up swell
+  mirrored, as in YouTube's app). `fullscreenGestures` reports `onRelease(exit)`: exit keeps the shrunk picture while the
+  screen turns (no grow-back first); short of it, it springs back (ζ 0.8, k 500). Verified on skipii_qa (debug): held drag
+  = shrunk over black, drag back = springs to full and stays, full swipe exits to portrait.
+  0.5.129 (Derek: "it hangs before it goes back"): leaving fullscreen = Android's rotation: it FREEZES the screen the
+  moment the app requests portrait (nothing the app draws shows until then; an animation kept running after release is
+  invisible — tested) and waits for the app's first portrait frame, then plays its turn (~340 ms). Shortened the freeze:
+  `OrientationController.enterFullscreen` / `exitFullscreen` call `apply()` at once (it waited for Bind's LaunchedEffect,
+  35–145 ms after release), and `exitFullscreen` shows the system bars BEFORE the request (shown by SystemBarsHidden after
+  the portrait composition, their insets cost a second frame). Release build on skipii_qa, release → turn starting,
+  6 alternating runs each: ~510 ms → ~440 (apply) → ~375 ms (both). Tried and dropped: crossfade / jump-cut
+  rotationAnimation (no faster), keeping PlayerScreen composed under fullscreen (slower, 350–850 ms). On the emulator the
+  app's portrait frame itself is ~120 ms of compose + layout (release); the rest is the system and the emulator's GPU.
+  Same release: a crash opening a video ("Reading a state that was created after the snapshot was taken" in
+  `BotCheck.waiting`): an `object` holding Compose state was first touched on a background thread (PlayerFallback's
+  request) after the composition's snapshot was taken. SkipiiApplication.onCreate now touches every such object on the main
+  thread (BotCheck, StreamRecovery, ChannelNames, Dismissed, IncomingLinks, StatusBarOverVideo, SharedVideoTexture; the rest
+  already had `init`). A new object with mutableStateOf that background code can reach first must be added there.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)
@@ -1023,6 +1089,7 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `SponsorBlock.kt` — hash-prefix lookups, cache, settings. Skipping happens in
   `PlaybackService.SponsorSkipper` (PlayerMessage at each segment start, 300 ms fade out → seek →
   450 ms fade in; logs "SponsorBlock: skipping …"). UI: scrubber marks, Ask pill, Skipped·Undo.
+- `AudioTracks.kt` — `AudioTrack`, `AudioTracks` (dubs read from the extractor's streams), `AudioTrackPreference` (Settings › Playback › Audio track, per-video picks).
 - `PlaybackModes.kt` (`PlaybackSpeed`, `AudioOnly`) and `SpeedPanel.kt` (speed/audio buttons, ruler panel, `SpeedHaptics`).
 - `Sheets.kt` — long-press options, queue card + sheet (`QueueReorder`), SponsorBlock settings.
 - `Swipe.kt` — `SwipeVideo`: swipe right to queue / left to remove on every video card and row, `LocalQueueAdd`.

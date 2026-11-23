@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,6 +66,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.ui.graphics.luminance
@@ -126,6 +128,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
@@ -494,8 +497,8 @@ fun VideoContent(
             // full-primary circle, a size up, for play.
             val tool = if (fullscreen) 40.dp else 36.dp
             val inset = if (fullscreen) Modifier.windowInsetsPadding(WindowInsets.displayCutout).padding(horizontal = 12.dp, vertical = 8.dp) else Modifier
-            // Fullscreen's quality and speed cards hang from their pills: both measured where the tap happens.
-            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(4) }
+            // Fullscreen's quality, speed, captions and audio cards hang from their pills: measured where the tap happens.
+            val dropAnchors = remember { arrayOfNulls<LayoutCoordinates>(5) }
             var dropAnchor by remember { mutableStateOf(Rect.Zero) }
             var dropRoom by remember { mutableFloatStateOf(0f) }
             /** Opens (or closes) [kind]'s card under the pill at [slot]; false if there's no card here (portrait). */
@@ -545,6 +548,25 @@ fun VideoContent(
                     ) {
                         touched()
                         if (!toggleDrop(DropKind.Speed, 2)) state.sheet = PlayerSheet.Speed
+                    }
+                    // Audio track (only when a video has multiple tracks; filled pill with language code while dubbed).
+                    if (state.audioTracks.size > 1) {
+                        val dubbed = state.isDubbedAudio
+                        val activeCode = state.activeAudioTrack?.shortCode
+                        // A 360 dp phone's portrait row (audio only, speed, audio, CC, "Auto · 1080p", PiP) has no
+                        // room for the code too: there the filled tile alone says a dub is on.
+                        val roomy = fullscreen || LocalConfiguration.current.screenWidthDp >= 400
+                        OverlayAudioButton(
+                            code = activeCode.takeIf { dubbed && roomy },
+                            description = stringResource(R.string.video_audio_track),
+                            enabled = enabled,
+                            size = tool,
+                            filled = dubbed,
+                            modifier = Modifier.onGloballyPositioned { dropAnchors[4] = it },
+                        ) {
+                            touched()
+                            if (!toggleDrop(DropKind.Audio, 4)) state.sheet = PlayerSheet.Audio
+                        }
                     }
                     // Captions (filled while on): fullscreen's card, or the sheet.
                     if (state.captions.tracks.isNotEmpty()) {
@@ -647,6 +669,7 @@ fun VideoContent(
                 if (fullscreen) {
                     QualityDrop(state, drop == DropKind.Quality, dropAnchor, dropRoom, onClose = { drop = null })
                     SpeedDrop(state, drop == DropKind.Speed, dropAnchor, dropRoom, onClose = { drop = null })
+                    AudioDrop(state, drop == DropKind.Audio, dropAnchor, dropRoom, onClose = { drop = null })
                     CaptionsDrop(state, drop == DropKind.Captions, dropAnchor, dropRoom, onClose = { drop = null })
                 }
             }
@@ -794,6 +817,18 @@ fun AudioOnlyStage(
                     OverlayPill(PlaybackSpeed.label(state.speed) + "×", stringResource(R.string.video_playback_speed), interactive, 36.dp, filled = stickySpeed, tile = tile) {
                         state.sheet = PlayerSheet.Speed
                     }
+                    // Audio only is where a dub matters most (podcasts, talks): the track picker stays here too.
+                    if (state.audioTracks.size > 1) {
+                        val dubbed = state.isDubbedAudio
+                        OverlayAudioButton(
+                            code = state.activeAudioTrack?.shortCode.takeIf { dubbed },
+                            description = stringResource(R.string.video_audio_track),
+                            enabled = interactive,
+                            size = 36.dp,
+                            filled = dubbed,
+                            tile = tile,
+                        ) { state.sheet = PlayerSheet.Audio }
+                    }
                 }
             }
             // Same row as the video's: 51 dp skips beside a 66 dp play, 18 dp apart.
@@ -915,6 +950,42 @@ private fun OverlayPill(
         contentAlignment = Alignment.Center,
     ) {
         Text(label, color = if (filled) c.onPrimary else c.onSurface, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+    }
+}
+
+/** Audio track button on the video: round voice tile on original audio, filled capsule with language code while dubbed. */
+@Composable
+private fun OverlayAudioButton(
+    code: String?,
+    description: String,
+    enabled: Boolean,
+    size: Dp,
+    filled: Boolean,
+    tile: Color = MaterialTheme.colorScheme.surfaceVariant,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val c = MaterialTheme.colorScheme
+    val view = LocalView.current
+    val ink = if (filled) c.onPrimary else c.onSurface
+    Row(
+        modifier
+            .squishOn(filled)
+            .height(size)
+            .widthIn(min = size)
+            .pressable(enabled = enabled) { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onClick() }
+            .clip(CircleShape)
+            .background(if (filled) c.primary else tile)
+            .padding(horizontal = if (code != null) 10.dp else 0.dp)
+            .semantics { contentDescription = description },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Icon(Icons.Rounded.RecordVoiceOver, null, tint = ink, modifier = Modifier.size(size * 0.5f))
+        if (code != null) {
+            Spacer(Modifier.width(5.dp))
+            Text(code, color = ink, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        }
     }
 }
 
@@ -1189,13 +1260,18 @@ fun Modifier.aspectFit(aspect: Float, cover: Boolean = false) = layout { measura
 @Composable
 fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
     val reduced = rememberReducedMotion()
-    var drag by remember { mutableStateOf(0f) }
+    val scope = rememberCoroutineScope()
+    // How far the middle swipe has pulled down (px). The picture shrinks in place over black as it
+    // grows (GitHub #94: it used to slide down and show the page behind, Home's header included) —
+    // the swipe-up swell into fullscreen played backwards.
+    val pull = remember { Animatable(0f) }
+    val shrinkRange = with(LocalDensity.current) { ExitShrinkRange.toPx() }
     // Up/down on the left = brightness, on the right = volume; the middle swipes down to exit.
     val sliders = rememberFullscreenSliders()
     // Screen lock (#63): for this stay in fullscreen only; Back unlocks before it leaves.
     var locked by remember { mutableStateOf(false) }
     BackHandler(enabled = locked) { locked = false }
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
         VideoContent(
             state = state,
             fullscreen = true,
@@ -1206,15 +1282,33 @@ fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
             onUnlock = { locked = false },
             modifier = Modifier
                 .fillMaxSize()
-                .then(if (locked) Modifier else Modifier.fullscreenGestures(sliders, onPull = { drag = it }, onSwipeDown = onExit))
+                .then(
+                    if (locked) Modifier
+                    else Modifier.fullscreenGestures(
+                        sliders,
+                        onPull = { px -> scope.launch(start = CoroutineStart.UNDISPATCHED) { pull.snapTo(px) } },
+                        onRelease = { exit ->
+                            // Leaving keeps the shrunk picture while the screen turns (no grow-back first).
+                            if (exit) onExit()
+                            else scope.launch { pull.animateTo(0f, if (reduced) snap() else spring(dampingRatio = 0.8f, stiffness = 500f)) }
+                        },
+                    ),
+                )
                 .graphicsLayer {
-                    // A little give while dragging, so the gesture is visibly being heard.
-                    translationY = if (reduced) 0f else drag * 0.35f
+                    // Rubber band: up to ExitShrink smaller, ever more slowly, around the middle.
+                    val k = if (reduced) 1f else 1f - ExitShrink * (1f - exp(-pull.value / shrinkRange))
+                    scaleX = k
+                    scaleY = k
                 },
         )
         SliderLevel(sliders)
     }
 }
+
+/** Fullscreen's swipe down shrinks the picture by at most this much (#94)… */
+private const val ExitShrink = 0.12f
+/** …approaching it as the pull goes on: about two thirds of the way at this distance. */
+private val ExitShrinkRange = 140.dp
 
 /** "Skip sponsor ›" — shown while playback is inside a segment set to Ask. */
 @Composable
@@ -1298,8 +1392,73 @@ fun QualitySheet(state: PlayerState, onDismiss: () -> Unit) {
     }
 }
 
+/** Audio track picker sheet, for portrait "on the video" controls and Tabletop mode. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AudioSheet(state: PlayerState, onDismiss: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val tracks = state.audioTracks
+    if (tracks.isEmpty()) return
+    val active = state.activeAudioTrack
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = c.surfaceContainerLow,
+    ) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                stringResource(R.string.video_audio_track),
+                fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
+            )
+            tracks.forEach { track ->
+                QualityRow(
+                    title = track.title(tracks),
+                    subtitle = track.tagText(),
+                    selected = active?.id == track.id,
+                ) {
+                    state.setAudioTrack(track)
+                    onDismiss()
+                }
+            }
+            Spacer(Modifier.height(28.dp))
+        }
+    }
+}
+
 /** Which of fullscreen's overlay cards is open. */
-private enum class DropKind { Quality, Speed, Captions }
+private enum class DropKind { Quality, Speed, Audio, Captions }
+
+/** Fullscreen's audio track picker card hanging from the audio button. */
+@Composable
+private fun BoxScope.AudioDrop(state: PlayerState, open: Boolean, anchor: Rect, boxHeight: Float, onClose: () -> Unit) {
+    val tracks = state.audioTracks
+    val shown = dropShown(open)
+    if (tracks.isEmpty() || shown <= 0f || anchor == Rect.Zero) return
+    val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
+    var pickedId by remember(state.details?.item?.id, state.activeAudioTrack?.id) { mutableStateOf(state.activeAudioTrack?.id) }
+    OverlayDrop(
+        open, shown, anchor, boxHeight,
+        stringResource(R.string.video_drop_audio),
+        openAt = { tracks.indexOfFirst { it.id == pickedId } },
+        onClose = onClose,
+        // Language names run long ("Spanish (Latin America)") and each carries its tag.
+        cardWidth = AudioDropWidth,
+    ) { scope ->
+        tracks.forEach { track ->
+            DropRow(
+                title = track.title(tracks),
+                tag = track.tagText(),
+                selected = pickedId == track.id,
+            ) {
+                if (!open) return@DropRow
+                pickedId = track.id
+                state.setAudioTrack(track)
+                scope.launch { delay(420); currentClose() }
+            }
+        }
+    }
+}
 
 /**
  * Fullscreen's captions card (docs/design/captions.html), the quality card's twin hanging from the CC tile: Off, every
@@ -1438,6 +1597,7 @@ private fun BoxScope.OverlayDrop(
     title: String,
     openAt: () -> Int,
     onClose: () -> Unit,
+    cardWidth: Dp = DropWidth,
     rows: @Composable ColumnScope.(CoroutineScope) -> Unit,
 ) {
     val currentClose by androidx.compose.runtime.rememberUpdatedState(onClose)
@@ -1458,7 +1618,7 @@ private fun BoxScope.OverlayDrop(
     }
     val density = LocalDensity.current
     val gap = with(density) { 8.dp.toPx() }
-    val width = with(density) { DropWidth.toPx() }
+    val width = with(density) { cardWidth.toPx() }
     // Never over the time row and scrubber.
     val room = with(density) { (boxHeight - anchor.bottom - gap).toDp() } - DropBottomReserve
     val scope = rememberCoroutineScope()
@@ -1474,7 +1634,7 @@ private fun BoxScope.OverlayDrop(
     Column(
         Modifier
             .offset { IntOffset((anchor.right - width).roundToInt(), (anchor.bottom + gap).roundToInt()) }
-            .width(DropWidth)
+            .width(cardWidth)
             .heightIn(max = room.coerceAtLeast(DropHeaderHeight + DropRowHeight * 2))
             .graphicsLayer {
                 val s = 0.4f + 0.6f * shown
@@ -1520,7 +1680,7 @@ private fun DropRow(title: String, tag: String?, selected: Boolean, onClick: () 
             .padding(start = 12.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
         Text(
             tag.orEmpty(),
@@ -1540,6 +1700,7 @@ private fun DropRow(title: String, tag: String?, selected: Boolean, onClick: () 
 }
 
 private val DropWidth = 184.dp
+private val AudioDropWidth = 264.dp
 private val DropRowHeight = 38.dp
 private val DropRowGap = 1.dp
 private val DropHeaderHeight = 24.dp
@@ -1918,3 +2079,4 @@ private fun Scrubber(
         drawCircle(played, radius = knobRadius.toPx(), center = Offset(size.width * playedFraction, size.height / 2f))
     }
 }
+

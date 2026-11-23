@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.ClosedCaption
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -234,6 +235,7 @@ private fun DeckButtons(player: PlayerState) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 SpeedKey(player); QualityKey(player)
                 Transport(player)
+                if (player.audioTracks.size > 1) AudioTrackKey(player)
                 CaptionsKey(player); AudioOnlyKey(player); NextKey(player)
             }
         } else {
@@ -243,6 +245,7 @@ private fun DeckButtons(player: PlayerState) {
                 Spacer(Modifier.height(20.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SpeedKey(player, tall = true); QualityKey(player, tall = true)
+                    if (player.audioTracks.size > 1) AudioTrackKey(player, tall = true)
                     CaptionsKey(player, tall = true); AudioOnlyKey(player, tall = true); NextKey(player, tall = true)
                 }
             }
@@ -279,6 +282,15 @@ private fun RowScope.QualityKey(player: PlayerState, tall: Boolean = false) =
     DeckKeyButton(label = stringResource(R.string.bar_tool_quality), tall = tall, onClick = { player.sheet = PlayerSheet.Quality }) {
         Text(QualityPreference.height?.let { h -> "${h}p" } ?: stringResource(R.string.bar_quality_auto), color = it, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold)
     }
+
+@Composable
+private fun RowScope.AudioTrackKey(player: PlayerState, tall: Boolean = false) =
+    DeckKeyButton(
+        label = player.activeAudioTrack?.takeIf { !it.isOriginal }?.shortLabel() ?: stringResource(R.string.bar_tool_audio),
+        on = player.isDubbedAudio,
+        tall = tall,
+        onClick = { player.sheet = PlayerSheet.Audio },
+    ) { Icon(Icons.Rounded.RecordVoiceOver, null, tint = it, modifier = Modifier.size(24.dp)) }
 
 @Composable
 private fun RowScope.CaptionsKey(player: PlayerState, tall: Boolean = false) =

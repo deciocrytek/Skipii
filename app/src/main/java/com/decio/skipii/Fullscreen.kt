@@ -113,6 +113,9 @@ class OrientationController(private val activity: ComponentActivity) {
             vertical || squareScreen -> portraitFullscreen = true
             else -> forced = Forced.Landscape
         }
+        // Asked for at once: left to Bind's effect, the turn waited for the next frame to be composed
+        // and drawn first (35–145 ms after letting go of a swipe, GitHub #94).
+        apply()
     }
 
     fun exitFullscreen() {
@@ -121,6 +124,12 @@ class OrientationController(private val activity: ComponentActivity) {
             portraitFullscreen -> portraitFullscreen = false
             else -> forced = Forced.Portrait
         }
+        // The system bars come back BEFORE the turn is asked for (GitHub #94). Android freezes the
+        // screen while it turns and waits for the portrait frame; bars shown only once that frame was
+        // composed (SystemBarsHidden) changed the insets and cost it a second frame. Measured on the
+        // release build: letting go → the turn starting ~510 ms before, ~375 ms with this and apply().
+        WindowCompat.getInsetsController(activity.window, activity.window.decorView).show(WindowInsetsCompat.Type.systemBars())
+        apply()
     }
 
     fun setPlayerOpen(open: Boolean) {

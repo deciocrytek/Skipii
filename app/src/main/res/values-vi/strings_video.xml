@@ -10,6 +10,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">Đang bật chỉ âm thanh</string>
     <string name="video_playback_speed">Tốc độ phát</string>
+    <string name="video_audio_track">Bản âm thanh</string>
     <string name="video_captions">Phụ đề</string>
     <string name="video_quality">Chất lượng</string>
     <string name="video_pip">Hình trong hình</string>
@@ -42,6 +43,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">PHỤ ĐỀ</string>
+    <string name="video_drop_audio">BẢN ÂM THANH</string>
     <string name="video_drop_quality">CHẤT LƯỢNG</string>
     <string name="video_drop_speed">TỐC ĐỘ</string>
 
@@ -49,6 +51,11 @@
     <string name="video_captions_off">Tắt</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">tự động</string>
+    <string name="audio_track_original">Bản gốc</string>
+    <string name="audio_track_dubbed">Lồng tiếng</string>
+    <string name="audio_track_auto_dubbed">Tự động lồng tiếng</string>
+    <string name="audio_track_descriptive">Mô tả âm thanh</string>
+    <string name="audio_track_secondary">Phụ</string>
     <string name="video_captions_tag_downloading">đang tải</string>
     <string name="video_captions_tag_translated">đã dịch</string>
     <string name="video_captions_tag_download">tải xuống</string>

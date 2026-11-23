@@ -15,6 +15,7 @@
     <!-- Tool labels under 58 dp round buttons in one row (up to six): very small text, keep VERY short (~9 characters). -->
     <string name="bar_tool_speed">السرعة</string>
     <string name="bar_tool_quality">الجودة</string>
+    <string name="bar_tool_audio">الصوت</string>
     <!-- Picture-in-picture, abbreviated. -->
     <string name="bar_tool_pip">نافذة</string>
     <string name="bar_tool_captions">الترجمة</string>
@@ -44,6 +45,7 @@
 
     <!-- Captions list title (next to an on/off switch). -->
     <string name="bar_captions">الترجمة</string>
+    <string name="bar_audio_track">المسار الصوتي</string>
     <!-- Section heading in the captions list, written in capitals: languages the phone translates the captions into.
          (Arabic has no capitals.) -->
     <string name="bar_captions_translated">مترجمة على هاتفك</string>

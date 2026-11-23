@@ -9,6 +9,7 @@
     <!-- Accessibility label of the filled audio-only button shown while audio only is on (tap turns it off). -->
     <string name="video_audio_only_on">音声のみ: オン</string>
     <string name="video_playback_speed">再生速度</string>
+    <string name="video_audio_track">音声トラック</string>
     <string name="video_captions">字幕</string>
     <string name="video_quality">画質</string>
     <string name="video_pip">ピクチャー イン ピクチャー</string>
@@ -41,6 +42,7 @@
 
     <!-- Headers of the small fullscreen picker cards, shown in CAPITALS (write them in capitals where the script has them). -->
     <string name="video_drop_captions">字幕</string>
+    <string name="video_drop_audio">音声トラック</string>
     <string name="video_drop_quality">画質</string>
     <string name="video_drop_speed">速度</string>
 
@@ -48,6 +50,11 @@
     <string name="video_captions_off">オフ</string>
     <!-- Captions card: small grey tags after a language name. -->
     <string name="video_captions_tag_auto">自動</string>
+    <string name="audio_track_original">オリジナル</string>
+    <string name="audio_track_dubbed">吹き替え</string>
+    <string name="audio_track_auto_dubbed">自動吹き替え</string>
+    <string name="audio_track_descriptive">音声解説</string>
+    <string name="audio_track_secondary">副音声</string>
     <string name="video_captions_tag_downloading">ダウンロード中</string>
     <string name="video_captions_tag_translated">翻訳</string>
     <string name="video_captions_tag_download">ダウンロード</string>

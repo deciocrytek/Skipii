@@ -178,4 +178,15 @@
     <string name="ui_duration_hr_min">%1$s j %2$s mnt</string>
     <string name="ui_reorder_queue">Urutkan ulang</string>
     <string name="ui_up_next_in">Berikutnya dalam %1$s dtk</string>
+
+    <!-- Search inside Watch later / Liked videos / History (ListSearch.kt) -->
+    <string name="ui_search_in_list">Cari di %1$s</string>
+    <string name="ui_search_history">Cari histori terbaru</string>
+    <string name="ui_search_history_note">YouTube hanya mencari di histori terbaru Anda</string>
+    <string name="ui_search_found_so_far">%1$s ditemukan sejauh ini…</string>
+    <string name="ui_search_count_of">%1$s dari %2$s</string>
+    <string name="ui_search_no_matches">Tidak ada hasil</string>
+    <string name="ui_search_no_matches_in">Tidak ada di %1$s yang cocok dengan “%2$s”.</string>
+    <string name="ui_search_history_no_matches">Tidak ada di histori terbaru Anda yang cocok dengan “%1$s”.</string>
+    <string name="ui_search_load_failed">Tidak dapat memuat seluruh %1$s</string>
 </resources>

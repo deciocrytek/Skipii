@@ -196,10 +196,11 @@ fun rememberFullscreenSliders(): FullscreenSliders {
 }
 
 /**
- * The gestures: side drags go to [sliders]; middle drags follow [onPull] (how far down, for a
- * little give) and leave fullscreen on release past [ExitDistancePx] or a flick down.
+ * The gestures: side drags go to [sliders]; middle drags follow [onPull] (how far down, in px) and
+ * end in [onRelease]: `exit` when let go past [ExitDistancePx] or on a flick down (leave fullscreen),
+ * else false (the picture eases back).
  */
-fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> Unit, onSwipeDown: () -> Unit) = pointerInput(sliders) {
+fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> Unit, onRelease: (exit: Boolean) -> Unit) = pointerInput(sliders) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
         val guard = EdgeGuard.toPx()
@@ -232,8 +233,7 @@ fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> U
                 onPull(pulled)
                 change.consume()
             }
-            onPull(0f)
-            if (finished && (pulled > ExitDistancePx || tracker.calculateVelocity().y > ExitFlick)) onSwipeDown()
+            onRelease(finished && (pulled > ExitDistancePx || tracker.calculateVelocity().y > ExitFlick))
         }
     }
 }

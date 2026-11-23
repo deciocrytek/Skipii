@@ -586,6 +586,10 @@ private fun trimmed(v: Double): String =
 private fun decimalSeparator(): Char =
     android.icu.text.DecimalFormatSymbols.getInstance(latinDigits(AppLanguage.locale)).decimalSeparator
 
+/** An exact count, grouped the app language's way, in Latin digits ("1,667", "1.667", "1 667"). */
+fun wholeCount(n: Int): String =
+    android.icu.text.NumberFormat.getIntegerInstance(latinDigits(AppLanguage.locale)).format(n.toLong())
+
 private fun latinDigits(locale: Locale): android.icu.util.ULocale =
     android.icu.util.ULocale.forLocale(locale).setKeywordValue("numbers", "latn")
 

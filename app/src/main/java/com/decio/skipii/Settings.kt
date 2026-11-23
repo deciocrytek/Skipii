@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -51,7 +52,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,6 +82,7 @@ import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Subtitles
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.MailOutline
 import androidx.compose.material.icons.rounded.NotificationsActive
@@ -87,6 +92,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.RadioButtonChecked
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.RecordVoiceOver
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Sensors
 import androidx.compose.material.icons.rounded.SlowMotionVideo
@@ -97,13 +103,16 @@ import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.ZoomOutMap
 import androidx.compose.material.icons.rounded.BrightnessMedium
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -176,7 +185,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
  */
 enum class SettingsPage(@StringRes val titleRes: Int, val icon: ImageVector) {
     Playback(R.string.settings_playback, Icons.Rounded.PlayCircle),
-    Captions(R.string.captions_title, Icons.Rounded.ClosedCaption),
+    Captions(R.string.settings_captions_dubbing, Icons.Rounded.ClosedCaption),
     SponsorBlock(R.string.settings_sponsorblock, Icons.Rounded.FastForward),
     Shorts(R.string.ui_shorts, Icons.Rounded.SlowMotionVideo),
     Appearance(R.string.ui_appearance, Icons.Rounded.Palette),
@@ -284,7 +293,7 @@ fun SettingsScreen(
             CompositionLocalProvider(LocalFind provides find) {
                 when (shown) {
                     SettingsPage.Playback -> PlaybackPage(player)
-                    SettingsPage.Captions -> CaptionsPage()
+                    SettingsPage.Captions -> CaptionsPage(player)
                     SettingsPage.SponsorBlock -> SponsorBlockPage()
                     SettingsPage.Shorts -> ShortsPage()
                     SettingsPage.Appearance -> AppearancePage()
@@ -904,7 +913,15 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
         if (FullscreenZoom.fill && !LocalWindowLayout.current.tv) stringResource(R.string.settings_zoom_fill_summary) else null,
         if (AudioOnly.enabled) stringResource(R.string.bar_audio_only) else null,
     ).joinDots()
-    SettingsPage.Captions -> listOf(captionShowLabel(CaptionSettings.show), stringResource(CaptionSettings.look.labelRes)).joinDots()
+    SettingsPage.Captions -> listOfNotNull(
+        captionShowLabel(CaptionSettings.show),
+        stringResource(CaptionSettings.look.labelRes),
+        if (AudioTrackPreference.mode == AudioTrackPreference.Mode.Custom) {
+            AudioTrackPreference.preferredLanguage?.let { tag ->
+                stringResource(R.string.settings_audio_language_title) + ": " + AudioTracks.displayLanguageName(tag)
+            }
+        } else null,
+    ).joinDots()
     SettingsPage.SponsorBlock ->
         if (!SponsorBlock.enabled) stringResource(R.string.settings_off)
         else stringResource(
@@ -991,6 +1008,8 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(cc, "size", str(R.string.captions_size), CaptionSettings.sizes.map { str(it.second) }))
     add(Entry(cc, "word_by_word", str(R.string.captions_word_by_word_title), listOf(str(R.string.captions_word_by_word_line))))
     add(Entry(cc, "kept", str(R.string.captions_kept_languages), emptyList()))
+    add(Entry(cc, "audio_track", str(R.string.settings_audio_track_title), listOfNotNull(str(R.string.settings_audio_track_original), str(R.string.settings_audio_track_custom), str(R.string.settings_audio_language_title), AudioTrackPreference.preferredLanguage?.let { AudioTracks.displayLanguageName(it) }, str(R.string.settings_audio_track_words))))
+    add(Entry(cc, "audio_auto_dub", str(R.string.settings_audio_auto_dub_title), listOf(str(R.string.settings_audio_auto_dub_on), str(R.string.settings_audio_auto_dub_off), str(R.string.settings_audio_track_words))))
     val sb = SettingsPage.SponsorBlock
     add(Entry(sb, "sb", str(R.string.settings_sponsorblock), listOf(str(R.string.ui_sponsorblock_line))))
     SponsorBlock.Category.entries.forEach { add(Entry(sb, "sb_${it.key}", it.label, listOf(str(it.shortRes)))) }
@@ -1372,6 +1391,148 @@ private fun PlaybackPage(player: PlayerState) {
     if (!tv) LiveActivitySetting(player)
 }
 
+/** Searchable picker for choosing a specific automatic dubbing language (Settings › Playback › Dub language). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DubLanguageSheet(selectedTag: String?, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val appLocale = AppLanguage.locale
+    var query by remember { mutableStateOf("") }
+    val all = remember(appLocale) {
+        AudioTracks.selectableLanguages
+            .map { tag ->
+                val display = AudioTracks.displayLanguageName(tag, appLocale)
+                val native = AudioTracks.nativeLanguageName(tag)
+                Triple(tag, display, native.takeUnless { it.equals(display, ignoreCase = true) })
+            }
+            .sortedBy { it.second.lowercase(appLocale) }
+    }
+    val filtered = remember(all, query) {
+        val q = fold(query.trim())
+        if (q.isEmpty()) all
+        else all.filter { (tag, display, native) ->
+            fold(display).contains(q) || (native != null && fold(native).contains(q)) || fold(tag).contains(q)
+        }
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = c.surfaceContainerLow,
+    ) {
+        // Read inside the sheet: it's its own window, and the page's view / focus can't hide this keyboard.
+        val keyboard = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        val view = LocalView.current
+        // Search dismisses the keyboard (rule 4; the window-level hide comes ~120 ms later or the IME undoes it).
+        fun done() {
+            focusManager.clearFocus(force = true)
+            keyboard?.hide()
+            view.postDelayed({ view.context.getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(view.windowToken, 0) }, 120)
+        }
+        // The sheet rises with the keyboard; capped so its top (the drag handle) always stays clear of the
+        // status bar. maxHeight here is what's left of the window under the handle and above the keyboard.
+        val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val cap = if (maxHeight == androidx.compose.ui.unit.Dp.Infinity) 560.dp
+            else minOf(560.dp, maxHeight - statusTop - 16.dp).coerceAtLeast(160.dp)
+        Column(Modifier.fillMaxWidth().heightIn(max = cap)) {
+            Text(
+                stringResource(R.string.settings_audio_language_title),
+                fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
+            )
+            // Compact pill search field matching Settings' search look.
+            Row(
+                Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(46.dp)
+                    .clip(CircleShape)
+                    .background(c.surfaceContainerHigh)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Rounded.Search, null, tint = c.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                    if (query.isEmpty()) {
+                        Text(stringResource(R.string.settings_audio_language_search), color = c.onSurfaceVariant, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    }
+                    BasicTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        singleLine = true,
+                        textStyle = LocalTextStyle.current.copy(color = c.onSurface, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
+                        cursorBrush = SolidColor(c.primary),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { done() }, onDone = { done() }),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                if (query.isNotEmpty()) {
+                    Box(Modifier.size(30.dp).pressable { query = "" }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Rounded.Close, stringResource(R.string.ui_clear), tint = c.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            LazyColumn(
+                modifier = Modifier.weight(1f, fill = false),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                if (filtered.isEmpty()) {
+                    item(key = "empty") {
+                        Text(
+                            stringResource(R.string.settings_no_results, query.trim()),
+                            color = c.onSurfaceVariant, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 20.dp),
+                        )
+                    }
+                } else {
+                    items(filtered, key = { it.first }) { (tag, display, native) ->
+                        val selected = tag.equals(selectedTag, ignoreCase = true)
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .pressable(pressedScale = 0.98f) { onPick(tag) }
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(if (selected) c.primaryContainer else c.primaryContainer.copy(alpha = 0f))
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    display,
+                                    fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold,
+                                    fontSize = 15.5.sp,
+                                    color = if (selected) c.onPrimaryContainer else c.onSurface,
+                                )
+                                if (native != null) {
+                                    Text(
+                                        native,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (selected) c.onPrimaryContainer.copy(alpha = 0.78f) else c.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            Icon(
+                                if (selected) Icons.Rounded.RadioButtonChecked else Icons.Rounded.RadioButtonUnchecked,
+                                if (selected) stringResource(R.string.ui_selected) else null,
+                                tint = if (selected) c.onPrimaryContainer else c.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+            Spacer(Modifier.height(12.dp))
+        }
+        }
+    }
+}
+
 /**
  * Playback controls in a live activity once the app is off screen (LiveActivity.kt). Turning it on asks for
  * notifications (Android 13+); with Live Updates off for Skipii in Android's settings, a row under it opens that page.
@@ -1433,7 +1594,7 @@ private fun LiveActivitySetting(player: PlayerState) {
 }
 
 @Composable
-private fun CaptionsPage() {
+private fun CaptionsPage(player: PlayerState) {
     val c = MaterialTheme.colorScheme
     val kept = CaptionTranslator.downloaded.filter { it != "en" }.sortedBy { CaptionNames.language(it) }
     val rows = if (kept.isEmpty()) 5 else 6
@@ -1482,6 +1643,82 @@ private fun CaptionsPage() {
                 }
             }
         }
+    }
+    Spacer(Modifier.height(14.dp))
+    // Dubbed audio tracks: defaults to Original so normal videos are never altered unless asked.
+    var pickingDubLanguage by remember { mutableStateOf(false) }
+    val audioMode = AudioTrackPreference.mode
+    val chosenDubTag = AudioTrackPreference.preferredLanguage
+    val chosenDubName = chosenDubTag?.let { AudioTracks.displayLanguageName(it) }
+    val showDubLanguageRow = audioMode == AudioTrackPreference.Mode.Custom
+    Joined(if (showDubLanguageRow) 3 else 2) { i, shape ->
+        when {
+            i == 0 -> ChipsSetting(
+                "audio_track", shape,
+                stringResource(R.string.settings_audio_track_title),
+                when (audioMode) {
+                    AudioTrackPreference.Mode.Original -> stringResource(R.string.settings_audio_track_original_line)
+                    AudioTrackPreference.Mode.Custom ->
+                        if (chosenDubName != null) stringResource(R.string.settings_audio_track_custom_line, chosenDubName)
+                        else stringResource(R.string.settings_audio_track_custom_unset_line)
+                },
+                listOf(
+                    AudioTrackPreference.Mode.Original to stringResource(R.string.settings_audio_track_original),
+                    AudioTrackPreference.Mode.Custom to stringResource(R.string.settings_audio_track_custom),
+                ),
+                audioMode,
+                icon = Icons.Rounded.RecordVoiceOver,
+            ) { picked ->
+                if (picked == AudioTrackPreference.Mode.Custom && AudioTrackPreference.preferredLanguage == null) {
+                    AudioTrackPreference.chooseMode(picked)
+                    pickingDubLanguage = true
+                } else {
+                    AudioTrackPreference.chooseMode(picked)
+                    player.refreshAudioTrackForSetting()
+                }
+            }
+            showDubLanguageRow && i == 1 -> LinkSetting(
+                "audio_language", shape, Icons.Rounded.Translate,
+                stringResource(R.string.settings_audio_language_title),
+                chosenDubName ?: stringResource(R.string.settings_audio_language_pick),
+            ) { pickingDubLanguage = true }
+            else -> {
+                val originalOnly = audioMode == AudioTrackPreference.Mode.Original
+                SwitchSetting(
+                    "audio_auto_dub", shape,
+                    stringResource(R.string.settings_audio_auto_dub_title),
+                    stringResource(
+                        when {
+                            originalOnly -> R.string.settings_audio_auto_dub_original_line
+                            AudioTrackPreference.allowAutoDub -> R.string.settings_audio_auto_dub_on
+                            else -> R.string.settings_audio_auto_dub_off
+                        },
+                    ),
+                    AudioTrackPreference.allowAutoDub,
+                    icon = Icons.Rounded.Mic,
+                    enabled = !originalOnly,
+                ) {
+                    AudioTrackPreference.chooseAllowAutoDub(it)
+                    player.refreshAudioTrackForSetting()
+                }
+            }
+        }
+    }
+    if (pickingDubLanguage) {
+        DubLanguageSheet(
+            selectedTag = chosenDubTag,
+            onPick = { tag ->
+                AudioTrackPreference.choosePreferredLanguage(tag)
+                player.refreshAudioTrackForSetting()
+                pickingDubLanguage = false
+            },
+            onDismiss = {
+                pickingDubLanguage = false
+                if (AudioTrackPreference.mode == AudioTrackPreference.Mode.Custom && AudioTrackPreference.preferredLanguage == null) {
+                    AudioTrackPreference.chooseMode(AudioTrackPreference.Mode.Original)
+                }
+            },
+        )
     }
 }
 
