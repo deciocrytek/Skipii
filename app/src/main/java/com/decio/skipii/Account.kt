@@ -35,7 +35,13 @@ data class ChannelRef(val id: String, val name: String, val avatar: String?)
  * YouTube put over the feed (Home's first page only; empty everywhere else).
  */
 @Immutable
-data class FeedPage(val videos: List<VideoItem>, val next: String?, val chips: List<FeedChip> = emptyList())
+data class FeedPage(
+    val videos: List<VideoItem>,
+    val next: String?,
+    val chips: List<FeedChip> = emptyList(),
+    /** Shorts the page carried (Subscriptions only, for "Shorts from subscriptions", #96); feeds otherwise leave them out. */
+    val shorts: List<VideoItem> = emptyList(),
+)
 
 /**
  * One of Home's category chips ("All", "Music", "Gaming", "Recently uploaded"…), titled as
@@ -413,6 +419,69 @@ object InnerTube {
         out.values.toList()
     }
 
+    /**
+     * YouTube's web search (0.6.0): [query] with [filters] ([SearchFilters.params]), or the next page for
+     * [continuation]. Anonymous when signed out (probed 2026-11-23: every filter answers without an account).
+     */
+    suspend fun search(query: String, filters: SearchFilters, continuation: String? = null): SearchPage = withContext(Dispatchers.IO) {
+        val body = if (continuation != null) JSONObject().put("continuation", continuation)
+        else JSONObject().put("query", query).apply { filters.params()?.let { put("params", it) } }
+        parseSearch(postAny("search", body))
+    }
+
+    /**
+     * A search answer's results in YouTube's order: each `itemSectionRenderer`'s contents (the first page's, or a
+     * continuation's appended items). Videos (videoRenderer / video lockups; members-only, live and movies left out
+     * as in every feed), channels (channelRenderer: its `subscriberCountText` holds the @handle and
+     * `videoCountText` the subscribers, as captured 2026-11-23) and playlists (playlist lockups). Shorts shelves
+     * (gridShelfViewModel) are skipped: Shorts open in their own pager, not from here.
+     */
+    internal fun parseSearch(root: JSONObject): SearchPage {
+        val hits = ArrayList<SearchHit>()
+        val seen = HashSet<String>()
+        var next: String? = null
+        fun add(hit: SearchHit) { if (seen.add(hit.key)) hits += hit }
+        root.walk { key, section ->
+            when (key) {
+                "continuationItemRenderer" -> section.collectStrings("token").firstOrNull()?.let { next = it }
+                "itemSectionRenderer" -> {
+                    val contents = section.optJSONArray("contents") ?: return@walk
+                    for (i in 0 until contents.length()) {
+                        val item = contents.optJSONObject(i) ?: continue
+                        item.optJSONObject("videoRenderer")?.let { o ->
+                            if (!isMembersOnly(o) && !isLive(o) && !isMovie(o)) parseVideoRenderer(o)?.let { add(SearchHit.Video(it)) }
+                        }
+                        item.optJSONObject("channelRenderer")?.let { o -> parseChannelHit(o)?.let(::add) }
+                        item.optJSONObject("lockupViewModel")?.let { o ->
+                            when (o.optString("contentType")) {
+                                "LOCKUP_CONTENT_TYPE_VIDEO" -> if (!isMembersOnly(o) && !isLive(o) && !isMovie(o)) parseLockup(o)?.let { add(SearchHit.Video(it)) }
+                                "LOCKUP_CONTENT_TYPE_PLAYLIST" -> playlistOf("lockupViewModel", o)?.let { pl ->
+                                    val owner = o.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")
+                                        ?.optJSONObject("metadata")?.collectStrings("content")
+                                        ?.map { it.trim() }?.firstOrNull { it.isNotEmpty() && !it.equals("Playlist", ignoreCase = true) && !it.contains("view full", ignoreCase = true) }
+                                    add(SearchHit.Playlist(pl, owner))
+                                }
+                            }
+                        }
+                        item.optJSONObject("playlistRenderer")?.let { o -> playlistOf("playlistRenderer", o)?.let { add(SearchHit.Playlist(it, o.text("shortBylineText"))) } }
+                    }
+                }
+            }
+        }
+        return SearchPage(hits, next)
+    }
+
+    private fun parseChannelHit(o: JSONObject): SearchHit.Channel? {
+        val id = o.optString("channelId").takeIf { it.startsWith("UC") } ?: return null
+        val name = o.text("title")?.trim()?.ifBlank { null } ?: return null
+        val texts = listOfNotNull(o.text("subscriberCountText"), o.text("videoCountText"))
+        return SearchHit.Channel(
+            ChannelRef(id, name, o.thumbnails()?.lastOrNull()?.let(::absoluteUrl)),
+            handle = texts.firstOrNull { it.startsWith("@") },
+            subscribers = texts.firstOrNull { it.contains("subscriber", ignoreCase = true) }?.let(::parseViews) ?: -1,
+        )
+    }
+
     suspend fun playlists(): List<PlaylistRef> = withContext(Dispatchers.IO) {
         parsePlaylists(post("browse", JSONObject().put("browseId", "FEplaylist_aggregation"))).filterNot { it.id == "WL" || it.id == "LL" }
     }
@@ -783,9 +852,12 @@ object InnerTube {
             if (title?.trim().equals(MOST_RELEVANT, ignoreCase = true)) shelf.keys().asSequence().toList().forEach(shelf::remove)
         }
         val page = parseFeed(root)
+        // The page's Shorts shelf (#96): shown only with "Shorts from subscriptions" on (FeedFilters).
+        val shorts = LinkedHashMap<String, VideoItem>()
+        root.walk { key, obj -> if (key == "shortsLockupViewModel" || key == "reelItemRenderer") parseShortLockup(obj)?.let { shorts.putIfAbsent(it.id, it) } }
         var last = 0L
         val ages = page.videos.associate { v -> v.id to (NewVideos.ageMs(v.uploaded) ?: last).also { last = it } }
-        return page.copy(videos = page.videos.sortedBy { ages[it.id] })
+        return page.copy(videos = page.videos.sortedBy { ages[it.id] }, shorts = shorts.values.toList())
     }
 
     private const val MOST_RELEVANT = "Most relevant"

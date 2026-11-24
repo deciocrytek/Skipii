@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Skipii प्लेयर</string>
+    <string name="widget_player_desc">क्या चल रहा है, उसके कंट्रोल और आगे क्या देखना है</string>
+    <string name="widget_upnext_name">इसके बाद</string>
+    <string name="widget_upnext_desc">आपकी सूची का अगला वीडियो</string>
+    <string name="widget_search_name">Skipii में खोजें</string>
+    <string name="widget_search_desc">Skipii की खोज खोलता है</string>
+    <string name="widget_playing">Skipii · चल रहा है</string>
+    <string name="widget_paused">Skipii · रुका हुआ</string>
+    <string name="widget_continue">देखना जारी रखें</string>
+    <string name="widget_nothing">कुछ नहीं चल रहा</string>
+    <string name="widget_queue_empty">आपकी सूची खाली है</string>
+    <string name="widget_back">पीछे</string>
+    <string name="widget_forward">आगे</string>
+</resources>

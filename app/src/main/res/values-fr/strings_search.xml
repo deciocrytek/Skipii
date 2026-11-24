@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Tout</string>
+    <string name="search_type_videos">Vidéos</string>
+    <string name="search_type_channels">Chaînes</string>
+    <string name="search_type_playlists">Playlists</string>
+    <string name="search_filters">Filtres</string>
+    <string name="search_date">Date de mise en ligne</string>
+    <string name="search_date_any">N\'importe quand</string>
+    <string name="search_date_today">Aujourd\'hui</string>
+    <string name="search_date_week">Cette semaine</string>
+    <string name="search_date_month">Ce mois-ci</string>
+    <string name="search_date_year">Cette année</string>
+    <string name="search_length">Durée</string>
+    <string name="search_length_any">Toute durée</string>
+    <string name="search_length_short">Moins de 3 min</string>
+    <string name="search_length_medium">3–20 min</string>
+    <string name="search_length_long">Plus de 20 min</string>
+    <string name="search_sort">Tri</string>
+    <string name="search_sort_relevance">Pertinence</string>
+    <string name="search_sort_popularity">Popularité</string>
+    <string name="search_reset">Réinitialiser</string>
+    <string name="search_apply">Afficher les résultats</string>
+    <string name="search_videos_only_note">La date, la durée et le tri s\'appliquent aux vidéos.</string>
+    <string name="search_channel">Chaîne</string>
+    <string name="search_playlist">Playlist</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Remplir “%1$s”</string>
+    <string name="search_more_failed">Impossible de charger plus de résultats</string>
+    <string name="search_clear_filters">Effacer les filtres</string>
+    <string name="search_no_match_filtered">Aucun résultat pour “%1$s” avec ces filtres.</string>
+    <string name="search_remove_filter">Retirer %1$s</string>
+</resources>

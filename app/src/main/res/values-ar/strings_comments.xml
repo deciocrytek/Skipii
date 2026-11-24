@@ -126,4 +126,8 @@
     <string name="captions_word_by_word_title">كلمة بكلمة</string>
     <string name="captions_word_by_word_line">تظهر الترجمة التلقائية مع نطق كل كلمة، كما في تطبيق YouTube</string>
     <string name="captions_size_huger">عملاق</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">الأهم</string>
+    <string name="comments_sort_newest">الأحدث</string>
+    <string name="comments_sort_failed">تعذّر تغيير الترتيب</string>
 </resources>

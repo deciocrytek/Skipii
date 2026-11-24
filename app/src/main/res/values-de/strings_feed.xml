@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Dein Feed</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Feed-Filter</string>
+    <plurals name="feed_hiding">
+        <item quantity="one">%1$s Video gerade ausgeblendet</item>
+        <item quantity="other">%1$s Videos gerade ausgeblendet</item>
+    </plurals>
+    <string name="feed_hiding_none">Gerade nichts ausgeblendet</string>
+    <string name="feed_hide_watched">Gesehene Videos ausblenden</string>
+    <string name="feed_hide_watched_line">In Skipii bis zum Ende oder fast bis zum Ende gesehen</string>
+    <string name="feed_shorter_than">Videos ausblenden unter</string>
+    <string name="feed_off">Aus</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s Min.</string>
+    <string name="feed_muted_words">Stummgeschaltete Wörter</string>
+    <string name="feed_add">Hinzufügen</string>
+    <string name="feed_word_hint">Ein Wort oder Ausdruck</string>
+    <string name="feed_add_word">Wort hinzufügen</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">Stummschaltung für %1$s aufheben</string>
+    <string name="feed_muted_channels">Stummgeschaltete Kanäle</string>
+    <string name="feed_muted_channels_none">Halte ein Video gedrückt, um den Kanal stummzuschalten</string>
+    <string name="feed_subscription_shorts">Shorts aus Abos</string>
+    <string name="feed_subscription_shorts_line">Eine Reihe mit Shorts deiner Abos auf der Startseite und unter Abos, auch wenn der Shorts-Tab aus ist</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Diesen Kanal stummschalten</string>
+    <string name="feed_muted">%1$s stummgeschaltet</string>
+    <string name="feed_filtered_out_title">Alles hier ist herausgefiltert</string>
+    <string name="feed_filtered_out_body">Deine Filter blenden alle bisher geladenen Videos aus.</string>
+    <string name="feed_edit_filters">Filter bearbeiten</string>
+    <string name="feed_load_more">Mehr laden</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Alle</string>
+    <string name="feed_group_add">Gruppe</string>
+    <string name="feed_group_new">Neue Gruppe</string>
+    <string name="feed_group_edit">Gruppe bearbeiten</string>
+    <string name="feed_group_name_hint">Gruppenname</string>
+    <string name="feed_group_search_hint">Kanal finden</string>
+    <plurals name="feed_group_picked">
+        <item quantity="one">%1$s Kanal</item>
+        <item quantity="other">%1$s Kanäle</item>
+    </plurals>
+    <string name="feed_group_no_channels">Deine Abos erscheinen hier, sobald sie geladen sind.</string>
+    <string name="feed_group_delete">Löschen</string>
+    <string name="feed_group_save">Speichern</string>
+    <string name="feed_unwatched_only">Nur ungesehene</string>
+    <string name="feed_group_empty_title">Nichts Neues in %1$s</string>
+    <string name="feed_group_empty_body">Nichts von diesen Kanälen in den bisher geladenen Uploads.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Jede Länge</string>
+    <string name="feed_wl_under10">Unter 10 Min.</string>
+    <string name="feed_wl_10to30">10–30 Min.</string>
+    <string name="feed_wl_over30">Über 30 Min.</string>
+    <string name="feed_hide_watched_chip">Gesehene ausblenden</string>
+    <string name="feed_pick_one">Eines für mich wählen</string>
+    <plurals name="feed_count">
+        <item quantity="one">%1$s Video</item>
+        <item quantity="other">%1$s Videos</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="one">%1$s bisher…</item>
+        <item quantity="other">%1$s bisher…</item>
+    </plurals>
+    <string name="feed_none_match">Nichts in dieser Liste passt zu dieser Auswahl.</string>
+</resources>

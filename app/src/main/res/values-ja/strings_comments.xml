@@ -120,4 +120,8 @@
     <string name="captions_word_by_word_title">単語ごとに表示</string>
     <string name="captions_word_by_word_line">自動生成字幕を YouTube アプリのように話された単語から表示します</string>
     <string name="captions_size_huger">超特大</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">評価順</string>
+    <string name="comments_sort_newest">新しい順</string>
+    <string name="comments_sort_failed">並び順を変更できませんでした</string>
 </resources>

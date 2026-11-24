@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">डाउनलोड</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">ऑफ़लाइन के लिए डाउनलोड हो रहा है</string>
+    <string name="dl_title">डाउनलोड</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">डाउनलोड करें</string>
+    <string name="dl_action_waiting">प्रतीक्षा में</string>
+    <string name="dl_action_done">डाउनलोड हो गया</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">डाउनलोड करें</string>
+    <string name="dl_sheet_line">बिना कनेक्शन के चलता है, कैप्शन के साथ</string>
+    <string name="dl_video">वीडियो</string>
+    <string name="dl_sound_only">सिर्फ़ आवाज़</string>
+    <string name="dl_audio_only">सिर्फ़ ऑडियो</string>
+    <string name="dl_audio_only_line">पॉडकास्ट और संगीत के लिए</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">लगभग %1$s</string>
+    <string name="dl_button_wifi">Wi-Fi पर डाउनलोड करें</string>
+    <string name="dl_sheet_loading">साइज़ जांचा जा रहा है…</string>
+    <string name="dl_sheet_unavailable">यह वीडियो अभी डाउनलोड नहीं हो सकता.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Wi-Fi की प्रतीक्षा में</string>
+    <string name="dl_waiting_room">जगह की प्रतीक्षा में</string>
+    <string name="dl_downloading">डाउनलोड हो रहा है %1$s%%</string>
+    <string name="dl_failed">डाउनलोड नहीं हो सका · फिर से कोशिश करने के लिए टैप करें</string>
+    <string name="dl_queued">सूची में</string>
+    <string name="dl_ready">तैयार</string>
+    <string name="dl_offline">ऑफ़लाइन</string>
+    <string name="dl_audio">ऑडियो</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">इस फ़ोन पर %1$s</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">ऑटोमैटिक: %2$s में से %1$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s वीडियो</item>
+        <item quantity="other">%1$s वीडियो</item>
+    </plurals>
+    <string name="dl_filter_all">सभी</string>
+    <string name="dl_filter_video">वीडियो</string>
+    <string name="dl_filter_audio">सिर्फ़ ऑडियो</string>
+    <string name="dl_filter_auto">ऑटोमैटिक</string>
+    <string name="dl_empty_title">अभी कुछ डाउनलोड नहीं हुआ</string>
+    <string name="dl_empty_body">बिना कनेक्शन के देखने के लिए प्लेयर से कोई वीडियो डाउनलोड करें, या अपनी सूची को Wi-Fi पर अपने-आप डाउनलोड होने दें.</string>
+    <string name="dl_empty_filtered">इस फ़िल्टर के साथ यहां कुछ नहीं है.</string>
+    <string name="dl_settings">डाउनलोड सेटिंग</string>
+    <string name="dl_delete">डाउनलोड हटाएं</string>
+    <string name="dl_cancel">डाउनलोड रद्द करें</string>
+    <string name="dl_deleted">डाउनलोड हटाया गया</string>
+    <string name="dl_started">डाउनलोड हो रहा है</string>
+    <string name="dl_started_wifi">Wi-Fi पर डाउनलोड होगा</string>
+    <string name="dl_open">डाउनलोड खोलें</string>
+    <string name="dl_library_line">बिना कनेक्शन के देखें</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">डाउनलोड</string>
+    <string name="dl_set_manage">डाउनलोड प्रबंधित करें</string>
+    <string name="dl_set_automatic">ऑटोमैटिक</string>
+    <string name="dl_set_queue">मेरी सूची डाउनलोड करें</string>
+    <string name="dl_set_queue_line">आपकी सूची के वीडियो अपने-आप डाउनलोड हो जाते हैं, ताकि तुरंत शुरू हों और बिना कनेक्शन के चलें</string>
+    <string name="dl_set_wl">बाद में देखें के पहले %1$s वीडियो</string>
+    <string name="dl_set_wl_line">लिस्ट बदलने पर अपने-आप अपडेट रहता है</string>
+    <string name="dl_set_wl_signed_out">बाद में देखें से डाउनलोड करने के लिए साइन इन करें</string>
+    <string name="dl_set_delete">देखने के बाद हटाएं</string>
+    <string name="dl_set_delete_line">ऑटोमैटिक डाउनलोड देखने के बाद हट जाते हैं</string>
+    <string name="dl_set_limits">सीमाएं</string>
+    <string name="dl_set_network">डाउनलोड नेटवर्क</string>
+    <string name="dl_wifi_only">सिर्फ़ Wi-Fi</string>
+    <string name="dl_any_network">कोई भी नेटवर्क</string>
+    <string name="dl_set_space">ऑटोमैटिक डाउनलोड के लिए जगह</string>
+    <string name="dl_set_space_line">जगह भरने पर ऑटोमैटिक डाउनलोड रुक जाते हैं. आपके खुद के डाउनलोड जगह के लिए कभी नहीं हटाए जाते.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">ऑटोमैटिक डाउनलोड की क्वालिटी</string>
+    <string name="dl_note">आप जो वीडियो खुद डाउनलोड करते हैं, वे आपके हटाने तक बने रहते हैं.</string>
+    <string name="dl_summary_used">%1$s उपयोग में</string>
+    <string name="dl_summary_queue">सूची अपने-आप डाउनलोड होती है</string>
+    <string name="dl_summary_none">कुछ डाउनलोड नहीं</string>
+</resources>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Ваша лента</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Фильтры ленты</string>
+    <plurals name="feed_hiding">
+        <item quantity="one">Сейчас скрыто %1$s видео</item>
+        <item quantity="few">Сейчас скрыто %1$s видео</item>
+        <item quantity="many">Сейчас скрыто %1$s видео</item>
+        <item quantity="other">Сейчас скрыто %1$s видео</item>
+    </plurals>
+    <string name="feed_hiding_none">Сейчас ничего не скрыто</string>
+    <string name="feed_hide_watched">Скрывать просмотренные видео</string>
+    <string name="feed_hide_watched_line">Досмотренные в Skipii до конца или почти до конца</string>
+    <string name="feed_shorter_than">Скрывать видео короче</string>
+    <string name="feed_off">Выкл.</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s мин</string>
+    <string name="feed_muted_words">Скрытые слова</string>
+    <string name="feed_add">Добавить</string>
+    <string name="feed_word_hint">Слово или фраза</string>
+    <string name="feed_add_word">Добавить слово</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">Перестать скрывать %1$s</string>
+    <string name="feed_muted_channels">Скрытые каналы</string>
+    <string name="feed_muted_channels_none">Удерживайте любое видео, чтобы скрыть его канал</string>
+    <string name="feed_subscription_shorts">Shorts из подписок</string>
+    <string name="feed_subscription_shorts_line">Ряд Shorts от ваших подписок на главной и в «Подписках», даже если вкладка Shorts отключена</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Скрыть этот канал</string>
+    <string name="feed_muted">Канал %1$s скрыт</string>
+    <string name="feed_filtered_out_title">Здесь всё отфильтровано</string>
+    <string name="feed_filtered_out_body">Ваши фильтры скрывают все загруженные пока видео.</string>
+    <string name="feed_edit_filters">Изменить фильтры</string>
+    <string name="feed_load_more">Загрузить ещё</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Все</string>
+    <string name="feed_group_add">Группа</string>
+    <string name="feed_group_new">Новая группа</string>
+    <string name="feed_group_edit">Изменить группу</string>
+    <string name="feed_group_name_hint">Название группы</string>
+    <string name="feed_group_search_hint">Найти канал</string>
+    <plurals name="feed_group_picked">
+        <item quantity="one">%1$s канал</item>
+        <item quantity="few">%1$s канала</item>
+        <item quantity="many">%1$s каналов</item>
+        <item quantity="other">%1$s канала</item>
+    </plurals>
+    <string name="feed_group_no_channels">Ваши подписки появятся здесь после загрузки.</string>
+    <string name="feed_group_delete">Удалить</string>
+    <string name="feed_group_save">Сохранить</string>
+    <string name="feed_unwatched_only">Только несмотренные</string>
+    <string name="feed_group_empty_title">Ничего нового в «%1$s»</string>
+    <string name="feed_group_empty_body">От этих каналов нет видео среди загруженных пока выпусков.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Любая длина</string>
+    <string name="feed_wl_under10">Короче 10 мин</string>
+    <string name="feed_wl_10to30">10–30 мин</string>
+    <string name="feed_wl_over30">Дольше 30 мин</string>
+    <string name="feed_hide_watched_chip">Скрыть просмотренные</string>
+    <string name="feed_pick_one">Выбрать за меня</string>
+    <plurals name="feed_count">
+        <item quantity="one">%1$s видео</item>
+        <item quantity="few">%1$s видео</item>
+        <item quantity="many">%1$s видео</item>
+        <item quantity="other">%1$s видео</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="one">Пока %1$s…</item>
+        <item quantity="few">Пока %1$s…</item>
+        <item quantity="many">Пока %1$s…</item>
+        <item quantity="other">Пока %1$s…</item>
+    </plurals>
+    <string name="feed_none_match">В этом списке ничего не подходит под эти условия.</string>
+</resources>

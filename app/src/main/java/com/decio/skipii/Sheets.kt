@@ -50,6 +50,8 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ClearAll
@@ -153,10 +155,24 @@ fun VideoOptionsSheet(
             OptionRow(Icons.Rounded.WatchLater, stringResource(R.string.ui_save_to_watch_later)) { player.saveToWatchLater(video); onDismiss() }
             OptionRow(Icons.Rounded.LibraryAdd, stringResource(R.string.ui_save_to_playlist)) { onDismiss(); player.openPlaylists(video) }
         }
+        OptionRow(Icons.Rounded.Download, stringResource(if (Downloads.isReady(video.id)) R.string.dl_action_done else R.string.dl_action)) {
+            onDismiss(); player.downloadTarget = video
+        }
         remove?.let { (label, action) -> OptionRow(Icons.Rounded.Delete, label) { onDismiss(); action() } }
         OptionRow(Icons.Rounded.Share, stringResource(R.string.ui_share)) {
             shareLink(context, "https://youtu.be/${video.id}", video.title)
             onDismiss()
+        }
+        // Your feed (0.6.0): the channel's videos leave Home and Subscriptions; Undo puts them back.
+        if (video.channelId() != null && FeedFilters.mutedChannels.none { it.id == video.channelId() }) {
+            OptionRow(Icons.Rounded.Block, stringResource(R.string.feed_mute_channel)) {
+                onDismiss()
+                FeedFilters.muteChannelOf(video)?.let { ref ->
+                    val message = str(R.string.feed_muted, ref.name.ifBlank { video.channel })
+                    player.actionMessage = message
+                    player.actionUndo = message to { FeedFilters.unmute(ref) }
+                }
+            }
         }
         // Only cards from the account's own feeds carry these (#16).
         video.feedback?.notInterested?.let {

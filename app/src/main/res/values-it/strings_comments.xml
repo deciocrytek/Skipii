@@ -122,4 +122,8 @@
     <string name="captions_word_by_word_title">Parola per parola</string>
     <string name="captions_word_by_word_line">I sottotitoli automatici compaiono man mano che ogni parola viene detta, come nell\'app di YouTube</string>
     <string name="captions_size_huger">Giganti</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Principali</string>
+    <string name="comments_sort_newest">Più recenti</string>
+    <string name="comments_sort_failed">Impossibile cambiare l\'ordine</string>
 </resources>

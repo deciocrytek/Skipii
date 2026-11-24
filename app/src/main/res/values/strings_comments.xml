@@ -122,4 +122,8 @@
     <string name="captions_word_by_word_title">Word by word</string>
     <string name="captions_word_by_word_line">Auto-generated captions appear as each word is said, as in YouTube\'s app</string>
     <string name="captions_size_huger">Giant</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Top</string>
+    <string name="comments_sort_newest">Newest</string>
+    <string name="comments_sort_failed">Couldn\'t change the order</string>
 </resources>

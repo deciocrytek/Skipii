@@ -56,9 +56,9 @@ object NewVideos {
     private const val FRESH_MS = 3 * 24 * 60 * 60 * 1000L
     private const val MAX_PER_CHANNEL = 4
 
-    private const val EXTRA_ID = "com.skipii.video.id"
-    private const val EXTRA_TITLE = "com.skipii.video.title"
-    private const val EXTRA_CHANNEL = "com.skipii.video.channel"
+    internal const val EXTRA_ID = "com.skipii.video.id"
+    internal const val EXTRA_TITLE = "com.skipii.video.title"
+    internal const val EXTRA_CHANNEL = "com.skipii.video.channel"
     private const val EXTRA_CHANNEL_ID = "com.skipii.video.channel_id"
     private const val EXTRA_AVATAR = "com.skipii.video.avatar"
 

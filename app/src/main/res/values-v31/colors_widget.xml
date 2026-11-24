@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The wallpaper's colours, as Pixel's own widgets (Material You). -->
+    <color name="widget_bg">@android:color/system_neutral1_50</color>
+    <color name="widget_on">@android:color/system_neutral1_900</color>
+    <color name="widget_on_var">@android:color/system_neutral2_700</color>
+    <color name="widget_primary">@android:color/system_accent1_600</color>
+    <color name="widget_on_primary">@android:color/system_accent1_0</color>
+    <color name="widget_tile">@android:color/system_accent1_100</color>
+</resources>

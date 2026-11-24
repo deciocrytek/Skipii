@@ -179,6 +179,8 @@ private const val SwipeRangeShare = 0.4f
 private const val SideShare = 0.35f
 /** Starts this close to the top or bottom edge are left to the system's own swipes. */
 private val EdgeGuard = 28.dp
+/** The middle's swipe up opens the drawer past this far (or on a flick). */
+private val DrawerOpenDistance = 56.dp
 /** The middle's swipe down leaves fullscreen past this far, or on a flick ([ExitFlick] px/s). */
 private const val ExitDistancePx = 120f
 private const val ExitFlick = 1400f
@@ -200,7 +202,15 @@ fun rememberFullscreenSliders(): FullscreenSliders {
  * end in [onRelease]: `exit` when let go past [ExitDistancePx] or on a flick down (leave fullscreen),
  * else false (the picture eases back).
  */
-fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> Unit, onRelease: (exit: Boolean) -> Unit) = pointerInput(sliders) {
+fun Modifier.fullscreenGestures(
+    sliders: FullscreenSliders,
+    onPull: (Float) -> Unit,
+    onRelease: (exit: Boolean) -> Unit,
+    /** The middle's swipe UP (0.6.0, Neon's split): how far up it has pulled the drawer, in px… */
+    onDrawerPull: ((Float) -> Unit)? = null,
+    /** …and, let go, whether the drawer should open (past [DrawerOpenDistance] or a flick up). */
+    onDrawerRelease: ((open: Boolean) -> Unit)? = null,
+) = pointerInput(sliders) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
         val guard = EdgeGuard.toPx()
@@ -222,6 +232,19 @@ fun Modifier.fullscreenGestures(sliders: FullscreenSliders, onPull: (Float) -> U
             } finally {
                 sliders.end()
             }
+        } else if (over < 0f && onDrawerPull != null && onDrawerRelease != null) {
+            // Up first: the drawer's, to the end (it never turns into the exit swipe).
+            val tracker = VelocityTracker()
+            tracker.addPosition(start.uptimeMillis, start.position)
+            var up = -over
+            onDrawerPull(up)
+            val finished = verticalDrag(start.id) { change ->
+                tracker.addPosition(change.uptimeMillis, change.position)
+                up = (up - change.positionChange().y).coerceAtLeast(0f)
+                onDrawerPull(up)
+                change.consume()
+            }
+            onDrawerRelease(finished && (up > DrawerOpenDistance.toPx() || tracker.calculateVelocity().y < -ExitFlick))
         } else {
             val tracker = VelocityTracker()
             tracker.addPosition(start.uptimeMillis, start.position)

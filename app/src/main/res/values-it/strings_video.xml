@@ -78,4 +78,11 @@
     <string name="video_open_in_youtube">Apri in YouTube</string>
     <string name="video_lock">Blocca i controlli</string>
     <string name="video_hold_to_unlock">Tieni premuto per sbloccare</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">Impostazioni</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">Coda</string>
+    <string name="video_drawer_empty">Ancora nessun video qui</string>
+    <string name="video_drawer_offline">Altri video richiedono una connessione</string>
+    <string name="video_drawer_close">Chiudi</string>
 </resources>

@@ -79,4 +79,11 @@
     <string name="video_open_in_youtube">Mở trong YouTube</string>
     <string name="video_lock">Khóa điều khiển</string>
     <string name="video_hold_to_unlock">Giữ để mở khóa</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">Cài đặt</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">Hàng đợi</string>
+    <string name="video_drawer_empty">Chưa có video nào ở đây</string>
+    <string name="video_drawer_offline">Cần có kết nối để xem thêm video</string>
+    <string name="video_drawer_close">Đóng</string>
 </resources>

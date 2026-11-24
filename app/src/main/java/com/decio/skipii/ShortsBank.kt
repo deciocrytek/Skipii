@@ -71,7 +71,7 @@ object ShortsBank {
 
     fun init(context: Context) {
         runCatching {
-            cache = SimpleCache(File(context.cacheDir, "shorts-bank"), NoOpCacheEvictor(), StandaloneDatabaseProvider(context))
+            cache = SimpleCache(File(context.cacheDir, "shorts-bank"), NoOpCacheEvictor(), MediaDatabase.get(context))
         }.onFailure { Log.w("Skipii", "shorts bank: no media cache", it) }
         indexFile = File(context.filesDir, "shorts_bank.json")
         load()

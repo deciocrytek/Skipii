@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Akışınız</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Akış filtreleri</string>
+    <plurals name="feed_hiding">
+        <item quantity="one">Şu an %1$s video gizleniyor</item>
+        <item quantity="other">Şu an %1$s video gizleniyor</item>
+    </plurals>
+    <string name="feed_hiding_none">Şu an gizlenen yok</string>
+    <string name="feed_hide_watched">İzlediğim videoları gizle</string>
+    <string name="feed_hide_watched_line">Skipii\'de sonuna kadar veya neredeyse sonuna kadar izlenenler</string>
+    <string name="feed_shorter_than">Şundan kısa videoları gizle</string>
+    <string name="feed_off">Kapalı</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s dk</string>
+    <string name="feed_muted_words">Sessize alınan kelimeler</string>
+    <string name="feed_add">Ekle</string>
+    <string name="feed_word_hint">Bir kelime veya ifade</string>
+    <string name="feed_add_word">Kelime ekle</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">%1$s sesini aç</string>
+    <string name="feed_muted_channels">Sessize alınan kanallar</string>
+    <string name="feed_muted_channels_none">Kanalını sessize almak için herhangi bir videoya basılı tutun</string>
+    <string name="feed_subscription_shorts">Aboneliklerden Shorts</string>
+    <string name="feed_subscription_shorts_line">Shorts sekmesi kapalı olsa bile Ana Sayfa ve Abonelikler\'de aboneliklerinizden Shorts satırı</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Bu kanalı sessize al</string>
+    <string name="feed_muted">%1$s sessize alındı</string>
+    <string name="feed_filtered_out_title">Buradaki her şey filtrelendi</string>
+    <string name="feed_filtered_out_body">Filtreleriniz şimdiye kadar yüklenen tüm videoları gizliyor.</string>
+    <string name="feed_edit_filters">Filtreleri düzenle</string>
+    <string name="feed_load_more">Daha fazla yükle</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Tümü</string>
+    <string name="feed_group_add">Grup</string>
+    <string name="feed_group_new">Yeni grup</string>
+    <string name="feed_group_edit">Grubu düzenle</string>
+    <string name="feed_group_name_hint">Grup adı</string>
+    <string name="feed_group_search_hint">Kanal bul</string>
+    <plurals name="feed_group_picked">
+        <item quantity="one">%1$s kanal</item>
+        <item quantity="other">%1$s kanal</item>
+    </plurals>
+    <string name="feed_group_no_channels">Abonelikleriniz yüklendiğinde burada görünür.</string>
+    <string name="feed_group_delete">Sil</string>
+    <string name="feed_group_save">Kaydet</string>
+    <string name="feed_unwatched_only">Yalnızca izlenmeyenler</string>
+    <string name="feed_group_empty_title">%1$s içinde yeni bir şey yok</string>
+    <string name="feed_group_empty_body">Şimdiye kadar yüklenenlerde bu kanallardan video yok.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Herhangi bir uzunluk</string>
+    <string name="feed_wl_under10">10 dk altı</string>
+    <string name="feed_wl_10to30">10–30 dk</string>
+    <string name="feed_wl_over30">30 dk üstü</string>
+    <string name="feed_hide_watched_chip">İzlenenleri gizle</string>
+    <string name="feed_pick_one">Benim için birini seç</string>
+    <plurals name="feed_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="one">Şimdiye kadar %1$s…</item>
+        <item quantity="other">Şimdiye kadar %1$s…</item>
+    </plurals>
+    <string name="feed_none_match">Bu listede bu seçimlerle eşleşen bir şey yok.</string>
+</resources>

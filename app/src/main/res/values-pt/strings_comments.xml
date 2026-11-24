@@ -122,4 +122,8 @@
     <string name="captions_word_by_word_title">Palavra por palavra</string>
     <string name="captions_word_by_word_line">As legendas automáticas aparecem conforme cada palavra é dita, como no app do YouTube</string>
     <string name="captions_size_huger">Gigante</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Principais</string>
+    <string name="comments_sort_newest">Mais recentes</string>
+    <string name="comments_sort_failed">Não foi possível mudar a ordem</string>
 </resources>

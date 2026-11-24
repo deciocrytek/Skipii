@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">Descargas</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Descargando para ver sin conexión</string>
+    <string name="dl_title">Descargas</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">Descargar</string>
+    <string name="dl_action_waiting">Esperando</string>
+    <string name="dl_action_done">Descargado</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">Descargar</string>
+    <string name="dl_sheet_line">Se reproduce sin conexión, con subtítulos incluidos</string>
+    <string name="dl_video">Video</string>
+    <string name="dl_sound_only">Solo sonido</string>
+    <string name="dl_audio_only">Solo audio</string>
+    <string name="dl_audio_only_line">Para podcasts y música</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Unos %1$s</string>
+    <string name="dl_button_wifi">Descargar con Wi-Fi</string>
+    <string name="dl_sheet_loading">Comprobando tamaños…</string>
+    <string name="dl_sheet_unavailable">Este video no se puede descargar ahora.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Esperando Wi-Fi</string>
+    <string name="dl_waiting_room">Esperando espacio</string>
+    <string name="dl_downloading">Descargando %1$s%%</string>
+    <string name="dl_failed">No se pudo descargar · toca para reintentar</string>
+    <string name="dl_queued">En cola</string>
+    <string name="dl_ready">Listo</string>
+    <string name="dl_offline">Sin conexión</string>
+    <string name="dl_audio">Audio</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s en este teléfono</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Automáticas: %1$s de %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="other">%1$s videos</item>
+    </plurals>
+    <string name="dl_filter_all">Todo</string>
+    <string name="dl_filter_video">Video</string>
+    <string name="dl_filter_audio">Solo audio</string>
+    <string name="dl_filter_auto">Automáticas</string>
+    <string name="dl_empty_title">Aún no hay descargas</string>
+    <string name="dl_empty_body">Descarga un video desde el reproductor para verlo sin conexión, o deja que tu cola se descargue sola con Wi-Fi.</string>
+    <string name="dl_empty_filtered">No hay nada aquí con este filtro.</string>
+    <string name="dl_settings">Ajustes de descargas</string>
+    <string name="dl_delete">Eliminar descarga</string>
+    <string name="dl_cancel">Cancelar descarga</string>
+    <string name="dl_deleted">Descarga eliminada</string>
+    <string name="dl_started">Descargando</string>
+    <string name="dl_started_wifi">Se descargará con Wi-Fi</string>
+    <string name="dl_open">Abrir Descargas</string>
+    <string name="dl_library_line">Ver sin conexión</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">Descargas</string>
+    <string name="dl_set_manage">Gestionar descargas</string>
+    <string name="dl_set_automatic">Automáticas</string>
+    <string name="dl_set_queue">Descargar mi cola</string>
+    <string name="dl_set_queue_line">Todo lo que pongas en la cola se descarga solo, para empezar al instante y verse sin conexión</string>
+    <string name="dl_set_wl">Primeros %1$s videos de Ver más tarde</string>
+    <string name="dl_set_wl_line">Se mantiene al día cuando cambia tu lista</string>
+    <string name="dl_set_wl_signed_out">Inicia sesión para descargar de Ver más tarde</string>
+    <string name="dl_set_delete">Eliminar después de ver</string>
+    <string name="dl_set_delete_line">Las descargas automáticas se borran cuando las terminas de ver</string>
+    <string name="dl_set_limits">Límites</string>
+    <string name="dl_set_network">Descargar con</string>
+    <string name="dl_wifi_only">Solo Wi-Fi</string>
+    <string name="dl_any_network">Cualquier red</string>
+    <string name="dl_set_space">Espacio para descargas automáticas</string>
+    <string name="dl_set_space_line">Cuando se llena, las descargas automáticas esperan. Las tuyas nunca se borran por falta de espacio.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Calidad para descargas automáticas</string>
+    <string name="dl_note">Los videos que descargas tú se quedan hasta que los elimines.</string>
+    <string name="dl_summary_used">%1$s usados</string>
+    <string name="dl_summary_queue">La cola se descarga sola</string>
+    <string name="dl_summary_none">Nada descargado</string>
+</resources>

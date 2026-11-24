@@ -121,4 +121,8 @@
     <string name="captions_word_by_word_title">Wort für Wort</string>
     <string name="captions_word_by_word_line">Automatische Untertitel erscheinen Wort für Wort, wie in der YouTube-App</string>
     <string name="captions_size_huger">Gigantisch</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Top</string>
+    <string name="comments_sort_newest">Neueste</string>
+    <string name="comments_sort_failed">Reihenfolge konnte nicht geändert werden</string>
 </resources>

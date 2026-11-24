@@ -37,6 +37,13 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         CaptionTranslator.refresh()
         SearchHistory.init(this)
         ResumeStore.init(this)
+        WatchedStore.init(this)
+        RecentVideos.init(this)
+        FeedFilters.init(this)
+        SubscriptionGroups.init(this)
+        Downloads.init(this)
+        // A fresh process: widget buttons drawn by one Android killed may still expect a running player; redraw them.
+        WidgetUpdater.update(this)
         SavedSession.init(this)
         Account.init(this)
         Bells.init(this)
@@ -49,7 +56,7 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         // composition. An object first touched on a background thread (BotCheck from PlayerFallback's
         // request) made its state after the player's composition snapshot was taken, and reading it
         // there crashed: "Reading a state that was created after the snapshot was taken" (2026-11-21).
-        listOf<Any>(BotCheck, StreamRecovery, ChannelNames, Dismissed, IncomingLinks, StatusBarOverVideo, SharedVideoTexture)
+        listOf<Any>(BotCheck, StreamRecovery, ChannelNames, Dismissed, IncomingLinks, StatusBarOverVideo, SharedVideoTexture, Downloads, WatchedStore, RecentVideos, FeedFilters, SubscriptionGroups, OpenDownloads)
             .forEach { it.hashCode() }
         // Stream URLs are bound to the network they were fetched on: forget them on a switch.
         getSystemService(android.net.ConnectivityManager::class.java)?.registerDefaultNetworkCallback(

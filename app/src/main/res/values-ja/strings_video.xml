@@ -78,4 +78,11 @@
     <string name="video_open_in_youtube">YouTube で開く</string>
     <string name="video_lock">操作をロック</string>
     <string name="video_hold_to_unlock">長押しでロック解除</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">設定</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">キュー</string>
+    <string name="video_drawer_empty">ここにはまだ動画がありません</string>
+    <string name="video_drawer_offline">他の動画を表示するには接続が必要です</string>
+    <string name="video_drawer_close">閉じる</string>
 </resources>

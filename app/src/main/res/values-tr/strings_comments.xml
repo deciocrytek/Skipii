@@ -121,4 +121,8 @@
     <string name="captions_word_by_word_title">Kelime kelime</string>
     <string name="captions_word_by_word_line">Otomatik altyazılar, YouTube uygulamasındaki gibi her kelime söylendikçe görünür</string>
     <string name="captions_size_huger">Dev</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">En beğenilen</string>
+    <string name="comments_sort_newest">En yeni</string>
+    <string name="comments_sort_failed">Sıralama değiştirilemedi</string>
 </resources>

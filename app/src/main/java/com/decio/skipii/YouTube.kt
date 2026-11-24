@@ -155,6 +155,10 @@ data class Comment(
     val liked: Boolean = false,
 )
 
+/** One of YouTube's comment orders: [newest] = "Newest" (else "Top"); [token] reloads the comments in that order. */
+@Immutable
+data class CommentSort(val newest: Boolean, val token: String, val selected: Boolean)
+
 @Immutable
 data class CommentsPage(
     val comments: List<Comment>,
@@ -163,6 +167,8 @@ data class CommentsPage(
     val next: String?,
     /** The video's chapters, read off the same first `next` page (see [CommentFeed.parseChapters]). */
     val chapters: List<Chapter> = emptyList(),
+    /** YouTube's sort choices for these comments (Top / Newest), from the first page's header; empty on later pages. */
+    val sorts: List<CommentSort> = emptyList(),
 )
 
 /** Everything the app asks of YouTube goes through here. All calls are blocking-safe (IO). */
@@ -191,6 +197,24 @@ object YouTube {
             info.uploaderName.orEmpty().endsWith(" - Topic")
 
     suspend fun details(id: String, wait: Boolean = true): VideoDetails = withContext(Dispatchers.IO) {
+        // A downloaded video (Downloads.kt): YouTube's live details when they come (More videos, current counts),
+        // shown with the kept stream's quality; offline, or when YouTube refuses, the details kept with it.
+        val kept = Downloads.details(id)
+        if (kept != null) {
+            if (!Downloads.online) return@withContext kept
+            return@withContext try {
+                kotlinx.coroutines.withTimeout(8_000) { Downloads.overlay(liveDetails(id, wait = false)) }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                if (e is kotlinx.coroutines.TimeoutCancellationException) kept else throw e
+            } catch (e: Exception) {
+                Log.i("Skipii", "details for downloaded $id from the phone (${e.javaClass.simpleName})")
+                kept
+            }
+        }
+        liveDetails(id, wait)
+    }
+
+    private suspend fun liveDetails(id: String, wait: Boolean): VideoDetails = withContext(Dispatchers.IO) {
         val info = if (wait) BotCheck.retrying(id) { StreamCache.getOrLoad(id) } else BotCheck.withoutWaiting(id) { StreamCache.getOrLoad(id) }
         val audioTracks = AudioTracks.from(info)
         val picked = StreamSelection.pick(info, id)

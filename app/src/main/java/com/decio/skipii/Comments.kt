@@ -32,6 +32,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import android.view.inputmethod.InputMethodManager
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -88,7 +99,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -125,6 +135,15 @@ class CommentsState(private val scope: CoroutineScope) {
         private set
     private var next: String? = null
     val hasMore get() = next != null
+    /** YouTube's Top / Newest choice for these comments (GitHub #60); empty until the first page says it has one. */
+    var sorts by mutableStateOf<List<CommentSort>>(emptyList())
+        private set
+    /** Newest first is shown (else Top). */
+    var newest by mutableStateOf(false)
+        private set
+    /** A sort switch is loading: the list stays as it was, dimmed, until the reordered page lands. */
+    var resorting by mutableStateOf(false)
+        private set
 
     /** Replies already fetched, by comment id. */
     val replies = mutableStateMapOf<String, List<Comment>>()
@@ -151,6 +170,7 @@ class CommentsState(private val scope: CoroutineScope) {
         videoId = id
         comments = emptyList(); total = -1; disabled = false; error = null; next = null
         replies.clear(); repliesLoading.clear(); replyingTo = null; draft = ""; postError = null
+        sorts = emptyList(); newest = false; resorting = false
         loading = true
     }
 
@@ -167,6 +187,9 @@ class CommentsState(private val scope: CoroutineScope) {
         replies.clear()
         repliesLoading.clear()
         liked.clear()
+        sorts = emptyList()
+        newest = false
+        resorting = false
         loading = true
         job?.cancel()
         val startedAt = android.os.SystemClock.elapsedRealtime()
@@ -179,10 +202,15 @@ class CommentsState(private val scope: CoroutineScope) {
                     total = page.total
                     disabled = page.disabled
                     next = page.next
+                    sorts = page.sorts
+                    newest = page.sorts.firstOrNull { it.selected }?.newest == true
                     arrived(page.comments)
                     if (page.chapters.isNotEmpty()) onChapters?.invoke(id, page.chapters)
                 }
-                .onFailure { if (videoId == id) error = YouTube.friendlyError(it) }
+                .onFailure {
+                    if (it is kotlinx.coroutines.CancellationException) throw it
+                    if (videoId == id) error = YouTube.friendlyError(it)
+                }
             loading = false
         }
     }
@@ -190,7 +218,8 @@ class CommentsState(private val scope: CoroutineScope) {
     fun loadMore() {
         val id = videoId ?: return
         val page = next ?: return
-        if (loading) return
+        // Not while a sort switch is landing: `next` is still the old order's and its page would join the new list.
+        if (loading || resorting) return
         loading = true
         job = scope.launch {
             runCatching { CommentFeed.more(page) }
@@ -202,10 +231,50 @@ class CommentsState(private val scope: CoroutineScope) {
                     next = more.next
                     arrived(more.comments)
                 }
-                .onFailure { if (videoId == id) error = YouTube.friendlyError(it) }
+                .onFailure {
+                    if (it is kotlinx.coroutines.CancellationException) throw it
+                    if (videoId == id) error = YouTube.friendlyError(it)
+                }
             loading = false
         }
     }
+
+    /**
+     * Shows the comments newest first, or YouTube's Top order again (#60): the sort's token reloads the list from its
+     * first page. The old list stays (dimmed) until the new one lands, so the panel never jumps to a spinner; a failure
+     * keeps it and says so.
+     */
+    fun sortBy(newest: Boolean) {
+        val id = videoId ?: return
+        if (newest == this.newest || resorting) return
+        val sort = sorts.firstOrNull { it.newest == newest } ?: return
+        val was = this.newest
+        this.newest = newest
+        resorting = true
+        job?.cancel()
+        loading = false
+        error = null
+        job = scope.launch {
+            runCatching { CommentFeed.more(sort.token) }
+                .onSuccess { page ->
+                    if (videoId != id) return@onSuccess
+                    comments = page.comments
+                    if (page.total > 0) total = page.total
+                    next = page.next
+                    replies.clear(); repliesLoading.clear()
+                    if (page.sorts.isNotEmpty()) sorts = page.sorts
+                    arrived(page.comments)
+                }
+                .onFailure {
+                    if (it is kotlinx.coroutines.CancellationException) throw it
+                    if (videoId == id) { this@CommentsState.newest = was; onSortFailed?.invoke(str(R.string.comments_sort_failed)) }
+                }
+            resorting = false
+        }
+    }
+
+    /** Where a failed sort switch says so (the player's action message). */
+    var onSortFailed: ((String) -> Unit)? = null
 
     fun loadReplies(comment: Comment) {
         val id = videoId ?: return
@@ -339,19 +408,29 @@ fun CommentsPanel(state: CommentsState, partialTop: Dp, onClose: () -> Unit) {
         onClose = onClose,
         closeLabel = stringResource(R.string.comments_close),
         title = {
-            Text(stringResource(R.string.comments_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp)
+            Text(
+                stringResource(R.string.comments_title), fontFamily = RoundedHeavy, fontWeight = FontWeight.ExtraBold, fontSize = 21.sp,
+                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+            )
             if (state.total > 0) {
                 Spacer(Modifier.width(8.dp))
-                Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
+            }
+            if (state.sorts.isNotEmpty() && !state.disabled) {
+                Spacer(Modifier.width(12.dp))
+                CommentSortToggle(state)
             }
         },
     ) { listModifier ->
+        val dim by animateFloatAsState(if (state.resorting) 0.45f else 1f, tween(if (rememberReducedMotion()) 0 else 200), label = "resortDim")
         val list = rememberLazyListState()
         val nearEnd by remember {
             derivedStateOf { (list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= list.layoutInfo.totalItemsCount - 4 }
         }
         LaunchedEffect(nearEnd) { if (nearEnd) state.loadMore() }
-        LazyColumn(state = list, modifier = listModifier) {
+        // A new order starts at the top.
+        LaunchedEffect(state.newest) { if (list.firstVisibleItemIndex > 0) list.scrollToItem(0) }
+        LazyColumn(state = list, modifier = listModifier.graphicsLayer { alpha = dim }) {
             items(state.comments, key = { it.id }) { comment -> CommentRow(comment, state) }
             if (state.loading || state.hasMore) item {
                 Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
@@ -489,8 +568,9 @@ fun PlayerPanel(
                     Box(Modifier.size(width = 36.dp, height = 4.dp).clip(CircleShape).background(c.onSurfaceVariant.copy(alpha = 0.45f)))
                 }
                 Row(Modifier.padding(start = 20.dp, end = 8.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    title()
-                    Spacer(Modifier.weight(1f))
+                    // All the room left of the close button is the title's (a title that shrinks, e.g. the comments' with
+                    // their sort, gets it all, not half).
+                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) { title() }
                     Box(Modifier.size(44.dp).pressable { close() }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Rounded.Close, closeLabel, tint = c.onSurfaceVariant)
                     }
@@ -514,6 +594,10 @@ fun LazyListScope.inlineComments(state: CommentsState) {
             if (state.total > 0) {
                 Spacer(Modifier.width(8.dp))
                 Text(formatCount(state.total.toLong()), color = c.onSurfaceVariant, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+            if (state.sorts.isNotEmpty() && !state.disabled) {
+                Spacer(Modifier.weight(1f))
+                CommentSortToggle(state)
             }
         }
     }
@@ -622,7 +706,26 @@ private fun CommentRow(comment: Comment, state: CommentsState, isReply: Boolean 
             val linked = remember(comment.text, state.videoId, onLink != null) {
                 if (onLink == null) Description(comment.text) else commentLinks(comment.text, state.videoId)
             }
-            LinkedText(linked, onLink)
+            // Double-tap the text to like (signed in, GitHub #54); never unlikes, as Shorts. A link's own tap
+            // consumes its lift, so a double tap on a link doesn't count.
+            val canDoubleTap = Account.signedIn && !comment.id.startsWith("local-")
+            val view = LocalView.current
+            Box(
+                if (!canDoubleTap) Modifier else Modifier.pointerInput(comment.id) {
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        val up = waitForUpOrCancellation() ?: return@awaitEachGesture
+                        val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown(requireUnconsumed = false) }
+                            ?: return@awaitEachGesture
+                        if ((second.position - up.position).getDistance() > viewConfiguration.touchSlop * 3) return@awaitEachGesture
+                        if (waitForUpOrCancellation() == null) return@awaitEachGesture
+                        if (state.liked[comment.id] != true) {
+                            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                            state.toggleLike(comment) { state.postError = it }
+                        }
+                    }
+                },
+            ) { LinkedText(linked, onLink) }
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Like (signed in): pops like the video's like, and the count follows.
@@ -686,5 +789,59 @@ private fun CommentRow(comment: Comment, state: CommentsState, isReply: Boolean 
     }
     if (!isReply) {
         state.replies[comment.id]?.forEach { reply -> CommentRow(reply, state, isReply = true) }
+    }
+}
+
+/**
+ * Top | Newest (GitHub #60; Neon's spec): a 34 dp capsule on the container tone with a primary pill that springs
+ * to the chosen word. The comments reload in that order ([CommentsState.sortBy]).
+ */
+@Composable
+private fun CommentSortToggle(state: CommentsState) {
+    val c = MaterialTheme.colorScheme
+    val reduced = rememberReducedMotion()
+    val spots = remember { mutableStateMapOf<Boolean, Pair<Float, Float>>() }
+    val left = remember { Animatable(0f) }
+    val width = remember { Animatable(0f) }
+    var placed by remember { mutableStateOf(false) }
+    val target = spots[state.newest]
+    LaunchedEffect(target) {
+        val (l, w) = target ?: return@LaunchedEffect
+        if (!placed || reduced) { left.snapTo(l); width.snapTo(w); placed = true; return@LaunchedEffect }
+        val spec = spring<Float>(dampingRatio = 0.72f, stiffness = 520f)
+        launch { left.animateTo(l, spec) }
+        width.animateTo(w, spec)
+    }
+    Row(
+        Modifier
+            .height(34.dp)
+            .clip(CircleShape)
+            .background(c.surfaceContainerHigh)
+            .drawBehind {
+                if (!placed) return@drawBehind
+                val inset = 3.dp.toPx()
+                // Words sit inside the 3 dp padding drawn here outside it.
+                drawRoundRect(c.primary, topLeft = Offset(left.value + inset, inset), size = Size(width.value, size.height - 2 * inset), cornerRadius = CornerRadius(size.height / 2))
+            }
+            .padding(horizontal = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        listOf(false, true).forEach { newest ->
+            val on = state.newest == newest
+            val ink by androidx.compose.animation.animateColorAsState(if (on) c.onPrimary else c.onSurfaceVariant, tween(if (reduced) 0 else 180, easing = Motion.Emphasized), label = "sortInk")
+            Box(
+                Modifier
+                    .onPlaced { spots[newest] = it.positionInParent().x to it.size.width.toFloat() }
+                    .height(28.dp)
+                    .pressable { state.sortBy(newest) }
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(if (newest) R.string.comments_sort_newest else R.string.comments_sort_top),
+                    color = ink, fontWeight = FontWeight.ExtraBold, fontSize = 12.sp, maxLines = 1,
+                )
+            }
+        }
     }
 }

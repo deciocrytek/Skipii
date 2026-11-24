@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">All</string>
+    <string name="search_type_videos">Videos</string>
+    <string name="search_type_channels">Channels</string>
+    <string name="search_type_playlists">Playlists</string>
+    <string name="search_filters">Filters</string>
+    <string name="search_date">Upload date</string>
+    <string name="search_date_any">Any time</string>
+    <string name="search_date_today">Today</string>
+    <string name="search_date_week">This week</string>
+    <string name="search_date_month">This month</string>
+    <string name="search_date_year">This year</string>
+    <string name="search_length">Length</string>
+    <string name="search_length_any">Any length</string>
+    <string name="search_length_short">Under 3 min</string>
+    <string name="search_length_medium">3–20 min</string>
+    <string name="search_length_long">Over 20 min</string>
+    <string name="search_sort">Order</string>
+    <string name="search_sort_relevance">Relevance</string>
+    <string name="search_sort_popularity">Popularity</string>
+    <string name="search_reset">Reset</string>
+    <string name="search_apply">Show results</string>
+    <string name="search_videos_only_note">Upload date, length and order apply to videos.</string>
+    <string name="search_channel">Channel</string>
+    <string name="search_playlist">Playlist</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Fill in “%1$s”</string>
+    <string name="search_more_failed">Couldn\'t load more results</string>
+    <string name="search_clear_filters">Clear filters</string>
+    <string name="search_no_match_filtered">Nothing matches “%1$s” with these filters.</string>
+    <string name="search_remove_filter">Remove %1$s</string>
+</resources>

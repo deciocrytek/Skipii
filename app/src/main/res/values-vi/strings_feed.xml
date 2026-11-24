@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Nguồn cấp của bạn</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Bộ lọc nguồn cấp</string>
+    <plurals name="feed_hiding">
+        <item quantity="other">Đang ẩn %1$s video</item>
+    </plurals>
+    <string name="feed_hiding_none">Hiện không ẩn video nào</string>
+    <string name="feed_hide_watched">Ẩn video tôi đã xem</string>
+    <string name="feed_hide_watched_line">Đã xem hết hoặc gần hết trên Skipii</string>
+    <string name="feed_shorter_than">Ẩn video ngắn hơn</string>
+    <string name="feed_off">Tắt</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s phút</string>
+    <string name="feed_muted_words">Từ đã ẩn</string>
+    <string name="feed_add">Thêm</string>
+    <string name="feed_word_hint">Một từ hoặc cụm từ</string>
+    <string name="feed_add_word">Thêm từ</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">Bỏ ẩn %1$s</string>
+    <string name="feed_muted_channels">Kênh đã ẩn</string>
+    <string name="feed_muted_channels_none">Nhấn giữ video bất kỳ để ẩn kênh đó</string>
+    <string name="feed_subscription_shorts">Shorts từ kênh đăng ký</string>
+    <string name="feed_subscription_shorts_line">Một hàng Shorts từ kênh bạn đăng ký trên Trang chủ và Kênh đăng ký, ngay cả khi tab Shorts đang tắt</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Ẩn kênh này</string>
+    <string name="feed_muted">Đã ẩn %1$s</string>
+    <string name="feed_filtered_out_title">Mọi thứ ở đây đều bị lọc</string>
+    <string name="feed_filtered_out_body">Bộ lọc của bạn đang ẩn toàn bộ video đã tải cho đến lúc này.</string>
+    <string name="feed_edit_filters">Sửa bộ lọc</string>
+    <string name="feed_load_more">Tải thêm</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Tất cả</string>
+    <string name="feed_group_add">Nhóm</string>
+    <string name="feed_group_new">Nhóm mới</string>
+    <string name="feed_group_edit">Sửa nhóm</string>
+    <string name="feed_group_name_hint">Tên nhóm</string>
+    <string name="feed_group_search_hint">Tìm một kênh</string>
+    <plurals name="feed_group_picked">
+        <item quantity="other">%1$s kênh</item>
+    </plurals>
+    <string name="feed_group_no_channels">Kênh đăng ký của bạn sẽ hiện ở đây sau khi tải xong.</string>
+    <string name="feed_group_delete">Xóa</string>
+    <string name="feed_group_save">Lưu</string>
+    <string name="feed_unwatched_only">Chỉ chưa xem</string>
+    <string name="feed_group_empty_title">Không có gì mới trong %1$s</string>
+    <string name="feed_group_empty_body">Không có video nào từ các kênh này trong phần đã tải tới lúc này.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Mọi độ dài</string>
+    <string name="feed_wl_under10">Dưới 10 phút</string>
+    <string name="feed_wl_10to30">10–30 phút</string>
+    <string name="feed_wl_over30">Trên 30 phút</string>
+    <string name="feed_hide_watched_chip">Ẩn đã xem</string>
+    <string name="feed_pick_one">Chọn giúp tôi một video</string>
+    <plurals name="feed_count">
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="other">%1$s cho đến nay…</item>
+    </plurals>
+    <string name="feed_none_match">Không có gì trong danh sách này khớp với các lựa chọn này.</string>
+</resources>

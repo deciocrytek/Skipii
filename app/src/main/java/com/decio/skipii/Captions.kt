@@ -275,6 +275,10 @@ object CaptionFiles {
     private val cache = LruCache<String, List<CaptionCue>>(12)
 
     suspend fun load(track: CaptionTrack): List<CaptionCue> = cache.get(track.url) ?: withContext(Dispatchers.IO) {
+        // A download keeps its caption files (Downloads.kt): read from the phone, no request.
+        Downloads.captionText(track.url)?.let { kept ->
+            return@withContext Srv3.parse(kept, timedWords = track.auto).also { cache.put(track.url, it) }
+        }
         val request = okhttp3.Request.Builder().url(track.url).header("User-Agent", Net.USER_AGENT).build()
         // A link YouTube wants a PO token for carries exp=xpe (the web page's do, the mobile clients' didn't on
         // 2026-11-17); an expired link (~7 h) answers 404; both a token refusal and a broken link answer an empty 200.

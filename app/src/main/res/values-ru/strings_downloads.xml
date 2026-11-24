@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">Загрузки</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Скачивание для просмотра офлайн</string>
+    <string name="dl_title">Загрузки</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">Скачать</string>
+    <string name="dl_action_waiting">Ожидание</string>
+    <string name="dl_action_done">Скачано</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">Скачать</string>
+    <string name="dl_sheet_line">Работает без интернета, субтитры включены</string>
+    <string name="dl_video">Видео</string>
+    <string name="dl_sound_only">Только звук</string>
+    <string name="dl_audio_only">Только аудио</string>
+    <string name="dl_audio_only_line">Для подкастов и музыки</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Около %1$s</string>
+    <string name="dl_button_wifi">Скачать по Wi-Fi</string>
+    <string name="dl_sheet_loading">Проверяем размеры…</string>
+    <string name="dl_sheet_unavailable">Это видео сейчас нельзя скачать.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Ожидание Wi-Fi</string>
+    <string name="dl_waiting_room">Ожидание свободного места</string>
+    <string name="dl_downloading">Скачивание %1$s%%</string>
+    <string name="dl_failed">Не удалось скачать · нажмите, чтобы повторить</string>
+    <string name="dl_queued">В очереди</string>
+    <string name="dl_ready">Готово</string>
+    <string name="dl_offline">Офлайн</string>
+    <string name="dl_audio">Аудио</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s на этом телефоне</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Авто: %1$s из %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s видео</item>
+        <item quantity="few">%1$s видео</item>
+        <item quantity="many">%1$s видео</item>
+        <item quantity="other">%1$s видео</item>
+    </plurals>
+    <string name="dl_filter_all">Все</string>
+    <string name="dl_filter_video">Видео</string>
+    <string name="dl_filter_audio">Только аудио</string>
+    <string name="dl_filter_auto">Автоматические</string>
+    <string name="dl_empty_title">Пока ничего не скачано</string>
+    <string name="dl_empty_body">Скачайте видео в плеере, чтобы смотреть без интернета, или разрешите очереди скачиваться самой по Wi-Fi.</string>
+    <string name="dl_empty_filtered">С этим фильтром здесь пусто.</string>
+    <string name="dl_settings">Настройки загрузок</string>
+    <string name="dl_delete">Удалить загрузку</string>
+    <string name="dl_cancel">Отменить загрузку</string>
+    <string name="dl_deleted">Загрузка удалена</string>
+    <string name="dl_started">Скачивание</string>
+    <string name="dl_started_wifi">Скачается по Wi-Fi</string>
+    <string name="dl_open">Открыть Загрузки</string>
+    <string name="dl_library_line">Смотреть без интернета</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">Загрузки</string>
+    <string name="dl_set_manage">Управление загрузками</string>
+    <string name="dl_set_automatic">Автоматические</string>
+    <string name="dl_set_queue">Скачивать мою очередь</string>
+    <string name="dl_set_queue_line">Всё из очереди скачивается само, чтобы запускаться сразу и работать без интернета</string>
+    <string name="dl_set_wl">Первые %1$s видео из «Смотреть позже»</string>
+    <string name="dl_set_wl_line">Обновляется по мере изменения списка</string>
+    <string name="dl_set_wl_signed_out">Войдите, чтобы скачивать из «Смотреть позже»</string>
+    <string name="dl_set_delete">Удалять после просмотра</string>
+    <string name="dl_set_delete_line">Автоматические загрузки удаляются после просмотра</string>
+    <string name="dl_set_limits">Ограничения</string>
+    <string name="dl_set_network">Скачивать через</string>
+    <string name="dl_wifi_only">Только Wi-Fi</string>
+    <string name="dl_any_network">Любая сеть</string>
+    <string name="dl_set_space">Место для автозагрузок</string>
+    <string name="dl_set_space_line">Когда место закончится, автозагрузки будут ждать. Ваши загрузки никогда не удаляются ради места.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Качество автозагрузок</string>
+    <string name="dl_note">Видео, которые вы скачали сами, хранятся, пока вы их не удалите.</string>
+    <string name="dl_summary_used">Занято %1$s</string>
+    <string name="dl_summary_queue">Очередь скачивается сама</string>
+    <string name="dl_summary_none">Ничего не скачано</string>
+</resources>

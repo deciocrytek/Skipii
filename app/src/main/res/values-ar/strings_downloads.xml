@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">التنزيلات</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">جارٍ التنزيل للمشاهدة بلا إنترنت</string>
+    <string name="dl_title">التنزيلات</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">تنزيل</string>
+    <string name="dl_action_waiting">قيد الانتظار</string>
+    <string name="dl_action_done">تم التنزيل</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">تنزيل</string>
+    <string name="dl_sheet_line">يعمل بلا اتصال، مع الترجمة</string>
+    <string name="dl_video">فيديو</string>
+    <string name="dl_sound_only">صوت فقط</string>
+    <string name="dl_audio_only">الصوت فقط</string>
+    <string name="dl_audio_only_line">للبودكاست والموسيقى</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">حوالي %1$s</string>
+    <string name="dl_button_wifi">تنزيل عبر Wi-Fi</string>
+    <string name="dl_sheet_loading">جارٍ التحقق من الأحجام…</string>
+    <string name="dl_sheet_unavailable">لا يمكن تنزيل هذا الفيديو الآن.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">بانتظار Wi-Fi</string>
+    <string name="dl_waiting_room">بانتظار مساحة تخزين</string>
+    <string name="dl_downloading">جارٍ التنزيل %1$s%%</string>
+    <string name="dl_failed">تعذّر التنزيل · انقر لإعادة المحاولة</string>
+    <string name="dl_queued">في قائمة الانتظار</string>
+    <string name="dl_ready">جاهز</string>
+    <string name="dl_offline">بلا اتصال</string>
+    <string name="dl_audio">صوت</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s على هذا الهاتف</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">تلقائي: %1$s من %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="zero">%1$s فيديو</item>
+        <item quantity="one">%1$s فيديو</item>
+        <item quantity="two">%1$s فيديو</item>
+        <item quantity="few">%1$s فيديوهات</item>
+        <item quantity="many">%1$s فيديو</item>
+        <item quantity="other">%1$s فيديو</item>
+    </plurals>
+    <string name="dl_filter_all">الكل</string>
+    <string name="dl_filter_video">فيديو</string>
+    <string name="dl_filter_audio">الصوت فقط</string>
+    <string name="dl_filter_auto">تلقائي</string>
+    <string name="dl_empty_title">لا توجد تنزيلات بعد</string>
+    <string name="dl_empty_body">نزّل فيديو من المشغّل لمشاهدته بلا اتصال، أو دع قائمة الانتظار تُنزّل تلقائيًا عبر Wi-Fi.</string>
+    <string name="dl_empty_filtered">لا شيء هنا مع هذا الفلتر.</string>
+    <string name="dl_settings">إعدادات التنزيل</string>
+    <string name="dl_delete">حذف التنزيل</string>
+    <string name="dl_cancel">إلغاء التنزيل</string>
+    <string name="dl_deleted">تم حذف التنزيل</string>
+    <string name="dl_started">جارٍ التنزيل</string>
+    <string name="dl_started_wifi">يُنزّل عبر Wi-Fi</string>
+    <string name="dl_open">فتح التنزيلات</string>
+    <string name="dl_library_line">المشاهدة بلا اتصال</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">التنزيلات</string>
+    <string name="dl_set_manage">إدارة التنزيلات</string>
+    <string name="dl_set_automatic">تلقائي</string>
+    <string name="dl_set_queue">تنزيل قائمة الانتظار</string>
+    <string name="dl_set_queue_line">أي فيديو تضيفه لقائمة الانتظار يُنزّل تلقائيًا ليبدأ فورًا ويعمل بلا اتصال</string>
+    <string name="dl_set_wl">أول %1$s فيديوهات في المشاهدة لاحقًا</string>
+    <string name="dl_set_wl_line">يُحدّث تلقائيًا مع تغيّر قائمتك</string>
+    <string name="dl_set_wl_signed_out">سجّل الدخول للتنزيل من المشاهدة لاحقًا</string>
+    <string name="dl_set_delete">الحذف بعد المشاهدة</string>
+    <string name="dl_set_delete_line">تُحذف التنزيلات التلقائية بمجرد مشاهدتها</string>
+    <string name="dl_set_limits">الحدود</string>
+    <string name="dl_set_network">التنزيل عبر</string>
+    <string name="dl_wifi_only">Wi-Fi فقط</string>
+    <string name="dl_any_network">أي شبكة</string>
+    <string name="dl_set_space">مساحة للتنزيلات التلقائية</string>
+    <string name="dl_set_space_line">عند امتلائها، تنتظر التنزيلات التلقائية. تنزيلاتك اليدوية لا تُحذف أبدًا لتوفير المساحة.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">جودة التنزيلات التلقائية</string>
+    <string name="dl_note">الفيديوهات التي تنزّلها بنفسك تبقى حتى تحذفها.</string>
+    <string name="dl_summary_used">مستخدم %1$s</string>
+    <string name="dl_summary_queue">قائمة الانتظار تُنزّل تلقائيًا</string>
+    <string name="dl_summary_none">لا توجد تنزيلات</string>
+</resources>

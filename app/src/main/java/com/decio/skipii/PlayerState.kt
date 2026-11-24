@@ -106,6 +106,13 @@ class PlayerState(private val scope: CoroutineScope) {
         private set
     /** Only once video is wanted again: going into audio only, the last frame stays as the audio stage fades over it. */
     val hidesStaleVideo: Boolean get() = videoStale && !AudioOnly.enabled
+
+    /**
+     * The open video plays from a sound-only download (Downloads.kt): no frame ever comes, so the picture stays
+     * hidden over its thumbnail (the shared surface would keep the last video's frame), and there's no fullscreen
+     * or picture-in-picture for it, as in audio only.
+     */
+    val audioOnlyDownload: Boolean get() = current?.id?.let { id -> Downloads.entry(id)?.let { it.ready && it.audioOnly } } == true
     /** What the decoder is really producing, e.g. "1920×1080 · H.264 · itag 299". */
     var playingFormat by mutableStateOf<String?>(null)
         private set
@@ -126,6 +133,7 @@ class PlayerState(private val scope: CoroutineScope) {
             val d = details
             if (d != null && d.item.id == id && d.chapters.isEmpty()) details = d.copy(chapters = chapters)
         }
+        onSortFailed = { actionMessage = it }
     }
 
     /** The open video's captions (Captions.kt). */
@@ -410,6 +418,8 @@ class PlayerState(private val scope: CoroutineScope) {
         val player = controller ?: return
         val from = player.currentMediaItemIndex + 1
         queue = (from until player.mediaItemCount).map { i -> itemFor(player.getMediaItemAt(i)) }
+        // "Download my queue" (Downloads.kt): what's queued downloads by itself on Wi-Fi.
+        Downloads.syncQueue(queue)
     }
 
     private fun itemFor(media: MediaItem): VideoItem = known[media.mediaId] ?: VideoItem(
@@ -532,6 +542,9 @@ class PlayerState(private val scope: CoroutineScope) {
 
     // ── Save to playlist (GitHub issue #12) ──
     /** The video the "Save to playlist" sheet is open for; null = closed. */
+    /** The video the Download sheet is open for (the action row's Download, a card's long-press); null = closed. */
+    var downloadTarget by mutableStateOf<VideoItem?>(null)
+
     var playlistTarget by mutableStateOf<VideoItem?>(null)
         private set
     /** Its playlists (Watch later first); null while loading. */
@@ -599,6 +612,8 @@ class PlayerState(private val scope: CoroutineScope) {
      * info at the same position, keeping play/pause as it was.
      */
     fun setQuality(height: Int?) {
+        // A downloaded video plays its one kept stream: nothing to switch, and the everyday pick stays as it was.
+        if (current?.id?.let(Downloads::isReady) == true) return
         QualityPreference.set(height)
         val player = controller ?: return
         val item = details?.item ?: current ?: return

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">خلاصتك</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">فلاتر الخلاصة</string>
+    <plurals name="feed_hiding">
+        <item quantity="zero">يتم إخفاء %1$s فيديو الآن</item>
+        <item quantity="one">يتم إخفاء %1$s فيديو الآن</item>
+        <item quantity="two">يتم إخفاء %1$s فيديو الآن</item>
+        <item quantity="few">يتم إخفاء %1$s فيديوهات الآن</item>
+        <item quantity="many">يتم إخفاء %1$s فيديو الآن</item>
+        <item quantity="other">يتم إخفاء %1$s فيديو الآن</item>
+    </plurals>
+    <string name="feed_hiding_none">لا شيء مخفي الآن</string>
+    <string name="feed_hide_watched">إخفاء الفيديوهات التي شاهدتها</string>
+    <string name="feed_hide_watched_line">تمت مشاهدتها حتى النهاية في Skipii أو تقريبًا</string>
+    <string name="feed_shorter_than">إخفاء الفيديوهات الأقصر من</string>
+    <string name="feed_off">إيقاف</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s د</string>
+    <string name="feed_muted_words">الكلمات المكتومة</string>
+    <string name="feed_add">إضافة</string>
+    <string name="feed_word_hint">كلمة أو عبارة</string>
+    <string name="feed_add_word">إضافة كلمة</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">إلغاء كتم %1$s</string>
+    <string name="feed_muted_channels">القنوات المكتومة</string>
+    <string name="feed_muted_channels_none">اضغط مطولًا على أي فيديو لكتم قناته</string>
+    <string name="feed_subscription_shorts">Shorts من الاشتراكات</string>
+    <string name="feed_subscription_shorts_line">صف من Shorts لاشتراكاتك في الصفحة الرئيسية والاشتراكات، حتى مع إيقاف تبويب Shorts</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">كتم هذه القناة</string>
+    <string name="feed_muted">تم كتم %1$s</string>
+    <string name="feed_filtered_out_title">تمت تصفية كل شيء هنا</string>
+    <string name="feed_filtered_out_body">فلاترك تخفي جميع الفيديوهات المحمّلة حتى الآن.</string>
+    <string name="feed_edit_filters">تعديل الفلاتر</string>
+    <string name="feed_load_more">تحميل المزيد</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">الكل</string>
+    <string name="feed_group_add">مجموعة</string>
+    <string name="feed_group_new">مجموعة جديدة</string>
+    <string name="feed_group_edit">تعديل المجموعة</string>
+    <string name="feed_group_name_hint">اسم المجموعة</string>
+    <string name="feed_group_search_hint">ابحث عن قناة</string>
+    <plurals name="feed_group_picked">
+        <item quantity="zero">%1$s قناة</item>
+        <item quantity="one">%1$s قناة</item>
+        <item quantity="two">%1$s قناة</item>
+        <item quantity="few">%1$s قنوات</item>
+        <item quantity="many">%1$s قناة</item>
+        <item quantity="other">%1$s قناة</item>
+    </plurals>
+    <string name="feed_group_no_channels">ستظهر اشتراكاتك هنا بمجرد تحميلها.</string>
+    <string name="feed_group_delete">حذف</string>
+    <string name="feed_group_save">حفظ</string>
+    <string name="feed_unwatched_only">غير المشاهدة فقط</string>
+    <string name="feed_group_empty_title">لا جديد في %1$s</string>
+    <string name="feed_group_empty_body">لا شيء من هذه القنوات في الفيديوهات المحمّلة حتى الآن.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">أي مدة</string>
+    <string name="feed_wl_under10">أقل من 10 د</string>
+    <string name="feed_wl_10to30">10–30 د</string>
+    <string name="feed_wl_over30">أكثر من 30 د</string>
+    <string name="feed_hide_watched_chip">إخفاء المشاهدة</string>
+    <string name="feed_pick_one">اختر واحدًا لي</string>
+    <plurals name="feed_count">
+        <item quantity="zero">%1$s فيديو</item>
+        <item quantity="one">%1$s فيديو</item>
+        <item quantity="two">%1$s فيديو</item>
+        <item quantity="few">%1$s فيديوهات</item>
+        <item quantity="many">%1$s فيديو</item>
+        <item quantity="other">%1$s فيديو</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="zero">%1$s حتى الآن…</item>
+        <item quantity="one">%1$s حتى الآن…</item>
+        <item quantity="two">%1$s حتى الآن…</item>
+        <item quantity="few">%1$s حتى الآن…</item>
+        <item quantity="many">%1$s حتى الآن…</item>
+        <item quantity="other">%1$s حتى الآن…</item>
+    </plurals>
+    <string name="feed_none_match">لا شيء في هذه القائمة يطابق هذه الاختيارات.</string>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Semua</string>
+    <string name="search_type_videos">Video</string>
+    <string name="search_type_channels">Channel</string>
+    <string name="search_type_playlists">Playlist</string>
+    <string name="search_filters">Filter</string>
+    <string name="search_date">Tanggal upload</string>
+    <string name="search_date_any">Kapan saja</string>
+    <string name="search_date_today">Hari ini</string>
+    <string name="search_date_week">Minggu ini</string>
+    <string name="search_date_month">Bulan ini</string>
+    <string name="search_date_year">Tahun ini</string>
+    <string name="search_length">Durasi</string>
+    <string name="search_length_any">Durasi apa pun</string>
+    <string name="search_length_short">Di bawah 3 mnt</string>
+    <string name="search_length_medium">3–20 mnt</string>
+    <string name="search_length_long">Di atas 20 mnt</string>
+    <string name="search_sort">Urutan</string>
+    <string name="search_sort_relevance">Relevansi</string>
+    <string name="search_sort_popularity">Popularitas</string>
+    <string name="search_reset">Reset</string>
+    <string name="search_apply">Tampilkan hasil</string>
+    <string name="search_videos_only_note">Tanggal upload, durasi, dan urutan berlaku untuk video.</string>
+    <string name="search_channel">Channel</string>
+    <string name="search_playlist">Playlist</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Isi “%1$s”</string>
+    <string name="search_more_failed">Tidak dapat memuat hasil lainnya</string>
+    <string name="search_clear_filters">Hapus filter</string>
+    <string name="search_no_match_filtered">Tidak ada yang cocok dengan “%1$s” dengan filter ini.</string>
+    <string name="search_remove_filter">Hapus %1$s</string>
+</resources>

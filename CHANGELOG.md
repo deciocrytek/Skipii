@@ -10,6 +10,21 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- **Downloads.** Keep a video, or just its sound, on your phone and watch it with no connection, captions and SponsorBlock skips included. Tap **Download** under the player (or long-press any video) and pick a quality; the sheet shows each size. Find them under **Library › Downloads**, swipe one away to delete it (with Undo). In **Settings › Downloads** you can have your queue and the first five of Watch later download by themselves, keep those to a space limit, delete them once watched, and download only on Wi-Fi. Downloaded videos play from the phone even when you're online, so they start instantly and use no data.
+- **Better search.** Suggestions as you type, a channel you follow at the top when its name matches, and **All / Videos / Channels / Playlists** chips. **Filters** narrows by upload date and length and can sort by popularity; the filters you've set show as chips you can remove one by one.
+- **Feed filters** for Home and Subscriptions: hide videos you've watched, hide short ones, mute words, and mute channels (long-press a video › Mute this channel, with Undo).
+- **Subscription groups.** Make groups of channels ("Music", "Tech"…) and switch between them with chips at the top of Subscriptions; an **Unwatched only** chip shows only what you haven't seen. Shorts from your subscriptions can show in a row there too (#96).
+- **Watch later** gets length chips (under 10 min, 10–30, over 30), a Hide watched chip and a **Pick one for me** button.
+- **Sort comments** by Top or Newest. Double-tap a comment to like it (signed in).
+- **Fullscreen, tidier:** speed, quality, captions and audio language now sit behind one gear button (a dot shows when one isn't at its default). Swipe up in the middle of the video for a drawer with your queue and more videos, without leaving fullscreen; tap to play, long-press to queue.
+- **Home screen widgets:** the **Skipii player** (what's playing, progress with SponsorBlock marks, −10 · play · +10, and Continue watching), **Up next**, and a **Search** shortcut. They take your wallpaper's colours.
+
+
+### Improved
+- **Shorts from your subscriptions** now show on Home too (above your recommendations) when that switch is on in Your feed.
+- The **Your feed** button on Home and Subscriptions stays plain instead of turning coloured while a filter is on.
+
 ## 0.5.129
 
 ### New

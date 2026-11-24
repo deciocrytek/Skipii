@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">Tải xuống</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Đang tải xuống để xem ngoại tuyến</string>
+    <string name="dl_title">Tải xuống</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">Tải xuống</string>
+    <string name="dl_action_waiting">Đang chờ</string>
+    <string name="dl_action_done">Đã tải xuống</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">Tải xuống</string>
+    <string name="dl_sheet_line">Phát không cần kết nối, kèm phụ đề</string>
+    <string name="dl_video">Video</string>
+    <string name="dl_sound_only">Chỉ tiếng</string>
+    <string name="dl_audio_only">Chỉ âm thanh</string>
+    <string name="dl_audio_only_line">Cho podcast và nhạc</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Khoảng %1$s</string>
+    <string name="dl_button_wifi">Tải xuống qua Wi-Fi</string>
+    <string name="dl_sheet_loading">Đang kiểm tra dung lượng…</string>
+    <string name="dl_sheet_unavailable">Hiện không thể tải xuống video này.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Đang chờ Wi-Fi</string>
+    <string name="dl_waiting_room">Đang chờ dung lượng trống</string>
+    <string name="dl_downloading">Đang tải xuống %1$s%%</string>
+    <string name="dl_failed">Không thể tải xuống · chạm để thử lại</string>
+    <string name="dl_queued">Trong hàng đợi</string>
+    <string name="dl_ready">Sẵn sàng</string>
+    <string name="dl_offline">Ngoại tuyến</string>
+    <string name="dl_audio">Âm thanh</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s trên điện thoại này</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Tự động: %1$s / %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <string name="dl_filter_all">Tất cả</string>
+    <string name="dl_filter_video">Video</string>
+    <string name="dl_filter_audio">Chỉ âm thanh</string>
+    <string name="dl_filter_auto">Tự động</string>
+    <string name="dl_empty_title">Chưa có nội dung tải xuống</string>
+    <string name="dl_empty_body">Tải xuống một video từ trình phát để xem không cần kết nối, hoặc để hàng đợi tự tải xuống qua Wi-Fi.</string>
+    <string name="dl_empty_filtered">Không có gì ở đây với bộ lọc này.</string>
+    <string name="dl_settings">Cài đặt tải xuống</string>
+    <string name="dl_delete">Xóa bản tải xuống</string>
+    <string name="dl_cancel">Hủy tải xuống</string>
+    <string name="dl_deleted">Đã xóa bản tải xuống</string>
+    <string name="dl_started">Đang tải xuống</string>
+    <string name="dl_started_wifi">Tải xuống qua Wi-Fi</string>
+    <string name="dl_open">Mở Tải xuống</string>
+    <string name="dl_library_line">Xem không cần kết nối</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">Tải xuống</string>
+    <string name="dl_set_manage">Quản lý tải xuống</string>
+    <string name="dl_set_automatic">Tự động</string>
+    <string name="dl_set_queue">Tải xuống hàng đợi của tôi</string>
+    <string name="dl_set_queue_line">Mọi video bạn thêm vào hàng đợi sẽ tự tải xuống để phát ngay và xem không cần kết nối</string>
+    <string name="dl_set_wl">%1$s video đầu tiên trong Xem sau</string>
+    <string name="dl_set_wl_line">Luôn cập nhật khi danh sách của bạn thay đổi</string>
+    <string name="dl_set_wl_signed_out">Đăng nhập để tải xuống từ Xem sau</string>
+    <string name="dl_set_delete">Xóa sau khi xem</string>
+    <string name="dl_set_delete_line">Bản tải xuống tự động sẽ bị xóa sau khi bạn xem xong</string>
+    <string name="dl_set_limits">Giới hạn</string>
+    <string name="dl_set_network">Tải xuống qua</string>
+    <string name="dl_wifi_only">Chỉ Wi-Fi</string>
+    <string name="dl_any_network">Mọi mạng</string>
+    <string name="dl_set_space">Dung lượng cho tải xuống tự động</string>
+    <string name="dl_set_space_line">Khi đầy, bản tải xuống tự động sẽ chờ. Video bạn tự tải sẽ không bao giờ bị xóa để lấy chỗ.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Chất lượng tải xuống tự động</string>
+    <string name="dl_note">Video bạn tự tải xuống sẽ ở lại cho đến khi bạn xóa.</string>
+    <string name="dl_summary_used">Đã dùng %1$s</string>
+    <string name="dl_summary_queue">Hàng đợi tự tải xuống</string>
+    <string name="dl_summary_none">Chưa tải xuống gì</string>
+</resources>

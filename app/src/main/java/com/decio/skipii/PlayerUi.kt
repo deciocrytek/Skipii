@@ -43,6 +43,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material.icons.rounded.DownloadDone
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.rounded.Close
@@ -531,12 +534,12 @@ private fun MoreVideosColumn(state: PlayerState, onOpen: (VideoItem) -> Unit, co
 
 /** A filter above a list: full primary when picked, a quiet tone otherwise (no outline, no ripple). */
 @Composable
-internal fun FilterPill(text: String, selected: Boolean, onClick: () -> Unit) {
+internal fun FilterPill(text: String, selected: Boolean, onLongClick: (() -> Unit)? = null, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
     val bg by animateColorAsState(if (selected) c.primary else c.surfaceContainerHigh, label = "filterPill")
     val ink by animateColorAsState(if (selected) c.onPrimary else c.onSurfaceVariant, label = "filterInk")
     Box(
-        Modifier.height(36.dp).pressable(onClick = onClick).clip(RoundedCornerShape(18.dp)).background(bg).padding(horizontal = 15.dp),
+        Modifier.height(36.dp).pressable(onLongClick = onLongClick, onClick = onClick).clip(RoundedCornerShape(18.dp)).background(bg).padding(horizontal = 15.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(text, color = ink, fontSize = 13.5.sp, fontWeight = FontWeight.Bold, maxLines = 1)
@@ -630,7 +633,7 @@ private fun VideoStage(state: PlayerState, morph: PlayerMorph, fold: Animatable<
             state = rememberDraggableState { delta ->
                 if (!decided) {
                     decided = true
-                    pulling = delta < 0f && state.expanded && !state.fullscreen && !AudioOnly.enabled && morph.progress.value >= 0.999f
+                    pulling = delta < 0f && state.expanded && !state.fullscreen && !AudioOnly.enabled && !state.audioOnlyDownload && morph.progress.value >= 0.999f
                 }
                 if (pulling) scope.launch(start = CoroutineStart.UNDISPATCHED) { pullUp.snapTo((pullUp.value - delta).coerceAtLeast(0f)) }
                 else morph.dragBy(delta)
@@ -744,6 +747,8 @@ private fun PlayerActions(state: PlayerState) {
         if (state.accountState != null) AccountActions(state)
         val context = LocalContext.current
         val item = state.current
+        // Downloads (0.6.0): after Playlist, before Share (Neon's spec).
+        item?.let { video -> DownloadPill(video) { state.downloadTarget = state.details?.item ?: video } }
         ActionPill(
             icon = Icons.Rounded.Share,
             label = stringResource(R.string.player_share),
@@ -845,6 +850,48 @@ private fun ActionPill(
             Spacer(Modifier.width(7.dp))
             RollingText(label, tint, up = labelRollsUp)
         }
+    }
+}
+
+/**
+ * The action row's Download (0.6.0): idle = Download; queued for Wi-Fi = Waiting; downloading = the pill fills
+ * primary from the left with the percentage; downloaded = full primary, squished in. Taps open the Download sheet.
+ */
+@Composable
+private fun DownloadPill(video: VideoItem, onClick: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val e = Downloads.entry(video.id)
+    val ready = e?.ready == true
+    val busy = e != null && !ready && e.status != Downloads.Status.Failed
+    val waiting = busy && Downloads.waitingForWifi
+    val progress by androidx.compose.animation.core.animateFloatAsState(if (busy && !waiting) e!!.progress else 0f, tween(240, easing = Motion.Emphasized), label = "dlPill")
+    val bg by androidx.compose.animation.animateColorAsState(if (ready) c.primary else c.surfaceContainerHigh, tween(220), label = "dlBg")
+    val tint by androidx.compose.animation.animateColorAsState(if (ready) c.onPrimary else c.onSurface, tween(220), label = "dlInk")
+    val label = when {
+        ready -> stringResource(R.string.dl_action_done)
+        waiting -> stringResource(R.string.dl_action_waiting)
+        busy -> stringResource(R.string.dl_percent, (e!!.progress * 100).toInt().toString())
+        else -> stringResource(R.string.dl_action)
+    }
+    val shape = RoundedCornerShape(22.dp)
+    Row(
+        modifier = Modifier
+            .squishOn(ready)
+            .height(44.dp)
+            .pressable(onClick = onClick)
+            .clip(shape)
+            .background(bg)
+            .drawBehind { if (progress > 0f) drawRect(c.primary.copy(alpha = 0.28f), size = androidx.compose.ui.geometry.Size(size.width * progress, size.height)) }
+            .animateContentSize(spring(dampingRatio = 0.7f, stiffness = 500f))
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            when { ready -> Icons.Rounded.DownloadDone; waiting -> Icons.Rounded.Wifi; else -> Icons.Rounded.Download },
+            stringResource(R.string.dl_action), tint = tint, modifier = Modifier.size(20.dp),
+        )
+        Spacer(Modifier.width(7.dp))
+        Text(label, color = tint, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
     }
 }
 

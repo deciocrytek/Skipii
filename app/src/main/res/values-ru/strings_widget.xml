@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Плеер Skipii</string>
+    <string name="widget_player_desc">Текущее воспроизведение с управлением и что досмотреть</string>
+    <string name="widget_upnext_name">Далее</string>
+    <string name="widget_upnext_desc">Следующее видео в вашей очереди</string>
+    <string name="widget_search_name">Поиск в Skipii</string>
+    <string name="widget_search_desc">Открывает поиск в Skipii</string>
+    <string name="widget_playing">Skipii · Воспроизведение</string>
+    <string name="widget_paused">Skipii · Пауза</string>
+    <string name="widget_continue">Продолжить просмотр</string>
+    <string name="widget_nothing">Ничего не воспроизводится</string>
+    <string name="widget_queue_empty">Ваша очередь пуста</string>
+    <string name="widget_back">Назад</string>
+    <string name="widget_forward">Вперёд</string>
+</resources>

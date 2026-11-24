@@ -124,4 +124,8 @@
     <string name="captions_word_by_word_title">По словам</string>
     <string name="captions_word_by_word_line">Автосубтитры появляются по мере произнесения слов, как в приложении YouTube</string>
     <string name="captions_size_huger">Гигантский</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Популярные</string>
+    <string name="comments_sort_newest">Сначала новые</string>
+    <string name="comments_sort_failed">Не удалось изменить порядок</string>
 </resources>

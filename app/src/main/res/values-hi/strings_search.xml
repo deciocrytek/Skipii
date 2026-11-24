@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">सभी</string>
+    <string name="search_type_videos">वीडियो</string>
+    <string name="search_type_channels">चैनल</string>
+    <string name="search_type_playlists">प्लेलिस्ट</string>
+    <string name="search_filters">फ़िल्टर</string>
+    <string name="search_date">अपलोड की तारीख</string>
+    <string name="search_date_any">कभी भी</string>
+    <string name="search_date_today">आज</string>
+    <string name="search_date_week">इस सप्ताह</string>
+    <string name="search_date_month">इस महीने</string>
+    <string name="search_date_year">इस साल</string>
+    <string name="search_length">लंबाई</string>
+    <string name="search_length_any">कोई भी लंबाई</string>
+    <string name="search_length_short">3 मिनट से कम</string>
+    <string name="search_length_medium">3–20 मिनट</string>
+    <string name="search_length_long">20 मिनट से ज़्यादा</string>
+    <string name="search_sort">क्रम</string>
+    <string name="search_sort_relevance">प्रासंगिकता</string>
+    <string name="search_sort_popularity">लोकप्रियता</string>
+    <string name="search_reset">रीसेट करें</string>
+    <string name="search_apply">नतीजे दिखाएं</string>
+    <string name="search_videos_only_note">अपलोड की तारीख, लंबाई और क्रम वीडियो पर लागू होते हैं.</string>
+    <string name="search_channel">चैनल</string>
+    <string name="search_playlist">प्लेलिस्ट</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">“%1$s” भरें</string>
+    <string name="search_more_failed">और नतीजे लोड नहीं हो सके</string>
+    <string name="search_clear_filters">फ़िल्टर साफ़ करें</string>
+    <string name="search_no_match_filtered">इन फ़िल्टर के साथ “%1$s” से कुछ मेल नहीं खाता.</string>
+    <string name="search_remove_filter">%1$s हटाएं</string>
+</resources>

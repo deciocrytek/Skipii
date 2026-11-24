@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">すべて</string>
+    <string name="search_type_videos">動画</string>
+    <string name="search_type_channels">チャンネル</string>
+    <string name="search_type_playlists">再生リスト</string>
+    <string name="search_filters">フィルター</string>
+    <string name="search_date">アップロード日</string>
+    <string name="search_date_any">指定なし</string>
+    <string name="search_date_today">今日</string>
+    <string name="search_date_week">今週</string>
+    <string name="search_date_month">今月</string>
+    <string name="search_date_year">今年</string>
+    <string name="search_length">長さ</string>
+    <string name="search_length_any">長さ指定なし</string>
+    <string name="search_length_short">3 分未満</string>
+    <string name="search_length_medium">3–20 分</string>
+    <string name="search_length_long">20 分以上</string>
+    <string name="search_sort">並び順</string>
+    <string name="search_sort_relevance">関連度</string>
+    <string name="search_sort_popularity">人気順</string>
+    <string name="search_reset">リセット</string>
+    <string name="search_apply">結果を表示</string>
+    <string name="search_videos_only_note">アップロード日、長さ、並び順は動画に適用されます。</string>
+    <string name="search_channel">チャンネル</string>
+    <string name="search_playlist">再生リスト</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">“%1$s” を入力</string>
+    <string name="search_more_failed">続きを読み込めませんでした</string>
+    <string name="search_clear_filters">フィルターをクリア</string>
+    <string name="search_no_match_filtered">これらのフィルターでは “%1$s” に一致する結果がありません。</string>
+    <string name="search_remove_filter">%1$s を削除</string>
+</resources>

@@ -79,4 +79,11 @@
     <string name="video_open_in_youtube">YouTube में खोलें</string>
     <string name="video_lock">कंट्रोल लॉक करें</string>
     <string name="video_hold_to_unlock">अनलॉक करने के लिए दबाकर रखें</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">सेटिंग</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">सूची</string>
+    <string name="video_drawer_empty">यहां अभी कोई वीडियो नहीं है</string>
+    <string name="video_drawer_offline">और वीडियो के लिए कनेक्शन चाहिए</string>
+    <string name="video_drawer_close">बंद करें</string>
 </resources>

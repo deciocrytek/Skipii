@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Skipii oynatıcı</string>
+    <string name="widget_player_desc">Oynatılan içerik, kontrolleri ve devam edilecekler</string>
+    <string name="widget_upnext_name">Sıradaki</string>
+    <string name="widget_upnext_desc">Sıranızdaki bir sonraki video</string>
+    <string name="widget_search_name">Skipii\'de ara</string>
+    <string name="widget_search_desc">Skipii aramasını açar</string>
+    <string name="widget_playing">Skipii · Oynatılıyor</string>
+    <string name="widget_paused">Skipii · Duraklatıldı</string>
+    <string name="widget_continue">İzlemeye devam et</string>
+    <string name="widget_nothing">Oynatılan yok</string>
+    <string name="widget_queue_empty">Sıranız boş</string>
+    <string name="widget_back">Geri</string>
+    <string name="widget_forward">İleri</string>
+</resources>

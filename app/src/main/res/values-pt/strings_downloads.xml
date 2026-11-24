@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">Downloads</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Baixando para ver offline</string>
+    <string name="dl_title">Downloads</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">Baixar</string>
+    <string name="dl_action_waiting">Aguardando</string>
+    <string name="dl_action_done">Baixado</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">Baixar</string>
+    <string name="dl_sheet_line">Reproduz sem conexão, com legendas incluídas</string>
+    <string name="dl_video">Vídeo</string>
+    <string name="dl_sound_only">Somente som</string>
+    <string name="dl_audio_only">Somente áudio</string>
+    <string name="dl_audio_only_line">Para podcasts e música</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Cerca de %1$s</string>
+    <string name="dl_button_wifi">Baixar no Wi-Fi</string>
+    <string name="dl_sheet_loading">Verificando tamanhos…</string>
+    <string name="dl_sheet_unavailable">Este vídeo não pode ser baixado agora.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Aguardando Wi-Fi</string>
+    <string name="dl_waiting_room">Aguardando espaço</string>
+    <string name="dl_downloading">Baixando %1$s%%</string>
+    <string name="dl_failed">Não foi possível baixar · toque para tentar de novo</string>
+    <string name="dl_queued">Na fila</string>
+    <string name="dl_ready">Pronto</string>
+    <string name="dl_offline">Offline</string>
+    <string name="dl_audio">Áudio</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s neste telefone</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Automáticos: %1$s de %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s vídeo</item>
+        <item quantity="other">%1$s vídeos</item>
+    </plurals>
+    <string name="dl_filter_all">Todos</string>
+    <string name="dl_filter_video">Vídeo</string>
+    <string name="dl_filter_audio">Somente áudio</string>
+    <string name="dl_filter_auto">Automáticos</string>
+    <string name="dl_empty_title">Nada baixado ainda</string>
+    <string name="dl_empty_body">Baixe um vídeo pelo player para assistir sem conexão, ou deixe sua fila baixar sozinha no Wi-Fi.</string>
+    <string name="dl_empty_filtered">Nada aqui com este filtro.</string>
+    <string name="dl_settings">Configurações de downloads</string>
+    <string name="dl_delete">Excluir download</string>
+    <string name="dl_cancel">Cancelar download</string>
+    <string name="dl_deleted">Download excluído</string>
+    <string name="dl_started">Baixando</string>
+    <string name="dl_started_wifi">Baixa no Wi-Fi</string>
+    <string name="dl_open">Abrir Downloads</string>
+    <string name="dl_library_line">Assistir sem conexão</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">Downloads</string>
+    <string name="dl_set_manage">Gerenciar downloads</string>
+    <string name="dl_set_automatic">Automáticos</string>
+    <string name="dl_set_queue">Baixar minha fila</string>
+    <string name="dl_set_queue_line">Tudo o que você coloca na fila baixa sozinho, para começar na hora e tocar sem conexão</string>
+    <string name="dl_set_wl">Primeiros %1$s vídeos em Assistir mais tarde</string>
+    <string name="dl_set_wl_line">Mantido atualizado conforme sua lista muda</string>
+    <string name="dl_set_wl_signed_out">Faça login para baixar de Assistir mais tarde</string>
+    <string name="dl_set_delete">Excluir depois de assistir</string>
+    <string name="dl_set_delete_line">Downloads automáticos somem depois que você assiste</string>
+    <string name="dl_set_limits">Limites</string>
+    <string name="dl_set_network">Baixar em</string>
+    <string name="dl_wifi_only">Somente Wi-Fi</string>
+    <string name="dl_any_network">Qualquer rede</string>
+    <string name="dl_set_space">Espaço para downloads automáticos</string>
+    <string name="dl_set_space_line">Quando enche, os downloads automáticos aguardam. Os seus nunca são excluídos por espaço.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Qualidade para downloads automáticos</string>
+    <string name="dl_note">Vídeos que você mesmo baixa ficam até você excluir.</string>
+    <string name="dl_summary_used">%1$s usados</string>
+    <string name="dl_summary_queue">A fila baixa sozinha</string>
+    <string name="dl_summary_none">Nada baixado</string>
+</resources>

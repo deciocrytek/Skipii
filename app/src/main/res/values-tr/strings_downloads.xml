@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">İndirilenler</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Çevrimdışı için indiriliyor</string>
+    <string name="dl_title">İndirilenler</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">İndir</string>
+    <string name="dl_action_waiting">Bekliyor</string>
+    <string name="dl_action_done">İndirildi</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%%%1$s</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">İndir</string>
+    <string name="dl_sheet_line">Bağlantı olmadan oynatılır, altyazılar dahil</string>
+    <string name="dl_video">Video</string>
+    <string name="dl_sound_only">Yalnızca ses</string>
+    <string name="dl_audio_only">Yalnızca ses</string>
+    <string name="dl_audio_only_line">Podcast\'ler ve müzik için</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Yaklaşık %1$s</string>
+    <string name="dl_button_wifi">Wi-Fi ile indir</string>
+    <string name="dl_sheet_loading">Boyutlar kontrol ediliyor…</string>
+    <string name="dl_sheet_unavailable">Bu video şu anda indirilemiyor.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Wi-Fi bekleniyor</string>
+    <string name="dl_waiting_room">Alan bekleniyor</string>
+    <string name="dl_downloading">İndiriliyor %%%1$s</string>
+    <string name="dl_failed">İndirilemedi · tekrar denemek için dokun</string>
+    <string name="dl_queued">Sırada</string>
+    <string name="dl_ready">Hazır</string>
+    <string name="dl_offline">Çevrimdışı</string>
+    <string name="dl_audio">Ses</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">Bu telefonda %1$s</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Otomatik: %1$s / %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <string name="dl_filter_all">Tümü</string>
+    <string name="dl_filter_video">Video</string>
+    <string name="dl_filter_audio">Yalnızca ses</string>
+    <string name="dl_filter_auto">Otomatik</string>
+    <string name="dl_empty_title">Henüz indirilen yok</string>
+    <string name="dl_empty_body">Bağlantı olmadan izlemek için oynatıcıdan bir video indirin veya sıranızın Wi-Fi\'da kendiliğinden inmesine izin verin.</string>
+    <string name="dl_empty_filtered">Bu filtreyle eşleşen bir şey yok.</string>
+    <string name="dl_settings">İndirme ayarları</string>
+    <string name="dl_delete">İndirmeyi sil</string>
+    <string name="dl_cancel">İndirmeyi iptal et</string>
+    <string name="dl_deleted">İndirme silindi</string>
+    <string name="dl_started">İndiriliyor</string>
+    <string name="dl_started_wifi">Wi-Fi\'da indirilir</string>
+    <string name="dl_open">İndirilenleri aç</string>
+    <string name="dl_library_line">Bağlantı olmadan izle</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">İndirilenler</string>
+    <string name="dl_set_manage">İndirilenleri yönet</string>
+    <string name="dl_set_automatic">Otomatik</string>
+    <string name="dl_set_queue">Sıramı indir</string>
+    <string name="dl_set_queue_line">Sıraya eklediğiniz her şey kendiliğinden iner; hemen başlar ve bağlantı olmadan oynatılır</string>
+    <string name="dl_set_wl">Daha sonra izle listesinin ilk %1$s videosu</string>
+    <string name="dl_set_wl_line">Listeniz değiştikçe güncel tutulur</string>
+    <string name="dl_set_wl_signed_out">Daha sonra izle\'den indirmek için oturum açın</string>
+    <string name="dl_set_delete">İzledikten sonra sil</string>
+    <string name="dl_set_delete_line">Otomatik indirilenler izlendikten sonra silinir</string>
+    <string name="dl_set_limits">Sınırlar</string>
+    <string name="dl_set_network">İndirme ağı</string>
+    <string name="dl_wifi_only">Yalnızca Wi-Fi</string>
+    <string name="dl_any_network">Herhangi bir ağ</string>
+    <string name="dl_set_space">Otomatik indirmeler için alan</string>
+    <string name="dl_set_space_line">Dolduğunda otomatik indirmeler bekler. Kendi indirdikleriniz yer açmak için asla silinmez.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Otomatik indirme kalitesi</string>
+    <string name="dl_note">Kendi indirdiğiniz videolar siz silene kadar kalır.</string>
+    <string name="dl_summary_used">%1$s kullanılıyor</string>
+    <string name="dl_summary_queue">Sıra kendiliğinden iner</string>
+    <string name="dl_summary_none">İndirilen yok</string>
+</resources>

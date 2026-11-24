@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">आपका फ़ीड</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">फ़ीड फ़िल्टर</string>
+    <plurals name="feed_hiding">
+        <item quantity="one">अभी %1$s वीडियो छिपा है</item>
+        <item quantity="other">अभी %1$s वीडियो छिपे हैं</item>
+    </plurals>
+    <string name="feed_hiding_none">अभी कुछ नहीं छिपा है</string>
+    <string name="feed_hide_watched">देखे हुए वीडियो छिपाएं</string>
+    <string name="feed_hide_watched_line">Skipii में अंत तक या लगभग अंत तक देखे गए</string>
+    <string name="feed_shorter_than">इससे छोटे वीडियो छिपाएं</string>
+    <string name="feed_off">बंद</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s मिनट</string>
+    <string name="feed_muted_words">म्यूट किए गए शब्द</string>
+    <string name="feed_add">जोड़ें</string>
+    <string name="feed_word_hint">कोई शब्द या वाक्यांश</string>
+    <string name="feed_add_word">शब्द जोड़ें</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">%1$s को अनम्यूट करें</string>
+    <string name="feed_muted_channels">म्यूट किए गए चैनल</string>
+    <string name="feed_muted_channels_none">किसी चैनल को म्यूट करने के लिए उसके वीडियो को दबाकर रखें</string>
+    <string name="feed_subscription_shorts">सदस्यताओं के Shorts</string>
+    <string name="feed_subscription_shorts_line">होम और सदस्यताएं पर आपकी सदस्यताओं के Shorts की एक पंक्ति, भले ही Shorts टैब बंद हो</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">इस चैनल को म्यूट करें</string>
+    <string name="feed_muted">%1$s म्यूट हो गया</string>
+    <string name="feed_filtered_out_title">यहां सब कुछ फ़िल्टर हो गया है</string>
+    <string name="feed_filtered_out_body">आपके फ़िल्टर अब तक लोड हुए सभी वीडियो छिपा रहे हैं.</string>
+    <string name="feed_edit_filters">फ़िल्टर बदलें</string>
+    <string name="feed_load_more">और लोड करें</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">सभी</string>
+    <string name="feed_group_add">समूह</string>
+    <string name="feed_group_new">नया समूह</string>
+    <string name="feed_group_edit">समूह बदलें</string>
+    <string name="feed_group_name_hint">समूह का नाम</string>
+    <string name="feed_group_search_hint">चैनल खोजें</string>
+    <plurals name="feed_group_picked">
+        <item quantity="one">%1$s चैनल</item>
+        <item quantity="other">%1$s चैनल</item>
+    </plurals>
+    <string name="feed_group_no_channels">लोड होने के बाद आपकी सदस्यताएं यहां दिखेंगी.</string>
+    <string name="feed_group_delete">हटाएं</string>
+    <string name="feed_group_save">सेव करें</string>
+    <string name="feed_unwatched_only">सिर्फ़ न देखे गए</string>
+    <string name="feed_group_empty_title">%1$s में कुछ नया नहीं</string>
+    <string name="feed_group_empty_body">अब तक लोड हुए वीडियो में इन चैनलों से कुछ नहीं है.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">कोई भी लंबाई</string>
+    <string name="feed_wl_under10">10 मिनट से कम</string>
+    <string name="feed_wl_10to30">10–30 मिनट</string>
+    <string name="feed_wl_over30">30 मिनट से ज़्यादा</string>
+    <string name="feed_hide_watched_chip">देखे हुए छिपाएं</string>
+    <string name="feed_pick_one">मेरे लिए एक चुनें</string>
+    <plurals name="feed_count">
+        <item quantity="one">%1$s वीडियो</item>
+        <item quantity="other">%1$s वीडियो</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="one">अब तक %1$s…</item>
+        <item quantity="other">अब तक %1$s…</item>
+    </plurals>
+    <string name="feed_none_match">इस सूची में इन विकल्पों से कुछ मेल नहीं खाता.</string>
+</resources>

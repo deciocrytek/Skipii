@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Trình phát Skipii</string>
+    <string name="widget_player_desc">Nội dung đang phát cùng nút điều khiển và phần xem tiếp</string>
+    <string name="widget_upnext_name">Tiếp theo</string>
+    <string name="widget_upnext_desc">Video tiếp theo trong hàng đợi của bạn</string>
+    <string name="widget_search_name">Tìm kiếm Skipii</string>
+    <string name="widget_search_desc">Mở tìm kiếm của Skipii</string>
+    <string name="widget_playing">Skipii · Đang phát</string>
+    <string name="widget_paused">Skipii · Tạm dừng</string>
+    <string name="widget_continue">Tiếp tục xem</string>
+    <string name="widget_nothing">Không có gì đang phát</string>
+    <string name="widget_queue_empty">Hàng đợi của bạn trống</string>
+    <string name="widget_back">Tua lại</string>
+    <string name="widget_forward">Tua tới</string>
+</resources>

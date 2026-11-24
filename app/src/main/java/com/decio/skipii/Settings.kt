@@ -64,6 +64,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
+import androidx.compose.material.icons.rounded.WatchLater
+import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material.icons.rounded.HighQuality
+import androidx.compose.material.icons.rounded.AutoDelete
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.DownloadDone
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
@@ -185,6 +193,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
  */
 enum class SettingsPage(@StringRes val titleRes: Int, val icon: ImageVector) {
     Playback(R.string.settings_playback, Icons.Rounded.PlayCircle),
+    Downloads(R.string.settings_downloads, Icons.Rounded.Download),
     Captions(R.string.settings_captions_dubbing, Icons.Rounded.ClosedCaption),
     SponsorBlock(R.string.settings_sponsorblock, Icons.Rounded.FastForward),
     Shorts(R.string.ui_shorts, Icons.Rounded.SlowMotionVideo),
@@ -221,14 +230,18 @@ fun SettingsScreen(
     onSignIn: () -> Unit,
     onSignedOut: () -> Unit,
     wide: Boolean = false,
+    /** Open on this category (Downloads' gear); null = the front page. */
+    startPage: SettingsPage? = null,
+    /** Settings › Downloads › Manage downloads. */
+    onOpenDownloads: () -> Unit = {},
 ) {
     val c = MaterialTheme.colorScheme
     val reduced = rememberReducedMotion()
     // Saveable: picking a language rebuilds the window, which reopens here on Language.
     // Opened wide, the panel's first category counts as open, so a window that narrows stays on it.
-    var page by rememberSaveable { mutableStateOf(if (wide) SettingsPage.Playback else null) }
+    var page by rememberSaveable { mutableStateOf(startPage ?: if (wide) SettingsPage.Playback else null) }
     /** The category opened last this session: what the wide page's panel shows while [page] is null (back on the phone's front page). */
-    var last by rememberSaveable { mutableStateOf(SettingsPage.Playback) }
+    var last by rememberSaveable { mutableStateOf(startPage ?: SettingsPage.Playback) }
     var query by rememberSaveable { mutableStateOf("") }
     /** The setting a search result points at, lit once its category opens. */
     var target by remember { mutableStateOf<String?>(null) }
@@ -293,6 +306,7 @@ fun SettingsScreen(
             CompositionLocalProvider(LocalFind provides find) {
                 when (shown) {
                     SettingsPage.Playback -> PlaybackPage(player)
+                    SettingsPage.Downloads -> DownloadsPage(onOpenDownloads)
                     SettingsPage.Captions -> CaptionsPage(player)
                     SettingsPage.SponsorBlock -> SponsorBlockPage()
                     SettingsPage.Shorts -> ShortsPage()
@@ -586,7 +600,7 @@ private fun FrontPage(player: PlayerState, entered: Boolean, selected: SettingsP
     Box(Modifier.riseIn(entered, 3)) { QuickToggles(player) }
     Column(Modifier.riseIn(entered, 4)) {
         GroupLabel(stringResource(R.string.settings_group_watching))
-        CategoryTiles(listOf(SettingsPage.Playback, SettingsPage.Captions, SettingsPage.SponsorBlock, SettingsPage.Shorts), selected, onOpen)
+        CategoryTiles(listOf(SettingsPage.Playback, SettingsPage.Downloads, SettingsPage.Captions, SettingsPage.SponsorBlock, SettingsPage.Shorts), selected, onOpen)
     }
     Column(Modifier.riseIn(entered, 5)) {
         GroupLabel(stringResource(R.string.settings_group_look))
@@ -913,6 +927,10 @@ private fun summaryOf(page: SettingsPage): String = when (page) {
         if (FullscreenZoom.fill && !LocalWindowLayout.current.tv) stringResource(R.string.settings_zoom_fill_summary) else null,
         if (AudioOnly.enabled) stringResource(R.string.bar_audio_only) else null,
     ).joinDots()
+    SettingsPage.Downloads -> listOfNotNull(
+        Downloads.usedBytes.takeIf { it > 0 }?.let { stringResource(R.string.dl_summary_used, bytesLabel(it)) } ?: stringResource(R.string.dl_summary_none),
+        if (Downloads.autoQueue) stringResource(R.string.dl_summary_queue) else null,
+    ).joinDots()
     SettingsPage.Captions -> listOfNotNull(
         captionShowLabel(CaptionSettings.show),
         stringResource(CaptionSettings.look.labelRes),
@@ -1002,6 +1020,14 @@ private fun entries(): List<Entry> = buildList {
     add(Entry(pb, "audio", str(R.string.bar_audio_only), listOf(str(R.string.settings_audio_only_line))))
     add(Entry(pb, "background", str(R.string.settings_background_play_title), listOf(str(R.string.settings_background_play_on), str(R.string.settings_background_play_off))))
     add(Entry(pb, "live", str(R.string.settings_live_title), listOf(str(R.string.settings_live_line), str(R.string.settings_live_words))))
+    val dl = SettingsPage.Downloads
+    add(Entry(dl, "dl_manage", str(R.string.dl_set_manage), listOf(str(R.string.dl_title))))
+    add(Entry(dl, "dl_queue", str(R.string.dl_set_queue), listOf(str(R.string.dl_set_queue_line))))
+    add(Entry(dl, "dl_wl", str(R.string.dl_set_wl, Downloads.WatchLaterCount.toString()), listOf(str(R.string.ui_watch_later))))
+    add(Entry(dl, "dl_delete", str(R.string.dl_set_delete), listOf(str(R.string.dl_set_delete_line))))
+    add(Entry(dl, "dl_network", str(R.string.dl_set_network), listOf(str(R.string.dl_wifi_only), str(R.string.dl_any_network), "Wi-Fi")))
+    add(Entry(dl, "dl_space", str(R.string.dl_set_space), listOf(str(R.string.dl_set_space_line), "GB")))
+    add(Entry(dl, "dl_quality", str(R.string.dl_set_quality), listOf("1080p", "720p", "480p", str(R.string.dl_audio_only))))
     val cc = SettingsPage.Captions
     add(Entry(cc, "show", str(R.string.captions_show), listOf(str(R.string.captions_show_never), str(R.string.captions_show_always))))
     add(Entry(cc, "look", str(R.string.captions_look), CaptionSettings.Look.entries.map { str(it.labelRes) }))
@@ -1389,6 +1415,81 @@ private fun PlaybackPage(player: PlayerState) {
     Spacer(Modifier.height(14.dp))
     // Off screen.
     if (!tv) LiveActivitySetting(player)
+}
+
+/**
+ * Settings › Downloads (0.6.0; Derek: built like the rest of Settings). The space used and Manage downloads; what
+ * downloads by itself; the limits automatic downloads keep to.
+ */
+@Composable
+private fun DownloadsPage(onManage: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    val ready = Downloads.entries.values.count { it.ready }
+    Spacer(Modifier.height(14.dp))
+    Joined(2) { i, shape ->
+        if (i == 0) SettingBox("dl_storage", shape) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconSquare(Icons.Rounded.Storage)
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.dl_used, bytesLabel(Downloads.usedBytes)), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        stringResource(R.string.dl_auto_used, bytesLabel(Downloads.autoBytes), stringResource(R.string.dl_gb, Downloads.limitGb.toString())),
+                        color = c.onSurfaceVariant, fontSize = 13.sp, lineHeight = 18.sp,
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            val share by animateFloatAsState((Downloads.autoBytes.toFloat() / (Downloads.limitGb * 1_000_000_000L)).coerceIn(0f, 1f), tween(240), label = "dlShare")
+            Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(c.surfaceContainerHighest)) {
+                Box(Modifier.fillMaxWidth(share).height(8.dp).clip(CircleShape).background(c.primary))
+            }
+        } else LinkSetting(
+            "dl_manage", shape, Icons.Rounded.DownloadDone, stringResource(R.string.dl_set_manage),
+            if (ready > 0) pluralStringResource(R.plurals.dl_count, ready, ready.toString()) else stringResource(R.string.dl_summary_none),
+            onClick = onManage,
+        )
+    }
+    GroupLabel(stringResource(R.string.dl_set_automatic))
+    Joined(3) { i, shape ->
+        when (i) {
+            0 -> SwitchSetting(
+                "dl_queue", shape, stringResource(R.string.dl_set_queue), stringResource(R.string.dl_set_queue_line),
+                Downloads.autoQueue, icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
+            ) { Downloads.chooseAutoQueue(it) }
+            1 -> SwitchSetting(
+                "dl_wl", shape, stringResource(R.string.dl_set_wl, Downloads.WatchLaterCount.toString()),
+                stringResource(if (Account.signedIn) R.string.dl_set_wl_line else R.string.dl_set_wl_signed_out),
+                Downloads.autoWatchLater && Account.signedIn, icon = Icons.Rounded.WatchLater, enabled = Account.signedIn,
+            ) { Downloads.chooseAutoWatchLater(it) }
+            else -> SwitchSetting(
+                "dl_delete", shape, stringResource(R.string.dl_set_delete), stringResource(R.string.dl_set_delete_line),
+                Downloads.deleteWatched, icon = Icons.Rounded.AutoDelete,
+            ) { Downloads.chooseDeleteWatched(it) }
+        }
+    }
+    GroupLabel(stringResource(R.string.dl_set_limits))
+    Joined(3) { i, shape ->
+        when (i) {
+            0 -> ChipsSetting(
+                "dl_network", shape, stringResource(R.string.dl_set_network), null,
+                listOf(true to stringResource(R.string.dl_wifi_only), false to stringResource(R.string.dl_any_network)),
+                Downloads.wifiOnly, icon = Icons.Rounded.Wifi,
+            ) { Downloads.chooseWifiOnly(it) }
+            1 -> ChipsSetting(
+                "dl_space", shape, stringResource(R.string.dl_set_space), stringResource(R.string.dl_set_space_line),
+                Downloads.limitChoices.map { it to stringResource(R.string.dl_gb, it.toString()) },
+                Downloads.limitGb, icon = Icons.Rounded.Storage,
+            ) { Downloads.chooseLimitGb(it) }
+            else -> ChipsSetting(
+                "dl_quality", shape, stringResource(R.string.dl_set_quality), null,
+                Downloads.heightChoices.map { it to if (it == 0) stringResource(R.string.dl_audio_only) else "${it}p" },
+                Downloads.autoHeight, icon = Icons.Rounded.HighQuality,
+            ) { Downloads.chooseAutoHeight(it) }
+        }
+    }
+    Note(stringResource(R.string.dl_note))
 }
 
 /** Searchable picker for choosing a specific automatic dubbing language (Settings › Playback › Dub language). */

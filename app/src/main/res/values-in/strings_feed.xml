@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Feed Anda</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Filter feed</string>
+    <plurals name="feed_hiding">
+        <item quantity="other">Menyembunyikan %1$s video saat ini</item>
+    </plurals>
+    <string name="feed_hiding_none">Tidak ada yang disembunyikan saat ini</string>
+    <string name="feed_hide_watched">Sembunyikan video yang sudah ditonton</string>
+    <string name="feed_hide_watched_line">Ditonton sampai selesai di Skipii, atau hampir selesai</string>
+    <string name="feed_shorter_than">Sembunyikan video lebih pendek dari</string>
+    <string name="feed_off">Nonaktif</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s mnt</string>
+    <string name="feed_muted_words">Kata yang dibisukan</string>
+    <string name="feed_add">Tambah</string>
+    <string name="feed_word_hint">Kata atau frasa</string>
+    <string name="feed_add_word">Tambah kata</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">Batal bisukan %1$s</string>
+    <string name="feed_muted_channels">Channel yang dibisukan</string>
+    <string name="feed_muted_channels_none">Tekan lama video mana pun untuk membisukan channel-nya</string>
+    <string name="feed_subscription_shorts">Shorts dari langganan</string>
+    <string name="feed_subscription_shorts_line">Baris Shorts dari langganan Anda di Beranda dan Langganan, meski tab Shorts nonaktif</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Bisukan channel ini</string>
+    <string name="feed_muted">%1$s dibisukan</string>
+    <string name="feed_filtered_out_title">Semua di sini terfilter</string>
+    <string name="feed_filtered_out_body">Filter Anda menyembunyikan semua video yang dimuat sejauh ini.</string>
+    <string name="feed_edit_filters">Edit filter</string>
+    <string name="feed_load_more">Muat lebih banyak</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Semua</string>
+    <string name="feed_group_add">Grup</string>
+    <string name="feed_group_new">Grup baru</string>
+    <string name="feed_group_edit">Edit grup</string>
+    <string name="feed_group_name_hint">Nama grup</string>
+    <string name="feed_group_search_hint">Cari channel</string>
+    <plurals name="feed_group_picked">
+        <item quantity="other">%1$s channel</item>
+    </plurals>
+    <string name="feed_group_no_channels">Langganan Anda akan muncul di sini setelah dimuat.</string>
+    <string name="feed_group_delete">Hapus</string>
+    <string name="feed_group_save">Simpan</string>
+    <string name="feed_unwatched_only">Belum ditonton saja</string>
+    <string name="feed_group_empty_title">Tidak ada yang baru di %1$s</string>
+    <string name="feed_group_empty_body">Belum ada video dari channel ini di unggahan yang dimuat sejauh ini.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Durasi apa pun</string>
+    <string name="feed_wl_under10">Di bawah 10 mnt</string>
+    <string name="feed_wl_10to30">10–30 mnt</string>
+    <string name="feed_wl_over30">Di atas 30 mnt</string>
+    <string name="feed_hide_watched_chip">Sembunyikan yang ditonton</string>
+    <string name="feed_pick_one">Pilihkan satu untuk saya</string>
+    <plurals name="feed_count">
+        <item quantity="other">%1$s video</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="other">%1$s sejauh ini…</item>
+    </plurals>
+    <string name="feed_none_match">Tidak ada di daftar ini yang cocok dengan pilihan tersebut.</string>
+</resources>

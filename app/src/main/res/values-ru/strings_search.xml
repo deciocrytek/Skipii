@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Все</string>
+    <string name="search_type_videos">Видео</string>
+    <string name="search_type_channels">Каналы</string>
+    <string name="search_type_playlists">Плейлисты</string>
+    <string name="search_filters">Фильтры</string>
+    <string name="search_date">Дата загрузки</string>
+    <string name="search_date_any">За всё время</string>
+    <string name="search_date_today">Сегодня</string>
+    <string name="search_date_week">За неделю</string>
+    <string name="search_date_month">За месяц</string>
+    <string name="search_date_year">За год</string>
+    <string name="search_length">Длительность</string>
+    <string name="search_length_any">Любая длина</string>
+    <string name="search_length_short">Короче 3 мин</string>
+    <string name="search_length_medium">3–20 мин</string>
+    <string name="search_length_long">Дольше 20 мин</string>
+    <string name="search_sort">Сортировка</string>
+    <string name="search_sort_relevance">Релевантность</string>
+    <string name="search_sort_popularity">Популярность</string>
+    <string name="search_reset">Сбросить</string>
+    <string name="search_apply">Показать результаты</string>
+    <string name="search_videos_only_note">Дата загрузки, длительность и сортировка действуют только для видео.</string>
+    <string name="search_channel">Канал</string>
+    <string name="search_playlist">Плейлист</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Подставить “%1$s”</string>
+    <string name="search_more_failed">Не удалось загрузить ещё результаты</string>
+    <string name="search_clear_filters">Сбросить фильтры</string>
+    <string name="search_no_match_filtered">По запросу “%1$s” с этими фильтрами ничего не найдено.</string>
+    <string name="search_remove_filter">Удалить %1$s</string>
+</resources>

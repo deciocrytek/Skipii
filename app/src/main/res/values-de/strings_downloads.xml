@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">Downloads</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">Offline-Download läuft</string>
+    <string name="dl_title">Downloads</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">Herunterladen</string>
+    <string name="dl_action_waiting">Wartet</string>
+    <string name="dl_action_done">Heruntergeladen</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s %%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">Herunterladen</string>
+    <string name="dl_sheet_line">Läuft ohne Verbindung, inklusive Untertitel</string>
+    <string name="dl_video">Video</string>
+    <string name="dl_sound_only">Nur Ton</string>
+    <string name="dl_audio_only">Nur Audio</string>
+    <string name="dl_audio_only_line">Für Podcasts und Musik</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">Ca. %1$s</string>
+    <string name="dl_button_wifi">Über Wi-Fi herunterladen</string>
+    <string name="dl_sheet_loading">Größen werden geprüft…</string>
+    <string name="dl_sheet_unavailable">Dieses Video kann gerade nicht heruntergeladen werden.</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Wartet auf Wi-Fi</string>
+    <string name="dl_waiting_room">Wartet auf Speicherplatz</string>
+    <string name="dl_downloading">Wird heruntergeladen: %1$s %%</string>
+    <string name="dl_failed">Download fehlgeschlagen · tippen zum Wiederholen</string>
+    <string name="dl_queued">In der Warteschlange</string>
+    <string name="dl_ready">Bereit</string>
+    <string name="dl_offline">Offline</string>
+    <string name="dl_audio">Audio</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">%1$s auf diesem Smartphone</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">Automatisch: %1$s von %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="one">%1$s Video</item>
+        <item quantity="other">%1$s Videos</item>
+    </plurals>
+    <string name="dl_filter_all">Alle</string>
+    <string name="dl_filter_video">Video</string>
+    <string name="dl_filter_audio">Nur Audio</string>
+    <string name="dl_filter_auto">Automatisch</string>
+    <string name="dl_empty_title">Noch nichts heruntergeladen</string>
+    <string name="dl_empty_body">Lade ein Video im Player herunter, um es ohne Verbindung zu sehen, oder lass deine Wiedergabeliste automatisch über Wi-Fi laden.</string>
+    <string name="dl_empty_filtered">Mit diesem Filter ist hier nichts.</string>
+    <string name="dl_settings">Download-Einstellungen</string>
+    <string name="dl_delete">Download löschen</string>
+    <string name="dl_cancel">Download abbrechen</string>
+    <string name="dl_deleted">Download gelöscht</string>
+    <string name="dl_started">Wird heruntergeladen</string>
+    <string name="dl_started_wifi">Lädt über Wi-Fi</string>
+    <string name="dl_open">Downloads öffnen</string>
+    <string name="dl_library_line">Ohne Verbindung ansehen</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">Downloads</string>
+    <string name="dl_set_manage">Downloads verwalten</string>
+    <string name="dl_set_automatic">Automatisch</string>
+    <string name="dl_set_queue">Meine Wiedergabeliste laden</string>
+    <string name="dl_set_queue_line">Alles in deiner Wiedergabeliste lädt von selbst herunter, startet sofort und läuft ohne Verbindung</string>
+    <string name="dl_set_wl">Erste %1$s Videos in „Später ansehen“</string>
+    <string name="dl_set_wl_line">Bleibt aktuell, wenn sich deine Liste ändert</string>
+    <string name="dl_set_wl_signed_out">Melde dich an, um aus „Später ansehen“ herunterzuladen</string>
+    <string name="dl_set_delete">Nach dem Ansehen löschen</string>
+    <string name="dl_set_delete_line">Automatische Downloads werden entfernt, sobald du sie angesehen hast</string>
+    <string name="dl_set_limits">Grenzen</string>
+    <string name="dl_set_network">Herunterladen über</string>
+    <string name="dl_wifi_only">Nur Wi-Fi</string>
+    <string name="dl_any_network">Jedes Netzwerk</string>
+    <string name="dl_set_space">Speicher für automatische Downloads</string>
+    <string name="dl_set_space_line">Wenn er voll ist, warten automatische Downloads. Deine eigenen werden nie wegen Platzmangel gelöscht.</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">Qualität für automatische Downloads</string>
+    <string name="dl_note">Videos, die du selbst herunterlädst, bleiben bis du sie löschst.</string>
+    <string name="dl_summary_used">%1$s belegt</string>
+    <string name="dl_summary_queue">Wiedergabeliste lädt automatisch</string>
+    <string name="dl_summary_none">Nichts heruntergeladen</string>
+</resources>

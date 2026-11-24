@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Downloads (0.6.0) ─────────────────────────────────────────────── -->
+    <!-- Notification channel name in Android's settings. -->
+    <string name="dl_channel">ダウンロード</string>
+    <!-- The notification while videos download in the background. -->
+    <string name="dl_notification_title">オフライン再生用にダウンロード中</string>
+    <string name="dl_title">ダウンロード</string>
+    <!-- The player's action pill and the long-press menu row. -->
+    <string name="dl_action">ダウンロード</string>
+    <string name="dl_action_waiting">待機中</string>
+    <string name="dl_action_done">ダウンロード済み</string>
+    <!-- The pill while downloading: "46%". -->
+    <string name="dl_percent">%1$s%%</string>
+    <!-- The Download sheet. -->
+    <string name="dl_sheet_title">ダウンロード</string>
+    <string name="dl_sheet_line">通信なしで再生でき、字幕も含まれます</string>
+    <string name="dl_video">動画</string>
+    <string name="dl_sound_only">音のみ</string>
+    <string name="dl_audio_only">音声のみ</string>
+    <string name="dl_audio_only_line">ポッドキャストや音楽向け</string>
+    <!-- A size that is only an estimate: "About 412 MB". -->
+    <string name="dl_size_about">約 %1$s</string>
+    <string name="dl_button_wifi">Wi-Fi でダウンロード</string>
+    <string name="dl_sheet_loading">サイズを確認中…</string>
+    <string name="dl_sheet_unavailable">この動画は現在ダウンロードできません。</string>
+    <!-- Row states on the Downloads page. -->
+    <string name="dl_waiting_wifi">Wi-Fi を待機中</string>
+    <string name="dl_waiting_room">空き容量を待機中</string>
+    <string name="dl_downloading">ダウンロード中 %1$s%%</string>
+    <string name="dl_failed">ダウンロードできませんでした · タップして再試行</string>
+    <string name="dl_queued">キューに追加済み</string>
+    <string name="dl_ready">準備完了</string>
+    <string name="dl_offline">オフライン</string>
+    <string name="dl_audio">音声</string>
+    <!-- Storage line on the Downloads page: "1.4 GB on this phone". -->
+    <string name="dl_used">このスマートフォンで %1$s</string>
+    <!-- "Automatic: 0.8 GB of 4 GB". -->
+    <string name="dl_auto_used">自動: %1$s / %2$s</string>
+    <plurals name="dl_count">
+        <item quantity="other">%1$s 本の動画</item>
+    </plurals>
+    <string name="dl_filter_all">すべて</string>
+    <string name="dl_filter_video">動画</string>
+    <string name="dl_filter_audio">音声のみ</string>
+    <string name="dl_filter_auto">自動</string>
+    <string name="dl_empty_title">ダウンロードした動画はありません</string>
+    <string name="dl_empty_body">通信なしで観るにはプレーヤーから動画をダウンロードするか、キューを Wi-Fi で自動ダウンロードします。</string>
+    <string name="dl_empty_filtered">このフィルターに一致する項目はありません。</string>
+    <string name="dl_settings">ダウンロード設定</string>
+    <string name="dl_delete">ダウンロードを削除</string>
+    <string name="dl_cancel">ダウンロードをキャンセル</string>
+    <string name="dl_deleted">ダウンロードを削除しました</string>
+    <string name="dl_started">ダウンロード中</string>
+    <string name="dl_started_wifi">Wi-Fi でダウンロードします</string>
+    <string name="dl_open">ダウンロードを開く</string>
+    <string name="dl_library_line">通信なしで視聴</string>
+    <!-- Settings › Downloads -->
+    <string name="settings_downloads">ダウンロード</string>
+    <string name="dl_set_manage">ダウンロードを管理</string>
+    <string name="dl_set_automatic">自動</string>
+    <string name="dl_set_queue">キューをダウンロード</string>
+    <string name="dl_set_queue_line">キューに入れた動画が自動でダウンロードされ、すぐ再生でき通信なしでも観られます</string>
+    <string name="dl_set_wl">後で見るの先頭 %1$s 本</string>
+    <string name="dl_set_wl_line">リストの変更に合わせて自動で更新されます</string>
+    <string name="dl_set_wl_signed_out">後で見るからダウンロードするにはログインしてください</string>
+    <string name="dl_set_delete">視聴後に削除</string>
+    <string name="dl_set_delete_line">自動ダウンロードは観終わると削除されます</string>
+    <string name="dl_set_limits">制限</string>
+    <string name="dl_set_network">ダウンロードするネットワーク</string>
+    <string name="dl_wifi_only">Wi-Fi のみ</string>
+    <string name="dl_any_network">すべてのネットワーク</string>
+    <string name="dl_set_space">自動ダウンロードの容量</string>
+    <string name="dl_set_space_line">いっぱいになると自動ダウンロードは待機します。手動ダウンロードが容量のために削除されることはありません。</string>
+    <!-- "4 GB" -->
+    <string name="dl_gb">%1$s GB</string>
+    <string name="dl_set_quality">自動ダウンロードの画質</string>
+    <string name="dl_note">自分でダウンロードした動画は削除するまで残ります。</string>
+    <string name="dl_summary_used">%1$s 使用中</string>
+    <string name="dl_summary_queue">キューを自動ダウンロード</string>
+    <string name="dl_summary_none">ダウンロードなし</string>
+</resources>

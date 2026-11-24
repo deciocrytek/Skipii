@@ -1001,6 +1001,40 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   request) after the composition's snapshot was taken. SkipiiApplication.onCreate now touches every such object on the main
   thread (BotCheck, StreamRecovery, ChannelNames, Dismissed, IncomingLinks, StatusBarOverVideo, SharedVideoTexture; the rest
   already had `init`). A new object with mutableStateOf that background code can reach first must be added there.
+- 0.6.0 "Skipii 2" (2026-11-23, Derek approved sections 1, 2, 3, 5, 7, 8 of `docs/design/skipii-2.html`, minus 2's DeArrow
+  "clean" filter and keeping the 5-tab bar; plan `docs/design/skipii-0.6-plan.md`; designed, reviewed and approved with Neon =
+  Gemini 4 Neon via delegate_task). Downloads (`Downloads.kt`, `DownloadsUi.kt`): own SimpleCache in filesDir/downloads/media
+  (NoOpCacheEvictor, shared `MediaDatabase`), STABLE keys `skipii-dl://<id>/<itag>` (DataSpec key; manifest BaseURL = the key),
+  1 MB `CacheWriter` pieces, so a stopped download resumes with fresh links (403/404 → `LinksExpired`, once per run). Playback
+  of a ready download is cache-only (`mediaSource`, checked first in the service; `onAddMediaItems`/StreamRecoverer skip it);
+  details, captions (srv3 files), SponsorBlock segments and thumbnail kept with it (`snapshotOf`; offline `YouTube.details` uses
+  them, online the live details overlaid: one quality, no dub picker, `setQuality` is a no-op). `captionText` matches the
+  caption link by parsed JSON (Android's JSONObject writes "/" as "\/"), else same lang + kind. Each run's writes are guarded by
+  `owns` (addedAt), `pruneOrphans` frees bytes no entry owns at start. `DownloadWorker` (WorkManager unique "downloads",
+  APPEND_OR_REPLACE, UNMETERED with Wi-Fi only, foreground dataSync; finally: cancel the notification + `requeueStuck`).
+  Settings › Downloads: auto queue, auto Watch later (first 5, signed in), delete watched (`WatchedStore`, never the playing one),
+  Wi-Fi only, space limit for automatic ones, automatic quality. Search (`Search.kt`, `SearchUi.kt`): InnerTube search with
+  hand-encoded params (field 1 sort, field 2 {1 date, 2 type, 3 duration}; checked against YouTube's own in `Release060Test`),
+  suggestions (NewPipe), a followed channel quick hit, type chips, Filters sheet, removable chips (from `effective`). Feed
+  controls (`FeedControls.kt`): `FeedFilters` (hide watched, min length, muted words/channels, subscription shorts #96),
+  `SubscriptionGroups`, Watch later length chips / Hide watched / Pick one; `FeedList` stops after `DryLoadsMax` landed pages that
+  show nothing new. Comments: Top/Newest (`sortFilterSubMenuRenderer` tokens), double-tap to like. Fullscreen: one gear
+  (`SettingsDrop` hub drilling into quality/speed/captions/audio rows) and `FullscreenDrawer` (swipe up mid-video; Queue / More /
+  From channel; tab kept by enum). Widgets (`Widgets.kt`, RemoteViews): player, up next, search; ALWAYS full updates
+  (partial updates with new bitmaps pile up past the 1 MB binder), coalesced 150 ms, onUpdate via goAsync, 15 s refresh only while
+  playing, screen on and the app off screen; with no service the buttons are activity PendingIntents (a broadcast can't start
+  the app on 12+), play sets `playOnOpen`. `WatchedStore` / `RecentVideos` (Resume.kt). The launcher draws widgets with its own
+  translucency (Google's Calendar widget looks the same). Test downloads where YouTube is bot-checked: debug-only `DebugSeed`
+  (`adb shell am broadcast -n com.skipii/com.decio.skipii.DebugSeed`, online) seeds TESTSTEEL01 (240p + sound + a caption file +
+  a sponsor segment 20–30 s) and TESTSTEELAU (sound only) from Google's public "Tears of Steel" DASH sample; then airplane mode.
+  Verified on skipii_qa (debug; release: offline play + skip, search + suggestions, the worker starting in the foreground): offline play + SponsorBlock skip + captions transcript, Downloads page / swipe
+  delete + Undo, Settings › Downloads, search + filters + paging, comment sort, gear + drawer, widgets (play with nothing running
+  opens and plays, ±10, 15 s refresh). NOT verified: a real YouTube download (bot check here), signed-in features (subscription
+  shorts, Watch later auto-downloads, groups with real channels, mute/feedback), the feel on Derek's Pixel.
+- 0.6.1 (2026-11-24, Derek's 7855/7856.png): the header's Your feed button (`FeedFilterAction`) is always the plain round
+  tone, never primary while a rule is on. "Shorts from subscriptions" shows its row on Home too (under the chips, only on the
+  plain "All" feed), from `lib.subscriptions.shorts`; `LibraryData.subscriptionsForHome` loads that feed (or reloads one over
+  10 min old) when the switch is on and on every Home refresh. NOT verified signed in (skipii_qa is signed out).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

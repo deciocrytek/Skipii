@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Player Skipii</string>
+    <string name="widget_player_desc">Cosa è in riproduzione con i controlli, e cosa continuare</string>
+    <string name="widget_upnext_name">In coda</string>
+    <string name="widget_upnext_desc">Il prossimo video nella tua coda</string>
+    <string name="widget_search_name">Cerca su Skipii</string>
+    <string name="widget_search_desc">Apre la ricerca di Skipii</string>
+    <string name="widget_playing">Skipii · In riproduzione</string>
+    <string name="widget_paused">Skipii · In pausa</string>
+    <string name="widget_continue">Continua a guardare</string>
+    <string name="widget_nothing">Nessuna riproduzione</string>
+    <string name="widget_queue_empty">La tua coda è vuota</string>
+    <string name="widget_back">Indietro</string>
+    <string name="widget_forward">Avanti</string>
+</resources>

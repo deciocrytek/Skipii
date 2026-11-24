@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skipii 2.0</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&display=swap">
+<style>
+/* Layout: a design deck. Intro + debate notes, then eight numbered proposals (presentation order = priority),
+   each a short "why" and phone-sized mockups drawn in Skipii's own YouTube theme. */
+:root{
+  --font:'Google Sans Flex','Google Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --primary:#E6002E;--on-primary:#fff;--pc:#FFE3E8;--on-pc:#5C0012;
+  --surface:#FFFFFF;--on:#0F0F0F;--on-var:#606060;
+  --sv:#EDEDED;--scl:#F7F7F7;--sc:#F0F0F0;--sch:#E6E6E6;--tile:#FBFBFB;
+  --page:#EAE8E8;--chrome:#FFFFFF;--ink:#171515;--ink2:#5E5959;
+  --sponsor:#12A150;--hl:#F59E0B;
+  --shadow:0 14px 34px rgba(40,10,15,.16),0 2px 6px rgba(40,10,15,.08);
+  --bar-shadow:0 8px 18px rgba(0,0,0,.16),0 1px 3px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary:#FF8A9C;--on-primary:#5C0012;--pc:#7A0019;--on-pc:#FFE3E8;
+  --surface:#0F0F0F;--on:#F1F1F1;--on-var:#AAAAAA;
+  --sv:#262626;--scl:#181818;--sc:#202020;--sch:#2C2C2C;--tile:#353535;
+  --page:#060505;--chrome:#151414;--ink:#EEEAEA;--ink2:#A8A2A2;
+  --shadow:0 16px 36px rgba(0,0,0,.7);--bar-shadow:0 8px 18px rgba(0,0,0,.6);color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --primary:#FF8A9C;--on-primary:#5C0012;--pc:#7A0019;--on-pc:#FFE3E8;
+  --surface:#0F0F0F;--on:#F1F1F1;--on-var:#AAAAAA;
+  --sv:#262626;--scl:#181818;--sc:#202020;--sch:#2C2C2C;--tile:#353535;
+  --page:#060505;--chrome:#151414;--ink:#EEEAEA;--ink2:#A8A2A2;
+  --shadow:0 16px 36px rgba(0,0,0,.7);--bar-shadow:0 8px 18px rgba(0,0,0,.6);color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);background:var(--page);color:var(--ink);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:36px 72px;line-height:1.45}
+svg{display:block;fill:currentColor}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.wrap{max-width:1160px;margin:0 auto}
+
+/* ---------- deck chrome ---------- */
+.top{display:grid;gap:12px;margin-bottom:26px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--primary)}
+h1{font-size:clamp(34px,6vw,52px);font-weight:880;letter-spacing:-1.8px;line-height:1;margin:0;text-wrap:balance}
+.lede{font-size:17px;font-weight:550;color:var(--ink2);max-width:720px;margin:0}
+.lede b{color:var(--ink)}
+.debate{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:8px 0 48px}
+.dcard{background:var(--chrome);border-radius:24px;padding:18px 20px;min-width:0}
+.dcard h3{margin:0 0 8px;font-size:12px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2)}
+.dcard ul{margin:0;padding-left:18px}
+.dcard li{font-size:14px;font-weight:550;color:var(--ink2);margin-top:6px}
+.dcard li b{color:var(--ink)}
+.who{display:inline-block;font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;padding:1px 7px;border-radius:7px;background:var(--sc);color:var(--ink);margin-right:4px;vertical-align:1px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:-28px 0 44px}
+.toc a{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 6px;border-radius:19px;background:var(--chrome);color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:700}
+.toc a i{font-style:normal;width:26px;height:26px;border-radius:13px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:12.5px;font-weight:850}
+
+section.prop{margin:0 0 64px;scroll-margin-top:20px}
+.ph{display:flex;align-items:flex-start;gap:14px;margin-bottom:10px}
+.num{flex:none;width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:19px;font-weight:880}
+.ph h2{margin:0;font-size:clamp(22px,3.4vw,28px);font-weight:850;letter-spacing:-.7px;line-height:1.12;text-wrap:balance}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.tag{font-size:11.5px;font-weight:750;padding:3px 9px;border-radius:9px;background:var(--chrome);color:var(--ink2)}
+.tag.size{background:var(--pc);color:var(--on-pc)}
+.why{max-width:760px;font-size:15px;font-weight:550;color:var(--ink2);margin:0 0 20px 54px}
+.why b{color:var(--ink)}
+.shots{display:flex;flex-wrap:wrap;gap:30px 26px;align-items:flex-start}
+.shot{display:flex;flex-direction:column;gap:10px;width:300px;max-width:100%;min-width:0}
+.shot.wide{width:auto;max-width:100%}
+.cap b{display:block;font-size:14.5px;font-weight:800}
+.cap span{display:block;font-size:12.5px;font-weight:550;color:var(--ink2);margin-top:2px}
+.notes{margin:20px 0 0 54px;max-width:760px;display:grid;gap:4px}
+.notes p{margin:0;font-size:13.5px;font-weight:550;color:var(--ink2)}
+.notes p b{color:var(--ink)}
+@media (max-width:620px){.why,.notes{margin-left:0}}
+
+/* ---------- the phone ---------- */
+.phone{width:300px;height:640px;border-radius:38px;background:var(--surface);color:var(--on);position:relative;overflow:hidden;box-shadow:var(--shadow);flex:none;isolation:isolate;font-size:13px;line-height:1.3}
+.sb{position:absolute;top:0;left:0;right:0;height:30px;display:flex;justify-content:space-between;align-items:center;padding:2px 24px 0;font-size:11.5px;font-weight:750;z-index:40}
+.sb.blk{background:#000;color:#fff}
+.sb .r{display:flex;gap:5px;align-items:center}
+.sb .bt{min-width:21px;height:12px;border-radius:4px;background:currentColor;opacity:.9}
+.gest{position:absolute;bottom:6px;left:50%;width:96px;height:4px;margin-left:-48px;border-radius:2px;background:var(--on);opacity:.45;z-index:60}
+.scr{position:absolute;top:30px;left:0;right:0;bottom:0;overflow:hidden}
+.hd{display:flex;align-items:center;gap:9px;padding:8px 12px 8px 14px}
+.hd h3{margin:0;flex:1;font-size:23px;font-weight:880;letter-spacing:-.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd h3.sm{font-size:19px;letter-spacing:-.5px}
+.circ{width:36px;height:36px;border-radius:50%;background:var(--sc);display:grid;place-items:center;flex:none}
+.circ svg{width:20px;height:20px}
+.circ.pri{background:var(--primary);color:var(--on-primary)}
+.me{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ffb36b,#e2456b);flex:none}
+
+/* thumbnails: painted scenes, no photos */
+.th{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;flex:none;background:#333}
+.g1{background:radial-gradient(40% 60% at 68% 58%,#e9c8a0 0 30%,transparent 31%),radial-gradient(90% 120% at 30% 40%,#8a5a3c,#2d1b12 70%)}
+.g2{background:radial-gradient(30% 45% at 30% 55%,#9fd3ff 0 40%,transparent 42%),linear-gradient(140deg,#264d73,#0e1b2b)}
+.g3{background:radial-gradient(50% 30% at 50% 78%,#5c8a3a,transparent 70%),linear-gradient(180deg,#ffcf8a,#f08a5d 55%,#5c3a5e)}
+.g4{background:radial-gradient(35% 50% at 65% 50%,#f2f2f2 0 25%,transparent 27%),linear-gradient(135deg,#3b3b48,#15151c)}
+.g5{background:radial-gradient(60% 80% at 20% 30%,#c4a3ff,transparent 60%),linear-gradient(135deg,#5b2a86,#1c0f2e)}
+.g6{background:repeating-linear-gradient(100deg,#2f6b55 0 18px,#2a5f4c 18px 36px),#2f6b55}
+.g7{background:radial-gradient(45% 55% at 50% 60%,#ffd84d 0 30%,transparent 32%),linear-gradient(160deg,#ff5f3a,#b3122e)}
+.g8{background:linear-gradient(160deg,#cfd8dc,#8ea3ad 60%,#4e6470)}
+.du{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.66);color:#fff;border-radius:6px;padding:1px 5px;font-size:10px;font-weight:800}
+.prog{position:absolute;left:0;bottom:0;height:3px;background:var(--primary)}
+.badge{position:absolute;left:7px;top:7px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.66);color:#fff;border-radius:8px;padding:2px 7px 2px 5px;font-size:10px;font-weight:800}
+.badge svg{width:12px;height:12px}
+
+.vc{margin:0 6px 8px;border-radius:22px;background:var(--scl);padding:5px}
+.vc .mt{display:flex;gap:9px;padding:8px 6px 5px}
+.av{width:28px;height:28px;border-radius:50%;flex:none}
+.a1{background:linear-gradient(135deg,#f7b267,#c8553d)}.a2{background:linear-gradient(135deg,#7ec8e3,#1b4965)}.a3{background:linear-gradient(135deg,#b8e994,#38ada9)}.a4{background:linear-gradient(135deg,#d6a2e8,#82589f)}.a5{background:linear-gradient(135deg,#f8c291,#e55039)}.a6{background:linear-gradient(135deg,#dfe4ea,#57606f)}
+.vt{font-size:13.5px;font-weight:720;line-height:1.25}
+.vm{font-size:11px;font-weight:600;color:var(--on-var);margin-top:3px}
+.vr{display:flex;gap:10px;padding:5px 12px;align-items:flex-start}
+.vr .th{width:118px;border-radius:12px}
+.vr .vt{font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vr .vm{font-size:10.5px}
+.pill{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:7px;font-size:10px;font-weight:800;background:var(--sc);color:var(--on-var);margin-top:5px;white-space:nowrap}
+.pill.pri{background:var(--pc);color:var(--on-pc)}
+.pill svg{width:12px;height:12px}
+
+.chips{display:flex;gap:6px;padding:2px 12px 8px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.chip{height:32px;padding:0 12px;border-radius:16px;background:var(--sc);font-size:12px;font-weight:720;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:none}
+.chip svg{width:15px;height:15px}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip.soft{background:var(--pc);color:var(--on-pc)}
+
+/* sheets, switches, settings rows */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:25}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--scl);border-radius:26px 26px 0 0;padding:6px 0 20px;z-index:30}
+.handle{width:32px;height:4px;border-radius:2px;background:var(--on-var);opacity:.4;margin:4px auto 10px}
+.sheet h4{margin:0 18px 4px;font-size:18px;font-weight:850;letter-spacing:-.4px}
+.sheet .sub{margin:0 18px 10px;font-size:11.5px;font-weight:600;color:var(--on-var)}
+.lbl{font-size:10.5px;font-weight:850;letter-spacing:.8px;text-transform:uppercase;color:var(--primary);margin:10px 18px 6px}
+.opt{display:flex;align-items:center;gap:12px;padding:9px 18px;font-size:13px;font-weight:650}
+.opt svg{width:20px;height:20px;color:var(--on-var);flex:none}
+.opt .tx{flex:1;min-width:0}
+.opt .tx small{display:block;font-size:11px;color:var(--on-var);font-weight:600;margin-top:1px}
+.opt .ck{color:var(--primary)}
+.radio{width:20px;height:20px;border-radius:50%;background:var(--sch);flex:none;position:relative}
+.radio.on{background:var(--primary)}
+.radio.on::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--on-primary)}
+.sw{width:42px;height:26px;border-radius:13px;background:var(--primary);position:relative;flex:none}
+.sw::after{content:"";position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--on-primary)}
+.sw.off{background:var(--sch)}
+.sw.off::after{left:6px;right:auto;top:6px;width:14px;height:14px;background:var(--on-var)}
+.btn{margin:12px 18px 0;height:46px;border-radius:23px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:14px;font-weight:800}
+.joined{margin:0 10px;display:grid;gap:3px}
+.srow{background:var(--sc);padding:12px 14px;display:flex;align-items:center;gap:12px;border-radius:7px}
+.joined .srow:first-child{border-radius:20px 20px 7px 7px}
+.joined .srow:last-child{border-radius:7px 7px 20px 20px}
+.joined .srow:only-child{border-radius:20px}
+.srow .tx{flex:1;min-width:0}
+.srow .tx b{display:block;font-size:13px;font-weight:750}
+.srow .tx>span{display:block;font-size:11px;color:var(--on-var);font-weight:550;margin-top:2px;line-height:1.35}
+.srow .chips{padding:8px 0 0;-webkit-mask-image:none;mask-image:none;flex-wrap:wrap}
+.srow .chip{height:28px;font-size:11px;padding:0 10px;background:var(--sch)}
+.srow .chip.on{background:var(--primary)}
+.gh{font-size:11.5px;font-weight:850;color:var(--primary);margin:14px 22px 7px;letter-spacing:.2px}
+
+/* player */
+.vid{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:radial-gradient(28% 34% at 62% 56%,#efe2cf 0 34%,transparent 36%),radial-gradient(14% 20% at 62% 40%,#3b2417 0 60%,transparent 62%),radial-gradient(90% 120% at 28% 40%,#7a4e30,#241610 70%)}
+.det{padding:12px 14px}
+.ttl{font-size:16px;font-weight:820;letter-spacing:-.3px;line-height:1.22}
+.sub2{font-size:11.5px;color:var(--on-var);font-weight:600;margin-top:5px}
+.chan{display:flex;align-items:center;gap:9px;margin-top:11px}
+.chan b{flex:1;font-size:13px}
+.chan b small{display:block;font-size:10.5px;color:var(--on-var);font-weight:600}
+.subd{height:32px;padding:0 12px;border-radius:16px;background:var(--sc);font-size:12px;font-weight:750;display:flex;align-items:center}
+.acts{display:flex;gap:5px;margin-top:11px;overflow:hidden}
+.act{height:36px;padding:0 11px;border-radius:14px;background:var(--sv);display:flex;align-items:center;gap:6px;font-size:12px;font-weight:750;white-space:nowrap;flex:none;position:relative;overflow:hidden}
+.act svg{width:17px;height:17px}
+.act.on{background:var(--primary);color:var(--on-primary)}
+.act .fill{position:absolute;left:0;top:0;bottom:0;background:var(--primary);z-index:0}
+.act .lay{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
+.ccard{margin:11px 0 0;background:var(--scl);border-radius:18px;padding:11px 13px}
+.ccard .h{display:flex;justify-content:space-between;font-size:12.5px;font-weight:750}
+.ccard .h span{color:var(--on-var)}
+.ccard p{display:flex;gap:8px;align-items:center;margin:8px 0 0;font-size:12px;color:var(--on-var);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* the player bar (resting) */
+.pb{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:264px;height:66px;border-radius:33px;background:var(--sv);display:flex;align-items:center;justify-content:space-between;padding:0 8px;box-shadow:var(--bar-shadow);z-index:35}
+.pbi{display:grid;place-items:center;flex:none;position:relative}
+.pbi.side{width:34px;height:34px;border-radius:50%;background:var(--tile)}
+.pbi.side svg{width:17px;height:17px}
+.pbi.sk{width:42px;height:42px}
+.pbi.sk svg{width:24px;height:24px}
+.pbi.sk.fw svg{transform:scaleX(-1)}
+.pbi.sk i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:7px;font-weight:880;padding-top:2px}
+.pbi.pp{width:84px;height:44px;border-radius:22px;background:var(--primary);color:var(--on-primary)}
+.pbi.pp svg{width:24px;height:24px}
+.pb .line{position:absolute;left:34px;right:34px;bottom:5px;height:2.5px;border-radius:2px;background:color-mix(in srgb,var(--primary) 28%,var(--sv))}
+.pb .line b{position:absolute;left:0;top:0;bottom:0;width:46%;background:var(--primary);border-radius:2px}
+.ticker{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;display:flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 9px;border-radius:15px;background:var(--sv);box-shadow:var(--bar-shadow);font-size:11.5px;font-weight:800;white-space:nowrap;z-index:35}
+.ticker svg{width:15px;height:15px;color:var(--primary)}
+.ticker span{color:var(--on-var);font-weight:650}
+
+/* the expanded bar card */
+.pc{position:absolute;left:8px;right:8px;bottom:14px;border-radius:30px;background:var(--sv);padding:12px 9px 10px;box-shadow:var(--bar-shadow);z-index:35}
+.ctx{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--on-var);padding:0 6px 10px}
+.ctx b{color:var(--on);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctx .t{font-variant-numeric:tabular-nums;flex:none}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.tl{height:60px;border-radius:17px;background:var(--tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:9.5px;font-weight:760;color:var(--on);min-width:0;text-align:center;line-height:1.05}
+.tl svg{width:20px;height:20px}
+.tl .gl{height:20px;display:grid;place-items:center;font-size:13px;font-weight:880}
+.tl.on{background:color-mix(in srgb,var(--primary) 24%,var(--tile));color:var(--primary)}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:0 4px}
+.hair{height:2.5px;border-radius:2px;background:color-mix(in srgb,var(--primary) 28%,var(--sv));margin:9px 34px 0;position:relative}
+.hair b{position:absolute;left:0;top:0;bottom:0;width:46%;background:var(--primary);border-radius:2px}
+.hair i{position:absolute;top:0;bottom:0;background:var(--sponsor);border-radius:2px}
+.hair .star{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--hl)}
+.pnl{position:absolute;left:8px;right:8px;bottom:14px;border-radius:30px;background:var(--sv);padding:14px 14px 12px;box-shadow:var(--bar-shadow);z-index:35}
+.pnl h5{margin:0;font-size:16px;font-weight:850;display:flex;align-items:center;gap:8px}
+.pnl h5 .x{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--tile);display:grid;place-items:center}
+.pnl h5 .x svg{width:16px;height:16px}
+.big{font-size:40px;font-weight:880;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;margin:6px 0 0;line-height:1}
+.big small{font-size:14px;font-weight:700;color:var(--on-var);letter-spacing:0;margin-left:6px}
+.pnl .chips{padding:12px 0 4px;-webkit-mask-image:none;mask-image:none;flex-wrap:wrap}
+.pnl .chip{background:var(--tile)}
+.pnl .chip.on{background:var(--primary)}
+.pnl .opt{padding:9px 2px}
+.row2{display:flex;gap:6px;margin-top:6px}
+.row2 div{flex:1;height:40px;border-radius:20px;background:var(--tile);display:grid;place-items:center;font-size:12.5px;font-weight:780}
+.row2 div.pri{background:var(--primary);color:var(--on-primary)}
+
+/* landscape frames */
+.hscroll{overflow-x:auto;max-width:100%;padding:4px 4px 14px;margin:-4px -4px -14px}
+.land{width:620px;height:290px;border-radius:30px;background:#000;position:relative;overflow:hidden;box-shadow:var(--shadow);color:#fff;flex:none;font-size:13px;line-height:1.3}
+.land .pic{position:absolute;inset:0;background:radial-gradient(22% 40% at 60% 55%,#efe2cf 0 34%,transparent 36%),radial-gradient(10% 18% at 60% 38%,#3b2417 0 60%,transparent 62%),radial-gradient(90% 120% at 28% 40%,#7a4e30,#241610 70%)}
+.land .shade{position:absolute;inset:0;background:rgba(0,0,0,.42)}
+.otile{position:absolute;width:40px;height:40px;border-radius:14px;background:rgba(48,48,48,.92);display:grid;place-items:center}
+.otile svg{width:21px;height:21px}
+.otile.on{background:var(--primary);color:var(--on-primary)}
+.oplay{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.oplay svg{width:32px;height:32px}
+.oseek{position:absolute;top:50%;width:48px;height:48px;margin-top:-24px;border-radius:16px;background:rgba(48,48,48,.92);display:grid;place-items:center;font-size:12px;font-weight:850}
+.otime{position:absolute;left:24px;bottom:34px;font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}
+.otime span{opacity:.7}
+.oscrub{position:absolute;left:24px;right:24px;bottom:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.32)}
+.oscrub b{position:absolute;left:0;top:0;bottom:0;width:46%;background:var(--primary)}
+.oscrub i{position:absolute;left:46%;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--primary)}
+.glass{background:rgba(26,26,26,.8);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.hub{position:absolute;right:18px;top:66px;width:236px;border-radius:22px;padding:6px 0}
+.hub .r{display:flex;align-items:center;gap:11px;padding:8px 14px;font-size:12.5px;font-weight:700}
+.hub .r svg{width:19px;height:19px;opacity:.85}
+.hub .r span{margin-left:auto;opacity:.7;font-weight:650}
+.hub .r .ch{width:16px;height:16px;opacity:.6;margin-left:0}
+.drawer{position:absolute;left:0;right:0;bottom:0;height:170px;border-radius:24px 24px 0 0;padding:8px 18px 0}
+.drawer .handle{background:#fff}
+.dtabs{display:flex;gap:18px;font-size:13px;font-weight:800;margin:0 0 10px}
+.dtabs span{opacity:.55}
+.dtabs .on{opacity:1;position:relative}
+.dtabs .on::after{content:"";position:absolute;left:20%;right:20%;bottom:-5px;height:3px;border-radius:2px;background:var(--primary)}
+.drow{display:flex;gap:10px}
+.dcardv{width:142px;flex:none}
+.dcardv .th{border-radius:12px}
+.dcardv p{margin:6px 0 0;font-size:11px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* panels under the video (timeline guide, comments) */
+.panel{position:absolute;left:0;right:0;bottom:0;background:var(--scl);border-radius:24px 24px 0 0;z-index:20}
+.ptabs{display:flex;align-items:center;gap:4px;padding:0 10px 8px}
+.seg{display:flex;background:var(--sc);border-radius:18px;padding:3px;gap:2px}
+.seg span{height:30px;padding:0 14px;border-radius:15px;display:grid;place-items:center;font-size:12px;font-weight:780;color:var(--on-var)}
+.seg span.on{background:var(--primary);color:var(--on-primary)}
+.ptabs .circ{margin-left:auto;width:32px;height:32px}
+.src{margin:0 10px 8px;border-radius:16px;background:var(--pc);color:var(--on-pc);padding:9px 12px;font-size:11.5px;font-weight:650;line-height:1.35}
+.src b{font-weight:820}
+.chap{display:flex;gap:10px;align-items:center;padding:6px 10px;margin:0 6px;border-radius:16px}
+.chap .th{width:84px;border-radius:10px}
+.chap .tx{flex:1;min-width:0}
+.chap .tx b{display:block;font-size:12.5px;font-weight:740;line-height:1.25}
+.chap .tx span{font-size:10.5px;color:var(--on-var);font-weight:650}
+.chap.now{background:var(--pc);color:var(--on-pc)}
+.chap.now .tx span{color:var(--on-pc);opacity:.8}
+.chap.hl{background:color-mix(in srgb,var(--hl) 18%,var(--scl))}
+.chap .jump{height:28px;padding:0 10px;border-radius:14px;background:var(--hl);color:#2b1700;font-size:11px;font-weight:820;display:grid;place-items:center;flex:none}
+.star{width:84px;aspect-ratio:16/9;border-radius:10px;background:color-mix(in srgb,var(--hl) 30%,var(--scl));display:grid;place-items:center;flex:none;color:#b86e00}
+.star svg{width:22px;height:22px}
+.search{display:flex;align-items:center;gap:8px;margin:0 10px 8px;height:40px;border-radius:20px;background:var(--sc);padding:0 6px 0 14px;font-size:12.5px;font-weight:650}
+.search svg{width:18px;height:18px;color:var(--on-var)}
+.search .q{flex:1}
+.search .n{font-size:11px;color:var(--on-var);font-weight:700}
+.search .ar{width:28px;height:28px;border-radius:50%;background:var(--sch);display:grid;place-items:center}
+.search .ar svg{width:16px;height:16px;color:var(--on)}
+.tline{display:flex;gap:10px;padding:7px 16px;font-size:12.5px;font-weight:560;line-height:1.4}
+.tline time{font-size:10.5px;font-weight:780;color:var(--on-var);width:30px;flex:none;padding-top:2px;font-variant-numeric:tabular-nums}
+.tline.now{background:var(--pc);color:var(--on-pc);border-radius:14px;margin:0 6px;padding:7px 10px}
+.tline.now time{color:var(--on-pc)}
+.tline mark{background:var(--primary);color:var(--on-primary);border-radius:4px;padding:0 3px}
+.backnow{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;height:34px;padding:0 14px;border-radius:17px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:800;display:flex;align-items:center;gap:5px;box-shadow:var(--bar-shadow)}
+.backnow svg{width:16px;height:16px}
+.cm{display:flex;gap:9px;padding:8px 14px}
+.cm .av{width:26px;height:26px}
+.cm .tx{flex:1;min-width:0;font-size:12px;line-height:1.38}
+.cm .tx b{font-size:11px;font-weight:750;color:var(--on-var)}
+.cm .tx b span{font-weight:600;opacity:.85}
+.cm .tx .ts{color:var(--primary);font-weight:780}
+.cm .lk{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--on-var);font-weight:700;margin-top:4px}
+.cm .lk svg{width:13px;height:13px}
+.composer{position:absolute;left:8px;right:8px;bottom:14px;height:44px;border-radius:22px;background:var(--sc);display:flex;align-items:center;padding:0 6px 0 16px;font-size:12.5px;color:var(--on-var);font-weight:600}
+.composer .me{width:30px;height:30px;margin-left:auto}
+
+/* nav */
+.nav{position:absolute;left:10px;right:10px;bottom:16px;height:58px;border-radius:29px;background:var(--sv);display:flex;align-items:center;padding:5px;gap:2px;z-index:35}
+.tab{flex:1;height:48px;border-radius:24px;display:grid;place-items:center;min-width:0}
+.tab svg{width:23px;height:23px}
+.tab.sel{flex:3.4;background:var(--primary);color:var(--on-primary);display:flex;justify-content:center;align-items:center;gap:6px;font-weight:800;font-size:13px;padding:0 10px;white-space:nowrap;overflow:hidden}
+.tab.sel svg{flex:none}
+.navbox{background:var(--chrome);border-radius:26px;padding:18px 16px;display:grid;gap:16px;width:340px;max-width:100%}
+.navopt{display:grid;gap:8px}
+.navopt b{font-size:13px;font-weight:800}
+.navopt span{font-size:12px;color:var(--ink2);font-weight:550}
+.navrow{display:flex;gap:8px;align-items:center;background:var(--surface);color:var(--on);border-radius:24px;padding:12px 10px}
+.navrow .nav{position:static;flex:1;height:54px;border-radius:27px;padding:4px}
+.navrow .tab{height:46px}
+.orb{width:54px;height:54px;border-radius:50%;background:var(--sv);display:grid;place-items:center;flex:none}
+.orb svg{width:24px;height:24px}
+
+/* search */
+.field{flex:1;height:42px;border-radius:21px;background:var(--sc);display:flex;align-items:center;gap:8px;padding:0 8px 0 14px;font-size:13.5px;font-weight:650;min-width:0}
+.field .cur{display:inline-block;width:2px;height:17px;background:var(--primary);vertical-align:-3px;margin-left:1px}
+.field svg{width:18px;height:18px;color:var(--on-var)}
+.field .q{flex:1;white-space:nowrap;overflow:hidden}
+.sug{display:flex;align-items:center;gap:13px;padding:10px 16px;font-size:13.5px;font-weight:600}
+.sug svg{width:20px;height:20px;color:var(--on-var);flex:none}
+.sug .q{flex:1}
+.sug .q b{font-weight:800}
+.chanhit{display:flex;align-items:center;gap:11px;margin:2px 10px 6px;padding:10px 12px;border-radius:20px;background:var(--scl)}
+.chanhit .av{width:44px;height:44px}
+.chanhit .tx{flex:1;min-width:0}
+.chanhit .tx b{display:block;font-size:13.5px;font-weight:800}
+.chanhit .tx span{font-size:11px;color:var(--on-var);font-weight:600}
+.subbtn{height:34px;padding:0 14px;border-radius:17px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.plc{display:flex;gap:10px;padding:5px 12px;align-items:center}
+.plc .th{width:118px;border-radius:12px}
+.plc .cnt{position:absolute;right:0;top:0;bottom:0;width:44%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;text-align:center;line-height:1.15}
+.plc .cnt svg{width:18px;height:18px;margin:0 auto 2px}
+
+/* home screen widget */
+.wall{position:absolute;inset:0;background:radial-gradient(80% 60% at 20% 10%,#ffb6a3,transparent 60%),radial-gradient(70% 60% at 90% 70%,#9b7bff,transparent 60%),linear-gradient(180deg,#f6d6e0,#c9b6ef)}
+.clock{position:absolute;top:58px;left:24px;color:#3a1830;font-size:52px;font-weight:500;letter-spacing:-2px;line-height:1}
+.clock small{display:block;font-size:13px;font-weight:700;letter-spacing:0;margin-top:6px;opacity:.75}
+.wdg{position:absolute;left:14px;right:14px;border-radius:28px;background:var(--surface);color:var(--on);padding:12px;box-shadow:0 8px 20px rgba(60,20,60,.18)}
+.wnow{display:flex;gap:10px;align-items:center}
+.wnow .th{width:104px;border-radius:14px}
+.wnow .tx{flex:1;min-width:0}
+.wnow .tx b{display:block;font-size:12.5px;font-weight:780;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wnow .tx span{font-size:10.5px;color:var(--on-var);font-weight:650}
+.wctl{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px}
+.wctl .pbi.pp{width:96px}
+.wbar{height:3px;border-radius:2px;background:color-mix(in srgb,var(--primary) 24%,var(--sc));margin-top:9px;position:relative}
+.wbar b{position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--primary);border-radius:2px}
+.wbar i{position:absolute;top:0;bottom:0;background:var(--sponsor);border-radius:2px}
+.wcont{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:4px}
+.wcont div{min-width:0}
+.wcont .th{border-radius:11px}
+.wcont small{display:block;font-size:10px;font-weight:750;margin-top:4px;color:var(--on-var)}
+.wh{font-size:11px;font-weight:850;margin:0 2px 7px;display:flex;align-items:center;gap:6px}
+.wh .logo{width:18px;height:14px;border-radius:4px;background:#E6002E;display:grid;place-items:center}
+.wh .logo::after{content:"";border-left:6px solid #fff;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;margin-left:1px}
+.wsmall{display:flex;gap:10px}
+.wsmall .wdg{position:static;flex:1;padding:12px}
+.dock{position:absolute;left:22px;right:22px;bottom:30px;display:flex;justify-content:space-between}
+.dock i{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.75)}
+
+/* dearrow toggle */
+.vc .tA,.vc .tB{transition:opacity .2s}
+.vc.orig .clean{display:none}
+.vc:not(.orig) .orig-only{display:none}
+.thumbOrig{background:radial-gradient(18% 30% at 76% 46%,#fff 0 30%,transparent 32%),radial-gradient(30% 50% at 30% 60%,#ffd84d 0 45%,transparent 47%),linear-gradient(140deg,#ff2d55,#ff9500)}
+.yell{position:absolute;left:10px;top:12px;font-size:26px;font-weight:900;color:#fff;letter-spacing:-1px;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.5);transform:rotate(-6deg)}
+.arrow{position:absolute;right:58px;top:22px;width:44px;height:8px;background:#ff1a1a;border-radius:4px;transform:rotate(35deg);box-shadow:0 0 0 2px #fff}
+.da{position:absolute;right:7px;top:7px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.66);color:#fff;border-radius:8px;padding:2px 7px 2px 5px;font-size:10px;font-weight:800}
+.da svg{width:12px;height:12px}
+.toggle{align-self:flex-start;height:38px;padding:0 16px 0 12px;border-radius:19px;background:var(--chrome);font-size:13px;font-weight:780;display:inline-flex;align-items:center;gap:7px}
+.toggle svg{width:18px;height:18px;color:var(--primary)}
+
+.kb{position:absolute;left:0;right:0;bottom:0;height:210px;background:var(--sch);display:grid;grid-template-columns:repeat(10,1fr);gap:5px;padding:12px 4px 30px;align-content:start}
+.kb i{height:38px;border-radius:6px;background:var(--surface);display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:600}
+.later{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.lcard{background:var(--chrome);border-radius:22px;padding:16px 18px;min-width:0}
+.lcard b{display:block;font-size:14.5px;font-weight:800}
+.lcard p{margin:4px 0 0;font-size:13px;font-weight:550;color:var(--ink2)}
+.lcard .st{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;padding:2px 8px;border-radius:7px;background:var(--sc);color:var(--ink2)}
+h2.plain{font-size:24px;font-weight:850;letter-spacing:-.6px;margin:0 0 12px}
+.foot{font-size:12.5px;color:var(--ink2);margin-top:40px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+ <symbol id="pause" viewBox="0 0 24 24"><path d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"/></symbol>
+ <symbol id="replay" viewBox="0 0 24 24"><path d="M12 5V2L7 6.5 12 11V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></symbol>
+ <symbol id="dl" viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></symbol>
+ <symbol id="dldone" viewBox="0 0 24 24"><path d="M5 18h14v2H5v-2zm4.6-2.7L5 10.7l2-1.9 2.6 2.6L17 4l2 2-9.4 9.3z"/></symbol>
+ <symbol id="search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+ <symbol id="home" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+ <symbol id="subs" viewBox="0 0 24 24"><path d="M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2zm-6 4-6-3.27v6.53L16 16z"/></symbol>
+ <symbol id="lib" viewBox="0 0 24 24"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></symbol>
+ <symbol id="shorts" viewBox="0 0 24 24"><path d="M10 14.65v-5.3L15 12l-5 2.65zm7.77-4.33-1.2-.5L18 9.06a3.74 3.74 0 0 0-3.5-6.62L6 6.94a3.73 3.73 0 0 0 .22 6.74l1.2.5L6 14.93a3.74 3.74 0 0 0 3.5 6.62l8.5-4.5a3.73 3.73 0 0 0-.23-6.73z"/></symbol>
+ <symbol id="moon" viewBox="0 0 24 24"><path d="M12.34 2.02C6.59 1.82 2 6.42 2 12c0 5.52 4.48 10 10 10 3.71 0 6.93-2.02 8.66-5.02-7.51-.25-12.09-8.43-8.32-14.96z"/></symbol>
+ <symbol id="loop" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></symbol>
+ <symbol id="tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+ <symbol id="cc" viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1z"/></symbol>
+ <symbol id="lang" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></symbol>
+ <symbol id="head" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5v-1a7 7 0 0 1 14 0v1h-1a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z"/></symbol>
+ <symbol id="pip" viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></symbol>
+ <symbol id="full" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></symbol>
+ <symbol id="gear" viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 0 0 0-1.88l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 13.92 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.72 8.47a.48.48 0 0 0 .12.61l2.03 1.58a7.24 7.24 0 0 0 0 1.88l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54a7.03 7.03 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></symbol>
+ <symbol id="check" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+ <symbol id="chev" viewBox="0 0 24 24"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+ <symbol id="back" viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
+ <symbol id="close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+ <symbol id="clock" viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.95 8.95 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></symbol>
+ <symbol id="nw" viewBox="0 0 24 24"><path d="M5 15h2V8.41L18.59 20 20 18.59 8.41 7H15V5H5z"/></symbol>
+ <symbol id="more" viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></symbol>
+ <symbol id="wifi" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8 3 3 3-3a4.24 4.24 0 0 0-6 0zm-4-4 2 2a7.07 7.07 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></symbol>
+ <symbol id="like" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></symbol>
+ <symbol id="share" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 21 5a3 3 0 1 0-5.91.7L8.04 9.81A3 3 0 1 0 6 15a2.99 2.99 0 0 0 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65A2.92 2.92 0 1 0 18 16.08z"/></symbol>
+ <symbol id="plist" viewBox="0 0 24 24"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM3 16h7v-2H3v2z"/></symbol>
+ <symbol id="eye" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></symbol>
+ <symbol id="star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
+ <symbol id="add" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+ <symbol id="shuffle" viewBox="0 0 24 24"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></symbol>
+ <symbol id="voice" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></symbol>
+ <symbol id="next" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></symbol>
+ <symbol id="lock" viewBox="0 0 24 24"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></symbol>
+ <symbol id="sparkle" viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7zM19 15l1 2.6 2.6 1-2.6 1L19 22l-1-2.4-2.6-1 2.6-1z"/></symbol>
+ <symbol id="queue" viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18A3 3 0 1 0 19 17V8h3V6h-5z"/></symbol>
+</svg>
+
+<div class="wrap">
+
+<header class="top">
+ <div class="eyebrow">Design proposals · 23 November 2026</div>
+ <h1>Skipii 2.0</h1>
+ <p class="lede">Skipii 0.5 already does the everyday things well. 2.0 is about the moments it still can't cover: <b>no signal</b>, <b>finding things</b>, <b>a feed you can trust</b>, <b>falling asleep to a video</b>, and a player bar that has run out of room. Claude and Neon (Gemini) argued it out over two rounds; these are the eight ideas both of us would build, in the order we'd build them.</p>
+</header>
+
+<div class="debate">
+ <div class="dcard">
+  <h3>Where we agreed</h3>
+  <ul>
+   <li><span class="who">Neon</span><b>Downloads come first.</b> They're the last unfinished item on the original plan, and Skipii already keeps Shorts on the phone the same way.</li>
+   <li><span class="who">Claude</span><b>Search is the weakest screen.</b> I checked: it shows one page of videos and stops. No channels, no playlists, no suggestions.</li>
+   <li><span class="who">Both</span><b>The player bar's tool row is full.</b> At 7 small circles with no labels it's already cramped, and Sleep and Loop would make 9.</li>
+  </ul>
+ </div>
+ <div class="dcard">
+  <h3>Where we disagreed</h3>
+  <ul>
+   <li><span class="who">Claude</span>Neon wanted a "Now playing" picture card in audio only. <b>Dropped:</b> you chose no picture there on purpose (0.5.36).</li>
+   <li><span class="who">Neon</span>Four tabs plus a separate search button breaks your five-tab rule. <b>Shown as an option</b> (section 3), not a recommendation.</li>
+   <li><span class="who">Claude</span>I added cleaner titles, feed filters, a home-screen widget and one settings button in fullscreen. Neon backed all four, and <b>talked me out of</b> a glow behind the video, which would fight the pure-black look.</li>
+  </ul>
+ </div>
+</div>
+
+<nav class="toc" aria-label="Sections">
+ <a href="#offline"><i>1</i>Downloads</a>
+ <a href="#feed"><i>2</i>Cleaner feed</a>
+ <a href="#search"><i>3</i>Search</a>
+ <a href="#bar"><i>4</i>Player bar &amp; sleep</a>
+ <a href="#fullscreen"><i>5</i>Fullscreen</a>
+ <a href="#timeline"><i>6</i>Chapters &amp; transcript</a>
+ <a href="#lists"><i>7</i>Choosing what to watch</a>
+ <a href="#widget"><i>8</i>Widget</a>
+</nav>
+
+<!-- ============ 1 OFFLINE ============ -->
+<section class="prop" id="offline">
+ <div class="ph"><div class="num">1</div><div><h2>Downloads that are ready before you leave</h2>
+  <div class="tags"><span class="tag size">Medium build</span><span class="tag">Last item on the original roadmap</span><span class="tag">GitHub #16</span></div></div></div>
+ <p class="why">Save any video, or just its sound, with captions and chapters included. The bigger idea: <b>whatever is in your queue downloads by itself on Wi-Fi</b>, so on the train it plays instantly and never runs into YouTube's "confirm you're not a bot" check on 5G. Skipii already does this for the next 10 Shorts, so the groundwork exists.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · Download from the player</b><span>A Download button in the action row opens a short sheet of choices.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid"></div>
+     <div class="det">
+      <div class="ttl">I rebuilt a 1960s espresso machine from parts</div>
+      <div class="sub2">412K views · 3 days ago</div>
+      <div class="acts"><span class="act"><svg><use href="#like"/></svg>12K</span><span class="act"><svg><use href="#plist"/></svg>Playlist</span><span class="act on"><svg><use href="#dl"/></svg>Download</span><span class="act"><svg><use href="#share"/></svg>Share</span></div>
+     </div>
+     <div class="dim"></div>
+     <div class="sheet">
+      <div class="handle"></div>
+      <h4>Download</h4>
+      <p class="sub">28:10 · plays with no connection, captions included</p>
+      <div class="lbl">Video</div>
+      <div class="opt"><span class="radio on"></span><span class="tx">1080p<small>412 MB</small></span></div>
+      <div class="opt"><span class="radio"></span><span class="tx">720p<small>236 MB</small></span></div>
+      <div class="opt"><span class="radio"></span><span class="tx">480p<small>118 MB</small></span></div>
+      <div class="lbl">Sound only</div>
+      <div class="opt"><span class="radio"></span><span class="tx">Audio only<small>38 MB · for podcasts and music</small></span></div>
+      <div class="btn">Download · 412 MB</div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Library › Downloads</b><span>Space used, what's ready, what's waiting for Wi-Fi.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><span class="circ"><svg><use href="#back"/></svg></span><h3 class="sm">Downloads</h3><span class="circ"><svg><use href="#tune"/></svg></span></div>
+     <div style="margin:0 14px 10px">
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--on-var)"><span><b style="color:var(--on)">1.4 GB</b> of 4 GB</span><span>6 videos</span></div>
+      <div style="height:8px;border-radius:4px;background:var(--sc);margin-top:6px;overflow:hidden;display:flex;gap:2px"><i style="width:30%;background:var(--primary);border-radius:4px"></i><i style="width:5%;background:color-mix(in srgb,var(--primary) 50%,var(--sc));border-radius:4px"></i></div>
+     </div>
+     <div class="chips"><span class="chip on">All</span><span class="chip">Video</span><span class="chip">Audio only</span><span class="chip"><svg><use href="#queue"/></svg>From queue</span></div>
+     <div class="vr"><div class="th g2"><span class="du">18:22</span><div class="prog" style="width:62%"></div></div><div><div class="vt">Why bridges sing in the wind</div><div class="vm">Tech Atlas</div><span class="pill pri"><svg><use href="#dl"/></svg>Downloading 62%</span></div></div>
+     <div class="vr"><div class="th g3"><span class="du">41:05</span></div><div><div class="vt">Walking the old Silk Road, part 3</div><div class="vm">Long Way Round</div><span class="pill"><svg><use href="#wifi"/></svg>Waiting for Wi-Fi</span></div></div>
+     <div class="vr"><div class="th g1"><span class="du">28:10</span><span class="badge"><svg><use href="#dldone"/></svg>Ready</span></div><div><div class="vt">I rebuilt a 1960s espresso machine from parts</div><div class="vm">Slow Kitchen</div><span class="pill">1080p · 412 MB</span></div></div>
+     <div class="vr"><div class="th g5"><span class="du">1:12:40</span><span class="badge"><svg><use href="#dldone"/></svg>Ready</span></div><div><div class="vt">The history of synthesizers, episode 12</div><div class="vm">Signal Path</div><span class="pill"><svg><use href="#head"/></svg>Audio · 38 MB</span></div></div>
+     <div class="vr"><div class="th g4"><span class="du">9:48</span><span class="badge"><svg><use href="#dldone"/></svg>Ready</span></div><div><div class="vt">The camera trick every film uses</div><div class="vm">Frame by Frame</div><span class="pill">720p · 96 MB</span></div></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>C · Settings › Downloads</b><span>The "ready before you leave" switches.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><span class="circ"><svg><use href="#back"/></svg></span><h3 class="sm">Downloads</h3></div>
+     <div class="joined" style="margin-top:4px">
+      <div class="srow" style="background:var(--pc);color:var(--on-pc)"><svg width="22" height="22"><use href="#queue"/></svg><div class="tx"><b>Queue ready offline</b><span style="color:var(--on-pc);opacity:.8">3 of 4 queued videos downloaded</span></div></div>
+     </div>
+     <div class="gh">Automatic</div>
+     <div class="joined">
+      <div class="srow"><div class="tx"><b>Download my queue</b><span>Anything you queue downloads on Wi-Fi, so it starts instantly</span></div><span class="sw"></span></div>
+      <div class="srow"><div class="tx"><b>Also the newest 5 in Watch later</b><span>Kept fresh as you add videos</span></div><span class="sw"></span></div>
+      <div class="srow"><div class="tx"><b>Delete after watching</b><span>Frees the space once a video is finished</span></div><span class="sw"></span></div>
+     </div>
+     <div class="gh">Limits</div>
+     <div class="joined">
+      <div class="srow"><div class="tx"><b>Download on</b><div class="chips"><span class="chip on">Wi-Fi only</span><span class="chip">Any network</span></div></div></div>
+      <div class="srow"><div class="tx"><b>Space to use</b><div class="chips"><span class="chip">2 GB</span><span class="chip on">4 GB</span><span class="chip">8 GB</span><span class="chip">16 GB</span></div></div></div>
+      <div class="srow"><div class="tx"><b>Quality for automatic downloads</b><div class="chips"><span class="chip">1080p</span><span class="chip on">720p</span><span class="chip">Audio only</span></div></div></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>On the player:</b> a downloaded video shows a small "Offline" tag in the quality list and never waits on the network. Swipe left on a download to delete it, with Undo.</p>
+  <p><b>Shorts pre-loading moves under the same Wi-Fi rule</b> (Neon's catch): today it downloads ahead on mobile data too.</p>
+ </div>
+</section>
+
+<!-- ============ 2 FEED ============ -->
+<section class="prop" id="feed">
+ <div class="ph"><div class="num">2</div><div><h2>A cleaner feed you control</h2>
+  <div class="tags"><span class="tag size">Medium build</span><span class="tag">GitHub #97 · #52 · #96</span></div></div></div>
+ <p class="why">Two parts. <b>Clean titles:</b> DeArrow comes from the same people as SponsorBlock. Viewers replace shouting titles and arrow-and-face thumbnails with plain ones, and the original is one tap away. <b>Feed filters:</b> rules Skipii applies itself to Home and Subscriptions, so they work signed out too: hide what you've watched, hide very short videos, mute words and channels.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · Home with clean titles</b><span>Try the button under the phone.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><h3>Home</h3><span class="circ"><svg><use href="#tune"/></svg></span><span class="me"></span></div>
+     <div class="chips"><span class="chip on">All</span><span class="chip">Cooking</span><span class="chip">Engineering</span><span class="chip">Music</span></div>
+     <div class="vc" id="dearrow">
+      <div class="th clean g1"><span class="du">22:14</span><span class="da"><svg><use href="#sparkle"/></svg>Clean</span></div>
+      <div class="th orig-only thumbOrig"><span class="yell">$40 WON?!</span><span class="arrow"></span><span class="du">22:14</span></div>
+      <div class="mt"><span class="av a1"></span><div><div class="vt clean">Testing a $40 espresso machine against a $4,000 one</div><div class="vt orig-only">I CAN'T BELIEVE THE $40 ONE WON?! (not clickbait)</div><div class="vm">Slow Kitchen · 1.1M views · 2 days ago</div></div></div>
+     </div>
+     <div class="vc">
+      <div class="th g2"><span class="du">16:40</span><span class="da"><svg><use href="#sparkle"/></svg>Clean</span></div>
+      <div class="mt"><span class="av a2"></span><div><div class="vt">How a suspension bridge is tuned so it doesn't shake</div><div class="vm">Tech Atlas · 380K views · 5 days ago</div></div></div>
+     </div>
+     <div class="nav"><span class="tab sel"><svg><use href="#home"/></svg>Home</span><span class="tab"><svg><use href="#subs"/></svg></span><span class="tab"><svg><use href="#shorts"/></svg></span><span class="tab"><svg><use href="#search"/></svg></span><span class="tab"><svg><use href="#lib"/></svg></span></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+   <button class="toggle" id="daBtn" type="button" aria-pressed="false"><svg><use href="#eye"/></svg><span>Show the original</span></button>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Your feed</b><span>The new filter button in Home's header opens this sheet.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><h3>Home</h3><span class="circ pri"><svg><use href="#tune"/></svg></span><span class="me"></span></div>
+     <div class="vc"><div class="th g6"></div></div>
+     <div class="dim"></div>
+     <div class="sheet">
+      <div class="handle"></div>
+      <h4>Your feed</h4>
+      <p class="sub">Hiding 9 videos on Home right now</p>
+      <div class="opt"><span class="tx">Hide videos I've watched<small>Finished, or more than 90% watched</small></span><span class="sw"></span></div>
+      <div class="opt"><span class="tx">Clean titles and thumbnails<small>From DeArrow · tap a card's tag for the original</small></span><span class="sw"></span></div>
+      <div class="lbl">Hide videos shorter than</div>
+      <div class="chips" style="padding:0 18px 4px"><span class="chip">Off</span><span class="chip on">1 min</span><span class="chip">3 min</span><span class="chip">10 min</span></div>
+      <div class="lbl">Muted words</div>
+      <div class="chips" style="padding:0 18px 4px;flex-wrap:wrap"><span class="chip soft">reaction<svg><use href="#close"/></svg></span><span class="chip soft">prank<svg><use href="#close"/></svg></span><span class="chip"><svg><use href="#add"/></svg>Add</span></div>
+      <div class="lbl">Muted channels</div>
+      <div class="chips" style="padding:0 18px 4px"><span class="chip soft"><span class="av a5" style="width:18px;height:18px"></span>Drama Daily<svg><use href="#close"/></svg></span><span class="chip"><svg><use href="#add"/></svg>Add</span></div>
+      <div class="opt" style="margin-top:4px"><span class="tx">Shorts only in Subscriptions<small>Keeps Home free of Shorts</small></span><span class="sw off"></span></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>Long-press any card</b> gets "Mute this channel" next to the existing "Not interested".</p>
+  <p><b>DeArrow's credit</b> sits next to SponsorBlock's in Settings. Same non-commercial licence, so nothing changes about how Skipii is shared.</p>
+ </div>
+</section>
+
+<!-- ============ 3 SEARCH ============ -->
+<section class="prop" id="search">
+ <div class="ph"><div class="num">3</div><div><h2>Search that finds channels, playlists and older videos</h2>
+  <div class="tags"><span class="tag size">Medium build</span><span class="tag">GitHub #39 · #70</span></div></div></div>
+ <p class="why">Today Search shows one page of videos and stops. 2.0 adds <b>suggestions as you type</b>, <b>endless results</b>, <b>channels and playlists</b>, and <b>filters</b> for upload date and length. Separately, there's a decision for you: keep five tabs, or move Search into its own round button so it works from any page.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · Typing</b><span>Your past searches first, then YouTube's suggestions. The arrow fills the field.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd" style="padding-left:12px"><span class="circ"><svg><use href="#back"/></svg></span><div class="field"><span class="q">slow kitch<span class="cur"></span></span><svg><use href="#close"/></svg></div></div>
+     <div class="chanhit"><span class="av a1"></span><div class="tx"><b>Slow Kitchen</b><span>Channel · 1.2M subscribers</span></div><svg width="20" height="20" style="color:var(--on-var)"><use href="#chev"/></svg></div>
+     <div class="sug"><svg><use href="#clock"/></svg><span class="q"><b>slow kitch</b>en espresso</span><svg><use href="#close"/></svg></div>
+     <div class="sug"><svg><use href="#search"/></svg><span class="q"><b>slow kitch</b>en sourdough</span><svg><use href="#nw"/></svg></div>
+     <div class="sug"><svg><use href="#search"/></svg><span class="q"><b>slow kitch</b>en knife skills</span><svg><use href="#nw"/></svg></div>
+     <div class="sug"><svg><use href="#search"/></svg><span class="q"><b>slow kitch</b>en ramen from scratch</span><svg><use href="#nw"/></svg></div>
+     <div class="sug"><svg><use href="#search"/></svg><span class="q"><b>slow kitch</b>en gear tour</span><svg><use href="#nw"/></svg></div>
+     <div class="kb">
+      <i>q</i><i>w</i><i>e</i><i>r</i><i>t</i><i>y</i><i>u</i><i>i</i><i>o</i><i>p</i><i>a</i><i>s</i><i>d</i><i>f</i><i>g</i><i>h</i><i>j</i><i>k</i><i>l</i>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Results with filters</b><span>The channel up top, then videos and playlists. Filters are chips you can clear.</span></div>
+   <div class="phone">
+    <div class="sb"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd" style="padding-left:12px"><span class="circ"><svg><use href="#back"/></svg></span><div class="field"><svg><use href="#search"/></svg><span class="q">espresso machine</span></div></div>
+     <div class="chips"><span class="chip on">All</span><span class="chip">Videos</span><span class="chip">Channels</span><span class="chip">Playlists</span><span class="chip"><svg><use href="#tune"/></svg>Filters</span></div>
+     <div class="chips" style="padding-top:0"><span class="chip soft">This month<svg><use href="#close"/></svg></span><span class="chip soft">Over 20 min<svg><use href="#close"/></svg></span></div>
+     <div class="chanhit"><span class="av a1"></span><div class="tx"><b>Slow Kitchen</b><span>1.2M subscribers · 340 videos</span></div><span class="subbtn">Subscribe</span></div>
+     <div class="vr"><div class="th g1"><span class="du">28:10</span></div><div><div class="vt">I rebuilt a 1960s espresso machine from parts</div><div class="vm">Slow Kitchen · 412K views · 3 days ago</div></div></div>
+     <div class="plc"><div class="th g8"><span class="cnt"><span><svg><use href="#plist"/></svg>24<br>videos</span></span></div><div><div class="vt" style="font-size:12.5px">Home barista basics</div><div class="vm" style="font-size:10.5px">Playlist · Bean Theory</div></div></div>
+     <div class="vr"><div class="th g7"><span class="du">34:51</span></div><div><div class="vt">Every espresso mistake I made in my first year</div><div class="vm">Bean Theory · 96K views · 2 weeks ago</div></div></div>
+     <div class="vr"><div class="th g4"><span class="du">21:03</span></div><div><div class="vt">Lever machines, explained properly</div><div class="vm">Crema Lab · 51K views · 3 weeks ago</div></div></div>
+     <div class="nav"><span class="tab"><svg><use href="#home"/></svg></span><span class="tab"><svg><use href="#subs"/></svg></span><span class="tab"><svg><use href="#shorts"/></svg></span><span class="tab sel"><svg><use href="#search"/></svg>Search</span><span class="tab"><svg><use href="#lib"/></svg></span></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot" style="width:340px">
+   <div class="cap"><b>C · Your call: where Search lives</b><span>Both keep the bar's look and its morph into the player bar.</span></div>
+   <div class="navbox">
+    <div class="navopt"><b>A · Keep five tabs</b><span>Nothing moves. With Subscriptions selected, its label still shortens to "Subs" on narrow phones.</span>
+     <div class="navrow"><div class="nav"><span class="tab"><svg><use href="#home"/></svg></span><span class="tab sel"><svg><use href="#subs"/></svg>Subs</span><span class="tab"><svg><use href="#shorts"/></svg></span><span class="tab"><svg><use href="#search"/></svg></span><span class="tab"><svg><use href="#lib"/></svg></span></div></div></div>
+    <div class="navopt"><b>B · Four tabs + a search button</b><span>Search opens over whatever page you're on, and Back returns you to the same spot. Every label fits. This changes your five-tab rule.</span>
+     <div class="navrow"><div class="nav"><span class="tab"><svg><use href="#home"/></svg></span><span class="tab sel" style="flex:4"><svg><use href="#subs"/></svg>Subscriptions</span><span class="tab"><svg><use href="#shorts"/></svg></span><span class="tab"><svg><use href="#lib"/></svg></span></div><span class="orb"><svg><use href="#search"/></svg></span></div></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 4 BAR ============ -->
+<section class="prop" id="bar">
+ <div class="ph"><div class="num">4</div><div><h2>A roomier player bar, and a sleep timer</h2>
+  <div class="tags"><span class="tag size">Small–medium build</span><span class="tag">GitHub #92 (autoplay)</span></div></div></div>
+ <p class="why">The ⋮ card holds up to seven unlabelled circles in one row today. 2.0 makes it <b>two rows of labelled tiles</b>, with tiles tinted when a setting is on (like the Flip deck). That frees room for <b>Sleep</b>, <b>Loop</b> and <b>Voice boost</b> (clearer speech). The resting bar stays the same size. A small chip above it shows a running sleep timer.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · The ⋮ card, two rows</b><span>The strip on top shows the chapter and time. Speed and Sleep are on (tinted).</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid"></div>
+     <div class="det"><div class="ttl">I rebuilt a 1960s espresso machine from parts</div><div class="sub2">412K views · 3 days ago</div>
+      <div class="chan"><span class="av a1"></span><b>Slow Kitchen<small>1.2M subscribers</small></b><span class="subd">Subscribed</span></div>
+      <div class="ccard"><div class="h">Comments <span>1.2K</span></div><p><span class="av a3" style="width:22px;height:22px"></span>The gasket part at 14:02 saved my machine</p></div>
+     </div>
+     <div class="pc">
+      <div class="ctx"><b>3 · The pump is the heart</b><span class="t">12:44 / 28:10</span></div>
+      <div class="g5">
+       <div class="tl on"><span class="gl">1.5×</span>Speed</div>
+       <div class="tl"><span class="gl" style="font-size:11px">1080p</span>Quality</div>
+       <div class="tl"><svg><use href="#cc"/></svg>Captions</div>
+       <div class="tl"><svg><use href="#lang"/></svg>Audio</div>
+       <div class="tl on"><svg><use href="#moon"/></svg>24 min</div>
+       <div class="tl"><svg><use href="#loop"/></svg>Loop</div>
+       <div class="tl"><svg><use href="#voice"/></svg>Voice</div>
+       <div class="tl"><svg><use href="#pip"/></svg>PiP</div>
+       <div class="tl"><svg><use href="#full"/></svg>Full</div>
+       <div class="tl"><svg><use href="#next"/></svg>Next</div>
+      </div>
+      <div class="trow"><span class="pbi side"><svg><use href="#head"/></svg></span><span class="pbi sk"><svg><use href="#replay"/></svg><i>10</i></span><span class="pbi pp"><svg><use href="#pause"/></svg></span><span class="pbi sk fw"><svg><use href="#replay"/></svg><i>10</i></span><span class="pbi side"><svg><use href="#close"/></svg></span></div>
+      <div class="hair"><b></b><i style="left:62%;width:6%"></i></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Sleep timer</b><span>Opens inside the bar, like the speed ruler. The sound fades out at the end.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>23:12</span><span class="r"><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid" style="filter:brightness(.8)"></div>
+     <div class="det"><div class="ttl">The history of synthesizers, episode 12</div><div class="sub2">Signal Path · 1:12:40</div>
+      <div class="chan"><span class="av a4"></span><b>Signal Path<small>640K subscribers</small></b><span class="subd">Subscribed</span></div></div>
+     <div class="pnl">
+      <h5><svg width="20" height="20" style="color:var(--primary)"><use href="#moon"/></svg>Sleep timer<span class="x"><svg><use href="#close"/></svg></span></h5>
+      <div class="big">23:41<small>left</small></div>
+      <div class="chips"><span class="chip">15 min</span><span class="chip on">30 min</span><span class="chip">45 min</span><span class="chip">1 hour</span><span class="chip">End of video</span><span class="chip">End of queue</span></div>
+      <div class="opt"><span class="tx">Fade out gently<small>The last 30 seconds get quieter, then it pauses</small></span><span class="sw"></span></div>
+      <div class="opt"><span class="tx">Shake to add 10 minutes<small>If you're still awake</small></span><span class="sw off"></span></div>
+      <div class="row2"><div>Turn off</div><div class="pri">+5 min</div></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>C · When the video ends</b><span>Autoplay (off, music only, or always) uses the existing Up next card. The resting bar shows the timer.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>23:24</span><span class="r"><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid" style="background:radial-gradient(30% 40% at 50% 50%,#ffd2e6 0 30%,transparent 32%),linear-gradient(135deg,#3a1d5c,#120a22)"></div>
+     <div class="det"><div class="ttl">Nightfall (live at the old church)</div><div class="sub2">Aurelia Quartet · Music</div>
+      <div style="margin-top:14px;border-radius:22px;background:var(--scl);padding:10px;display:flex;gap:10px;align-items:center">
+       <div class="th g5" style="width:96px;border-radius:12px"></div>
+       <div style="flex:1;min-width:0"><div style="font-size:10.5px;font-weight:800;color:var(--primary);letter-spacing:.3px">AUTOPLAY · MUSIC ONLY</div><div class="vt" style="font-size:12.5px;margin-top:2px">Low Tide (acoustic)</div><div class="vm">Aurelia Quartet</div></div>
+       <div style="width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--primary) 0 70%,var(--sch) 70%);display:grid;place-items:center;flex:none"><span style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center"><svg width="18" height="18"><use href="#play"/></svg></span></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><span class="subd">Cancel</span></div>
+      <div class="ccard" style="margin-top:12px"><div class="h"><span style="color:var(--on)">Settings › Playback › When a video ends</span></div>
+       <div class="chips" style="padding:8px 0 0;-webkit-mask-image:none;mask-image:none;flex-wrap:wrap"><span class="chip" style="height:28px;font-size:11px">Stop</span><span class="chip on" style="height:28px;font-size:11px">Autoplay music</span><span class="chip" style="height:28px;font-size:11px">Always autoplay</span></div></div>
+     </div>
+     <div class="ticker"><svg><use href="#moon"/></svg>11:58<span>· fading at the end</span></div>
+     <div class="pb"><span class="pbi side"><svg><use href="#head"/></svg></span><span class="pbi sk"><svg><use href="#replay"/></svg><i>10</i></span><span class="pbi pp"><svg><use href="#pause"/></svg></span><span class="pbi sk fw"><svg><use href="#replay"/></svg><i>10</i></span><span class="pbi side"><svg><use href="#more"/></svg></span><div class="line"><b></b></div></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>Speed per channel:</b> the speed ruler gets a third choice next to "This video" and "Every video": <b>"This channel"</b>. A podcast can stay at 1.5× while music plays at 1×.</p>
+  <p><b>Audio only stays as you designed it</b> (no picture space). The sleep chip and tinted tiles work the same there.</p>
+ </div>
+</section>
+
+<!-- ============ 5 FULLSCREEN ============ -->
+<section class="prop" id="fullscreen">
+ <div class="ph"><div class="num">5</div><div><h2>Fullscreen: one settings button, and More videos without leaving</h2>
+  <div class="tags"><span class="tag size">Small–medium build</span><span class="tag">GitHub #93 · #67 · #98</span></div></div></div>
+ <p class="why">Fullscreen's top row has grown to five separate buttons, each with its own card. 2.0 puts <b>Quality, Speed, Captions, Audio track and Sleep behind one gear</b>, in one glass card. Then <b>swipe up on the video</b> to see your queue and More videos without turning the phone back upright.</p>
+ <div class="shots">
+  <div class="shot wide">
+   <div class="cap"><b>A · One gear, one card</b><span>Each row opens its existing list inside the same card. Lock and PiP keep their own buttons.</span></div>
+   <div class="hscroll"><div class="land">
+    <div class="pic"></div><div class="shade"></div>
+    <div class="otile" style="left:22px;top:18px"><svg><use href="#lock"/></svg></div>
+    <div style="position:absolute;left:74px;top:22px;right:200px;font-size:13.5px;font-weight:780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">I rebuilt a 1960s espresso machine from parts</div>
+    <div class="otile" style="right:70px;top:18px"><svg><use href="#pip"/></svg></div>
+    <div class="otile on" style="right:22px;top:18px"><svg><use href="#gear"/></svg></div>
+    <div class="glass hub">
+     <div class="r"><svg><use href="#tune"/></svg>Quality<span>1080p</span><svg class="ch"><use href="#chev"/></svg></div>
+     <div class="r"><svg><use href="#play"/></svg>Speed<span>1.5×</span><svg class="ch"><use href="#chev"/></svg></div>
+     <div class="r"><svg><use href="#cc"/></svg>Captions<span>English</span><svg class="ch"><use href="#chev"/></svg></div>
+     <div class="r"><svg><use href="#lang"/></svg>Audio track<span>Original</span><svg class="ch"><use href="#chev"/></svg></div>
+     <div class="r"><svg><use href="#moon"/></svg>Sleep timer<span>Off</span><svg class="ch"><use href="#chev"/></svg></div>
+    </div>
+    <div class="oseek" style="left:calc(34% - 130px)">−10</div>
+    <div class="oplay" style="left:34%"><svg><use href="#pause"/></svg></div>
+    <div class="oseek" style="left:calc(34% + 82px)">+10</div>
+    <div class="otime">12:44 <span>/ 28:10 · The pump is the heart</span></div>
+    <div class="oscrub"><b></b><i></i></div>
+   </div></div>
+  </div>
+  <div class="shot wide">
+   <div class="cap"><b>B · Swipe up for what's next</b><span>The video keeps playing above. Swipe down or tap the picture to close.</span></div>
+   <div class="hscroll"><div class="land">
+    <div class="pic"></div><div class="shade" style="background:rgba(0,0,0,.3)"></div>
+    <div class="glass drawer">
+     <div class="handle" style="opacity:.5"></div>
+     <div class="dtabs"><span>Queue · 2</span><span class="on">More videos</span><span>From Slow Kitchen</span></div>
+     <div class="drow">
+      <div class="dcardv"><div class="th g7"><span class="du">34:51</span></div><p>Every espresso mistake I made in my first year</p></div>
+      <div class="dcardv"><div class="th g4"><span class="du">21:03</span></div><p>Lever machines, explained properly</p></div>
+      <div class="dcardv"><div class="th g8"><span class="du">12:30</span></div><p>Descaling without wrecking the boiler</p></div>
+      <div class="dcardv"><div class="th g3"><span class="du">18:06</span></div><p>A week of cafés in Lisbon</p></div>
+     </div>
+    </div>
+   </div></div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>Tap a card in the drawer</b> to play it now. Swipe it right to add it to the queue, the same gesture as everywhere else.</p>
+ </div>
+</section>
+
+<!-- ============ 6 TIMELINE ============ -->
+<section class="prop" id="timeline">
+ <div class="ph"><div class="num">6</div><div><h2>Chapters and transcript in one place</h2>
+  <div class="tags"><span class="tag size">Small–medium build</span><span class="tag">Neon's favourite</span></div></div></div>
+ <p class="why">Two things change. <b>Chapters and the transcript share one panel</b> under the video, opened from the bar's chapter strip. And when the creator added no chapters, Skipii <b>builds them from the most-liked comment with a list of times</b>, and says whose they are. SponsorBlock's <b>"highlight"</b> (the moment the video is actually about) gets a Jump row and a gold dot on the progress line.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · Chapters, made from a comment</b><span>The current chapter is filled; the highlight is gold.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>9:41</span><span class="r"><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid"></div>
+     <div class="panel" style="top:170px">
+      <div class="handle"></div>
+      <div class="ptabs"><div class="seg"><span class="on">Chapters</span><span>Transcript</span></div><span class="circ"><svg><use href="#close"/></svg></span></div>
+      <div class="src">No chapters from the creator. These come from a comment by <b>@beanhead</b> (2.1K likes).</div>
+      <div class="chap hl"><span class="star"><svg><use href="#star"/></svg></span><div class="tx"><b>Highlight: first shot after the rebuild</b><span>SponsorBlock · 24:18</span></div><span class="jump">Jump</span></div>
+      <div class="chap"><div class="th g8"></div><div class="tx"><b>Finding the machine</b><span>0:00</span></div></div>
+      <div class="chap"><div class="th g4"></div><div class="tx"><b>Taking it apart</b><span>3:12</span></div></div>
+      <div class="chap now"><div class="th g1"></div><div class="tx"><b>The pump is the heart</b><span>11:05 · playing</span></div></div>
+      <div class="chap"><div class="th g6"></div><div class="tx"><b>New gaskets, old boiler</b><span>14:02</span></div></div>
+      <div class="chap"><div class="th g7"></div><div class="tx"><b>Putting it back together</b><span>19:40</span></div></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Transcript, searchable</b><span>Matches are marked, the arrows step through them, and tapping a line jumps there.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>9:41</span><span class="r"><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid"></div>
+     <div class="panel" style="top:170px">
+      <div class="handle"></div>
+      <div class="ptabs"><div class="seg"><span>Chapters</span><span class="on">Transcript</span></div><span class="circ"><svg><use href="#close"/></svg></span></div>
+      <div class="search"><svg><use href="#search"/></svg><span class="q">gasket</span><span class="n">2 of 5</span><span class="ar"><svg style="transform:rotate(-90deg)"><use href="#chev"/></svg></span><span class="ar"><svg style="transform:rotate(90deg)"><use href="#chev"/></svg></span></div>
+      <div class="tline"><time>13:41</time><span>so the pressure was fine, the leak had to be somewhere lower</span></div>
+      <div class="tline now"><time>14:02</time><span>and there it is, the group <mark>gasket</mark> has gone completely hard</span></div>
+      <div class="tline"><time>14:09</time><span>sixty years will do that to rubber, honestly I'm impressed it held</span></div>
+      <div class="tline"><time>14:17</time><span>a new <mark>gasket</mark> is about four dollars, which is the cheapest fix of the day</span></div>
+      <div class="tline"><time>14:26</time><span>you want to soak it in warm water first so it seats properly</span></div>
+      <div class="backnow"><svg><use href="#replay"/></svg>Back to now</div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>Hold a transcript line</b> to share it as a quote with a link to that moment.</p>
+  <p><b>Comment chapters</b> only appear when there are no creator chapters, and only from a comment with at least three times in order.</p>
+ </div>
+</section>
+
+<!-- ============ 7 LISTS ============ -->
+<section class="prop" id="lists">
+ <div class="ph"><div class="num">7</div><div><h2>Help choosing what to watch</h2>
+  <div class="tags"><span class="tag size">Small build each</span><span class="tag">GitHub #32 · #60 · #99</span></div></div></div>
+ <p class="why">Three small upgrades for the lists you open every day. <b>Subscription groups</b> (Daily, Tech, Podcasts) for a calm morning scan. <b>Watch later by length</b>, for when you have ten minutes. <b>Comments sorted by Newest</b> on fresh uploads.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · Subscription groups</b><span>Groups you make. The channel row and the feed follow the group.</span></div>
+   <div class="phone">
+    <div class="sb"><span>7:52</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><h3>Subscriptions</h3><span class="me"></span></div>
+     <div class="chips"><span class="chip">All</span><span class="chip on">Daily</span><span class="chip">Tech</span><span class="chip">Podcasts</span><span class="chip"><svg><use href="#add"/></svg>Group</span></div>
+     <div style="display:flex;gap:12px;padding:4px 14px 10px">
+      <div style="text-align:center;font-size:10px;font-weight:700"><span class="av a2" style="width:46px;height:46px;display:block;margin-bottom:4px"></span>Tech Atlas</div>
+      <div style="text-align:center;font-size:10px;font-weight:700"><span class="av a1" style="width:46px;height:46px;display:block;margin-bottom:4px"></span>Slow Kit…</div>
+      <div style="text-align:center;font-size:10px;font-weight:700"><span class="av a6" style="width:46px;height:46px;display:block;margin-bottom:4px"></span>Morning…</div>
+      <div style="text-align:center;font-size:10px;font-weight:700"><span class="av a3" style="width:46px;height:46px;display:block;margin-bottom:4px"></span>Long Way</div>
+     </div>
+     <div class="chips" style="padding-top:0"><span class="chip soft"><svg><use href="#check"/></svg>Unwatched only</span><span class="chip">Hide Shorts</span></div>
+     <div class="vc"><div class="th g8"><span class="du">11:20</span></div><div class="mt"><span class="av a6"></span><div><div class="vt">Tuesday's headlines in eleven minutes</div><div class="vm">Morning Brief · 2 hours ago</div></div></div></div>
+     <div class="vc"><div class="th g2"><span class="du">16:40</span></div><div class="mt"><span class="av a2"></span><div><div class="vt">How a suspension bridge is tuned</div><div class="vm">Tech Atlas · 5 hours ago</div></div></div></div>
+     <div class="nav"><span class="tab"><svg><use href="#home"/></svg></span><span class="tab sel"><svg><use href="#subs"/></svg>Subs</span><span class="tab"><svg><use href="#shorts"/></svg></span><span class="tab"><svg><use href="#search"/></svg></span><span class="tab"><svg><use href="#lib"/></svg></span></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>B · Watch later by length</b><span>Uses the full-list loading search already does. "Pick one" plays a random match.</span></div>
+   <div class="phone">
+    <div class="sb"><span>12:31</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="hd"><span class="circ"><svg><use href="#back"/></svg></span><h3 class="sm">Watch later</h3></div>
+     <div class="search" style="margin-bottom:8px"><svg><use href="#search"/></svg><span class="q" style="color:var(--on-var)">Search 1,667 videos</span></div>
+     <div class="chips"><span class="chip">Any length</span><span class="chip on">Under 10 min</span><span class="chip">10–30 min</span><span class="chip">Over 30 min</span></div>
+     <div style="display:flex;align-items:center;gap:8px;padding:0 12px 8px"><span class="chip soft"><svg><use href="#check"/></svg>Hide watched</span><span style="flex:1;font-size:11px;color:var(--on-var);font-weight:650;text-align:right">214 videos</span></div>
+     <div style="margin:0 12px 10px;height:44px;border-radius:22px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:800"><svg width="18" height="18"><use href="#shuffle"/></svg>Pick one for me</div>
+     <div class="vr"><div class="th g4"><span class="du">9:48</span></div><div><div class="vt">The camera trick every film uses</div><div class="vm">Frame by Frame</div></div></div>
+     <div class="vr"><div class="th g3"><span class="du">6:12</span></div><div><div class="vt">Why trains in Japan are always on time</div><div class="vm">Long Way Round</div></div></div>
+     <div class="vr"><div class="th g7"><span class="du">8:30</span></div><div><div class="vt">The 3-ingredient pasta I make every week</div><div class="vm">Slow Kitchen</div></div></div>
+     <div class="vr"><div class="th g5"><span class="du">4:55</span></div><div><div class="vt">Building a synth voice from one oscillator</div><div class="vm">Signal Path</div></div></div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="shot">
+   <div class="cap"><b>C · Comments: Top or Newest</b><span>Sorting sits in the panel's header. Double-tap a comment to like it.</span></div>
+   <div class="phone">
+    <div class="sb blk"><span>9:41</span><span class="r"><i class="bt"></i></span></div>
+    <div class="scr">
+     <div class="vid"></div>
+     <div class="panel" style="top:170px">
+      <div class="handle"></div>
+      <div class="ptabs"><b style="font-size:16px;font-weight:850;margin-left:4px">Comments</b><span style="font-size:12px;color:var(--on-var);font-weight:700;margin-left:4px">1.2K</span><div class="seg" style="margin-left:auto"><span>Top</span><span class="on">Newest</span></div></div>
+      <div class="cm"><span class="av a3"></span><div class="tx"><b>@kettleandcog <span>· 4 min ago</span></b><div>Just did the gasket swap on my Faema after watching this. <span class="ts">14:02</span> is the bit you need.</div><div class="lk"><svg><use href="#like"/></svg>3</div></div></div>
+      <div class="cm"><span class="av a5"></span><div class="tx"><b>@mia.pulls.shots <span>· 11 min ago</span></b><div>What grinder is that on the left?</div><div class="lk"><svg><use href="#like"/></svg>1</div></div></div>
+      <div class="cm"><span class="av a2"></span><div class="tx"><b>@oldiron <span>· 26 min ago</span></b><div>The sound when it first builds pressure is so good.</div><div class="lk"><svg style="color:var(--primary)"><use href="#like"/></svg><span style="color:var(--primary)">Liked · 8</span></div></div></div>
+      <div class="cm"><span class="av a4"></span><div class="tx"><b>@tamper.tantrum <span>· 40 min ago</span></b><div>Part two when?</div><div class="lk"><svg><use href="#like"/></svg>0</div></div></div>
+      <div class="composer">Add a comment…<span class="me"></span></div>
+     </div>
+     <div class="gest"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="notes">
+  <p><b>Groups live on the phone</b> and don't change anything on your YouTube account. A new group starts from a pick list of your subscriptions.</p>
+  <p><b>Delete from Watch later when finished</b> joins these as a switch (it pairs with "Delete after watching" in Downloads).</p>
+ </div>
+</section>
+
+<!-- ============ 8 WIDGET ============ -->
+<section class="prop" id="widget">
+ <div class="ph"><div class="num">8</div><div><h2>A home-screen widget</h2>
+  <div class="tags"><span class="tag size">Medium build</span></div></div></div>
+ <p class="why">Pick up where you left off without opening the app. Playing: the video with −10 · play · +10 and its SponsorBlock marks. Not playing: <b>Continue watching</b> with time left. A small 2×2 version shows the next video in your queue and whether it's downloaded.</p>
+ <div class="shots">
+  <div class="shot">
+   <div class="cap"><b>A · 4×3 widget, playing</b><span>Wallpaper colours, as Pixel widgets do.</span></div>
+   <div class="phone">
+    <div class="wall"></div>
+    <div class="sb" style="color:#3a1830"><span>9:41</span><span class="r"><svg width="14" height="14"><use href="#wifi"/></svg><i class="bt"></i></span></div>
+    <div class="clock">9:41<small>Monday, 23 November</small></div>
+    <div class="wdg" style="top:170px">
+     <div class="wh"><span class="logo"></span>Skipii · playing</div>
+     <div class="wnow"><div class="th g1"></div><div class="tx"><b>I rebuilt a 1960s espresso machine from parts</b><span>Slow Kitchen · 12:44 / 28:10</span></div></div>
+     <div class="wbar"><b></b><i style="left:62%;width:6%"></i></div>
+     <div class="wctl"><span class="pbi sk"><svg><use href="#replay"/></svg><i>10</i></span><span class="pbi pp"><svg><use href="#pause"/></svg></span><span class="pbi sk fw"><svg><use href="#replay"/></svg><i>10</i></span></div>
+     <div class="wh" style="margin-top:12px">Continue watching</div>
+     <div class="wcont">
+      <div><div class="th g3"></div><small>14 min left</small></div>
+      <div><div class="th g5"></div><small>52 min left</small></div>
+      <div><div class="th g2"></div><small>6 min left</small></div>
+     </div>
+    </div>
+    <div class="wsmall" style="position:absolute;left:14px;right:14px;top:462px">
+     <div class="wdg"><div class="wh"><span class="logo"></span>Up next</div><div class="th g7" style="border-radius:11px"><span class="badge"><svg><use href="#dldone"/></svg>Offline</span></div><div style="font-size:11px;font-weight:750;margin-top:6px;line-height:1.25">Every espresso mistake I made</div></div>
+     <div class="wdg" style="display:grid;place-items:center;text-align:center"><div><span class="pbi pp" style="margin:0 auto"><svg><use href="#search"/></svg></span><div style="font-size:11px;font-weight:750;margin-top:8px">Search Skipii</div></div></div>
+    </div>
+    <div class="dock"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gest" style="background:#3a1830"></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ LATER ============ -->
+<section class="prop" id="later">
+ <h2 class="plain">Talked about, but not for 2.0</h2>
+ <div class="later">
+  <div class="lcard"><b>Live streams</b><p>Watching live keynotes and premieres. YouTube guards live video more tightly, so it would break often.</p><span class="st">Later</span></div>
+  <div class="lcard"><b>Send to TV</b><p>Pass the video, its position and your queue from the phone to Skipii on the TV over home Wi-Fi.</p><span class="st">Later</span></div>
+  <div class="lcard"><b>Glow behind the video</b><p>Neon talked me out of it: it fights the pure-black AMOLED look and the black status bar over videos.</p><span class="st">Dropped</span></div>
+  <div class="lcard"><b>No more bot check, age-restricted videos</b><p>Needs YouTube's own player code to run inside Skipii. Still blocked; downloads soften it in the meantime.</p><span class="st">Blocked</span></div>
+ </div>
+ <h2 class="plain" style="margin-top:36px">Behind-the-scenes tidy-ups (Neon's list)</h2>
+ <div class="later">
+  <div class="lcard"><b>One picker per control</b><p>Speed, quality and captions each exist in five versions (bar, sheet, fullscreen card, tabletop, TV). Sharing one makes every new control, like Sleep, a single job.</p></div>
+  <div class="lcard"><b>Back that remembers</b><p>Channel → another channel → Back currently can't return to the first. A proper page history fixes that and keeps slide animations consistent.</p></div>
+  <div class="lcard"><b>Fewer repeated settings</b><p>"Keep speed" lives in three places. The quick toggles on the Settings front page could hold Downloads or Background play instead.</p></div>
+  <div class="lcard"><b>Lighter comments</b><p>Comment names are looked up one channel feed at a time, through feeds that often fail. Plain @handles (as YouTube now shows) would load faster and use less data.</p></div>
+ </div>
+ <p class="foot">Mockups use made-up channels and videos. Colours follow Skipii's YouTube theme in light and dark.</p>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var b=document.getElementById('daBtn'),c=document.getElementById('dearrow');
+  if(!b||!c)return;
+  b.addEventListener('click',function(){
+    var o=c.classList.toggle('orig');
+    b.setAttribute('aria-pressed',o?'true':'false');
+    b.querySelector('span').textContent=o?'Show the clean version':'Show the original';
+  });
+})();
+</script>
+
+</body>
+</html>

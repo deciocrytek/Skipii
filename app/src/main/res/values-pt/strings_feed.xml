@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">Seu feed</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">Filtros do feed</string>
+    <plurals name="feed_hiding">
+        <item quantity="one">Ocultando %1$s vídeo agora</item>
+        <item quantity="other">Ocultando %1$s vídeos agora</item>
+    </plurals>
+    <string name="feed_hiding_none">Nada oculto agora</string>
+    <string name="feed_hide_watched">Ocultar vídeos que já assisti</string>
+    <string name="feed_hide_watched_line">Assistidos até o fim no Skipii, ou quase</string>
+    <string name="feed_shorter_than">Ocultar vídeos mais curtos que</string>
+    <string name="feed_off">Desativado</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s min</string>
+    <string name="feed_muted_words">Palavras silenciadas</string>
+    <string name="feed_add">Adicionar</string>
+    <string name="feed_word_hint">Uma palavra ou frase</string>
+    <string name="feed_add_word">Adicionar palavra</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">Parar de silenciar %1$s</string>
+    <string name="feed_muted_channels">Canais silenciados</string>
+    <string name="feed_muted_channels_none">Segure qualquer vídeo para silenciar o canal</string>
+    <string name="feed_subscription_shorts">Shorts das inscrições</string>
+    <string name="feed_subscription_shorts_line">Uma fileira com os Shorts das suas inscrições no Início e em Inscrições, mesmo com a aba Shorts desativada</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">Silenciar este canal</string>
+    <string name="feed_muted">%1$s silenciado</string>
+    <string name="feed_filtered_out_title">Tudo aqui foi filtrado</string>
+    <string name="feed_filtered_out_body">Seus filtros ocultam todos os vídeos carregados até agora.</string>
+    <string name="feed_edit_filters">Editar filtros</string>
+    <string name="feed_load_more">Carregar mais</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">Todos</string>
+    <string name="feed_group_add">Grupo</string>
+    <string name="feed_group_new">Novo grupo</string>
+    <string name="feed_group_edit">Editar grupo</string>
+    <string name="feed_group_name_hint">Nome do grupo</string>
+    <string name="feed_group_search_hint">Encontrar um canal</string>
+    <plurals name="feed_group_picked">
+        <item quantity="one">%1$s canal</item>
+        <item quantity="other">%1$s canais</item>
+    </plurals>
+    <string name="feed_group_no_channels">Suas inscrições aparecem aqui assim que carregarem.</string>
+    <string name="feed_group_delete">Excluir</string>
+    <string name="feed_group_save">Salvar</string>
+    <string name="feed_unwatched_only">Somente não assistidos</string>
+    <string name="feed_group_empty_title">Nada novo em %1$s</string>
+    <string name="feed_group_empty_body">Nada destes canais nos vídeos carregados até agora.</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">Qualquer duração</string>
+    <string name="feed_wl_under10">Menos de 10 min</string>
+    <string name="feed_wl_10to30">10–30 min</string>
+    <string name="feed_wl_over30">Mais de 30 min</string>
+    <string name="feed_hide_watched_chip">Ocultar assistidos</string>
+    <string name="feed_pick_one">Escolha um para mim</string>
+    <plurals name="feed_count">
+        <item quantity="one">%1$s vídeo</item>
+        <item quantity="other">%1$s vídeos</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="one">%1$s até agora…</item>
+        <item quantity="other">%1$s até agora…</item>
+    </plurals>
+    <string name="feed_none_match">Nada nesta lista corresponde a essas escolhas.</string>
+</resources>

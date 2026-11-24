@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Tümü</string>
+    <string name="search_type_videos">Videolar</string>
+    <string name="search_type_channels">Kanallar</string>
+    <string name="search_type_playlists">Oynatma listeleri</string>
+    <string name="search_filters">Filtreler</string>
+    <string name="search_date">Yükleme tarihi</string>
+    <string name="search_date_any">Herhangi bir zaman</string>
+    <string name="search_date_today">Bugün</string>
+    <string name="search_date_week">Bu hafta</string>
+    <string name="search_date_month">Bu ay</string>
+    <string name="search_date_year">Bu yıl</string>
+    <string name="search_length">Uzunluk</string>
+    <string name="search_length_any">Herhangi bir uzunluk</string>
+    <string name="search_length_short">3 dk altı</string>
+    <string name="search_length_medium">3–20 dk</string>
+    <string name="search_length_long">20 dk üstü</string>
+    <string name="search_sort">Sıralama</string>
+    <string name="search_sort_relevance">Alaka düzeyi</string>
+    <string name="search_sort_popularity">Popülerlik</string>
+    <string name="search_reset">Sıfırla</string>
+    <string name="search_apply">Sonuçları göster</string>
+    <string name="search_videos_only_note">Yükleme tarihi, uzunluk ve sıralama videolar için geçerlidir.</string>
+    <string name="search_channel">Kanal</string>
+    <string name="search_playlist">Oynatma listesi</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">“%1$s” yazısını doldur</string>
+    <string name="search_more_failed">Daha fazla sonuç yüklenemedi</string>
+    <string name="search_clear_filters">Filtreleri temizle</string>
+    <string name="search_no_match_filtered">Bu filtrelerle “%1$s” için eşleşme yok.</string>
+    <string name="search_remove_filter">Kaldır: %1$s</string>
+</resources>

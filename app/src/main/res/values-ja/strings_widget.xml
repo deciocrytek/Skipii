@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Skipii プレーヤー</string>
+    <string name="widget_player_desc">再生中の操作と視聴の再開</string>
+    <string name="widget_upnext_name">次の動画</string>
+    <string name="widget_upnext_desc">キューの次の動画</string>
+    <string name="widget_search_name">Skipii を検索</string>
+    <string name="widget_search_desc">Skipii の検索を開きます</string>
+    <string name="widget_playing">Skipii · 再生中</string>
+    <string name="widget_paused">Skipii · 一時停止中</string>
+    <string name="widget_continue">視聴を再開</string>
+    <string name="widget_nothing">再生中はありません</string>
+    <string name="widget_queue_empty">キューは空です</string>
+    <string name="widget_back">戻る</string>
+    <string name="widget_forward">進む</string>
+</resources>

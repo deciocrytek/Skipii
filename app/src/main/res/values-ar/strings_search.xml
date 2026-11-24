@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">الكل</string>
+    <string name="search_type_videos">الفيديوهات</string>
+    <string name="search_type_channels">القنوات</string>
+    <string name="search_type_playlists">قوائم التشغيل</string>
+    <string name="search_filters">الفلاتر</string>
+    <string name="search_date">تاريخ التحميل</string>
+    <string name="search_date_any">في أي وقت</string>
+    <string name="search_date_today">اليوم</string>
+    <string name="search_date_week">هذا الأسبوع</string>
+    <string name="search_date_month">هذا الشهر</string>
+    <string name="search_date_year">هذه السنة</string>
+    <string name="search_length">المدة</string>
+    <string name="search_length_any">أي مدة</string>
+    <string name="search_length_short">أقل من 3 د</string>
+    <string name="search_length_medium">3–20 د</string>
+    <string name="search_length_long">أكثر من 20 د</string>
+    <string name="search_sort">الترتيب</string>
+    <string name="search_sort_relevance">الصلة</string>
+    <string name="search_sort_popularity">الشعبية</string>
+    <string name="search_reset">إعادة تعيين</string>
+    <string name="search_apply">عرض النتائج</string>
+    <string name="search_videos_only_note">تاريخ التحميل والمدة والترتيب تنطبق على الفيديوهات.</string>
+    <string name="search_channel">القناة</string>
+    <string name="search_playlist">قائمة تشغيل</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">إدخال “%1$s”</string>
+    <string name="search_more_failed">تعذّر تحميل المزيد من النتائج</string>
+    <string name="search_clear_filters">مسح الفلاتر</string>
+    <string name="search_no_match_filtered">لا شيء يطابق “%1$s” مع هذه الفلاتر.</string>
+    <string name="search_remove_filter">إزالة %1$s</string>
+</resources>

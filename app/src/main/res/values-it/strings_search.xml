@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Tutto</string>
+    <string name="search_type_videos">Video</string>
+    <string name="search_type_channels">Canali</string>
+    <string name="search_type_playlists">Playlist</string>
+    <string name="search_filters">Filtri</string>
+    <string name="search_date">Data di caricamento</string>
+    <string name="search_date_any">Qualsiasi data</string>
+    <string name="search_date_today">Oggi</string>
+    <string name="search_date_week">Questa settimana</string>
+    <string name="search_date_month">Questo mese</string>
+    <string name="search_date_year">Quest\'anno</string>
+    <string name="search_length">Durata</string>
+    <string name="search_length_any">Qualsiasi durata</string>
+    <string name="search_length_short">Meno di 3 min</string>
+    <string name="search_length_medium">3–20 min</string>
+    <string name="search_length_long">Oltre 20 min</string>
+    <string name="search_sort">Ordine</string>
+    <string name="search_sort_relevance">Pertinenza</string>
+    <string name="search_sort_popularity">Popolarità</string>
+    <string name="search_reset">Ripristina</string>
+    <string name="search_apply">Mostra risultati</string>
+    <string name="search_videos_only_note">Data di caricamento, durata e ordine si applicano ai video.</string>
+    <string name="search_channel">Canale</string>
+    <string name="search_playlist">Playlist</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Inserisci “%1$s”</string>
+    <string name="search_more_failed">Impossibile caricare altri risultati</string>
+    <string name="search_clear_filters">Cancella filtri</string>
+    <string name="search_no_match_filtered">Nessun risultato per “%1$s” con questi filtri.</string>
+    <string name="search_remove_filter">Rimuovi %1$s</string>
+</resources>

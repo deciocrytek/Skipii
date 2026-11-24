@@ -150,6 +150,8 @@ class MainActivity : ComponentActivity() {
         }
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
         LiveControls.takeOpen(intent)
+        WidgetUpdater.takePlay(intent)
+        takeDownloadsIntent(intent)
         // Not when the window is rebuilt (the link was already handled; take() clears it anyway).
         if (savedInstanceState == null) IncomingLinks.take(intent)
         setContent { SkipiiTheme { SkipiiApp() } }
@@ -160,7 +162,21 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         NewVideos.takeVideo(intent)?.let { NewVideos.opening = it }
         LiveControls.takeOpen(intent)
+        WidgetUpdater.takePlay(intent)
+        takeDownloadsIntent(intent)
         IncomingLinks.take(intent)
+    }
+
+    /** The download notification's tap opens the Downloads page. */
+    private fun takeDownloadsIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(DownloadWorker.EXTRA_OPEN_DOWNLOADS, false) == true) {
+            intent.removeExtra(DownloadWorker.EXTRA_OPEN_DOWNLOADS)
+            OpenDownloads.requested = true
+        }
+        if (intent?.getBooleanExtra(WidgetUpdater.EXTRA_OPEN_SEARCH, false) == true) {
+            intent.removeExtra(WidgetUpdater.EXTRA_OPEN_SEARCH)
+            OpenDownloads.search = true
+        }
     }
 
     override fun onStart() {
@@ -210,15 +226,19 @@ fun SkipiiApp() {
     val c = MaterialTheme.colorScheme
     val player = rememberPlayerState()
     val scope = rememberCoroutineScope()
-    val search = remember { SearchState(scope) }
     val appContext = LocalContext.current.applicationContext
     val lib = remember { LibraryData(scope, appContext) }
+    val search = remember { SearchState(scope) { lib.channels } }
     LaunchedEffect(Account.signedIn) { if (Account.signedIn) lib.warmUp() }
     var signingIn by remember { mutableStateOf(false) }
     // Settings (Settings.kt): a page over the app, from the header avatar. Saveable: picking a language rebuilds the window.
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var openPlaylist by remember { mutableStateOf<PlaylistRef?>(null) }
     var openHistory by rememberSaveable { mutableStateOf(false) }
+    // Library › Downloads (0.6.0): a page over the tabs, like History.
+    var openDownloads by rememberSaveable { mutableStateOf(false) }
+    // Settings opened on a category (Downloads' gear); null = its front page.
+    var settingsStart by remember { mutableStateOf<SettingsPage?>(null) }
     var openChannel by rememberSaveable { mutableStateOf<String?>(null) }
     // Kept after closing so the page can slide out with its content.
     var channelState by remember { mutableStateOf(openChannel?.let { ChannelState(it, scope) }) }
@@ -259,6 +279,32 @@ fun SkipiiApp() {
         settingsOpen = false
         if (tab == Tab.Shorts) tab = shortsFrom
         player.open(video)
+        // The widget's play button with nothing running: the restored video plays too (open() leaves it paused).
+        if (WidgetUpdater.playOnOpen) { WidgetUpdater.playOnOpen = false; if (!player.isPlaying) player.togglePlay() }
+    }
+    LaunchedEffect(OpenDownloads.search) {
+        if (!OpenDownloads.search) return@LaunchedEffect
+        OpenDownloads.search = false
+        settingsOpen = false
+        player.expanded = false
+        openPlaylist = null; openHistory = false; openDownloads = false; openChannel = null
+        tab = Tab.Search
+        search.focusField++
+    }
+    // Downloads on top, from anywhere: whatever page sat over the tabs closes (Downloads is drawn under the
+    // playlist / channel / history pages, so it would open hidden behind them).
+    fun showDownloads() {
+        settingsOpen = false
+        settingsStart = null
+        player.expanded = false
+        openPlaylist = null; openHistory = false; openChannel = null
+        if (tab == Tab.Shorts) tab = shortsFrom
+        openDownloads = true
+    }
+    LaunchedEffect(OpenDownloads.requested) {
+        if (!OpenDownloads.requested) return@LaunchedEffect
+        OpenDownloads.requested = false
+        showDownloads()
     }
     // Bumped when the already-selected tab is tapped; that tab's list scrolls to the top.
     val scrollToTop = remember { mutableStateMapOf<Tab, Int>() }
@@ -303,8 +349,10 @@ fun SkipiiApp() {
                     // (Picture-in-picture is still on screen and never stops the window.)
                     if (!BackgroundPlay.on && !AudioOnly.enabled && !host.isInPictureInPictureMode) player.pause()
                     player.setBackground(true); shorts.setForeground(false); LiveControls.setOnScreen(false)
+                    // The widgets take over from the app: fresh at once, then their 15 s refresh.
+                    WidgetUpdater.appOnScreen = false; WidgetUpdater.update(host)
                 }
-                androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true); LiveControls.setOnScreen(true) }
+                androidx.lifecycle.Lifecycle.Event.ON_START -> { player.setBackground(false); shorts.setForeground(true); LiveControls.setOnScreen(true); WidgetUpdater.appOnScreen = true }
                 else -> Unit
             }
         }
@@ -346,18 +394,18 @@ fun SkipiiApp() {
         if (!orientation.multiWindow && activity.onSquareScreen()) activity.turnedSideways() else windowLandscape
     }
     // Audio only has no picture to go fullscreen with: the open player stays portrait.
-    orientation.Bind(playerOpen && !AudioOnly.enabled, landscape)
+    orientation.Bind(playerOpen && !AudioOnly.enabled && !player.audioOnlyDownload, landscape)
     val pip = remember(activity) { PipController(activity) }
     // Closing the picture-in-picture window pauses (expanding it just comes back).
     pip.Bind(onClosed = { player.controller?.pause() })
     // Leaving the app mid-video floats it (Settings › Playback, off unless turned on; #42).
-    pip.AutoEnter(AutoPip.on && player.isPlaying && player.current != null && !AudioOnly.enabled, player.videoAspect)
+    pip.AutoEnter(AutoPip.on && player.isPlaying && player.current != null && !AudioOnly.enabled && !player.audioOnlyDownload, player.videoAspect)
     // The PiP window can be any shape: hold whatever was showing when it opened.
     val fullscreenBeforePip = remember { mutableStateOf(false) }
     // Tabletop (an open foldable stood half open, Tabletop.kt): the open player is the video on the top
     // half and the black deck on the bottom half, in place of the page and of fullscreen.
     val tabletop = windowLayout.tabletopY != null && playerOpen && !pip.active
-    val showFullscreen = !tabletop && !tv && if (pip.active) fullscreenBeforePip.value else orientation.showsFullscreen(playerOpen, landscape)
+    val showFullscreen = !tabletop && !tv && if (pip.active) fullscreenBeforePip.value else orientation.showsFullscreen(playerOpen && !player.audioOnlyDownload, landscape)
     SideEffect { if (!pip.active) fullscreenBeforePip.value = showFullscreen }
     LaunchedEffect(showFullscreen) { player.fullscreen = showFullscreen }
     SystemBarsHidden(showFullscreen || tabletop || (tv && playerOpen))
@@ -412,9 +460,8 @@ fun SkipiiApp() {
             is LinkTarget.Channel -> { if (tab == Tab.Shorts) tab = shortsFrom; showChannel(target.url) }
             is LinkTarget.Search -> {
                 player.expanded = false
-                search.query = target.query
-                search.submit()
-                openHistory = false; openPlaylist = null; openChannel = null; tab = Tab.Search
+                search.submit(target.query)
+                openHistory = false; openDownloads = false; openPlaylist = null; openChannel = null; tab = Tab.Search
             }
             // Never handed back to ACTION_VIEW: with Skipii as YouTube's default it would come straight back here.
             is LinkTarget.Web -> player.actionMessage = str(R.string.app_link_unsupported)
@@ -444,8 +491,9 @@ fun SkipiiApp() {
         else if (tvPlayerWasOpen) { tvPlayerWasOpen = false; TvFocusMemory.opener?.focusWhenReady() }
     }
     BackHandler(enabled = player.expanded) { player.expanded = false }
-    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null && !openHistory) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
+    BackHandler(enabled = !player.expanded && tab != Tab.Home && openPlaylist == null && !openHistory && !openDownloads) { if (tab == Tab.Shorts) leaveShorts() else tab = Tab.Home }
     BackHandler(enabled = !player.expanded && openHistory) { openHistory = false }
+    BackHandler(enabled = !player.expanded && openDownloads && openPlaylist == null) { openDownloads = false }
     BackHandler(enabled = !player.expanded && openPlaylist != null) { openPlaylist = null }
     BackHandler(enabled = signingIn) { signingIn = false }
     BackHandler(enabled = !player.expanded && openChannel != null && !(playlistOverChannel && openPlaylist != null)) { openChannel = null }
@@ -520,10 +568,11 @@ fun SkipiiApp() {
             selected == tab && openChannel != null -> openChannel = null
             selected == tab && openPlaylist != null -> openPlaylist = null
             selected == tab && openHistory -> openHistory = false
+            selected == tab && openDownloads -> openDownloads = false
             selected == tab -> scrollToTop[selected] = (scrollToTop[selected] ?: 0) + 1
             else -> {
                 if (selected == Tab.Shorts) shortsFrom = tab
-                openPlaylist = null; openHistory = false; openChannel = null; tab = selected
+                openPlaylist = null; openHistory = false; openDownloads = false; openChannel = null; tab = selected
             }
         }
     }
@@ -602,13 +651,14 @@ fun SkipiiApp() {
             // Swiping a card right queues it (Swipe.kt); a TV remote can't swipe.
             LocalQueueAdd provides if (tv) null else queueAdd,
             LocalQueueIndex provides queueIndex,
+            LocalCurrentVideo provides player.current?.id,
+            LocalDownloadsOpener provides { showDownloads() },
             LocalChannelOpener provides { url -> showChannel(url) },
             LocalSearchOpener provides { q ->
                 player.expanded = false
                 settingsOpen = false
-                search.query = q
-                search.submit()
-                openPlaylist = null; openHistory = false; openChannel = null; tab = Tab.Search
+                search.submit(q)
+                openPlaylist = null; openHistory = false; openDownloads = false; openChannel = null; tab = Tab.Search
             },
             LocalWindowLayout provides windowLayout,
         ) {
@@ -633,21 +683,28 @@ fun SkipiiApp() {
                     shortsCard = if (wide && ShortsSetting.enabled && shorts.items.isNotEmpty()) {
                         { m -> ShortsHomeCard(shorts, onOpen = { selectTab(Tab.Shorts) }, modifier = m) }
                     } else null,
+                    onOpenShorts = ::openShorts,
                 )
                 Tab.Subscriptions -> SubscriptionsScreen(
                     lib, contentPadding, onOpen = player::open,
                     onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     scrollToTop = scrollToTop[Tab.Subscriptions] ?: 0,
+                    onOpenShorts = ::openShorts,
                 )
                 Tab.Shorts -> ShortsScreen(
                     shorts, { shortsMorph.value }, overlayBottom = stackBottom + GlassHeight + 16.dp,
                     shortFocus = shortFocus, barFocus = if (tv) shortsBarFocus else null,
                 )
-                Tab.Search -> SearchScreen(search, contentPadding, onOpen = player::open, scrollToTop = scrollToTop[Tab.Search] ?: 0)
+                Tab.Search -> SearchScreen(
+                    search, contentPadding, onOpen = player::open,
+                    onOpenPlaylist = { openHistory = false; playlistOverChannel = false; openPlaylist = it },
+                    scrollToTop = scrollToTop[Tab.Search] ?: 0,
+                )
                 Tab.Library -> LibraryScreen(
                     lib, contentPadding, onOpen = player::open, onOpenPlaylist = { openHistory = false; openPlaylist = it },
                     onSignIn = { signingIn = true }, onAccount = { settingsOpen = true },
                     onOpenHistory = { openHistory = true },
+                    onOpenDownloads = { openDownloads = true },
                     scrollToTop = scrollToTop[Tab.Library] ?: 0,
                 )
             }
@@ -661,6 +718,20 @@ fun SkipiiApp() {
         ) {
             Box(Modifier.tvPage(toRail = true)) {
                 HistoryScreen(lib.history, contentPadding, onBack = { openHistory = false }, onOpen = player::open)
+            }
+        }
+
+        // Library › Downloads, sliding in like History.
+        AnimatedVisibility(
+            visible = openDownloads,
+            enter = if (reduced) fadeIn(snap()) else slideInHorizontally(tween(340, easing = Motion.Emphasized)) { it } + fadeIn(tween(120)),
+            exit = if (reduced) fadeOut(snap()) else slideOutHorizontally(tween(300, easing = Motion.Emphasized)) { it } + fadeOut(tween(220)),
+        ) {
+            Box(Modifier.tvPage(toRail = true)) {
+                DownloadsScreen(
+                    contentPadding, onBack = { openDownloads = false }, onOpen = player::open,
+                    onSettings = { settingsStart = SettingsPage.Downloads; settingsOpen = true }, player = player,
+                )
             }
         }
 
@@ -906,8 +977,10 @@ fun SkipiiApp() {
             Box(Modifier.tvPage()) { SettingsScreen(
                 player,
                 active = settingsOpen,
-                onClose = { settingsOpen = false },
+                onClose = { settingsOpen = false; settingsStart = null },
                 onSignIn = { signingIn = true },
+                startPage = settingsStart,
+                onOpenDownloads = { showDownloads() },
                 onSignedOut = { lib.reset(); player.refreshAccountState() },
                 // Wide: the categories on the left, the open one on the right (list-detail).
                 wide = wide,
@@ -940,6 +1013,7 @@ fun SkipiiApp() {
         }
         // No taller than the comments panel opens (Derek): its top rests just under the video.
         player.playlistTarget?.let { video -> SaveToPlaylistSheet(player, video, maxHeight = maxHeight - panelRestTop(player)) }
+        player.downloadTarget?.let { video -> DownloadSheet(video, player, onDismiss = { player.downloadTarget = null }) }
         // Confirmations ("Added to queue") when the full player isn't showing its own.
         if (!showPlayer) {
             QueueMessage(player, Modifier.align(Alignment.BottomCenter).padding(bottom = stackBottom + NavHeight + (if (hasMini) MiniHeight + MiniGap else 0.dp) + 12.dp))
@@ -949,7 +1023,9 @@ fun SkipiiApp() {
         if (pip.active) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
                 Box(Modifier.fillMaxSize().aspectFit(player.videoAspect)) {
-                    sharedSurface(Modifier.fillMaxSize())
+                    // A sound-only download: its thumbnail, never the last video's frozen frame.
+                    if (player.audioOnlyDownload) Thumbnail(player.current?.let(Downloads::withLocalThumb)?.thumbnail, Modifier.fillMaxSize(), radius = 0)
+                    else sharedSurface(Modifier.fillMaxSize())
                     CaptionLayer(player, bottom = 4.dp)
                 }
             }

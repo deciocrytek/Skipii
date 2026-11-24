@@ -126,6 +126,7 @@ class PlaybackService : MediaSessionService() {
         player.addListener(SessionSaver())
         watchTime = WatchTimeReporter(player).also(player::addListener)
         live = LiveActivity(this, player, resolver)
+        widgets = WidgetBridge(this, player)
         UpNextHold.bind(player)
         session = MediaSession.Builder(this, player)
             .setSessionActivity(openApp)
@@ -153,12 +154,14 @@ class PlaybackService : MediaSessionService() {
     private var resumeSaver: ResumeSaver? = null
     private var watchTime: WatchTimeReporter? = null
     private var live: LiveActivity? = null
+    private var widgets: WidgetBridge? = null
 
     override fun onDestroy() {
         UpNextHold.unbind()
         resumeSaver?.saveNow()
         watchTime?.finish()
         live?.release()
+        widgets?.release()
         session?.run {
             player.release()
             release()
@@ -185,7 +188,7 @@ class PlaybackService : MediaSessionService() {
                 // now (a bot check, no network) is still queued with what the app knows about it: its
                 // streams load when it comes up. Failing here dropped the whole add, so "Added to queue"
                 // showed and the queue stayed empty.
-                val info = try {
+                val info = if (Downloads.isReady(item.mediaId)) null else try {
                     BotCheck.withoutWaiting(item.mediaId) { StreamCache.getOrLoad(item.mediaId) }
                 } catch (e: Exception) {
                     Log.w("Skipii", "queued ${item.mediaId} unresolved (${e.javaClass.simpleName}); loads when it plays")
@@ -267,6 +270,8 @@ private class StreamRecoverer(
         val id = item.mediaId
         // Also a video queued while its links couldn't load (onAddMediaItems keeps it): its source was only
         // the watch page, which can't play. Its links are fetched now, the same way.
+        // A downloaded video reads the phone only: fresh links wouldn't help it.
+        if (Downloads.isReady(id)) return
         val unresolved = StreamCache.get(id) == null
         if (error.errorCode != PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && !unresolved) return
         val position = player.currentPosition
@@ -500,7 +505,7 @@ private class SpeedKeeper(private val player: ExoPlayer) : Player.Listener {
         if (id == videoId) return
         videoId = id
         // Resolved before it was added (onAddMediaItems), so its details are in the cache by now.
-        val music = StreamCache.get(id)?.let(YouTube::isMusic) == true
+        val music = StreamCache.get(id)?.let(YouTube::isMusic) ?: Downloads.isMusic(id) ?: false
         val speed = PlaybackSpeed.forNewVideo(music)
         player.setPlaybackSpeed(speed)
         if (music) Log.i("Skipii", "speed for $id: ${speed}× (music)")
@@ -588,6 +593,8 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
     override fun getSupportedTypes(): IntArray = fallback.supportedTypes
 
     override fun createMediaSource(mediaItem: MediaItem): MediaSource {
+        // A downloaded video plays from the phone alone (Downloads.kt), with or without a connection.
+        Downloads.mediaSource(mediaItem)?.let { return it }
         val info = StreamCache.get(mediaItem.mediaId) ?: return fallback.createMediaSource(mediaItem)
         val picked = StreamSelection.pick(info, mediaItem.mediaId)
         val trackNote = picked.audio?.audioTrackId?.let { " [$it]" }.orEmpty()

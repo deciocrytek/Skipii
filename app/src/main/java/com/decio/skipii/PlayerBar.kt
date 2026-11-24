@@ -206,8 +206,11 @@ internal fun barTools(player: PlayerState, pip: PipController?): List<BarTool> =
     add(BarTool.Quality)
     if (player.audioTracks.size > 1) add(BarTool.Audio)
     if (player.captions.tracks.isNotEmpty()) add(BarTool.Captions)
-    if (pip?.supported == true) add(BarTool.Pip)
-    add(BarTool.Fullscreen)
+    // A sound-only download has no picture to float or fill the screen with.
+    if (!player.audioOnlyDownload) {
+        if (pip?.supported == true) add(BarTool.Pip)
+        add(BarTool.Fullscreen)
+    }
     if (player.queue.isNotEmpty()) add(BarTool.Next)
 }
 

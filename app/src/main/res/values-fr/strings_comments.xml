@@ -122,4 +122,8 @@
     <string name="captions_word_by_word_title">Mot à mot</string>
     <string name="captions_word_by_word_line">Les sous-titres automatiques s\'affichent au fil des mots prononcés, comme dans l\'appli YouTube</string>
     <string name="captions_size_huger">Géante</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Populaires</string>
+    <string name="comments_sort_newest">Les plus récents</string>
+    <string name="comments_sort_failed">Impossible de changer l\'ordre</string>
 </resources>

@@ -78,4 +78,11 @@
     <string name="video_open_in_youtube">Buka di YouTube</string>
     <string name="video_lock">Kunci kontrol</string>
     <string name="video_hold_to_unlock">Tahan untuk membuka kunci</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">Setelan</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">Antrean</string>
+    <string name="video_drawer_empty">Belum ada video di sini</string>
+    <string name="video_drawer_offline">Video lainnya memerlukan koneksi</string>
+    <string name="video_drawer_close">Tutup</string>
 </resources>

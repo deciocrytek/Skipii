@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Your feed: filters for Home and Subscriptions (0.6.0) ─────────────── -->
+    <string name="feed_title">フィード</string>
+    <!-- The header's filter button (for screen readers). -->
+    <string name="feed_filters">フィードフィルター</string>
+    <plurals name="feed_hiding">
+        <item quantity="other">現在 %1$s 本の動画を非表示中</item>
+    </plurals>
+    <string name="feed_hiding_none">現在非表示の動画はありません</string>
+    <string name="feed_hide_watched">視聴済みの動画を非表示</string>
+    <string name="feed_hide_watched_line">Skipii で最後まで、またはほぼ最後まで視聴した動画</string>
+    <string name="feed_shorter_than">これより短い動画を非表示</string>
+    <string name="feed_off">オフ</string>
+    <!-- "3 min" -->
+    <string name="feed_minutes">%1$s 分</string>
+    <string name="feed_muted_words">ミュートしたワード</string>
+    <string name="feed_add">追加</string>
+    <string name="feed_word_hint">単語やフレーズ</string>
+    <string name="feed_add_word">ワードを追加</string>
+    <!-- Remove a muted word or channel (for screen readers). -->
+    <string name="feed_unmute">%1$s のミュートを解除</string>
+    <string name="feed_muted_channels">ミュートしたチャンネル</string>
+    <string name="feed_muted_channels_none">動画を長押しするとチャンネルをミュートできます</string>
+    <string name="feed_subscription_shorts">登録チャンネルのショート</string>
+    <string name="feed_subscription_shorts_line">ショートタブがオフでも、ホームと登録チャンネルに登録チャンネルのショートの行を表示します</string>
+    <!-- Long-press menu row, and its note. -->
+    <string name="feed_mute_channel">このチャンネルをミュート</string>
+    <string name="feed_muted">%1$s をミュートしました</string>
+    <string name="feed_filtered_out_title">ここにある動画はすべて非表示です</string>
+    <string name="feed_filtered_out_body">これまでに読み込んだ動画がすべてフィルターで非表示になっています。</string>
+    <string name="feed_edit_filters">フィルターを編集</string>
+    <string name="feed_load_more">さらに読み込む</string>
+    <!-- ── Subscription groups ── -->
+    <string name="feed_group_all">すべて</string>
+    <string name="feed_group_add">グループ</string>
+    <string name="feed_group_new">新しいグループ</string>
+    <string name="feed_group_edit">グループを編集</string>
+    <string name="feed_group_name_hint">グループ名</string>
+    <string name="feed_group_search_hint">チャンネルを探す</string>
+    <plurals name="feed_group_picked">
+        <item quantity="other">%1$s チャンネル</item>
+    </plurals>
+    <string name="feed_group_no_channels">登録チャンネルは読み込まれるとここに表示されます。</string>
+    <string name="feed_group_delete">削除</string>
+    <string name="feed_group_save">保存</string>
+    <string name="feed_unwatched_only">未視聴のみ</string>
+    <string name="feed_group_empty_title">%1$s に新しい動画はありません</string>
+    <string name="feed_group_empty_body">これまでに読み込んだ動画の中にこれらのチャンネルの動画はありません。</string>
+    <!-- ── Watch later by length ── -->
+    <string name="feed_wl_any">長さ指定なし</string>
+    <string name="feed_wl_under10">10 分未満</string>
+    <string name="feed_wl_10to30">10–30 分</string>
+    <string name="feed_wl_over30">30 分以上</string>
+    <string name="feed_hide_watched_chip">視聴済みを非表示</string>
+    <string name="feed_pick_one">1 本選んでもらう</string>
+    <plurals name="feed_count">
+        <item quantity="other">%1$s 本の動画</item>
+    </plurals>
+    <plurals name="feed_count_so_far">
+        <item quantity="other">これまで %1$s 件…</item>
+    </plurals>
+    <string name="feed_none_match">このリストに条件に一致する動画はありません。</string>
+</resources>

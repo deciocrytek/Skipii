@@ -121,4 +121,8 @@
     <string name="captions_word_by_word_title">Từng từ một</string>
     <string name="captions_word_by_word_line">Phụ đề tự động hiện theo từng từ được nói, như trong ứng dụng YouTube</string>
     <string name="captions_size_huger">Khổng lồ</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Hàng đầu</string>
+    <string name="comments_sort_newest">Mới nhất</string>
+    <string name="comments_sort_failed">Không thể đổi thứ tự</string>
 </resources>

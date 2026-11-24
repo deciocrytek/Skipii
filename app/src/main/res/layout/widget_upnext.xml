@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Up next (0.6.0): the queue's next video; a tap plays it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="15dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_widget_brand" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:text="@string/widget_upnext_name"
+            android:textColor="@color/widget_on_var"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/w_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+    <TextView
+        android:id="@+id/w_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/widget_on"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>

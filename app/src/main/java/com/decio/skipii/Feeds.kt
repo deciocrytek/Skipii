@@ -3,6 +3,7 @@ package com.decio.skipii
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +46,9 @@ import org.json.JSONObject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+
+/** Pages in a row that add nothing to show before a narrowed feed stops paging by itself ([FeedList]). */
+private const val DryLoadsMax = 3
 
 /** A pageable list of videos (the account's home, subscriptions, history; a playlist; a channel's tab). */
 @Stable
@@ -72,6 +78,9 @@ class FeedState(
         private set
     /** The category chips YouTube put over the feed's first page (Home); empty when it sent none. */
     var chips by mutableStateOf<List<FeedChip>>(emptyList())
+        private set
+    /** The first page's Shorts (Subscriptions' shelf, #96); empty for other feeds. */
+    var shorts by mutableStateOf<List<VideoItem>>(emptyList())
         private set
     /** The chip whose feed is shown; null = the plain feed (the chip without a token, "All"). */
     var chip by mutableStateOf<FeedChip?>(null)
@@ -149,6 +158,7 @@ class FeedState(
                     landedAt = android.os.SystemClock.elapsedRealtime()
                     if (pick == null) {
                         chips = it.chips
+                        shorts = it.shorts
                         if (freshOnRefresh) it.videos.forEach { v -> shown += v.id }
                     }
                     it.videos.take(prefetchTop).forEach { v -> StreamCache.prefetch(v.id) }
@@ -163,6 +173,7 @@ class FeedState(
         val token = next ?: return
         if (loading) return
         loading = true
+        error = null
         val pick = chip
         job = scope.launch {
             val result = runCatching { loader(token) }
@@ -239,7 +250,7 @@ class FeedState(
         job?.cancel()
         shown.clear()
         videos = emptyList(); next = null; loaded = false; loading = false; error = null
-        chips = emptyList(); chip = null; landedAt = 0L
+        chips = emptyList(); chip = null; landedAt = 0L; shorts = emptyList()
     }
 
     private companion object {
@@ -307,6 +318,12 @@ class LibraryData(scope: CoroutineScope, context: Context) {
         else subscriptions.ensureLoaded()
         subscriptionsShown = true
         ensureChannels()
+    }
+
+    /** Home shows the subscriptions' Shorts row: load the feed, or reload a page read over 10 min ago. */
+    fun subscriptionsForHome() {
+        if (subscriptions.loading) return
+        if (subscriptions.olderThan(STALE_AHEAD_MS)) subscriptions.refresh() else subscriptions.ensureLoaded()
     }
 
     fun playlistFeed(id: String) = FeedState(scope) { InnerTube.playlist(id, it) }
@@ -490,6 +507,13 @@ fun FeedList(
     showLoader: Boolean = true,
     /** Items after the videos (a search's "no matches"). */
     footer: LazyListScope.() -> Unit = {},
+    /**
+     * [videos] are the feed narrowed by the phone's own rules (Your feed, a subscription group): after
+     * [DryLoadsMax] pages in a row that add nothing to show, paging stops and [filteredEmpty] (nothing shown at
+     * all) or a Load more row takes the loader's place, so a rule that hides everything can't page on forever.
+     */
+    filtered: Boolean = false,
+    filteredEmpty: (@Composable (loadMore: (() -> Unit)?) -> Unit)? = null,
 ) {
     val c = MaterialTheme.colorScheme
     val list = rememberScrollToTop(scrollToTop)
@@ -501,7 +525,29 @@ fun FeedList(
             last >= list.layoutInfo.totalItemsCount - 4
         }
     }
-    LaunchedEffect(nearEnd, feed.videos.size) { if (nearEnd && feed.videos.isNotEmpty()) feed.loadMore() }
+    // Pages in a row that added nothing to show (only counted while [filtered]): counted per page that LANDS
+    // (a load finishing without an error), so pages of duplicates and a rule that hides everything count too.
+    var dry by remember(feed, scrollKey) { mutableIntStateOf(0) }
+    val shown = videos.size
+    val shownNow by rememberUpdatedState(shown)
+    var shownAtLoad by remember(feed) { mutableIntStateOf(-1) }
+    // Pages landed: the paging effect looks again after each, even when one added nothing (all duplicates).
+    var landed by remember(feed) { mutableIntStateOf(0) }
+    LaunchedEffect(feed.loading) {
+        if (feed.loading) { shownAtLoad = shownNow; return@LaunchedEffect }
+        if (shownAtLoad < 0) return@LaunchedEffect
+        if (feed.error == null) { dry = if (filtered && shownNow == shownAtLoad) dry + 1 else 0; landed++ }
+        shownAtLoad = -1
+    }
+    // Something new to show (a page, or a rule loosened): paging may go on.
+    LaunchedEffect(shown) { if (shown > 0) dry = 0 }
+    LaunchedEffect(feed.generation, filtered) { dry = 0 }
+    val paused = filtered && dry >= DryLoadsMax && feed.hasMore
+    // Keyed on what's shown and [scrollKey] too: switching to a group with nothing near the end still pages.
+    LaunchedEffect(nearEnd, feed.videos.size, shown, scrollKey, paused, landed) {
+        if (nearEnd && feed.videos.isNotEmpty() && !paused && feed.error == null) feed.loadMore()
+    }
+    val loadOn = { dry = 0; feed.loadMore() }
     val columns = gridColumns()
     PullToRefresh(enabled = pullToRefresh, refreshing = feed.refreshing, onRefresh = feed::refresh, topPadding = indicatorTop) {
     LazyColumn(state = list, contentPadding = contentPadding) {
@@ -511,12 +557,43 @@ fun FeedList(
             // No keys on these trailing items: a keyed loader at index 0 makes LazyColumn
             // hold it in view when videos arrive above it, landing at the bottom of the page.
             feed.error != null && feed.videos.isEmpty() -> item {
+                // Offline with downloads kept: they're one tap away (Neon's spec).
+                val openDownloads = LocalDownloadsOpener.current?.takeIf { Downloads.entries.values.any { it.ready } }
                 EmptyState(
                     icon = Icons.Rounded.CloudOff,
                     title = stringResource(R.string.ui_feed_error_title),
                     body = feed.error.orEmpty(),
-                    action = { PillButton(stringResource(R.string.ui_try_again), { feed.refresh() }) },
+                    action = {
+                        androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            PillButton(stringResource(R.string.ui_try_again), { feed.refresh() })
+                            if (openDownloads != null) {
+                                Spacer(Modifier.size(10.dp))
+                                androidx.compose.material3.Text(
+                                    stringResource(R.string.dl_open), color = c.primary, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                                    fontSize = androidx.compose.ui.unit.TextUnit(14f, androidx.compose.ui.unit.TextUnitType.Sp),
+                                    modifier = Modifier.pressable(onClick = openDownloads).padding(8.dp),
+                                )
+                            }
+                        }
+                    },
                 )
+            }
+            // A later page failed: say so where the loader was, with a way to try again (it'd spin forever).
+            // (Not when the caller shows its own error there, [showLoader] off: a list search's "load all".)
+            showLoader && feed.error != null && !feed.loading -> item {
+                Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    androidx.compose.material3.Text(feed.error.orEmpty(), color = c.onSurfaceVariant, fontSize = androidx.compose.ui.unit.TextUnit(13f, androidx.compose.ui.unit.TextUnitType.Sp))
+                    Spacer(Modifier.size(10.dp))
+                    // A failed refresh of a feed with no more pages: refresh again (loading more would do nothing).
+                    PillButton(stringResource(R.string.ui_try_again), { if (feed.hasMore) loadOn() else feed.refresh() })
+                }
+            }
+            // A rule hides everything: once paging paused, or the feed has no more pages to look through.
+            filtered && videos.isEmpty() && feed.videos.isNotEmpty() && !feed.loading && filteredEmpty != null && (paused || !feed.hasMore) -> item {
+                filteredEmpty(loadOn.takeIf { feed.hasMore })
+            }
+            paused && !feed.loading -> item {
+                Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) { PillButton(stringResource(R.string.feed_load_more), loadOn) }
             }
             showLoader && (feed.loading || feed.hasMore) -> item {
                 Box(Modifier.fillMaxWidth().padding(28.dp), Alignment.Center) {

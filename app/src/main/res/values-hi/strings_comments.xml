@@ -122,4 +122,8 @@
     <string name="captions_word_by_word_title">शब्द-दर-शब्द</string>
     <string name="captions_word_by_word_line">अपने-आप बने कैप्शन हर शब्द बोले जाने पर दिखते हैं, YouTube ऐप की तरह</string>
     <string name="captions_size_huger">विशाल</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">प्रमुख</string>
+    <string name="comments_sort_newest">नवीनतम</string>
+    <string name="comments_sort_failed">क्रम नहीं बदला जा सका</string>
 </resources>

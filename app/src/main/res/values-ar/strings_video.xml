@@ -79,4 +79,11 @@
     <string name="video_open_in_youtube">فتح في YouTube</string>
     <string name="video_lock">قفل عناصر التحكم</string>
     <string name="video_hold_to_unlock">اضغط مطولاً لإلغاء القفل</string>
+    <!-- Fullscreen's one gear (0.6.0): its card's title and the tile's name. -->
+    <string name="video_settings">الإعدادات</string>
+    <!-- Fullscreen's swipe-up drawer (0.6.0). -->
+    <string name="video_drawer_queue">قائمة الانتظار</string>
+    <string name="video_drawer_empty">لا توجد فيديوهات هنا بعد</string>
+    <string name="video_drawer_offline">المزيد من الفيديوهات يحتاج إلى اتصال</string>
+    <string name="video_drawer_close">إغلاق</string>
 </resources>

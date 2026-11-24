@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -11,6 +12,8 @@
     <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Downloads (0.6.0): WorkManager's foreground job while videos download. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <!-- Self-update from the GitHub releases (AppUpdate); the second lets Android 12+ do it
          without a prompt once Skipii installed itself. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -114,5 +117,24 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+        <!-- Home-screen widgets (0.6.0). -->
+        <receiver android:name=".PlayerWidget" android:exported="false" android:label="@string/widget_player_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_player_info" />
+        </receiver>
+        <receiver android:name=".UpNextWidget" android:exported="false" android:label="@string/widget_upnext_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_upnext_info" />
+        </receiver>
+        <receiver android:name=".SearchWidget" android:exported="false" android:label="@string/widget_search_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_search_info" />
+        </receiver>
+        <receiver android:name=".WidgetControlsReceiver" android:exported="false" />
+        <!-- Downloads run as a WorkManager foreground job (Android 14+ wants its type). -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
     </application>
 </manifest>

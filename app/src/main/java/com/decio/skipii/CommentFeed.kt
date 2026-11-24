@@ -107,14 +107,18 @@ object CommentFeed {
         val comments = ArrayList<Comment>()
         var total = -1
         var next: String? = null
+        var sorts = emptyList<CommentSort>()
         page.walk { key, obj ->
             if (key != "reloadContinuationItemsCommand" && key != "appendContinuationItemsAction") return@walk
             val items = obj.optJSONArray("continuationItems") ?: return@walk
             for (i in 0 until items.length()) {
                 val item = items.optJSONObject(i) ?: continue
                 when {
-                    item.has("commentsHeaderRenderer") -> item.getJSONObject("commentsHeaderRenderer").text("countText")
-                        ?.let { InnerTube.parseViews(it) }?.takeIf { it >= 0 }?.let { total = it.toInt() }
+                    item.has("commentsHeaderRenderer") -> {
+                        val header = item.getJSONObject("commentsHeaderRenderer")
+                        header.text("countText")?.let { InnerTube.parseViews(it) }?.takeIf { it >= 0 }?.let { total = it.toInt() }
+                        sorts = parseSorts(header)
+                    }
                     item.has("commentThreadRenderer") -> {
                         val thread = item.getJSONObject("commentThreadRenderer")
                         val repliesToken = thread.optJSONObject("replies")?.collectStrings("token")?.firstOrNull()
@@ -129,7 +133,22 @@ object CommentFeed {
         }
         // Pages can overlap at the boundary; ids stay unique for the list keys.
         val unique = comments.distinctBy { it.id }
-        return CommentsPage(unique, total, disabled = false, next = next)
+        return CommentsPage(unique, total, disabled = false, next = next, sorts = sorts)
+    }
+
+    /**
+     * The header's sort menu (`sortFilterSubMenuRenderer.subMenuItems`: {title "Top" / "Newest", selected,
+     * serviceEndpoint.continuationCommand.token}), as captured in comments.json. Titles are English (hl=en); the
+     * first item is YouTube's "Top". Both are needed to offer a choice.
+     */
+    internal fun parseSorts(header: JSONObject): List<CommentSort> {
+        val items = header.findObject("sortFilterSubMenuRenderer")?.optJSONArray("subMenuItems") ?: return emptyList()
+        val out = (0 until items.length()).mapNotNull { i ->
+            val item = items.optJSONObject(i) ?: return@mapNotNull null
+            val token = item.optJSONObject("serviceEndpoint")?.optJSONObject("continuationCommand")?.optString("token")?.ifBlank { null } ?: return@mapNotNull null
+            CommentSort(newest = item.optString("title").contains("new", ignoreCase = true), token = token, selected = item.optBoolean("selected"))
+        }
+        return if (out.size >= 2 && out.any { it.newest } && out.any { !it.newest }) out else emptyList()
     }
 
     /** The innermost commentViewModel (threads nest it twice: commentViewModel.commentViewModel). */

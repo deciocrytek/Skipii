@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen widgets (0.6.0). Below Android 12: Skipii's YouTube red on white; 12+ uses the wallpaper's colours (values-v31). -->
+    <color name="widget_bg">#FFFFFFFF</color>
+    <color name="widget_on">#FF0F0F0F</color>
+    <color name="widget_on_var">#FF606060</color>
+    <color name="widget_primary">#FFE6002E</color>
+    <color name="widget_on_primary">#FFFFFFFF</color>
+    <color name="widget_tile">#FFF0F0F0</color>
+</resources>

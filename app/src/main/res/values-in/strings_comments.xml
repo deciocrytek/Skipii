@@ -120,4 +120,8 @@
     <string name="captions_word_by_word_title">Kata demi kata</string>
     <string name="captions_word_by_word_line">Teks otomatis muncul saat setiap kata diucapkan, seperti di aplikasi YouTube</string>
     <string name="captions_size_huger">Raksasa</string>
+    <!-- Comments order (0.6.0, GitHub #60). -->
+    <string name="comments_sort_top">Teratas</string>
+    <string name="comments_sort_newest">Terbaru</string>
+    <string name="comments_sort_failed">Tidak dapat mengubah urutan</string>
 </resources>

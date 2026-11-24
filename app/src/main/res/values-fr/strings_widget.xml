@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Home-screen widgets (0.6.0) ───────────────────────────────────── -->
+    <string name="widget_player_name">Lecteur Skipii</string>
+    <string name="widget_player_desc">Lecture en cours avec ses commandes, et quoi reprendre</string>
+    <string name="widget_upnext_name">À suivre</string>
+    <string name="widget_upnext_desc">La prochaine vidéo de votre file d\'attente</string>
+    <string name="widget_search_name">Rechercher dans Skipii</string>
+    <string name="widget_search_desc">Ouvre la recherche de Skipii</string>
+    <string name="widget_playing">Skipii · En cours</string>
+    <string name="widget_paused">Skipii · En pause</string>
+    <string name="widget_continue">Reprendre la lecture</string>
+    <string name="widget_nothing">Aucune lecture</string>
+    <string name="widget_queue_empty">Votre file d\'attente est vide</string>
+    <string name="widget_back">Reculer</string>
+    <string name="widget_forward">Avancer</string>
+</resources>

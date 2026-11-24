@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Search (0.6.0) ─────────────────────────────────────────────────── -->
+    <string name="search_type_all">Tất cả</string>
+    <string name="search_type_videos">Video</string>
+    <string name="search_type_channels">Kênh</string>
+    <string name="search_type_playlists">Danh sách phát</string>
+    <string name="search_filters">Bộ lọc</string>
+    <string name="search_date">Ngày tải lên</string>
+    <string name="search_date_any">Mọi lúc</string>
+    <string name="search_date_today">Hôm nay</string>
+    <string name="search_date_week">Tuần này</string>
+    <string name="search_date_month">Tháng này</string>
+    <string name="search_date_year">Năm nay</string>
+    <string name="search_length">Độ dài</string>
+    <string name="search_length_any">Mọi độ dài</string>
+    <string name="search_length_short">Dưới 3 phút</string>
+    <string name="search_length_medium">3–20 phút</string>
+    <string name="search_length_long">Trên 20 phút</string>
+    <string name="search_sort">Thứ tự</string>
+    <string name="search_sort_relevance">Mức độ liên quan</string>
+    <string name="search_sort_popularity">Độ phổ biến</string>
+    <string name="search_reset">Đặt lại</string>
+    <string name="search_apply">Hiện kết quả</string>
+    <string name="search_videos_only_note">Ngày tải lên, độ dài và thứ tự áp dụng cho video.</string>
+    <string name="search_channel">Kênh</string>
+    <string name="search_playlist">Danh sách phát</string>
+    <!-- The arrow on a suggestion that copies it into the field (for screen readers). -->
+    <string name="search_fill">Điền “%1$s”</string>
+    <string name="search_more_failed">Không thể tải thêm kết quả</string>
+    <string name="search_clear_filters">Xóa bộ lọc</string>
+    <string name="search_no_match_filtered">Không có gì khớp với “%1$s” theo các bộ lọc này.</string>
+    <string name="search_remove_filter">Xóa %1$s</string>
+</resources>

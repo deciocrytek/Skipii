@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: seeds test downloads from public sample media (the Mac's network is bot-checked by YouTube). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver android:name=".DebugSeed" android:exported="true" />
+    </application>
+</manifest>

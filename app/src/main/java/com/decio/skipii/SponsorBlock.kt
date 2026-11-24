@@ -102,7 +102,10 @@ object SponsorBlock {
         cache[videoId]?.let { return it }
         val segments = runCatching { request(videoId) }
             .onFailure { Log.w("Skipii", "SponsorBlock lookup failed for $videoId", it) }
-            .getOrNull() ?: return emptyList() // not cached: a later open retries
+            .getOrNull()
+            // Offline: a download keeps its segments (Downloads.kt).
+            ?: Downloads.segments(videoId)
+            ?: return emptyList() // not cached: a later open retries
         cache[videoId] = segments
         return segments
     }
