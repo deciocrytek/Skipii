@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.6.1
+
 ### New
 - **Downloads.** Keep a video, or just its sound, on your phone and watch it with no connection, captions and SponsorBlock skips included. Tap **Download** under the player (or long-press any video) and pick a quality; the sheet shows each size. Find them under **Library › Downloads**, swipe one away to delete it (with Undo). In **Settings › Downloads** you can have your queue and the first five of Watch later download by themselves, keep those to a space limit, delete them once watched, and download only on Wi-Fi. Downloaded videos play from the phone even when you're online, so they start instantly and use no data.
 - **Better search.** Suggestions as you type, a channel you follow at the top when its name matches, and **All / Videos / Channels / Playlists** chips. **Filters** narrows by upload date and length and can sort by popularity; the filters you've set show as chips you can remove one by one.
