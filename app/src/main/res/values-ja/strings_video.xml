@@ -85,4 +85,13 @@
     <string name="video_drawer_empty">ここにはまだ動画がありません</string>
     <string name="video_drawer_offline">他の動画を表示するには接続が必要です</string>
     <string name="video_drawer_close">閉じる</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">自動</string>
+    <string name="video_level_volume">音量 %1$s パーセント</string>
+    <string name="video_level_volume_muted">ミュート、0 パーセント</string>
+    <string name="video_level_volume_max">音量 100 パーセント、最大</string>
+    <string name="video_level_brightness">明るさ %1$s パーセント</string>
+    <string name="video_level_brightness_min">明るさ 最小</string>
+    <string name="video_level_brightness_max">明るさ 100 パーセント、最大</string>
+    <string name="video_level_brightness_auto">明るさ 自動</string>
 </resources>

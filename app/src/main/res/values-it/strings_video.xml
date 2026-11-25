@@ -85,4 +85,13 @@
     <string name="video_drawer_empty">Ancora nessun video qui</string>
     <string name="video_drawer_offline">Altri video richiedono una connessione</string>
     <string name="video_drawer_close">Chiudi</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">Auto</string>
+    <string name="video_level_volume">Volume al %1$s per cento</string>
+    <string name="video_level_volume_muted">Volume disattivato, 0 per cento</string>
+    <string name="video_level_volume_max">Volume al 100 per cento, massimo</string>
+    <string name="video_level_brightness">Luminosità al %1$s per cento</string>
+    <string name="video_level_brightness_min">Luminosità minima</string>
+    <string name="video_level_brightness_max">Luminosità al 100 per cento, massima</string>
+    <string name="video_level_brightness_auto">Luminosità automatica</string>
 </resources>

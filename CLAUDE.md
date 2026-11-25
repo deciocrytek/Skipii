@@ -1062,6 +1062,30 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   has no Google account, so the compose screen itself wasn't seen), Gmail disabled → share sheet, error panel button, About
   tile, engine lines while the test download played.
   NOT verified: a real stuck video's report (#102's cause is still unknown — ask the reporter for one).
+- 0.6.3 Morph stack (2026-11-24, GitHub #88: the old level pill sat under the thumb, and the brightness one sat further in
+  because only the camera side padded for the cutout). Derek rejected sideways bars / rings ("swiping in one direction and the
+  UI showing a different direction sucks") and two rounds of mockups (`docs/design/gesture-levels.html`, `-2.html`), then
+  approved NEON's "Morph stack" (`docs/design/morph-stack-neon.html`; Claude's rival `morph-stack-claude.html`), minus its star
+  sparks at 100% (Derek: no sparks at the top). `LevelStack` (FullscreenSliders.kt) replaces `SliderLevel`: ten slots at
+  34% / 66% of the width (24 / 76% under 520 dp), centred, no box; slot i fills `easeOutCubic(level × 10 − i)` from a 7 dp
+  white-38% dot to a 28 × 10 capsule, the top one 36 × 12 with a sheen. The top size hands over smoothly to the next slot
+  (`e·(1 − eNext)`; Neon's page jumped at each tenth). Number 18 sp Black above the top capsule; empty dots under it fade
+  out. Badge 44 dp: volume = rounded square in `colorScheme.primary` (corner 22 → 12), grey #3B383E + slashed speaker at 0;
+  brightness = 9-scallop sun #FFE3A3 turning 0 → 180°, slots amber → cream (`SunSlots`). Everything that follows the finger is
+  read in the Canvas draw straight from `FullscreenSliders` (level, raw) — never animate those (Derek: "a delay … with my
+  finger"). The flourishes are `StackMotion` clocks run by a withFrameNanos loop only while shown: slot fill pop 1.24/1.18
+  (240 ms) and drain 0.88 (180 ms), volume-step number pop 1.09, 100% number 1.2 + badge 1.15 + an alpha ring 1 → 1.68
+  (480 ms), mute nudge, arrival lift 11 dp spring (k 480, c 28), rubber band past either end (`raw` keeps
+  `OverTravel` 0.26 beyond the ends; `rubberBand`, springs back k 420 c 24 on release). Shadows go through the framework
+  paint (`shadowRoundRect` / `shadowPath`: Compose has no drop shadow for plain shapes). Brightness pulled `AutoAt` −0.14
+  below 0 = Auto (`releaseBrightness`, label "Auto", BrightnessAuto glyph), above `AutoBackAt` −0.06 manual again. Haptics via
+  `view.performHapticFeedback`: GESTURE_START on engage, SEGMENT_FREQUENT_TICK per volume step, CLOCK_TICK per 10% of
+  brightness (45 ms apart), CONFIRM at 0 / 100, GESTURE_THRESHOLD_ACTIVATE at Auto, REJECT once per drag past ±0.16 (older
+  Android: CLOCK_TICK / CONTEXT_CLICK). TalkBack: a polite live region (`spoken`, every 400 ms while dragging, at once at the
+  ends / Auto / lift; strings `video_level_*` in all 13 languages). Swipe range 40% of the height, now kept 130–260 dp.
+  Reduced motion: no pops / spin / nudge / rubber band, 100/120 ms fades. Verified on skipii_qa (debug + release) with the
+  DebugSeed Tears of Steel download in fullscreen: volume 67% → 100%, brightness stack, Auto. NOT verified: the haptics' feel and
+  TalkBack on Derek's Pixel.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

@@ -1359,7 +1359,7 @@ fun FullscreenPlayer(state: PlayerState, onExit: () -> Unit) {
                     scaleY = k
                 },
         )
-        SliderLevel(sliders)
+        LevelStack(sliders)
         if (drawerOpen || drawer.value > 0f) {
             // Above the drawer: a tap on the picture closes it (and does nothing else).
             Box(

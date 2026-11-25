@@ -86,4 +86,13 @@
     <string name="video_drawer_empty">Henüz burada video yok</string>
     <string name="video_drawer_offline">Daha fazla video için bağlantı gerekir</string>
     <string name="video_drawer_close">Kapat</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">Otomatik</string>
+    <string name="video_level_volume">Ses yüzde %1$s</string>
+    <string name="video_level_volume_muted">Ses kapalı, yüzde 0</string>
+    <string name="video_level_volume_max">Ses yüzde 100, en yüksek</string>
+    <string name="video_level_brightness">Parlaklık yüzde %1$s</string>
+    <string name="video_level_brightness_min">Parlaklık en düşük</string>
+    <string name="video_level_brightness_max">Parlaklık yüzde 100, en yüksek</string>
+    <string name="video_level_brightness_auto">Parlaklık otomatik</string>
 </resources>

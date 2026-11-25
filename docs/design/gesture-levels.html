@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gesture Level Indicators</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto+Flex:wght@400..900&display=swap" rel="stylesheet">
+<style>
+/* Layout: a column of landscape phones, each one live: drag up/down on its left or right third. */
+:root{
+  --font:'Google Sans Flex','Google Sans','Product Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --emph:cubic-bezier(.2,0,0,1);
+  --page:#E9E2EC;--chrome:#ffffff;--ink:#1F1A2E;--ink-2:#6B5C7B;--primary:#6A4FD0;--on-primary:#fff;
+  --bad:#B3261E;
+  --vp:#D0BCFF;--on-vp:#381E72;
+  --z:.9;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;--primary:#CDBDFF;--on-primary:#2A1F55;--bad:#F2B8B5;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#0B0A0D;--chrome:#1B1920;--ink:#ECE6F0;--ink-2:#A79DB2;--primary:#CDBDFF;--on-primary:#2A1F55;--bad:#F2B8B5;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--page);color:var(--ink);margin:0}
+body.red{--vp:#FF4E45;--on-vp:#fff}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+svg{display:block}
+.wrap{max-width:1180px;margin:0 auto;padding-block:40px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:34px}
+.intro>div{min-width:0;flex:1 1 520px}
+.intro h1{font-size:clamp(28px,5vw,38px);font-weight:850;letter-spacing:-1.3px;line-height:1.05;margin:0;text-wrap:balance}
+.intro p{margin:10px 0 0;color:var(--ink-2);font-size:16px;font-weight:550;max-width:720px;line-height:1.5}
+.intro p b{color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
+.chip{height:42px;padding:0 16px;border-radius:999px;background:var(--chrome);font-weight:750;font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;transition:background .3s,color .3s,transform .42s var(--pop)}
+.chip.on{background:var(--primary);color:var(--on-primary)}
+.chip:active{transform:scale(.94);transition-duration:.09s}
+.shot{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:50px}
+.frame{width:calc(943px * var(--z));height:calc(440px * var(--z));position:relative;max-width:100%}
+.phone{position:absolute;left:0;top:0;width:943px;height:440px;border-radius:52px;padding:14px;background:#0d0d0f;
+  transform:scale(var(--z));transform-origin:0 0;box-shadow:0 30px 60px rgba(20,10,40,.25),0 4px 12px rgba(20,10,40,.15)}
+.screen{position:relative;width:915px;height:412px;border-radius:40px;overflow:hidden;background:#000;user-select:none;touch-action:none;cursor:ns-resize}
+.cutout{position:absolute;left:14px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:#000;z-index:40}
+.caption{text-align:center;max-width:860px}
+.caption h2{font-size:22px;font-weight:850;letter-spacing:-.4px;margin:0;text-wrap:balance}
+.caption h2 span{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--on-primary);font-size:16px;margin-right:8px;vertical-align:2px}
+.caption h2 span.now{background:var(--chrome);color:var(--ink-2);width:auto;padding:0 10px}
+.caption p{margin:6px 0 0;color:var(--ink-2);font-size:14.5px;font-weight:550;line-height:1.5}
+.caption p b{color:var(--ink)}
+.caption .risk{margin-top:8px;font-size:13.5px}
+.caption .risk b{color:var(--bad)}
+/* the video: a made-up harbour at dusk, mockup only */
+.video{position:absolute;inset:0;transition:filter .08s linear;background:
+  radial-gradient(90px 90px at 30% 30%,#ffe3b0 0,#ffc078 45%,rgba(255,170,90,0) 75%),
+  linear-gradient(180deg,#1f2a4e 0%,#3d4f86 30%,#d98a6a 55%,#f4c48e 60%,#284159 61%,#16243a 100%)}
+.video::before{content:"";position:absolute;left:0;right:0;bottom:0;height:40%;
+  background:repeating-linear-gradient(180deg,rgba(255,210,150,.14) 0 2px,transparent 2px 9px)}
+.video::after{content:"";position:absolute;left:52%;bottom:38%;width:150px;height:40px;border-radius:6px 6px 30px 30px;background:#101a2b;box-shadow:-420px 6px 0 -6px #101a2b}
+/* the zones: drawn faintly so people see where to drag */
+.zone{position:absolute;top:0;bottom:0;width:35%;pointer-events:none;opacity:0;transition:opacity .4s}
+.zone.l{left:0;background:linear-gradient(90deg,rgba(255,255,255,.06),transparent)}
+.zone.r{right:0;background:linear-gradient(270deg,rgba(255,255,255,.06),transparent)}
+.screen:hover .zone{opacity:1}
+.hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:12px;font-weight:750;color:rgba(255,255,255,.55);white-space:nowrap;transition:opacity .3s}
+.screen.touched .hint{opacity:0}
+/* the thumb, to show what it hides */
+.thumb{position:absolute;width:210px;height:96px;border-radius:48px 40px 40px 48px;z-index:30;pointer-events:none;opacity:0;transition:opacity .2s;
+  background:radial-gradient(28px 22px at 30px 48px,rgba(255,236,226,.55),transparent 70%),linear-gradient(170deg,#e9b596,#c98b6c 70%,#b37658);
+  box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.thumb::after{content:"";position:absolute;left:12px;top:22px;width:44px;height:52px;border-radius:22px 14px 14px 22px;background:rgba(255,230,220,.35)}
+.thumb.on{opacity:.97}
+.nothumb .thumb{display:none}
+.hud{position:absolute;inset:0;pointer-events:none;z-index:20}
+.num{font-variant-numeric:tabular-nums;font-weight:900;letter-spacing:-.2px}
+
+/* Today (0.6.2): the pill on the finger's side, 40 dp + the cutout on the left */
+.today{position:absolute;top:50%;width:46px;padding:12px 10px;margin-top:-91px;border-radius:23px;background:rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;gap:10px}
+.today .tr{width:6px;height:132px;border-radius:3px;background:rgba(255,255,255,.28);position:relative;overflow:hidden}
+.today .tr i{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:3px}
+.measure{position:absolute;top:50%;height:2px;background:#ff5a5a;margin-top:110px}
+.measure b{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:900;color:#ff8a8a;white-space:nowrap}
+
+/* A · Across: a liquid capsule on the OTHER side, same distance from both edges (Neon's fill) */
+.across{position:absolute;top:50%;width:56px;height:196px;margin-top:-98px;border-radius:28px;background:rgba(0,0,0,.48);overflow:hidden;
+  transition:opacity .18s,transform .45s var(--pop)}
+.across .ink{position:absolute;left:0;bottom:0;width:56px;height:196px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0 15px;color:#fff}
+.across .ink .num{font-size:14px}
+.across .fill{position:absolute;left:0;right:0;bottom:0;background:var(--vp);overflow:hidden}
+.across .fill .ink{color:var(--on-vp)}
+
+/* B · Centre: Android 16's own slider (track, gap, handle, gap, track) on a small card, middle of the screen */
+.centre{position:absolute;left:50%;top:46%;width:64px;height:188px;margin:-94px 0 0 -32px;border-radius:26px;background:rgba(0,0,0,.52);color:#fff;
+  transition:opacity .18s,transform .5s var(--pop)}
+.centre .num{position:absolute;left:0;right:0;top:14px;text-align:center;font-size:14px}
+.centre .ic{position:absolute;left:50%;bottom:13px;margin-left:-11px}
+.centre .trk{position:absolute;left:25px;top:40px;width:14px;height:110px}
+.centre .act{position:absolute;left:0;right:0;bottom:0;background:var(--vp);border-radius:3px 3px 7px 7px}
+.centre .ina{position:absolute;left:0;right:0;top:0;background:rgba(255,255,255,.22);border-radius:7px 7px 3px 3px}
+.centre .hdl{position:absolute;left:-6px;width:26px;height:4px;border-radius:2px;background:#fff;transition:transform .35s var(--pop)}
+
+/* C · Lever: the meter is exactly the swipe's length and stands beside the thumb, its edge level with the fingertip */
+.lever{position:absolute;width:46px;border-radius:23px;background:rgba(14,14,18,.6);transition:opacity .18s}
+.lever .tr{position:absolute;left:18px;top:14px;bottom:14px;width:10px;border-radius:5px;background:rgba(255,255,255,.26);overflow:hidden}
+.lever .tr i{position:absolute;left:0;right:0;bottom:0;background:#fff}
+.tag.lv{position:absolute;height:34px;padding:0 12px 0 9px;border-radius:17px;background:rgba(14,14,18,.72);display:flex;align-items:center;gap:6px;color:#fff;white-space:nowrap;
+  transition:transform .4s var(--pop)}
+.tag.lv .num{font-size:14px}
+.lever .tick{position:absolute;height:3px;border-radius:2px;background:#fff}
+
+/* D · Tile: a small tile hanging at the top centre that fills from the bottom (Neon's) */
+.tile{position:absolute;left:50%;top:18px;width:76px;height:100px;margin-left:-38px;border-radius:26px;background:rgba(0,0,0,.48);overflow:hidden;
+  transition:opacity .18s,transform .5s var(--pop);transform-origin:50% 100%}
+.tile .ink{position:absolute;left:0;bottom:0;width:76px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#fff}
+.tile .ink .num{font-size:15px}
+.tile .fill{position:absolute;left:0;right:0;bottom:0;background:var(--vp);overflow:hidden}
+.tile .fill .ink{color:var(--on-vp)}
+.spark{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;pointer-events:none;z-index:25}
+
+.note{max-width:860px;margin:6px auto 0;color:var(--ink-2);font-size:14px;font-weight:550;line-height:1.55}
+.note b{color:var(--ink)}
+@media (prefers-reduced-motion: reduce){*{transition-duration:0s!important}}
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <div>
+      <h1>Brightness and volume you can see</h1>
+      <p>GitHub <b>#88</b>: in fullscreen the level pill sits right under the thumb that moves it, and the two pills sit at different
+        distances from their edges. The reporter's examples are sideways bars and rings; here <b>a swipe up always fills upward</b>.
+        Every phone below is live: <b>drag up or down on its left third (brightness) or right third (volume)</b>.</p>
+    </div>
+    <div class="tools">
+      <button class="chip on" id="demo">Play the swipe</button>
+      <button class="chip on" id="thumbs">Show thumb</button>
+      <button class="chip" id="side">Brightness</button>
+      <button class="chip" id="red">YouTube theme</button>
+    </div>
+  </div>
+  <div id="shots"></div>
+  <p class="note">Every option also fixes the uneven edges: today the brightness pill sits about twice as far in as the volume pill, because only the
+    left edge has the camera and only that side was padded for it. <b>Across</b> pads both sides by the camera's edge; the other three don't touch the edges at all.
+    Made by Claude and Neon for GitHub #88. Phones are about 915 × 412 dp; the thumb is drawn to show what it hides (turn it off with <b>Show thumb</b>).</p>
+</div>
+
+<script>
+const W = 915, H = 412, RANGE = H * 0.4, SIDE = 0.35;
+const ICON = {
+  volOff:'<path d="M3.63 3.63a.996.996 0 0 0 0 1.41L7.29 8.7 7 9H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71v-4.17l4.18 4.18c-.49.37-1.02.68-1.6.91-.36.15-.58.53-.58.92 0 .72.73 1.18 1.39.91.8-.33 1.55-.77 2.22-1.31l1.34 1.34a.996.996 0 1 0 1.41-1.41L5.05 3.63c-.39-.39-1.02-.39-1.42 0zM19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87 0-3.83-2.4-7.11-5.78-8.4-.59-.23-1.22.23-1.22.86v.19c0 .38.25.71.61.85C17.18 6.54 19 9.06 19 12zm-8.71-6.29-.17.17L12 7.76V6.41c0-.89-1.08-1.33-1.71-.7zM16.5 12A4.5 4.5 0 0 0 14 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24z"/>',
+  volDown:'<path d="M18.5 12A4.5 4.5 0 0 0 16 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 10v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71V6.41c0-.89-1.08-1.34-1.71-.71L9 9H6c-.55 0-1 .45-1 1z"/>',
+  volUp:'<path d="M3 10v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71V6.41c0-.89-1.08-1.34-1.71-.71L7 9H4c-.55 0-1 .45-1 1zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 4.45v.2c0 .38.25.71.6.85C17.18 6.53 19 9.06 19 12s-1.82 5.47-4.4 6.5c-.36.14-.6.47-.6.85v.2c0 .63.63 1.07 1.21.85C18.6 19.11 21 15.84 21 12s-2.4-7.11-5.79-8.4c-.58-.23-1.21.22-1.21.85z"/>',
+  briLow:'<path d="M20 8.69V6c0-1.1-.9-2-2-2h-2.69l-1.9-1.9a2 2 0 0 0-2.83 0L8.69 4H6c-1.1 0-2 .9-2 2v2.69l-1.9 1.9a2 2 0 0 0 0 2.83l1.9 1.9V18c0 1.1.9 2 2 2h2.69l1.9 1.9c.78.78 2.05.78 2.83 0l1.9-1.9H18c1.1 0 2-.9 2-2v-2.69l1.9-1.9c.78-.78.78-2.05 0-2.83L20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/>',
+  briMed:'<path d="M20 8.69V6c0-1.1-.9-2-2-2h-2.69l-1.9-1.9a2 2 0 0 0-2.83 0L8.69 4H6c-1.1 0-2 .9-2 2v2.69l-1.9 1.9a2 2 0 0 0 0 2.83l1.9 1.9V18c0 1.1.9 2 2 2h2.69l1.9 1.9c.78.78 2.05.78 2.83 0l1.9-1.9H18c1.1 0 2-.9 2-2v-2.69l1.9-1.9c.78-.78.78-2.05 0-2.83L20 8.69zM12 18V6c3.31 0 6 2.69 6 6s-2.69 6-6 6z"/>',
+  briHigh:'<path d="M20 8.69V6c0-1.1-.9-2-2-2h-2.69l-1.9-1.9a2 2 0 0 0-2.83 0L8.69 4H6c-1.1 0-2 .9-2 2v2.69l-1.9 1.9a2 2 0 0 0 0 2.83l1.9 1.9V18c0 1.1.9 2 2 2h2.69l1.9 1.9c.78.78 2.05.78 2.83 0l1.9-1.9H18c1.1 0 2-.9 2-2v-2.69l1.9-1.9c.78-.78.78-2.05 0-2.83L20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/><circle cx="12" cy="12" r="4"/>',
+};
+function icon(kind, level, size, color){
+  const p = kind === 'vol' ? (level <= 0 ? ICON.volOff : level < .5 ? ICON.volDown : ICON.volUp)
+                           : (level < .34 ? ICON.briLow : level < .67 ? ICON.briMed : ICON.briHigh);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">${p}</svg>`;
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+// Past either end the gesture keeps a little stretch (rubber band), as zoom-to-fill does.
+const stretch = raw => raw > 1 ? (raw - 1) : raw < 0 ? raw : 0;
+
+const VARIANTS = [
+  { key:'now', tag:'Today', name:'The pill under your thumb',
+    text:'0.6.2: a 46 dp pill on the side you swipe, 40 dp in. The thumb covers it, and the brightness pill sits further in than the volume one because only the left edge has the camera.',
+    risk:'' },
+  { key:'A', name:'Across', by:'Claude + Neon',
+    text:'A capsule appears on the <b>other</b> side, where no thumb is (56 × 196 dp). The colour rises inside it like liquid; the number and icon turn dark where it passes them. ' +
+      'Both sides sit the same distance in (the camera\'s edge decides it for both), so brightness and volume mirror exactly. At 100% it stretches and throws a few sparks.',
+    risk:'<b>Risk:</b> your eyes cross the whole picture, and the capsule swaps sides between brightness and volume.' },
+  { key:'B', name:'Centre', by:'Neon',
+    text:'A small card a little above the middle, holding <b>Android 16\'s own slider</b> standing upright: coloured track, a gap, a white handle, a gap, the empty track. ' +
+      'Brightness and volume share one home, nowhere near either thumb or the camera. At the ends the handle widens and the card nudges.',
+    risk:'<b>Risk:</b> it sits over the middle of the picture (often someone\'s face) while you drag.' },
+  { key:'C', name:'Lever', by:'Claude, with Neon\'s riding badge',
+    text:'Stays on your side but stands 104 dp in from your thumb. The meter is exactly as tall as the swipe (40% of the screen) and starts with its edge level with your fingertip: ' +
+      'move a centimetre, the fill moves a centimetre. The number rides up and down beside the fill\'s edge.',
+    risk:'<b>Risk:</b> starting near the very top or bottom, the meter can\'t line up with the finger (it stays on screen), so they drift apart a little.' },
+  { key:'D', name:'Tile', by:'Neon',
+    text:'A small tile hangs at the top centre (76 × 100 dp), where no thumb reaches and no caption sits, like the “2× ▸▸” pill. It fills from the bottom; ' +
+      'the number and icon flip colour at the waterline. Brightness\'s sun turns as it rises.',
+    risk:'<b>Risk:</b> the tile is short, so a one-step change moves the fill only a little; you lean on the number.' },
+];
+
+/* per-frame state */
+const frames = [];
+function makeFrame(v){
+  const sec = document.createElement('section');
+  sec.className = 'shot';
+  sec.innerHTML = `<div class="frame"><div class="phone"><div class="screen" data-v="${v.key}">
+      <div class="video"></div><div class="zone l"></div><div class="zone r"></div><div class="cutout"></div>
+      <div class="hud"></div><div class="thumb"></div>
+      <div class="hint">Drag up or down on the left or right third</div>
+    </div></div></div>
+    <div class="caption"><h2><span class="${v.key==='now'?'now':''}">${v.tag ?? v.key}</span>${v.name}</h2><p>${v.by ? `<b>${v.by}.</b> ` : ''}${v.text}</p>${v.risk ? `<p class="risk">${v.risk}</p>` : ''}</div>`;
+  document.getElementById('shots').appendChild(sec);
+  const f = { v, screen: sec.querySelector('.screen'), hud: sec.querySelector('.hud'), thumb: sec.querySelector('.thumb'), video: sec.querySelector('.video'),
+    kind:'vol', levels:{ vol:.62, bri:.45 }, raw:0, active:false, shown:false, fx:W-80, fy:240, anchor:null, hideT:0, user:false };
+  build(f);
+  bindPointer(f);
+  frames.push(f);
+  return f;
+}
+
+function build(f){
+  const k = f.v.key, h = f.hud;
+  if (k === 'now') h.innerHTML = `<div class="today"><div class="tr"><i></i></div><span class="ic"></span></div><div class="measure"><b></b></div>`;
+  if (k === 'A') h.innerHTML = `<div class="across"><div class="ink"><span class="num"></span><span class="ic"></span></div><div class="fill"><div class="ink"><span class="num"></span><span class="ic"></span></div></div></div>`;
+  if (k === 'B') h.innerHTML = `<div class="centre"><span class="num"></span><div class="trk"><div class="ina"></div><div class="act"></div><div class="hdl"></div></div><span class="ic"></span></div>`;
+  if (k === 'C') h.innerHTML = `<div class="lever"><div class="tr"><i></i></div></div><div class="tag lv"><span class="ic"></span><span class="num"></span></div>`;
+  if (k === 'D') h.innerHTML = `<div class="tile"><div class="ink"><span class="ic"></span><span class="num"></span></div><div class="fill"><div class="ink"><span class="ic"></span><span class="num"></span></div></div></div>`;
+}
+
+const CUT = 48, EDGE = 64;  // the camera's band on the left; A's distance from the glass edge on BOTH sides
+function draw(f){
+  const k = f.v.key, h = f.hud, lv = f.levels[f.kind], pct = Math.round(lv * 100), kind = f.kind;
+  const over = stretch(f.raw);
+  // the picture follows brightness, so it's clear something real changed
+  f.video.style.filter = `brightness(${(.45 + .75 * f.levels.bri).toFixed(3)})`;
+  // thumb: tip at the finger, body off toward its edge
+  const t = f.thumb;
+  t.classList.toggle('on', f.active);
+  const right = f.fx > W / 2;
+  t.style.left = (right ? f.fx - 34 : f.fx - 210 + 34) + 'px';
+  t.style.top = (f.fy - 48) + 'px';
+  t.style.transformOrigin = right ? '34px 48px' : '176px 48px';
+  t.style.transform = right ? 'rotate(24deg)' : 'scaleX(-1) rotate(24deg)';
+  if (!right) t.style.transformOrigin = '176px 48px';
+  const vis = f.shown ? 1 : 0;
+
+  if (k === 'now'){
+    const el = h.querySelector('.today');
+    el.style.opacity = vis; el.style.transition = 'opacity .26s';
+    el.querySelector('.tr i').style.height = pct + '%';
+    el.querySelector('.ic').innerHTML = icon(kind, lv, 22, '#fff');
+    const left = kind === 'bri';
+    el.style.left = left ? (CUT + 40) + 'px' : 'auto';
+    el.style.right = left ? 'auto' : '40px';
+    const m = h.querySelector('.measure');
+    m.style.opacity = vis;
+    m.style.left = left ? '0px' : 'auto'; m.style.right = left ? 'auto' : '0px';
+    m.style.width = (left ? CUT + 40 : 40) + 'px';
+    m.querySelector('b').textContent = left ? '88 dp' : '40 dp';
+  }
+  if (k === 'A'){
+    const el = h.querySelector('.across');
+    const onLeft = kind === 'vol';   // the opposite side of the thumb
+    const s = Math.min(.06, Math.abs(over) * .3);
+    el.style.left = onLeft ? EDGE + 'px' : 'auto';
+    el.style.right = onLeft ? 'auto' : EDGE + 'px';
+    el.style.opacity = vis;
+    el.style.transformOrigin = over < 0 ? '50% 0%' : '50% 100%';
+    el.style.transform = vis ? `scaleY(${1 + s}) scaleX(${1 - s * .6})` : `translateX(${onLeft ? -14 : 14}px) scale(.84)`;
+    el.style.transition = f.active && over ? 'opacity .18s' : '';
+    el.querySelector('.fill').style.height = pct + '%';
+    el.querySelectorAll('.num').forEach(n => n.textContent = pct);
+    const inks = el.querySelectorAll('.ink');
+    inks[0].querySelector('.ic').innerHTML = icon(kind, lv, 22, '#fff');
+    inks[1].querySelector('.ic').innerHTML = icon(kind, lv, 22, 'var(--on-vp)');
+    edgeSparks(f, el, pct);
+  }
+  if (k === 'B'){
+    const el = h.querySelector('.centre'), T = 110, y = lv * T;
+    el.style.opacity = vis;
+    const nudge = pct >= 100 ? -4 : pct <= 0 ? 4 : 0;
+    el.style.transform = vis ? `translateY(${f.active ? nudge * Math.min(1, Math.abs(over) * 6 + .5) : 0}px)` : 'scale(.78)';
+    el.querySelector('.act').style.height = Math.max(0, y - 6) + 'px';
+    el.querySelector('.ina').style.height = Math.max(0, T - y - 6) + 'px';
+    const hd = el.querySelector('.hdl');
+    hd.style.bottom = clamp(y - 2, 0, T - 4) + 'px';
+    hd.style.transform = (pct >= 100 || pct <= 0) && f.active ? 'scaleX(1.24)' : 'none';
+    el.querySelector('.num').textContent = pct + '%';
+    el.querySelector('.ic').innerHTML = icon(kind, lv, 22, pct <= 0 && kind === 'vol' ? 'rgba(255,255,255,.55)' : '#fff');
+  }
+  if (k === 'C'){
+    const el = h.querySelector('.lever'), tag = h.querySelector('.tag');
+    const podH = RANGE + 28;
+    if (f.anchor == null) f.anchor = clamp(f.fy - 14 - (1 - lv) * RANGE, 12, H - 12 - podH);
+    const cx = right ? f.fx - 104 : f.fx + 104;
+    el.style.left = (cx - 23) + 'px'; el.style.top = f.anchor + 'px'; el.style.height = podH + 'px';
+    el.style.opacity = vis;
+    el.querySelector('.tr i').style.height = pct + '%';
+    const edgeY = f.anchor + 14 + (1 - lv) * RANGE;
+    tag.querySelector('.num').textContent = pct + '%';
+    tag.querySelector('.ic').innerHTML = icon(kind, lv, 18, '#fff');
+    tag.style.top = (edgeY - 17) + 'px';
+    const tw = tag.offsetWidth || 80;
+    tag.style.left = (right ? cx - 23 - 8 - tw : cx + 23 + 8) + 'px';
+    tag.style.opacity = vis;
+    tag.style.transform = `scale(${1 + Math.min(.12, Math.abs(over) * .5)})`;
+  }
+  if (k === 'D'){
+    const el = h.querySelector('.tile');
+    const s = Math.min(.06, Math.abs(over) * .3);
+    el.style.opacity = vis;
+    el.style.transformOrigin = over < 0 ? '50% 0%' : '50% 100%';
+    el.style.transform = vis ? (over < 0 ? `translateY(4px) scaleX(${1 + s}) scaleY(${1 - s})` : `scaleY(${1 + s}) scaleX(${1 - s})`) : 'translateY(-14px) scale(.82)';
+    el.style.transition = f.active && over ? 'opacity .18s' : '';
+    el.querySelector('.fill').style.height = pct + '%';
+    el.querySelectorAll('.num').forEach(n => n.textContent = pct + '%');
+    const inks = el.querySelectorAll('.ink');
+    inks[0].querySelector('.ic').innerHTML = `<span style="display:block">${icon(kind, lv, 26, '#fff')}</span>`;
+    inks[1].querySelector('.ic').innerHTML = `<span style="display:block">${icon(kind, lv, 26, 'var(--on-vp)')}</span>`;
+    if (kind === 'bri') inks.forEach(n => n.querySelector('.ic span').style.transform = `rotate(${Math.round(lv * 90)}deg)`);
+    edgeSparks(f, el, pct);
+  }
+}
+
+/* a few sparks off the top when the level reaches 100% (the like button's motif) */
+function edgeSparks(f, el, pct){
+  const hit = pct >= 100 && f.active;
+  if (hit && !f.sparked && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const r = el.getBoundingClientRect(), hr = f.hud.getBoundingClientRect(), k = W / hr.width;
+    const cx = (r.left + r.width / 2 - hr.left) * k, cy = (r.top - hr.top) * k + 6;
+    for (let i = 0; i < 6; i++){
+      const d = document.createElement('i'); d.className = 'spark';
+      d.style.left = cx + 'px'; d.style.top = cy + 'px'; d.style.background = i % 2 ? '#fff' : 'var(--vp)';
+      f.hud.appendChild(d);
+      const a = (-150 + i * 24) * Math.PI / 180, dist = 26 + (i % 3) * 8;
+      d.animate([{ transform:'translate(0,0) scale(1)', opacity:1 }, { transform:`translate(${Math.cos(a) * dist}px,${Math.sin(a) * dist}px) scale(.3)`, opacity:0 }],
+        { duration:520, easing:'cubic-bezier(.2,0,0,1)' }).onfinish = () => d.remove();
+    }
+  }
+  f.sparked = hit;
+}
+
+/* gestures: the app's own rules (35% sides, 40% of the height = full range, fades 700 ms after the finger stops) */
+function local(f, e){
+  const r = f.screen.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+}
+function begin(f, x, y, kind){
+  clearTimeout(f.hideT);
+  f.kind = kind; f.active = true; f.shown = true; f.fx = x; f.fy = y; f.anchor = null; f.raw = f.levels[kind];
+  draw(f);
+}
+function move(f, y){
+  const dy = y - f.fy; f.fy = y;
+  f.raw -= dy / RANGE;
+  // past the ends the level holds; the raw value keeps the stretch
+  f.levels[f.kind] = clamp(f.raw, 0, 1);
+  if (f.raw > 1.25) f.raw = 1.25; if (f.raw < -.25) f.raw = -.25;
+  draw(f);
+}
+function end(f){
+  f.active = false; f.raw = f.levels[f.kind];
+  draw(f);
+  f.hideT = setTimeout(() => { f.shown = false; draw(f); }, 700);
+}
+function bindPointer(f){
+  let id = null;
+  f.screen.addEventListener('pointerdown', e => {
+    const p = local(f, e), x = p.x / W;
+    const kind = x < SIDE ? 'bri' : x > 1 - SIDE ? 'vol' : null;
+    if (!kind) return;
+    f.user = true; f.screen.classList.add('touched');
+    id = e.pointerId; f.screen.setPointerCapture(id);
+    begin(f, p.x, p.y, kind);
+  });
+  f.screen.addEventListener('pointermove', e => { if (e.pointerId === id) move(f, local(f, e).y); });
+  const up = e => { if (e.pointerId === id) { id = null; end(f); } };
+  f.screen.addEventListener('pointerup', up);
+  f.screen.addEventListener('pointercancel', up);
+}
+
+/* the demo: a slow thumb going up, then down, on every phone nobody is touching */
+let demoOn = true, demoKind = 'vol', t0 = performance.now();
+function demoTick(now){
+  if (demoOn) frames.forEach(f => {
+    if (f.user) return;
+    const t = ((now - t0) / 1000) % 6;            // 6 s loop: 4.4 s dragging, then let go
+    const x = demoKind === 'vol' ? W - 78 : 78 + CUT;
+    if (t < 4.4){
+      const y = 250 - 70 * Math.sin(t / 4.4 * Math.PI * 2);
+      if (!f.active) { f.levels[demoKind] = .55; begin(f, x, 250, demoKind); }
+      move(f, y);
+    } else if (f.active) end(f);
+  });
+  requestAnimationFrame(demoTick);
+}
+
+function fit(){
+  const wr = document.querySelector('.wrap'), cs = getComputedStyle(wr);
+  const w = wr.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  document.documentElement.style.setProperty('--z', Math.min(.9, w / 943).toFixed(3));
+}
+VARIANTS.forEach(makeFrame);
+frames.forEach(f => { f.kind = 'vol'; f.shown = true; f.active = true; f.fx = W - 78; f.fy = 230; f.levels.vol = .62; draw(f); });
+fit(); addEventListener('resize', fit);
+requestAnimationFrame(demoTick);
+
+document.getElementById('demo').onclick = e => {
+  demoOn = !demoOn; e.currentTarget.classList.toggle('on', demoOn);
+  frames.forEach(f => { f.user = false; f.screen.classList.remove('touched'); if (!demoOn && f.active) end(f); });
+  t0 = performance.now();
+};
+document.getElementById('thumbs').onclick = e => {
+  const on = !e.currentTarget.classList.contains('on');
+  e.currentTarget.classList.toggle('on', on);
+  document.body.classList.toggle('nothumb', !on);
+};
+document.getElementById('red').onclick = e => {
+  e.currentTarget.classList.toggle('on', document.body.classList.toggle('red'));
+};
+document.getElementById('side').onclick = e => {
+  demoKind = demoKind === 'vol' ? 'bri' : 'vol';
+  e.currentTarget.classList.toggle('on', demoKind === 'bri');
+  frames.forEach(f => { f.user = false; if (f.active) end(f); });
+  t0 = performance.now();
+};
+</script>
+</html>

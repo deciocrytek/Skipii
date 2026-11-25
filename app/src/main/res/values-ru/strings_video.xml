@@ -86,4 +86,13 @@
     <string name="video_drawer_empty">Здесь пока нет видео</string>
     <string name="video_drawer_offline">Для других видео нужно подключение</string>
     <string name="video_drawer_close">Закрыть</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">Авто</string>
+    <string name="video_level_volume">Громкость %1$s%%</string>
+    <string name="video_level_volume_muted">Звук выключен, 0 процентов</string>
+    <string name="video_level_volume_max">Громкость 100 процентов, максимум</string>
+    <string name="video_level_brightness">Яркость %1$s%%</string>
+    <string name="video_level_brightness_min">Яркость минимальная</string>
+    <string name="video_level_brightness_max">Яркость 100 процентов, максимум</string>
+    <string name="video_level_brightness_auto">Автояркость включена</string>
 </resources>

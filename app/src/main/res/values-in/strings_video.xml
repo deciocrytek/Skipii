@@ -85,4 +85,13 @@
     <string name="video_drawer_empty">Belum ada video di sini</string>
     <string name="video_drawer_offline">Video lainnya memerlukan koneksi</string>
     <string name="video_drawer_close">Tutup</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">Otomatis</string>
+    <string name="video_level_volume">Volume %1$s persen</string>
+    <string name="video_level_volume_muted">Volume dibisukan, 0 persen</string>
+    <string name="video_level_volume_max">Volume 100 persen, maksimum</string>
+    <string name="video_level_brightness">Kecerahan %1$s persen</string>
+    <string name="video_level_brightness_min">Kecerahan minimum</string>
+    <string name="video_level_brightness_max">Kecerahan 100 persen, maksimum</string>
+    <string name="video_level_brightness_auto">Kecerahan otomatis</string>
 </resources>

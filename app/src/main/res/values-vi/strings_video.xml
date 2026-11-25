@@ -86,4 +86,13 @@
     <string name="video_drawer_empty">Chưa có video nào ở đây</string>
     <string name="video_drawer_offline">Cần có kết nối để xem thêm video</string>
     <string name="video_drawer_close">Đóng</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">Tự động</string>
+    <string name="video_level_volume">Âm lượng %1$s phần trăm</string>
+    <string name="video_level_volume_muted">Đã tắt tiếng, 0 phần trăm</string>
+    <string name="video_level_volume_max">Âm lượng 100 phần trăm, tối đa</string>
+    <string name="video_level_brightness">Độ sáng %1$s phần trăm</string>
+    <string name="video_level_brightness_min">Độ sáng tối thiểu</string>
+    <string name="video_level_brightness_max">Độ sáng 100 phần trăm, tối đa</string>
+    <string name="video_level_brightness_auto">Độ sáng tự động</string>
 </resources>

@@ -86,4 +86,13 @@
     <string name="video_drawer_empty">لا توجد فيديوهات هنا بعد</string>
     <string name="video_drawer_offline">المزيد من الفيديوهات يحتاج إلى اتصال</string>
     <string name="video_drawer_close">إغلاق</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">تلقائي</string>
+    <string name="video_level_volume">مستوى الصوت %1$s بالمئة</string>
+    <string name="video_level_volume_muted">الصوت مكتوم، 0 بالمئة</string>
+    <string name="video_level_volume_max">مستوى الصوت 100 بالمئة، الحد الأقصى</string>
+    <string name="video_level_brightness">السطوع %1$s بالمئة</string>
+    <string name="video_level_brightness_min">السطوع في أدنى مستوى</string>
+    <string name="video_level_brightness_max">السطوع 100 بالمئة، الحد الأقصى</string>
+    <string name="video_level_brightness_auto">السطوع تلقائي</string>
 </resources>

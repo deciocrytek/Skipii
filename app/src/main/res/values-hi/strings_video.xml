@@ -86,4 +86,13 @@
     <string name="video_drawer_empty">यहां अभी कोई वीडियो नहीं है</string>
     <string name="video_drawer_offline">और वीडियो के लिए कनेक्शन चाहिए</string>
     <string name="video_drawer_close">बंद करें</string>
+    <!-- Fullscreen brightness / volume indicator (GitHub #88) -->
+    <string name="video_level_auto">ऑटो</string>
+    <string name="video_level_volume">आवाज़ %1$s प्रतिशत</string>
+    <string name="video_level_volume_muted">आवाज़ बंद, 0 प्रतिशत</string>
+    <string name="video_level_volume_max">आवाज़ 100 प्रतिशत, सबसे ज़्यादा</string>
+    <string name="video_level_brightness">ब्राइटनेस %1$s प्रतिशत</string>
+    <string name="video_level_brightness_min">ब्राइटनेस सबसे कम</string>
+    <string name="video_level_brightness_max">ब्राइटनेस 100 प्रतिशत, सबसे ज़्यादा</string>
+    <string name="video_level_brightness_auto">ब्राइटनेस अपने-आप</string>
 </resources>
