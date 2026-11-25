@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.6.3
+
 ### Improved
 - **Brightness and volume in fullscreen, where you can see them.** Swiping up or down on the left or right of the video now shows a column of ten dots a third of the way in from that side, well clear of your thumb. The dot at your level grows into a capsule as your finger moves, the number rides on top, and a badge underneath shows a speaker or a sun. Brightness is warm gold, volume is your theme's colour. Both sides now sit the same distance from the edge (#88).
 - **Brightness back to automatic:** in fullscreen, pull the brightness a little past 0% until it clicks and it shows **Auto**: the screen follows your phone's own brightness again.
