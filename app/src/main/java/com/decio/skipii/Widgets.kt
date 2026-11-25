@@ -17,7 +17,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.media3.common.C
@@ -125,7 +124,7 @@ object WidgetUpdater {
                 if (upNext.isNotEmpty()) manager.updateAppWidget(upNext, upNextViews(app, snap, running))
                 if (search.isNotEmpty()) manager.updateAppWidget(search, searchViews(app))
             } catch (x: Exception) {
-                Log.w(TAG, "widgets: update failed", x)
+                AppLog.w(TAG, "widgets: update failed", x)
             } finally {
                 done?.invoke()
             }
@@ -261,7 +260,7 @@ object WidgetUpdater {
         val result = kotlinx.coroutines.runBlocking {
             context.imageLoader.execute(ImageRequest.Builder(context).data(src).size(w, h).allowHardware(false).build())
         }
-        if (result is coil.request.ErrorResult) { Log.w(TAG, "widgets: thumbnail ${src.takeLast(40)} not loaded (${result.throwable.message})"); return null }
+        if (result is coil.request.ErrorResult) { AppLog.w(TAG, "widgets: thumbnail ${src.takeLast(40)} not loaded (${result.throwable.message})"); return null }
         val loaded = ((result as? SuccessResult)?.drawable as? android.graphics.drawable.BitmapDrawable)?.bitmap ?: return null
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(out)
@@ -334,7 +333,7 @@ class WidgetControlsReceiver : BroadcastReceiver() {
                         .apply { if (intent.action == WidgetUpdater.ACTION_PLAY) putExtra(WidgetUpdater.EXTRA_PLAY, true) }
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 )
-            }.onFailure { Log.w("Skipii", "widgets: couldn't open the app from a stale button (${it.message})") }
+            }.onFailure { AppLog.w("Skipii", "widgets: couldn't open the app from a stale button (${it.message})") }
             val pending = goAsync()
             WidgetUpdater.updateNow(context) { pending.finish() }
             return

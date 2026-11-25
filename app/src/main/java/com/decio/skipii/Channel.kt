@@ -1,6 +1,5 @@
 package com.decio.skipii
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -169,7 +168,7 @@ class ChannelState(val url: String, private val scope: CoroutineScope) {
             runCatching { YouTube.channel(url) }
                 .onSuccess { d ->
                     val page = early?.await() ?: runCatching { InnerTube.channelHome(d.id, d.name, d.avatar) }
-                    page.exceptionOrNull()?.let { if (it is CancellationException) throw it; Log.w("Skipii", "channel: couldn't read ${d.id}'s page; uploads only", it) }
+                    page.exceptionOrNull()?.let { if (it is CancellationException) throw it; AppLog.w("Skipii", "channel: couldn't read ${d.id}'s page; uploads only", it) }
                     // Profile and tabs land together, so the page never shifts as the tabs arrive.
                     details = d
                     home = page.getOrNull()?.let { h ->

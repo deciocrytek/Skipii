@@ -62,11 +62,11 @@
     <string name="settings_update_available">Доступна версия %1$s</string>
     <string name="settings_source">Исходный код на GitHub</string>
     <string name="settings_source_line">Сообщить о проблеме или предложить функцию</string>
-    <string name="settings_crash_title">Отчёт о сбое</string>
-    <string name="settings_crash_saved">Сохранён после последнего сбоя. Поделитесь им и вставьте в issue на GitHub</string>
-    <string name="settings_crash_none">Сбоев не сохранено. Отправляет, как Android в последний раз закрыл Skipii, для issue на GitHub</string>
+    <string name="settings_crash_title">Отчёт о проблеме</string>
+    <string name="settings_crash_saved">Включает последний сбой. Отправляет его разработчику по почте</string>
+    <string name="settings_crash_none">Отправляет разработчику по почте то, что Skipii записал за последнее время, чтобы найти причину. Без данных аккаунта</string>
     <string name="settings_crash_tile">Сохранён отчёт о сбое</string>
-    <string name="settings_crash_share">Поделиться отчётом о сбое</string>
+    <string name="settings_crash_share">Поделиться отчётом о проблеме</string>
     <string name="settings_made_by">Автор: %1$s</string>
     <string name="settings_say_hi">Заходите поздороваться</string>
     <string name="settings_email_developer">Написать разработчику</string>
@@ -105,4 +105,8 @@
     <string name="settings_background_play_off">Пауза, когда вы выходите из Skipii или экран гаснет (режим «только звук» играет дальше)</string>
     <string name="settings_open_links_title">Открывать ссылки YouTube</string>
     <string name="settings_open_links_line">Пусть Skipii открывает ссылки youtube.com и youtu.be из других приложений: Открывать по умолчанию › Добавить ссылки</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">Отправить отчёт</string>
+    <string name="report_email_prompt">Что произошло? (необязательно, на любом языке)</string>
+    <string name="report_stuck">Это видео слишком долго запускается.</string>
 </resources>

@@ -60,11 +60,11 @@
     <string name="settings_update_available">%1$s sürümü hazır</string>
     <string name="settings_source">GitHub’da kaynak kodu</string>
     <string name="settings_source_line">Bir sorun bildir ya da özellik iste</string>
-    <string name="settings_crash_title">Çökme raporu</string>
-    <string name="settings_crash_saved">Son çökmeden kaydedildi. Paylaşın ve bir GitHub issue\'suna yapıştırın</string>
-    <string name="settings_crash_none">Kayıtlı çökme yok. Android\'in Skipii\'yi son kez nasıl kapattığını paylaşır, bir GitHub issue\'su için</string>
+    <string name="settings_crash_title">Sorun raporu</string>
+    <string name="settings_crash_saved">Son çökmeyi içerir. Geliştiriciye e-postayla gönderir</string>
+    <string name="settings_crash_none">Skipii\'nin son zamanlarda not ettiklerini sorunu bulmak için geliştiriciye e-postayla gönderir. Hesap bilgisi yok</string>
     <string name="settings_crash_tile">Çökme raporu kaydedildi</string>
-    <string name="settings_crash_share">Çökme raporunu paylaş</string>
+    <string name="settings_crash_share">Sorun raporunu paylaş</string>
     <string name="settings_made_by">%1$s tarafından yapıldı</string>
     <string name="settings_say_hi">Gel bir merhaba de</string>
     <string name="settings_email_developer">Geliştiriciye e-posta gönder</string>
@@ -103,4 +103,8 @@
     <string name="settings_background_play_off">Skipii\'den çıktığınızda veya ekran kapandığında duraklar (yalnızca ses devam eder)</string>
     <string name="settings_open_links_title">YouTube bağlantılarını aç</string>
     <string name="settings_open_links_line">Skipii diğer uygulamalardaki youtube.com ve youtu.be bağlantılarını açsın: Varsayılan olarak aç › Bağlantı ekle</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">Rapor gönder</string>
+    <string name="report_email_prompt">Ne oldu? (isteğe bağlı, herhangi bir dilde)</string>
+    <string name="report_stuck">Bu videonun başlaması çok uzun sürüyor.</string>
 </resources>

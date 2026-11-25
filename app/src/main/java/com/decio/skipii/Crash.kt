@@ -23,8 +23,8 @@ import kotlin.system.exitProcess
  * the stack trace of every uncaught exception in filesDir/crashes (the newest [Kept]), then hands the
  * crash on to Android as before. [report] adds the phone, the build and Android's own record of how the
  * app's last processes ended (getHistoricalProcessExitReasons, Android 11+): low memory, native crashes,
- * ANRs and ROM kills leave no stack trace of ours, only that. Shared from Settings › About › Crash report
- * as Markdown, to paste into an issue. Nothing about the account or what was watched goes in.
+ * ANRs and ROM kills leave no stack trace of ours, only that. Since 0.6.2 these are the end of the
+ * problem report ([ProblemReport], Diagnostics.kt). Nothing about the account goes in.
  */
 object CrashLog {
     private const val Kept = 3
@@ -78,16 +78,20 @@ object CrashLog {
         files().drop(Kept).forEach { it.delete() }
     }
 
-    /** The whole report, Markdown. Reads files and Android's exit records: call it off the main thread. */
-    fun report(context: Context): String = buildString {
+    /** The build, the phone and a few settings (the top of [ProblemReport]). */
+    fun header(context: Context): String = buildString {
         val am = context.getSystemService(ActivityManager::class.java)
         val ram = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
         appendLine("**Skipii ${BuildConfig.VERSION_NAME}** (${BuildConfig.VERSION_CODE}, ${BuildConfig.BUILD_TYPE})")
         appendLine("Phone: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE}), Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
         appendLine("Build: ${Build.DISPLAY}")
         appendLine("Memory: app heap ${am.largeMemoryClass} MB (large) / ${am.memoryClass} MB, phone ${mb(ram.totalMem)} MB, ${mb(ram.availMem)} MB free now")
-        appendLine("Settings: Shorts ${onOff(ShortsSetting.enabled)}, audio only ${onOff(AudioOnly.enabled)}, controls ${if (PlayerControls.inBar) "in the bar" else "on the video"}, signed in ${onOff(Account.signedIn)}")
-        appendLine()
+        append("Settings: Shorts ${onOff(ShortsSetting.enabled)}, audio only ${onOff(AudioOnly.enabled)}, controls ${if (PlayerControls.inBar) "in the bar" else "on the video"}, signed in ${onOff(Account.signedIn)}")
+    }
+
+    /** Saved crashes and Android's exit records. Reads files: call it off the main thread. */
+    fun sections(context: Context): String = buildString {
+        val am = context.getSystemService(ActivityManager::class.java)
         appendLine("## Crashes")
         val saved = files()
         if (saved.isEmpty()) appendLine("None saved. (A native crash, low memory or the system closing Skipii leaves no trace here, only in the list below.)")

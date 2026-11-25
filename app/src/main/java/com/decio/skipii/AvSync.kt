@@ -3,7 +3,6 @@ package com.decio.skipii
 import android.content.Context
 import android.os.Build
 import android.os.Handler
-import android.util.Log
 import android.view.Choreographer
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -103,7 +102,7 @@ object AvSync {
         val median = samples.copyOf(sampleCount).apply { sort() }[sampleCount / 2]
         val next = median.coerceIn(-MAX_OFFSET_US, MAX_OFFSET_US)
         if (abs(next - offsetUs) >= HYSTERESIS_US) {
-            Log.i(
+            AppLog.i(
                 "Skipii",
                 "AV sync: frames show ${abs(median) / 1000} ms ${if (median < 0) "early" else "late"} " +
                     "(${1_000_000_000L / framePeriodNs} Hz); video clock shifted ${next / 1000} ms",

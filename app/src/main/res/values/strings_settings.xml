@@ -76,11 +76,11 @@
     <string name="settings_source">Source code on GitHub</string>
     <string name="settings_source_line">Report a problem or ask for a feature</string>
     <!-- Settings › About: the crash report (GitHub #55), shared to paste into an issue. -->
-    <string name="settings_crash_title">Crash report</string>
-    <string name="settings_crash_saved">Saved from the last crash. Share it and paste it into a GitHub issue</string>
-    <string name="settings_crash_none">No crash saved. Shares how Android last closed Skipii, for a GitHub issue</string>
+    <string name="settings_crash_title">Problem report</string>
+    <string name="settings_crash_saved">Includes the last crash. Emails it to the developer</string>
+    <string name="settings_crash_none">Emails what Skipii noted lately to the developer, to find what went wrong. No account details</string>
     <string name="settings_crash_tile">Crash report saved</string>
-    <string name="settings_crash_share">Share crash report</string>
+    <string name="settings_crash_share">Share problem report</string>
     <!-- The developer card, last on the Settings page; %1$s = the handle (@y7esdii). -->
     <string name="settings_made_by">Made by %1$s</string>
     <string name="settings_say_hi">Come say hi</string>
@@ -120,4 +120,8 @@
     <string name="settings_background_play_off">Pauses when you leave Skipii or the screen turns off (audio only keeps playing)</string>
     <string name="settings_open_links_title">Open YouTube links</string>
     <string name="settings_open_links_line">Let Skipii open youtube.com and youtu.be links from other apps: Open by default › Add links</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">Send report</string>
+    <string name="report_email_prompt">What happened? (optional, any language)</string>
+    <string name="report_stuck">This video is taking a long time to start.</string>
 </resources>

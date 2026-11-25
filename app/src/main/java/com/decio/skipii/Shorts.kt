@@ -18,7 +18,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.os.SystemClock
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import androidx.annotation.OptIn
@@ -616,7 +615,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
     internal fun onStartedPlaying(player: ShortPlayer) {
         if (startLogged || player.index != index) return
         startLogged = true
-        Log.i(TAG, "shorts: ${player.id} playing ${SystemClock.elapsedRealtime() - onScreenAt} ms after coming on screen ($readyWhenShown)")
+        AppLog.i(TAG, "shorts: ${player.id} playing ${SystemClock.elapsedRealtime() - onScreenAt} ms after coming on screen ($readyWhenShown)")
     }
 
     fun refresh() {
@@ -638,7 +637,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "shorts: feed failed", it)
+                    AppLog.w(TAG, "shorts: feed failed", it)
                     // InnerTube.shorts says "YouTube didn't offer any Shorts right now." (English) when there's no seed.
                     error = if (it is java.io.IOException && it.message?.startsWith("YouTube didn't") == true) str(R.string.shorts_none_offered) else YouTube.friendlyError(it)
                 }
@@ -662,7 +661,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "shorts: next page failed", it)
+                    AppLog.w(TAG, "shorts: next page failed", it)
                     moreFailedAt = SystemClock.elapsedRealtime()
                     // A kept token can go stale (the bank's, from days ago): start a new sequence.
                     if (more == null && items.isNotEmpty()) { next = null; ShortsBank.setNext(null); pendingFresh = true }
@@ -686,7 +685,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
                     next = page.next
                     ShortsBank.setNext(next)
                 }
-                .onFailure { if (it is CancellationException) throw it; Log.w(TAG, "shorts: fresh sequence failed", it) }
+                .onFailure { if (it is CancellationException) throw it; AppLog.w(TAG, "shorts: fresh sequence failed", it) }
             loading = false
         }
     }
@@ -836,7 +835,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
                 ShortsBank.download(d.item, aspects[target.id] ?: d.aspect ?: (9f / 16f), tracks.first, tracks.second)
             }.onFailure {
                 if (it is CancellationException) return@onFailure
-                Log.w(TAG, "shorts bank: couldn't bank ${target.id}", it)
+                AppLog.w(TAG, "shorts bank: couldn't bank ${target.id}", it)
                 bankFailed.add(target.id)
             }
             withContext(Dispatchers.IO + kotlinx.coroutines.NonCancellable) { ShortsBank.cleanup(inUseUrls()) }
@@ -852,13 +851,13 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         detailJobs[id] = scope.launch {
             runCatching { YouTube.details(id, wait = false) }
                 .onSuccess {
-                    Log.i(TAG, "shorts: links for $id in ${SystemClock.elapsedRealtime() - startedAt} ms")
+                    AppLog.i(TAG, "shorts: links for $id in ${SystemClock.elapsedRealtime() - startedAt} ms")
                     details[id] = it
                     poke()
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "shorts: details for $id", it)
+                    AppLog.w(TAG, "shorts: details for $id", it)
                     failed[id] = YouTube.friendlyError(it)
                 }
         }
@@ -873,7 +872,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         val id = player.id ?: return
         // A banked short missing some bytes asked YouTube with its old link: play it live instead.
         if (player.banked) {
-            Log.w(TAG, "shorts bank: $id didn't play from the bank (${error.errorCodeName}); playing it live")
+            AppLog.w(TAG, "shorts bank: $id didn't play from the bank (${error.errorCodeName}); playing it live")
             ShortsBank.forget(id)
             if (StreamCache.get(id) == null) details.remove(id)
             player.unprepare()
@@ -881,7 +880,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
         }
         // An expired or network-bound link (HTTP 403): fresh links once, as the main player does.
         if (error.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && player.retry()) {
-            Log.i(TAG, "shorts: stream refused for $id; fetching fresh links")
+            AppLog.i(TAG, "shorts: stream refused for $id; fetching fresh links")
             StreamCache.invalidate(id)
             details.remove(id)
             return
@@ -894,14 +893,14 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
             val tries = (decoderFailures[id] ?: 0) + 1
             decoderFailures[id] = tries
             if (tries <= 3) {
-                Log.w(TAG, "shorts: no video decoder free for $id; loading one short ahead from now on")
+                AppLog.w(TAG, "shorts: no video decoder free for $id; loading one short ahead from now on")
                 maxAhead = 1
                 player.unprepare()
                 if (player.index == index) assigned[index - 1]?.unprepare()
                 return
             }
         }
-        Log.w(TAG, "shorts: playback error for $id (${error.errorCodeName})", error)
+        AppLog.w(TAG, "shorts: playback error for $id (${error.errorCodeName})", error)
         failed[id] = str(R.string.shorts_cant_play_now)
     }
 
@@ -935,7 +934,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
                     accountStates[id] = if (local == null) got
                     else got.copy(like = local.like, subscribed = local.subscribed ?: got.subscribed)
                 }
-                .onFailure { if (it !is CancellationException) { Log.w(TAG, "shorts: account state for $id", it); accountAsked.remove(id) } }
+                .onFailure { if (it !is CancellationException) { AppLog.w(TAG, "shorts: account state for $id", it); accountAsked.remove(id) } }
         }
     }
 
@@ -943,7 +942,7 @@ class ShortsState(context: Context, private val scope: CoroutineScope) {
     private fun joinHistory(id: String) {
         if (!Account.signedIn || !watched.add(id)) return
         scope.launch(Dispatchers.IO) {
-            runCatching { InnerTube.startWatch(id) }.onFailure { Log.w(TAG, "shorts: history for $id", it) }
+            runCatching { InnerTube.startWatch(id) }.onFailure { AppLog.w(TAG, "shorts: history for $id", it) }
         }
     }
 
@@ -1116,7 +1115,7 @@ internal class ShortPlayer(context: Context, private val state: ShortsState) {
             override fun onIsLoadingChanged(isLoading: Boolean) = state.poke()
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == Player.STATE_BUFFERING && exo.currentPosition > 0 && index == state.index) {
-                    Log.w("Skipii", "shorts: $id stalled at ${exo.currentPosition / 1000}s (${lead} ms loaded ahead)")
+                    AppLog.w("Skipii", "shorts: $id stalled at ${exo.currentPosition / 1000}s (${lead} ms loaded ahead)")
                 }
                 state.poke()
             }
@@ -1159,7 +1158,7 @@ internal class ShortPlayer(context: Context, private val state: ShortsState) {
     /** Start loading [source] (its short's video + audio, through the bank's cache). */
     fun prepare(why: String, source: androidx.media3.exoplayer.source.MediaSource, streamUrls: List<String>, banked: Boolean) {
         val v = id ?: return
-        Log.i("Skipii", "shorts: loading $v ($why)")
+        AppLog.i("Skipii", "shorts: loading $v ($why)")
         prepared = true
         urls = streamUrls
         this.banked = banked
@@ -1197,7 +1196,7 @@ internal class ShortPlayer(context: Context, private val state: ShortsState) {
     fun noteLoaded() {
         if (loadedNoted || !loaded) return
         loadedNoted = true
-        Log.i("Skipii", "shorts: $id loaded (${exo.bufferedPosition / 1000}s of ${exo.duration / 1000}s)")
+        AppLog.i("Skipii", "shorts: $id loaded (${exo.bufferedPosition / 1000}s of ${exo.duration / 1000}s)")
     }
 
     fun attach(s: Surface) {

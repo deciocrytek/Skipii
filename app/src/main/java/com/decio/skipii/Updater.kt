@@ -12,7 +12,6 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -173,7 +172,7 @@ object AppUpdate {
             checking = false
             val now = System.currentTimeMillis()
             result.onFailure {
-                Log.w(TAG, "update check failed (${it.message}); trying again in an hour")
+                AppLog.w(TAG, "update check failed (${it.message}); trying again in an hour")
                 prefs.edit().putLong(KEY_NEXT_CHECK, now + RETRY_AFTER_MS).putString(KEY_CHECKED_BY, BuildConfig.VERSION_NAME).apply()
                 return@launch
             }
@@ -182,7 +181,7 @@ object AppUpdate {
                 .apply { if (latest != null) putString(KEY_RELEASE, latest.toJson()) else remove(KEY_RELEASE) }
                 .apply()
             val newer = latest?.takeIf { isNewer(it.version) }
-            Log.i(TAG, "update check: latest ${latest?.version ?: "none"}, this ${BuildConfig.VERSION_NAME}" +
+            AppLog.i(TAG, "update check: latest ${latest?.version ?: "none"}, this ${BuildConfig.VERSION_NAME}" +
                 if (newer != null) " → update available" else "")
             if (phase == Phase.Downloading || phase == Phase.Installing) return@launch
             if (newer != available) { available = newer; phase = Phase.Ready }
@@ -208,7 +207,7 @@ object AppUpdate {
             if (apk == null) { phase = Phase.Failed; return@launch }
             phase = Phase.Installing
             runCatching { withContext(Dispatchers.IO) { commit(apk, release) } }.onFailure {
-                Log.w(TAG, "update: couldn't start the install", it)
+                AppLog.w(TAG, "update: couldn't start the install", it)
                 phase = Phase.Failed
             }
         }
@@ -241,7 +240,7 @@ object AppUpdate {
                 phase = Phase.Ready
             }
             else -> {
-                Log.w(TAG, "update: install failed ($status: ${intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)})")
+                AppLog.w(TAG, "update: install failed ($status: ${intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)})")
                 prefs.edit().remove(KEY_INSTALLING).remove(KEY_PROMPTED).apply()
                 phase = Phase.Failed
             }
@@ -253,7 +252,7 @@ object AppUpdate {
         val version = prefs.getString(KEY_INSTALLING, null) ?: return
         val prompted = prefs.getBoolean(KEY_PROMPTED, false)
         prefs.edit().remove(KEY_INSTALLING).remove(KEY_PROMPTED).apply()
-        Log.i(TAG, "update: now on ${BuildConfig.VERSION_NAME} (installed $version)")
+        AppLog.i(TAG, "update: now on ${BuildConfig.VERSION_NAME} (installed $version)")
         // A silent update closed the app with no word; Android's own dialog already offered Open.
         if (prompted || !NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
@@ -268,7 +267,7 @@ object AppUpdate {
             .setSilent(true)
             .build()
         runCatching { NotificationManagerCompat.from(context).notify(1, notification) }
-            .onFailure { Log.w(TAG, "update: couldn't post the updated notification (${it.message})") }
+            .onFailure { AppLog.w(TAG, "update: couldn't post the updated notification (${it.message})") }
     }
 
     private fun fetchLatest(): Release? {
@@ -366,7 +365,7 @@ object AppUpdate {
         downloadVersion = release.version
         return scope.async(Dispatchers.IO) {
             runCatching { downloadApk(release) }
-                .onFailure { Log.w(TAG, "update: download of ${release.version} failed (${it.message})") }
+                .onFailure { AppLog.w(TAG, "update: download of ${release.version} failed (${it.message})") }
                 .getOrNull()
         }.also { download = it }
     }
@@ -403,7 +402,7 @@ object AppUpdate {
             release.sha256?.let { check(digest.digest().hex() == it) { "sha256 mismatch" } }
         }
         check(part.renameTo(file)) { "couldn't rename ${part.name}" }
-        Log.i(TAG, "update: downloaded ${release.version} (${file.length()} bytes)")
+        AppLog.i(TAG, "update: downloaded ${release.version} (${file.length()} bytes)")
         return file
     }
 
@@ -426,7 +425,7 @@ object AppUpdate {
             val result = Intent(app, UpdateReceiver::class.java).setAction(ACTION_RESULT)
             // Mutable: PackageInstaller fills in the status extras.
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0)
-            Log.i(TAG, "update: installing ${release.version}")
+            AppLog.i(TAG, "update: installing ${release.version}")
             session.commit(PendingIntent.getBroadcast(app, id, result, flags).intentSender)
             session.close()
         } catch (e: Exception) {

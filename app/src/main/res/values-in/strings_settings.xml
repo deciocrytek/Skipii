@@ -59,11 +59,11 @@
     <string name="settings_update_available">Versi %1$s tersedia</string>
     <string name="settings_source">Kode sumber di GitHub</string>
     <string name="settings_source_line">Laporkan masalah atau minta fitur</string>
-    <string name="settings_crash_title">Laporan error</string>
-    <string name="settings_crash_saved">Disimpan dari error terakhir. Bagikan lalu tempel di issue GitHub</string>
-    <string name="settings_crash_none">Tidak ada error tersimpan. Membagikan cara Android terakhir menutup Skipii, untuk issue GitHub</string>
+    <string name="settings_crash_title">Laporan masalah</string>
+    <string name="settings_crash_saved">Termasuk error terakhir. Dikirim ke pengembang lewat email</string>
+    <string name="settings_crash_none">Mengirim catatan Skipii belakangan ini ke pengembang lewat email, untuk mencari penyebab masalah. Tanpa data akun</string>
     <string name="settings_crash_tile">Laporan error tersimpan</string>
-    <string name="settings_crash_share">Bagikan laporan error</string>
+    <string name="settings_crash_share">Bagikan laporan masalah</string>
     <string name="settings_made_by">Dibuat oleh %1$s</string>
     <string name="settings_say_hi">Mampir dan sapa</string>
     <string name="settings_email_developer">Kirim email ke developer</string>
@@ -102,4 +102,8 @@
     <string name="settings_background_play_off">Dijeda saat keluar dari Skipii atau layar mati (hanya audio tetap diputar)</string>
     <string name="settings_open_links_title">Buka tautan YouTube</string>
     <string name="settings_open_links_line">Izinkan Skipii membuka tautan youtube.com dan youtu.be dari aplikasi lain: Buka secara default › Tambahkan tautan</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">Kirim laporan</string>
+    <string name="report_email_prompt">Apa yang terjadi? (opsional, bahasa apa saja)</string>
+    <string name="report_stuck">Video ini lama sekali mulai diputar.</string>
 </resources>

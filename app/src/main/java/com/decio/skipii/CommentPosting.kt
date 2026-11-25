@@ -1,6 +1,5 @@
 package com.decio.skipii
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -154,7 +153,7 @@ object CommentPosting {
     private fun checkPosted(response: JSONObject) {
         val text = response.toString()
         if ("STATUS_FAILED" in text || !(text.contains("createCommentAction") || text.contains("createCommentReplyAction") || text.contains("STATUS_SUCCEEDED"))) {
-            Log.w("Skipii", "comment post response: ${text.take(600)}")
+            AppLog.w("Skipii", "comment post response: ${text.take(600)}")
             throw IOException(str(R.string.comments_error_not_accepted))
         }
     }

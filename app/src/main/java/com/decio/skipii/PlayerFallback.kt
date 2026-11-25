@@ -1,6 +1,5 @@
 package com.decio.skipii
 
-import android.util.Log
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -54,7 +53,7 @@ object PlayerFallback {
         val status = runCatching { JSONObject(responseBody.orEmpty()) }.getOrNull()?.optJSONObject("playabilityStatus")
         if (!isBotCheck(status)) return
         val videoId = url.toHttpUrlOrNull()?.queryParameter("id") ?: return
-        Log.w("Skipii", "bot check on VISIONOS for $videoId; no stream links this time")
+        AppLog.w("Skipii", "bot check on VISIONOS for $videoId; no stream links this time")
         BotCheck.noteRefused(videoId)
     }
 
@@ -71,14 +70,14 @@ object PlayerFallback {
         val player = request.optJSONObject("playerRequest") ?: return responseBody
         val videoId = player.optString("videoId").ifEmpty { return responseBody }
         val answer = runCatching { ask(player, request.optJSONObject("context")?.optJSONObject("client")) }
-            .onFailure { Log.w("Skipii", "bot check on ANDROID for $videoId; VISIONOS request failed", it) }
+            .onFailure { AppLog.w("Skipii", "bot check on ANDROID for $videoId; VISIONOS request failed", it) }
             .getOrNull() ?: return responseBody
         val status = answer.optJSONObject("playabilityStatus")?.optString("status")
         if (status != "OK") {
-            Log.w("Skipii", "bot check on ANDROID for $videoId; VISIONOS said $status too")
+            AppLog.w("Skipii", "bot check on ANDROID for $videoId; VISIONOS said $status too")
             return responseBody
         }
-        Log.i("Skipii", "bot check on ANDROID for $videoId; details from VISIONOS instead")
+        AppLog.i("Skipii", "bot check on ANDROID for $videoId; details from VISIONOS instead")
         answer.optJSONObject("streamingData")?.let { data ->
             listOf("formats", "adaptiveFormats").forEach { key -> data.optJSONArray(key)?.let(::dropUrls) }
         }

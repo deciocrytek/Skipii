@@ -10,6 +10,9 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- **Send a problem report.** When a video won't start, a note under it after 20 seconds offers **Send report**; an error over the video has the button too, and it's always in **Settings › About › Problem report**. It opens your email app with a report to the developer already written: what Skipii noted on the way (what it asked YouTube for, what came back, why loading stopped), your phone model and Skipii's settings. Add a line about what happened if you like, then tap Send. No account details, no addresses; videos only by their ID (#102).
+
 ## 0.6.1
 
 ### New

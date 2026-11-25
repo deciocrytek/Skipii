@@ -10,7 +10,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -166,12 +165,12 @@ object Downloads {
         dir = File(context.filesDir, "downloads").apply { mkdirs() }
         indexFile = File(context.filesDir, "downloads.json")
         runCatching { cache = SimpleCache(File(dir, "media"), NoOpCacheEvictor(), MediaDatabase.get(context)) }
-            .onFailure { Log.w(TAG, "downloads: no media cache", it) }
+            .onFailure { AppLog.w(TAG, "downloads: no media cache", it) }
         load()
         pruneOrphans()
         watchNetwork(context)
         if (entries.values.any { !it.ready && it.status != Status.Failed }) schedule()
-        Log.i(TAG, "downloads: ${entries.values.count { it.ready }} ready, ${entries.size} in all")
+        AppLog.i(TAG, "downloads: ${entries.values.count { it.ready }} ready, ${entries.size} in all")
     }
 
     // ── Settings writes ──
@@ -209,7 +208,7 @@ object Downloads {
         entries[item.id] = Entry(item, height, Source.Manual, System.currentTimeMillis())
         save()
         schedule()
-        Log.i(TAG, "downloads: ${item.id} asked for (${height?.let { "${it}p" } ?: "audio"})")
+        AppLog.i(TAG, "downloads: ${item.id} asked for (${height?.let { "${it}p" } ?: "audio"})")
     }
 
     /** A failed download tried again. */
@@ -298,7 +297,7 @@ object Downloads {
             if (gone.isEmpty()) return@post
             gone.forEach { entries.remove(it.id); removeBytes(it) }
             save()
-            Log.i(TAG, "downloads: ${gone.size} watched automatic download(s) deleted")
+            AppLog.i(TAG, "downloads: ${gone.size} watched automatic download(s) deleted")
         }
     }
 
@@ -314,7 +313,7 @@ object Downloads {
         fun one(t: Track) = factory.createMediaSource(DashManifestParser().parse(Uri.parse(t.key), t.manifest.byteInputStream()), mediaItem)
         val audio = e.audio ?: return null
         val video = e.video
-        Log.i(TAG, "media source ${e.id}: downloaded ${e.height?.let { "${it}p (itag ${video?.itag})" } ?: "audio only"} + audio itag ${audio.itag}")
+        AppLog.i(TAG, "media source ${e.id}: downloaded ${e.height?.let { "${it}p (itag ${video?.itag})" } ?: "audio only"} + audio itag ${audio.itag}")
         return if (video != null) MergingMediaSource(true, true, one(video), one(audio)) else one(audio)
     }
 
@@ -471,7 +470,7 @@ object Downloads {
         var current = e.copy(status = Status.Downloading, height = videoStream?.height ?: e.height, video = video, audio = audio, totalBytes = total, error = null)
         if (!withContext(Dispatchers.Main) { owns(e).also { if (it) { entries[e.id] = current; save() } } }) return@withContext // removed meanwhile
         // Details first (a few KB): even a download cut short opens with its title and description.
-        val snapshot = runCatching { snapshotOf(e.id, info) }.onFailure { Log.w(TAG, "downloads: details for ${e.id}", it) }.getOrNull()
+        val snapshot = runCatching { snapshotOf(e.id, info) }.onFailure { AppLog.w(TAG, "downloads: details for ${e.id}", it) }.getOrNull()
         saveThumbnail(e.id, e.item.thumbnail)
         val source = CacheDataSource.Factory().setCache(c).setUpstreamDataSourceFactory(upstream).createDataSource()
         val startedAt = android.os.SystemClock.elapsedRealtime()
@@ -506,7 +505,7 @@ object Downloads {
         if (!complete) throw IOException("bytes missing after download")
         current = current.copy(status = Status.Done, doneBytes = total, snapshot = snapshot?.toString() ?: current.snapshot)
         withContext(Dispatchers.Main) { if (owns(e)) { entries[e.id] = current; save() } }
-        Log.i(TAG, "downloads: ${e.id} ready (${total / 1024} KB in ${android.os.SystemClock.elapsedRealtime() - startedAt} ms)")
+        AppLog.i(TAG, "downloads: ${e.id} ready (${total / 1024} KB in ${android.os.SystemClock.elapsedRealtime() - startedAt} ms)")
     }
 
     /** A run stopped (cancelled, Wi-Fi gone): rows it left on "Downloading" wait again. Main thread. */
@@ -643,7 +642,7 @@ object Downloads {
             val tmp = File(indexFile.path + ".tmp")
             tmp.writeText(json)
             tmp.renameTo(indexFile)
-        }.onFailure { Log.w(TAG, "downloads: couldn't save", it) }
+        }.onFailure { AppLog.w(TAG, "downloads: couldn't save", it) }
     }
 
     private fun load() {
@@ -657,7 +656,7 @@ object Downloads {
                 if (e.status == Status.Downloading) e = e.copy(status = Status.Queued)
                 entries[e.id] = e
             }
-        }.onFailure { Log.w(TAG, "downloads: unreadable index; starting empty", it) }
+        }.onFailure { AppLog.w(TAG, "downloads: unreadable index; starting empty", it) }
     }
 
     /**
@@ -683,8 +682,8 @@ object Downloads {
                 }
                 File(dir, "thumbs").listFiles()?.filter { !keeps(it.nameWithoutExtension, null) }?.forEach { it.delete() }
                 File(dir, "captions").listFiles()?.filter { !keeps(it.name.substringBeforeLast('_'), null) }?.forEach { it.delete() }
-                if (freed > 0) Log.i(TAG, "downloads: ${freed / 1024} KB no download owned, freed")
-            }.onFailure { Log.w(TAG, "downloads: orphan check failed", it) }
+                if (freed > 0) AppLog.i(TAG, "downloads: ${freed / 1024} KB no download owned, freed")
+            }.onFailure { AppLog.w(TAG, "downloads: orphan check failed", it) }
         }, "downloads-prune").start()
     }
 
@@ -763,7 +762,7 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
         if (Downloads.autoWatchLater && Account.signedIn) {
             runCatching { InnerTube.playlist("WL").videos.take(Downloads.WatchLaterCount) }
                 .onSuccess { Downloads.syncWatchLater(it) }
-                .onFailure { Log.w("Skipii", "downloads: Watch later not read (${it.message})") }
+                .onFailure { AppLog.w("Skipii", "downloads: Watch later not read (${it.message})") }
             kotlinx.coroutines.delay(200) // let the main thread add them
         }
         val expiredOnce = HashSet<String>()
@@ -773,13 +772,13 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
                 // Not allowed in the foreground (Android 12+ may refuse a run started in the background): it carries
                 // on quietly, with no progress notification of our own (one we posted couldn't be swiped away).
                 val foreground = runCatching { setForeground(foregroundInfo(next, 0f)) }
-                    .onFailure { Log.w("Skipii", "downloads: not in the foreground (${it.javaClass.simpleName}); carrying on") }
+                    .onFailure { AppLog.w("Skipii", "downloads: not in the foreground (${it.javaClass.simpleName}); carrying on") }
                     .isSuccess
                 try {
                     Downloads.download(next) { e ->
                         Downloads.report(e)
                         if (foreground) runCatching { notificationManager()?.notify(NOTE_ID, notification(e, e.progress)) }
-                            .onFailure { Log.w("Skipii", "downloads: progress notification", it) }
+                            .onFailure { AppLog.w("Skipii", "downloads: progress notification", it) }
                     }
                 } catch (x: kotlinx.coroutines.CancellationException) {
                     throw x
@@ -788,7 +787,7 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
                     StreamCache.invalidate(next.id)
                     if (!expiredOnce.add(next.id)) { Downloads.fail(next, x); kotlinx.coroutines.delay(200) }
                 } catch (x: Exception) {
-                    Log.w("Skipii", "downloads: ${next.id} failed", x)
+                    AppLog.w("Skipii", "downloads: ${next.id} failed", x)
                     Downloads.fail(next, x)
                     kotlinx.coroutines.delay(200)
                 }

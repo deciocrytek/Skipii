@@ -60,8 +60,8 @@
     <string name="settings_source">Mã nguồn trên GitHub</string>
     <string name="settings_source_line">Báo lỗi hoặc đề xuất tính năng</string>
     <string name="settings_crash_title">Báo cáo sự cố</string>
-    <string name="settings_crash_saved">Đã lưu từ lần gặp sự cố gần nhất. Hãy chia sẻ và dán vào một issue trên GitHub</string>
-    <string name="settings_crash_none">Chưa lưu sự cố nào. Chia sẻ cách Android đóng Skipii lần gần nhất, để gửi issue trên GitHub</string>
+    <string name="settings_crash_saved">Bao gồm sự cố gần nhất. Gửi cho nhà phát triển qua email</string>
+    <string name="settings_crash_none">Gửi cho nhà phát triển qua email những gì Skipii ghi lại gần đây, để tìm ra lỗi. Không có thông tin tài khoản</string>
     <string name="settings_crash_tile">Đã lưu báo cáo sự cố</string>
     <string name="settings_crash_share">Chia sẻ báo cáo sự cố</string>
     <string name="settings_made_by">Tạo bởi %1$s</string>
@@ -102,4 +102,8 @@
     <string name="settings_background_play_off">Tạm dừng khi bạn rời Skipii hoặc màn hình tắt (chế độ chỉ âm thanh vẫn phát)</string>
     <string name="settings_open_links_title">Mở liên kết YouTube</string>
     <string name="settings_open_links_line">Cho Skipii mở liên kết youtube.com và youtu.be từ ứng dụng khác: Mở theo mặc định › Thêm đường liên kết</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">Gửi báo cáo</string>
+    <string name="report_email_prompt">Đã xảy ra chuyện gì? (không bắt buộc, ngôn ngữ nào cũng được)</string>
+    <string name="report_stuck">Video này đang mất nhiều thời gian để bắt đầu.</string>
 </resources>

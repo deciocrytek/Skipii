@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemClock
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -90,7 +89,7 @@ object Bells {
                 val id = o.optString("id").ifBlank { continue }
                 on[id] = BellChannel(id, o.optString("name").ifBlank { null }, o.optString("avatar").ifBlank { null }, o.optLong("since"))
             }
-        }.onFailure { Log.w(TAG, "bells: couldn't read the saved bells (${it.message})") }
+        }.onFailure { AppLog.w(TAG, "bells: couldn't read the saved bells (${it.message})") }
     }
 
     fun isOn(channelId: String?): Boolean = channelId != null && on.containsKey(channelId)
@@ -106,11 +105,11 @@ object Bells {
         if (written != null && SystemClock.elapsedRealtime() - written < WRITE_GUARD_MS) return
         val before = on[channelId]
         when {
-            subscribed == false || bell == false -> if (before != null) { on.remove(channelId); save(); Log.i(TAG, "bells: off for $channelId (YouTube)") }
+            subscribed == false || bell == false -> if (before != null) { on.remove(channelId); save(); AppLog.i(TAG, "bells: off for $channelId (YouTube)") }
             bell == true -> {
                 val now = BellChannel(channelId, name ?: before?.name, avatar ?: before?.avatar, before?.since ?: System.currentTimeMillis())
                 if (now != before) { on[channelId] = now; save() }
-                if (before == null) Log.i(TAG, "bells: on for $channelId (YouTube)")
+                if (before == null) AppLog.i(TAG, "bells: on for $channelId (YouTube)")
             }
             before != null && (name != null || avatar != null) -> {
                 val now = before.copy(name = name ?: before.name, avatar = avatar ?: before.avatar)
@@ -140,7 +139,7 @@ object Bells {
         scope.launch {
             runCatching { InnerTube.setBell(channel.id, value) }
                 .onSuccess {
-                    Log.i(TAG, "bells: ${if (value) "on" else "off"} for ${channel.id}")
+                    AppLog.i(TAG, "bells: ${if (value) "on" else "off"} for ${channel.id}")
                     onMessage(
                         if (name == null) str(if (value) R.string.app_bell_on_message_unnamed else R.string.app_bell_off_message_unnamed)
                         else str(if (value) R.string.app_bell_on_message else R.string.app_bell_off_message, name),
@@ -149,7 +148,7 @@ object Bells {
                 }
                 .onFailure {
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "bells: couldn't turn ${if (value) "on" else "off"} ${channel.id}", it)
+                    AppLog.w(TAG, "bells: couldn't turn ${if (value) "on" else "off"} ${channel.id}", it)
                     setLocal(channel, !value)
                     onMessage(str(R.string.app_bell_failed))
                 }
@@ -174,7 +173,7 @@ object Bells {
         val list = InnerTube.subscriptions() ?: return
         prefs?.edit()?.putLong(KEY_SYNCED, System.currentTimeMillis())?.apply()
         val withBell = list.count { it.bell != null }
-        Log.i(TAG, "bells: synced ${list.size} subscriptions, $withBell with a bell state, ${list.count { it.bell == true }} on")
+        AppLog.i(TAG, "bells: synced ${list.size} subscriptions, $withBell with a bell state, ${list.count { it.bell == true }} on")
         if (list.isEmpty()) return
         list.forEach { learn(it.ref.id, true, it.bell, it.ref.name.ifBlank { null }, it.ref.avatar) }
         val subscribed = list.mapTo(HashSet()) { it.ref.id }

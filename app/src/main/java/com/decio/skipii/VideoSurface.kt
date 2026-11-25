@@ -1,7 +1,6 @@
 package com.decio.skipii
 
 import android.graphics.SurfaceTexture
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -48,7 +47,7 @@ object SharedVideoTexture {
         } else if (kept !== fresh) {
             // The view made a new one on re-attach: swap ours back in (releases the new one).
             runCatching { view.setSurfaceTexture(kept) }
-                .onFailure { Log.w("Skipii", "couldn't re-attach the video texture", it) }
+                .onFailure { AppLog.w("Skipii", "couldn't re-attach the video texture", it) }
         }
     }
 }

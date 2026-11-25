@@ -1971,6 +1971,11 @@ internal fun BoxScope.ErrorPanel(message: String, state: PlayerState, onCollapse
                     Modifier.pressable(onClick = { state.openInYouTube(context) }).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)).padding(horizontal = 18.dp, vertical = 9.dp),
                 ) { Text(stringResource(R.string.video_open_in_youtube), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1) }
             }
+            // GitHub #102: what Skipii noted on the way here, for an issue or an e-mail (Diagnostics.kt).
+            val sendReport = rememberProblemReportSender(state)
+            Box(
+                Modifier.pressable(onClick = sendReport).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)).padding(horizontal = 18.dp, vertical = 9.dp),
+            ) { Text(stringResource(R.string.report_send), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1) }
         }
     }
 }

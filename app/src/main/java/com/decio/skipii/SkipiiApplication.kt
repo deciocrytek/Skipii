@@ -15,6 +15,8 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         super.onCreate()
         // Before anything that could crash, so its stack trace is kept (Settings › About › Crash report).
         CrashLog.install(this)
+        // Then the notebook every log line goes into (Diagnostics.kt), read by the problem report.
+        AppLog.init(this)
         // First: everything below may already word something (str()).
         AppLanguage.init(this)
         NewPipe.init(NewPipeDownloader.instance)
@@ -64,7 +66,12 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
                 private var last: android.net.Network? = null
                 override fun onAvailable(network: android.net.Network) {
                     if (last != null && last != network) StreamCache.invalidateAll()
+                    if (last != network) AppLog.i("Skipii", "network: ${if (last == null) "connected" else "switched"}")
                     last = network
+                }
+
+                override fun onLost(network: android.net.Network) {
+                    if (network == last) AppLog.i("Skipii", "network: lost")
                 }
             },
         )

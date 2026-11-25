@@ -2,7 +2,6 @@ package com.decio.skipii
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import android.util.LruCache
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
@@ -289,7 +288,7 @@ object CaptionFiles {
         }
         if (body.isBlank()) throw IOException("empty caption file${if (xpe) " (exp=xpe: wants a PO token)" else ""}")
         Srv3.parse(body, timedWords = track.auto).also {
-            Log.i(TAG, "captions: ${track.language}${if (track.auto) " (auto)" else ""} ${it.size} lines")
+            AppLog.i(TAG, "captions: ${track.language}${if (track.auto) " (auto)" else ""} ${it.size} lines")
             cache.put(track.url, it)
         }
     }
@@ -302,7 +301,7 @@ object CaptionFiles {
 object CaptionRescue {
     suspend fun tracks(videoId: String): List<CaptionTrack> = withContext(Dispatchers.IO) {
         val answer = PlayerFallback.freshAnswer(videoId)
-        parseTracks(answer).also { Log.i(TAG, "captions: fresh links for $videoId, ${it.size} tracks") }
+        parseTracks(answer).also { AppLog.i(TAG, "captions: fresh links for $videoId, ${it.size} tracks") }
     }
 
     /** A player answer's caption tracks, each link asking for srv3. */
@@ -349,7 +348,7 @@ object CaptionTranslator {
         scope.launch {
             runCatching { RemoteModelManager.getInstance().getDownloadedModels(TranslateRemoteModel::class.java).await() }
                 .onSuccess { models -> downloaded = models.map { it.language }.toSet() + TranslateLanguage.ENGLISH }
-                .onFailure { Log.w(TAG, "captions: couldn't list translation models", it) }
+                .onFailure { AppLog.w(TAG, "captions: couldn't list translation models", it) }
         }
     }
 
@@ -360,7 +359,7 @@ object CaptionTranslator {
         downloading = downloading + missing
         val translator = Translation.getClient(TranslatorOptions.Builder().setSourceLanguage(source).setTargetLanguage(target).build())
         try {
-            Log.i(TAG, "captions: downloading translation models $missing")
+            AppLog.i(TAG, "captions: downloading translation models $missing")
             translator.downloadModelIfNeeded(DownloadConditions.Builder().build()).await()
             downloaded = downloaded + setOf(source, target)
         } finally {
@@ -383,7 +382,7 @@ object CaptionTranslator {
         if (language == TranslateLanguage.ENGLISH) return
         scope.launch {
             runCatching { RemoteModelManager.getInstance().deleteDownloadedModel(TranslateRemoteModel.Builder(language).build()).await() }
-                .onFailure { Log.w(TAG, "captions: couldn't delete the $language model", it) }
+                .onFailure { AppLog.w(TAG, "captions: couldn't delete the $language model", it) }
             refresh()
         }
     }
@@ -451,7 +450,7 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
         clear()
         this.videoId = videoId
         rescued = false
-        Log.i(TAG, "captions: ${list.size} tracks ${list.map { it.language + if (it.auto) " (auto)" else "" }}")
+        AppLog.i(TAG, "captions: ${list.size} tracks ${list.map { it.language + if (it.auto) " (auto)" else "" }}")
         // The language last picked, then the app's, then the rest by name; auto-generated after the creator's in each.
         tracks = list.sortedWith(
             compareBy<CaptionTrack>(
@@ -525,7 +524,7 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
                 } catch (e: IOException) {
                     // The link was refused or has expired: once per video, ask for fresh links and try again.
                     val fresh = rescue(c.track) ?: throw e
-                    Log.w(TAG, "captions: ${c.track.language} failed (${e.message}); trying fresh links")
+                    AppLog.w(TAG, "captions: ${c.track.language} failed (${e.message}); trying fresh links")
                     now = c.copy(track = fresh)
                     if (loadedFor == c) { loadedFor = now; choice = now }
                     CaptionFiles.load(fresh)
@@ -542,7 +541,7 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.w(TAG, "captions: ${now.track.language} → ${now.translateTo ?: "-"} failed", e)
+                AppLog.w(TAG, "captions: ${now.track.language} → ${now.translateTo ?: "-"} failed", e)
                 if (loadedFor == now) {
                     error = when {
                         now.translateTo != null && now.translateTo !in CaptionTranslator.downloaded -> str(R.string.captions_error_download, now.label)
@@ -564,7 +563,7 @@ class CaptionsState(private val scope: CoroutineScope, private val positionMs: (
         if (rescued) return null
         rescued = true
         val fresh = runCatching { CaptionRescue.tracks(id) }
-            .onFailure { if (it is CancellationException) throw it; Log.w(TAG, "captions: fresh links for $id failed", it) }
+            .onFailure { if (it is CancellationException) throw it; AppLog.w(TAG, "captions: fresh links for $id failed", it) }
             .getOrNull().orEmpty()
         if (fresh.isEmpty() || videoId != id) return null
         val match = fresh.firstOrNull { it.language == track.language && it.auto == track.auto }

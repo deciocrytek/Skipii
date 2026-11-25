@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -86,7 +85,7 @@ object NewVideos {
             .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             .apply { if (!appOff) putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL) }
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        runCatching { context.startActivity(intent) }.onFailure { Log.w(TAG, "new videos: no notification settings page (${it.message})") }
+        runCatching { context.startActivity(intent) }.onFailure { AppLog.w(TAG, "new videos: no notification settings page (${it.message})") }
     }
 
     private fun ensureChannel(context: Context): NotificationChannel? {
@@ -117,7 +116,7 @@ object NewVideos {
                 async(Dispatchers.IO) {
                     gate.withPermit {
                         ch to runCatching { checkChannel(context, prefs, ch) }
-                            .onFailure { Log.w(TAG, "new videos: ${ch.id} feed failed (${it.message})") }
+                            .onFailure { AppLog.w(TAG, "new videos: ${ch.id} feed failed (${it.message})") }
                             .getOrNull()
                     }
                 }
@@ -127,10 +126,10 @@ object NewVideos {
         val failed = results.filter { it.second == null }.map { it.first }
         if (failed.isNotEmpty() && Account.signedIn) {
             runCatching { fromSubscriptions(context, prefs, failed) }
-                .onSuccess { found += it; Log.i(TAG, "new videos: ${failed.size} channels from the Subscriptions feed instead") }
-                .onFailure { Log.w(TAG, "new videos: Subscriptions feed failed too (${it.message})") }
+                .onSuccess { found += it; AppLog.i(TAG, "new videos: ${failed.size} channels from the Subscriptions feed instead") }
+                .onFailure { AppLog.w(TAG, "new videos: Subscriptions feed failed too (${it.message})") }
         }
-        Log.i(TAG, "new videos: checked ${channels.size} channels, $found new")
+        AppLog.i(TAG, "new videos: checked ${channels.size} channels, $found new")
     }
 
     private fun checkChannel(context: Context, prefs: android.content.SharedPreferences, ch: BellChannel): Int {
@@ -263,8 +262,8 @@ object NewVideos {
             )
             .build()
         runCatching { NotificationManagerCompat.from(context).notify(entry.id.hashCode(), notification) }
-            .onSuccess { Log.i(TAG, "new videos: ${entry.id} from ${ch.id} \"${entry.title}\"") }
-            .onFailure { Log.w(TAG, "new videos: couldn't post ${entry.id} (${it.message})") }
+            .onSuccess { AppLog.i(TAG, "new videos: ${entry.id} from ${ch.id} \"${entry.title}\"") }
+            .onFailure { AppLog.w(TAG, "new videos: couldn't post ${entry.id} (${it.message})") }
     }
 
     private fun fetchBitmap(url: String): Bitmap? {
@@ -295,7 +294,7 @@ object NewVideos {
 /** The 15-minute pass: the daily bell sync (signed in), then the feeds. Signing out clears the bells. */
 class NewVideoWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        runCatching { Bells.syncIfDue() }.onFailure { Log.w("Skipii", "bells: sync failed (${it.message})") }
+        runCatching { Bells.syncIfDue() }.onFailure { AppLog.w("Skipii", "bells: sync failed (${it.message})") }
         withContext(Dispatchers.IO) { NewVideos.check(applicationContext) }
         return Result.success()
     }

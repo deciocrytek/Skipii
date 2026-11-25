@@ -64,11 +64,11 @@
     <string name="settings_update_available">الإصدار %1$s متاح</string>
     <string name="settings_source">الشيفرة المصدرية على GitHub</string>
     <string name="settings_source_line">أبلغ عن مشكلة أو اطلب ميزة</string>
-    <string name="settings_crash_title">تقرير الأعطال</string>
-    <string name="settings_crash_saved">محفوظ من آخر عطل. شاركه والصقه في بلاغ على GitHub</string>
-    <string name="settings_crash_none">لا يوجد عطل محفوظ. يشارك كيف أغلق Android تطبيق Skipii آخر مرة، لبلاغ على GitHub</string>
+    <string name="settings_crash_title">تقرير مشكلة</string>
+    <string name="settings_crash_saved">يتضمن آخر عطل. يرسله إلى المطوّر بالبريد الإلكتروني</string>
+    <string name="settings_crash_none">يرسل ما سجّله Skipii مؤخرًا إلى المطوّر بالبريد الإلكتروني لمعرفة سبب المشكلة. بدون أي بيانات للحساب</string>
     <string name="settings_crash_tile">تم حفظ تقرير عطل</string>
-    <string name="settings_crash_share">مشاركة تقرير الأعطال</string>
+    <string name="settings_crash_share">مشاركة تقرير المشكلة</string>
     <string name="settings_made_by">من صنع %1$s</string>
     <string name="settings_say_hi">تعال وقل مرحبًا</string>
     <string name="settings_email_developer">راسل المطوّر</string>
@@ -107,4 +107,8 @@
     <string name="settings_background_play_off">يتوقف مؤقتًا عند مغادرة Skipii أو انطفاء الشاشة (وضع الصوت فقط يستمر)</string>
     <string name="settings_open_links_title">فتح روابط YouTube</string>
     <string name="settings_open_links_line">دع Skipii يفتح روابط youtube.com وyoutu.be من التطبيقات الأخرى: الفتح تلقائيًا › إضافة روابط</string>
+    <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
+    <string name="report_send">إرسال تقرير</string>
+    <string name="report_email_prompt">ماذا حدث؟ (اختياري، بأي لغة)</string>
+    <string name="report_stuck">يستغرق هذا الفيديو وقتًا طويلًا ليبدأ.</string>
 </resources>

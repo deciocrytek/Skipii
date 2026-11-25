@@ -828,7 +828,7 @@ private val MoodiiDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
 private const val InstagramUrl = "https://www.instagram.com/y7esdii?igsh=MWdydmU1a216NDlydA=="
 private const val ThreadsUrl = "https://www.threads.com/@y7esdii"
 private const val XUrl = "https://x.com/y7esdii"
-private const val DeveloperEmail = "decioarruda7c@gmail.com"
+internal const val DeveloperEmail = "decioarruda7c@gmail.com"
 /** A filterable keyword in the subject, keyed to this app. */
 private const val EmailSubject = "Skipii feedback"
 
@@ -894,7 +894,7 @@ private fun IconDisc(icon: ImageVector, description: String, onClick: () -> Unit
 }
 
 /** Opens [intent]; with no app on the phone to take it, says so instead. */
-private fun android.content.Context.openOrSay(intent: Intent, onMessage: (String) -> Unit) {
+internal fun android.content.Context.openOrSay(intent: Intent, onMessage: (String) -> Unit) {
     try {
         startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: android.content.ActivityNotFoundException) {
@@ -2076,26 +2076,17 @@ private fun AboutPage(player: PlayerState) {
     val context = LocalContext.current
     var whatsNew by remember { mutableStateOf(false) }
     Spacer(Modifier.height(14.dp))
-    val scope = rememberCoroutineScope()
-    val shareTitle = stringResource(R.string.settings_crash_share)
+    val sendReport = rememberProblemReportSender(player)
     Joined(3) { i, shape ->
         if (i == 0) {
             LinkSetting("version", shape, Icons.Rounded.SystemUpdateAlt, stringResource(R.string.settings_version, BuildConfig.VERSION_NAME), updateStatus()) {
                 if (AppUpdate.available != null) whatsNew = true else AppUpdate.checkNow()
             }
         } else if (i == 1) {
-            // GitHub #55: what crashed (or how Android closed Skipii), to paste into an issue.
-            val line = stringResource(if (CrashLog.newest > 0L) R.string.settings_crash_saved else R.string.settings_crash_none)
-            LinkSetting("crash", shape, Icons.Rounded.BugReport, stringResource(R.string.settings_crash_title), line) {
-                scope.launch {
-                    val text = withContext(Dispatchers.IO) { CrashLog.report(context) }
-                    val send = Intent(Intent.ACTION_SEND).setType("text/plain")
-                        .putExtra(Intent.EXTRA_SUBJECT, "Skipii crash report")
-                        .putExtra(Intent.EXTRA_TEXT, text)
-                    context.openOrSay(Intent.createChooser(send, shareTitle)) { player.actionMessage = it }
-                    CrashLog.markShared()
-                }
-            }
+            // GitHub #55 / #102: what Skipii noted lately, what crashed and how Android closed it (Diagnostics.kt),
+            // to paste into an issue or an e-mail.
+            val line = stringResource(if (CrashLog.unshared) R.string.settings_crash_saved else R.string.settings_crash_none)
+            LinkSetting("crash", shape, Icons.Rounded.BugReport, stringResource(R.string.settings_crash_title), line, onClick = sendReport)
         } else {
             LinkSetting("source", shape, Icons.Rounded.Code, stringResource(R.string.settings_source), stringResource(R.string.settings_source_line)) {
                 context.openOrSay(Intent(Intent.ACTION_VIEW, Uri.parse(SourceUrl))) { player.actionMessage = it }

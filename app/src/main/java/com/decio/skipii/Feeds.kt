@@ -449,7 +449,7 @@ fun removeFromPlaylist(scope: CoroutineScope, feed: FeedState, playlist: Playlis
         kotlinx.coroutines.delay(UndoWindowMs)
         runCatching { InnerTube.setInPlaylist(playlist.id, video.id, add = false) }
             .onFailure {
-                android.util.Log.w("Skipii", "remove ${video.id} from ${playlist.id}", it)
+                AppLog.w("Skipii", "remove ${video.id} from ${playlist.id}", it)
                 feed.putBack(at, video)
                 player.actionMessage = str(R.string.ui_remove_failed, name)
             }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateListOf
@@ -112,7 +111,7 @@ object SavedSession {
             }
         } catch (e: JSONException) {
             // Unreadable (older format, partial write): start clean rather than fail every launch.
-            Log.w("Skipii", "saved session unreadable, dropped", e)
+            AppLog.w("Skipii", "saved session unreadable, dropped", e)
             prefs?.edit()?.remove("items")?.apply()
             emptyList()
         }

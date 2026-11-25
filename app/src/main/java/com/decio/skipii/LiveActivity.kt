@@ -17,7 +17,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -114,7 +113,7 @@ object LiveControls {
                 Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
-        }.onFailure { Log.w(TAG, "live activity: no notification settings page (${it.message})") }
+        }.onFailure { AppLog.w(TAG, "live activity: no notification settings page (${it.message})") }
     }
 
     /** The live activity's tap carries this; the shell opens the player. Cleared so a re-created window doesn't repeat it. */
@@ -202,7 +201,7 @@ class LiveActivity(
         val allowed = wanted && LiveControls.canPromote(service)
         if (wanted && !allowed && !saidNotAllowed) {
             saidNotAllowed = true
-            Log.i(TAG, "live activity: not allowed (Android ${Build.VERSION.SDK_INT}, notifications or Live Updates off for Skipii)")
+            AppLog.i(TAG, "live activity: not allowed (Android ${Build.VERSION.SDK_INT}, notifications or Live Updates off for Skipii)")
         }
         if (!allowed) cancel() else schedulePost()
     }
@@ -215,7 +214,7 @@ class LiveActivity(
             ACTION_PLAY_PAUSE -> Util.handlePlayPauseButtonAction(player)
             ACTION_FORWARD -> player.seekForward()
             ACTION_DISMISSED -> {
-                Log.i(TAG, "live activity: dismissed; back once the app has been on screen")
+                AppLog.i(TAG, "live activity: dismissed; back once the app has been on screen")
                 dismissed = true
                 shown = false
                 main.removeCallbacks(refresh)
@@ -247,11 +246,11 @@ class LiveActivity(
             .onSuccess {
                 shown = true
                 if (first) {
-                    Log.i(TAG, "live activity: posted for ${item.mediaId}")
+                    AppLog.i(TAG, "live activity: posted for ${item.mediaId}")
                     main.postDelayed(::checkPromoted, 1_000)
                 }
             }
-            .onFailure { Log.w(TAG, "live activity: couldn't post (${it.message})") }
+            .onFailure { AppLog.w(TAG, "live activity: couldn't post (${it.message})") }
         main.removeCallbacks(refresh)
         if (player.isPlaying) main.postDelayed(refresh, REFRESH_MS)
     }
@@ -344,7 +343,7 @@ class LiveActivity(
             LiveControls.refusedBySystem = false
             return
         }
-        Log.i(TAG, "live activity: not promoted by the system; the media controls stay the only ones")
+        AppLog.i(TAG, "live activity: not promoted by the system; the media controls stay the only ones")
         refused = true
         LiveControls.refusedBySystem = true
         cancel()
@@ -355,7 +354,7 @@ class LiveActivity(
         if (!shown) return
         shown = false
         manager.cancel(ID)
-        Log.i(TAG, "live activity: removed")
+        AppLog.i(TAG, "live activity: removed")
     }
 
     private fun loadThumb(id: String) {

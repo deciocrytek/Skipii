@@ -1035,6 +1035,33 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   tone, never primary while a rule is on. "Shorts from subscriptions" shows its row on Home too (under the chips, only on the
   plain "All" feed), from `lib.subscriptions.shorts`; `LibraryData.subscriptionsForHome` loads that feed (or reloads one over
   10 min old) when the switch is on and on every Home refresh. NOT verified signed in (skipii_qa is signed out).
+- 0.6.2 problem report (2026-11-24, GitHub #102: "the red play button stays, it never plays" — the screenshot's play button
+  was its spinner, stuck at 0:00 with details, 720p and a dub picker loaded; no log, no error, and this Mac was bot-checked so
+  it couldn't be reproduced). `Diagnostics.kt`: `AppLog` is the app's notebook — EVERY log call goes through it (`AppLog.i/w/e/d`,
+  never `android.util.Log` directly): logcat as before plus the newest 2,500 lines in memory and filesDir/diagnostics/log.txt
+  (outlives a force stop), each line `clean`ed as written (link queries → "?…", ip/sig/pot params, e-mails, cookies, IPv4s).
+  `PlaybackDiagnostics` (the service's AnalyticsListener) notes what the engine kept to itself: state changes, every load
+  error the player retries quietly (HTTP code, video/audio, byte range, host), slow loads (>8 s), formats, decoders, codec /
+  audio-sink errors, and while loading with playWhenReady a "still loading after N s" line at 10 s, 20 s, 30 s, then every 30 s
+  (bytes that arrived meanwhile, bandwidth estimate, open requests + the oldest). `StreamCache.getOrLoad` notes each extraction
+  (heights, audio streams / tracks, what `pick` chose). `ProblemReport.build` = `CrashLog.header` + settings + connection
+  (transport, metered, validated, Data Saver, Battery Saver) + "Player now" (`playerSummary`, main thread) + the notebook,
+  newest lines that fit under 60,000 characters (GitHub's comment limit) + `CrashLog.sections`. `fold` counts repeated lines
+  ("… N similar lines": a line whose words match one of the last six with ids / numbers blanked) except `player:` lines and
+  lines about a video that was opened (`SkipiiTime: open` / `media source`) — the Shorts bank under a bot check writes three
+  lines every 1.5 s. Sent by `rememberProblemReportSender` (Derek: reports must reach him): an e-mail to `DeveloperEmail`
+  (Settings.kt), subject "Skipii <version> problem report", body = `report_email_prompt` ("What happened?") + the report;
+  ACTION_SEND with a mailto: SENDTO selector (only e-mail apps, and they read EXTRA_TEXT — several ignore it on plain
+  SENDTO). No e-mail app → the share sheet (Skipii itself excluded). Debug builds also write cache/last-report.md (adb
+  `run-as`). Entry points: Settings › About › Problem report (was Crash report), the
+  error panel's Send report pill, and `StuckNote` (PlayerUi details list's FIRST item, empty until `PlayerState.stuck`: the
+  spinner up `StuckAfterMs` 20 s with no error; an item inserted above the first visible one lands out of sight). Videos appear
+  in the report only as IDs from the recent lines (supersedes 0.5.109's "nothing about what was watched"; never the account).
+  Tested by `DiagnosticsTest`. Verified on skipii_qa (debug; release playback of the test download): note after 20 s under a
+  bot-checked video, Gmail's compose opened with the ~52 KB report (logcat START …ComposeActivityGmailExternal; the emulator
+  has no Google account, so the compose screen itself wasn't seen), Gmail disabled → share sheet, error panel button, About
+  tile, engine lines while the test download played.
+  NOT verified: a real stuck video's report (#102's cause is still unknown — ask the reporter for one).
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)
@@ -1138,7 +1165,8 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
 - `Shorts.kt` — `ShortsState` (feed, preloading player pool, glass sampling), `ShortsScreen` (pager), `ShortsBar` (glass bar).
 - `ShortsBank.kt` — the 10 unseen shorts kept whole on disk (cache, manifests, index); every Shorts player reads through it.
 - `LiveActivity.kt` — `LiveControls` (setting, on-screen flag) and `LiveActivity` (the service's Live Update notification).
-- `Crash.kt` — `CrashLog`: uncaught-exception reports + Android's exit reasons, shared from Settings › About.
+- `Crash.kt` — `CrashLog`: uncaught-exception reports + Android's exit reasons (the end of the problem report).
+- `Diagnostics.kt` — `AppLog` (the notebook every log line goes through), `PlaybackDiagnostics` (engine notes), `ProblemReport` + `StuckNote`.
 - `Updater.kt` — `AppUpdate` (daily GitHub release check, release notes, APK download + PackageInstaller), `UpdateReceiver`, Home's Update pill + What's new sheet.
 - `Bell.kt` — `Bells` (each channel's bell, synced with the account), `SubscribeWithBell`, `rememberBellToggle`.
 - `NewVideos.kt` — the 15-minute new-video check (RSS feeds of belled channels), notifications, `NewVideoWorker`.

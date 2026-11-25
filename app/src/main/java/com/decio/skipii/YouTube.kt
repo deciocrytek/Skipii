@@ -3,7 +3,6 @@ package com.decio.skipii
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.SystemClock
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -207,7 +206,7 @@ object YouTube {
             } catch (e: kotlinx.coroutines.CancellationException) {
                 if (e is kotlinx.coroutines.TimeoutCancellationException) kept else throw e
             } catch (e: Exception) {
-                Log.i("Skipii", "details for downloaded $id from the phone (${e.javaClass.simpleName})")
+                AppLog.i("Skipii", "details for downloaded $id from the phone (${e.javaClass.simpleName})")
                 kept
             }
         }
@@ -393,6 +392,12 @@ object StreamCache {
                 if (!picked.usesSeparate && BotCheck.refusedSince(id, startedAt)) throw StreamsRefused(id, it)
                 entries[id] = Entry(it, System.currentTimeMillis())
                 Net.noteMediaHost((picked.video ?: picked.muxed)?.content)
+                AppLog.i(
+                    "Skipii",
+                    "links for $id in ${SystemClock.elapsedRealtime() - startedAt} ms: video ${StreamSelection.heights(it).joinToString("/")}p, " +
+                        "${it.audioStreams.size} audio (${AudioTracks.from(it).size.coerceAtLeast(1)} track(s)), ${it.videoStreams.size} combined; " +
+                        "picked ${picked.video?.let { v -> "itag ${v.itag} ${v.height}p" } ?: "no video"} + ${picked.audio?.let { a -> "itag ${a.itag}${a.audioTrackId?.let { t -> " [$t]" }.orEmpty()}" } ?: "no audio"}",
+                )
             }
         }
         val running = inflight.putIfAbsent(id, mine)
@@ -450,12 +455,12 @@ object BotCheck {
                 try {
                     return load()
                 } catch (e: SignInConfirmNotBotException) {
-                    Log.w("Skipii", "bot check for $id; trying again in ${wait / 1000}s (${attempt + 1}/${RetryDelaysMs.size})")
+                    AppLog.w("Skipii", "bot check for $id; trying again in ${wait / 1000}s (${attempt + 1}/${RetryDelaysMs.size})")
                     waiting = id
                     delay(wait)
                 }
             }
-            return load().also { Log.i("Skipii", "bot check for $id passed on the last try") }
+            return load().also { AppLog.i("Skipii", "bot check for $id passed on the last try") }
         } catch (e: SignInConfirmNotBotException) {
             return giveUp(id, e)
         } finally {
@@ -477,11 +482,11 @@ object BotCheck {
     private fun giveUp(id: String, e: SignInConfirmNotBotException): StreamInfo {
         val partial = (e as? StreamsRefused)?.info
         if (partial != null && StreamSelection.pick(partial).isPlayable) {
-            Log.w("Skipii", "bot check for $id; giving up on the real streams, playing the 360p combined one")
+            AppLog.w("Skipii", "bot check for $id; giving up on the real streams, playing the 360p combined one")
             StreamCache.keepRefused(id, partial)
             return partial
         }
-        Log.w("Skipii", "bot check for $id; giving up")
+        AppLog.w("Skipii", "bot check for $id; giving up")
         throw e
     }
 }

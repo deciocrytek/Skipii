@@ -2,7 +2,6 @@ package com.decio.skipii
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -72,10 +71,10 @@ object ShortsBank {
     fun init(context: Context) {
         runCatching {
             cache = SimpleCache(File(context.cacheDir, "shorts-bank"), NoOpCacheEvictor(), MediaDatabase.get(context))
-        }.onFailure { Log.w("Skipii", "shorts bank: no media cache", it) }
+        }.onFailure { AppLog.w("Skipii", "shorts bank: no media cache", it) }
         indexFile = File(context.filesDir, "shorts_bank.json")
         load()
-        Log.i("Skipii", "shorts bank: ${entries.size} shorts ready from last time")
+        AppLog.i("Skipii", "shorts bank: ${entries.size} shorts ready from last time")
     }
 
     // ── What's banked ──
@@ -88,7 +87,7 @@ object ShortsBank {
     /** Seen: out of the bank for good (its bytes go at the next [cleanup]). */
     fun forget(id: String) {
         val gone = synchronized(entries) { entries.remove(id) } ?: return
-        Log.i("Skipii", "shorts bank: ${gone.item.id} seen, forgotten (${size} left)")
+        AppLog.i("Skipii", "shorts bank: ${gone.item.id} seen, forgotten (${size} left)")
         save()
     }
 
@@ -98,7 +97,7 @@ object ShortsBank {
         next = null
         save()
         cleanup(emptySet())
-        Log.i("Skipii", "shorts bank: cleared (Shorts turned off)")
+        AppLog.i("Skipii", "shorts bank: cleared (Shorts turned off)")
     }
 
     fun setNext(token: String?) {
@@ -175,7 +174,7 @@ object ShortsBank {
         val entry = Entry(item, aspect, video, audio)
         synchronized(entries) { entries[item.id] = entry }
         save()
-        Log.i(
+        AppLog.i(
             "Skipii",
             "shorts bank: ${item.id} banked (${(video.bytes + audio.bytes) / 1024} KB in ${android.os.SystemClock.elapsedRealtime() - startedAt} ms; $size ready)",
         )
@@ -199,7 +198,7 @@ object ShortsBank {
             val tmp = File(file.path + ".tmp")
             tmp.writeText(json.toString())
             tmp.renameTo(file)
-        }.onFailure { Log.w("Skipii", "shorts bank: couldn't save", it) }
+        }.onFailure { AppLog.w("Skipii", "shorts bank: couldn't save", it) }
     }
 
     private fun load() {
@@ -214,7 +213,7 @@ object ShortsBank {
                 // Only shorts whose bytes are all still there (the system may clear the cache).
                 if (complete(e)) entries[e.item.id] = e
             }
-        }.onFailure { Log.w("Skipii", "shorts bank: unreadable index; starting empty", it) }
+        }.onFailure { AppLog.w("Skipii", "shorts bank: unreadable index; starting empty", it) }
     }
 
     private fun complete(e: Entry): Boolean {

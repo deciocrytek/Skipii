@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.getValue
@@ -111,6 +110,8 @@ class PlaybackService : MediaSessionService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         player.setVideoFrameMetadataListener { _, releaseTimeNs, _, _ -> AvSync.onFrameReleased(releaseTimeNs) }
+        // What the engine does that it otherwise keeps to itself: retried loads, stalls, formats (Diagnostics.kt).
+        player.addAnalyticsListener(PlaybackDiagnostics(player))
         player.addListener(SponsorSkipper(player))
         player.addListener(SpeedKeeper(player))
         // Audio only is app-wide and kept; the UI applies it on connect, this covers a start
@@ -142,12 +143,12 @@ class PlaybackService : MediaSessionService() {
         // the removed one no longer is by now.
         val open = MainActivity.openTaskId()
         if (open != null && getSystemService(ActivityManager::class.java).appTasks.any { it.taskInfo.taskId == open }) {
-            Log.i("Skipii", "an older window's task was removed; still open in task $open, playing on")
+            AppLog.i("Skipii", "an older window's task was removed; still open in task $open, playing on")
             return
         }
         // Swiping the app away from Recents pauses and ends the session, playing or not
         // (Derek, 2026-10-10; it used to keep playing). onDestroy saves the resume point.
-        Log.i("Skipii", "task removed: pausing and stopping")
+        AppLog.i("Skipii", "task removed: pausing and stopping")
         pauseAllPlayersAndStopSelf()
     }
 
@@ -191,7 +192,7 @@ class PlaybackService : MediaSessionService() {
                 val info = if (Downloads.isReady(item.mediaId)) null else try {
                     BotCheck.withoutWaiting(item.mediaId) { StreamCache.getOrLoad(item.mediaId) }
                 } catch (e: Exception) {
-                    Log.w("Skipii", "queued ${item.mediaId} unresolved (${e.javaClass.simpleName}); loads when it plays")
+                    AppLog.w("Skipii", "queued ${item.mediaId} unresolved (${e.javaClass.simpleName}); loads when it plays")
                     null
                 }
                 item.buildUpon()
@@ -276,12 +277,12 @@ private class StreamRecoverer(
         if (error.errorCode != PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && !unresolved) return
         val position = player.currentPosition
         if (id == lastId && position < lastPositionMs + PROGRESS_MS) {
-            Log.w("Skipii", "stream refused again for $id at ${position / 1000}s; giving up")
+            AppLog.w("Skipii", "stream refused again for $id at ${position / 1000}s; giving up")
             return
         }
         lastId = id
         lastPositionMs = position
-        Log.i("Skipii", if (unresolved) "no links yet for $id (queued unresolved); extracting" else "stream refused for $id; re-extracting and resuming at ${position / 1000}s")
+        AppLog.i("Skipii", if (unresolved) "no links yet for $id (queued unresolved); extracting" else "stream refused for $id; re-extracting and resuming at ${position / 1000}s")
         StreamRecovery.failed = null
         StreamRecovery.recovering = id
         StreamCache.invalidate(id)
@@ -294,7 +295,7 @@ private class StreamRecoverer(
                 result
                     .onSuccess { resume(item, position) }
                     .onFailure {
-                        Log.w("Skipii", "re-extracting $id failed", it)
+                        AppLog.w("Skipii", "re-extracting $id failed", it)
                         StreamRecovery.failed = id to it
                     }
             }
@@ -352,7 +353,7 @@ private class WatchTimeReporter(private val player: ExoPlayer) : Player.Listener
         if (player.isPlaying) startStretch()
         io.execute {
             val started = runCatching { InnerTube.startWatch(id) }
-                .onFailure { Log.w("Skipii", "watch start for $id", it) }.getOrNull()
+                .onFailure { AppLog.w("Skipii", "watch start for $id", it) }.getOrNull()
             main.post { if (videoId == id) session = started }
         }
     }
@@ -424,7 +425,7 @@ private class WatchTimeReporter(private val player: ExoPlayer) : Player.Listener
         starts.clear(); ends.clear()
         io.execute {
             runCatching { InnerTube.pingWatchtime(s, position, st, et, playing, elapsed, final) }
-                .onFailure { Log.w("Skipii", "watch time for ${s.videoId}", it) }
+                .onFailure { AppLog.w("Skipii", "watch time for ${s.videoId}", it) }
         }
     }
 
@@ -508,7 +509,7 @@ private class SpeedKeeper(private val player: ExoPlayer) : Player.Listener {
         val music = StreamCache.get(id)?.let(YouTube::isMusic) ?: Downloads.isMusic(id) ?: false
         val speed = PlaybackSpeed.forNewVideo(music)
         player.setPlaybackSpeed(speed)
-        if (music) Log.i("Skipii", "speed for $id: ${speed}× (music)")
+        if (music) AppLog.i("Skipii", "speed for $id: ${speed}× (music)")
     }
 }
 
@@ -549,7 +550,7 @@ private class SponsorSkipper(private val player: ExoPlayer) : Player.Listener {
         if (!SponsorBlock.enabled || segment.action != SponsorBlock.Action.Auto) return
         if (player.currentMediaItem?.mediaId != videoId) return
         if (player.currentPosition > segment.endMs - 500) return
-        Log.i("Skipii", "SponsorBlock: skipping ${segment.category.key} ${segment.startMs}-${segment.endMs} in $videoId")
+        AppLog.i("Skipii", "SponsorBlock: skipping ${segment.category.key} ${segment.startMs}-${segment.endMs} in $videoId")
         ramp(from = 1f, to = 0f, durationMs = 300) {
             player.seekTo(segment.endMs)
             SponsorBlock.lastSkip = SponsorBlock.Skip(videoId, segment)
@@ -602,11 +603,11 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
         if (QualityPreference.height == null && picked.audio != null) {
             val adaptive = adaptiveVideo(info, mediaItem)
             if (adaptive != null) {
-                Log.i("Skipii", "media source ${mediaItem.mediaId}: adaptive video ${StreamSelection.autoLadder(info).joinToString("/") { "${it.height}" }}p + audio itag ${picked.audio.itag}$trackNote")
+                AppLog.i("Skipii", "media source ${mediaItem.mediaId}: adaptive video ${StreamSelection.autoLadder(info).joinToString("/") { "${it.height}" }}p + audio itag ${picked.audio.itag}$trackNote")
                 return MergingMediaSource(true, true, adaptive, source(picked.audio, info.duration, mediaItem))
             }
         }
-        Log.i(
+        AppLog.i(
             "Skipii",
             "media source ${mediaItem.mediaId}: " + if (picked.usesSeparate) "video itag ${picked.video?.itag} (${picked.video?.height}p) + audio itag ${picked.audio?.itag}$trackNote"
             else "combined fallback itag ${picked.muxed?.itag} (${picked.muxed?.height}p); video=${picked.video != null} audio=${picked.audio != null}; " +

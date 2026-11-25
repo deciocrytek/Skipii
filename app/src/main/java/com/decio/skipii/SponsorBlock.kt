@@ -2,7 +2,6 @@ package com.decio.skipii
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -101,7 +100,7 @@ object SponsorBlock {
     fun fetch(videoId: String): List<Segment> {
         cache[videoId]?.let { return it }
         val segments = runCatching { request(videoId) }
-            .onFailure { Log.w("Skipii", "SponsorBlock lookup failed for $videoId", it) }
+            .onFailure { AppLog.w("Skipii", "SponsorBlock lookup failed for $videoId", it) }
             .getOrNull()
             // Offline: a download keeps its segments (Downloads.kt).
             ?: Downloads.segments(videoId)

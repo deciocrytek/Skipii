@@ -266,6 +266,9 @@ fun PlayerScreen(
             modifier = modifier.nestedScroll(morph.nestedScroll).then(listLook),
             contentPadding = PaddingValues(bottom = bottomClearance + 16.dp),
         ) {
+            // GitHub #102: a video that never starts (and never fails) offers a problem report. Always the first
+            // item, empty until then: an item inserted above the first visible one would land out of sight.
+            item(key = "stuck") { StuckNote(state, Modifier.padding(horizontal = 16.dp)) }
             item(key = "info") {
                     Column(Modifier.padding(horizontal = 20.dp)) {
                         Spacer(Modifier.height(18.dp))

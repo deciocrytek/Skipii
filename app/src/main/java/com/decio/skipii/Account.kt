@@ -1,7 +1,6 @@
 package com.decio.skipii
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -584,7 +583,7 @@ object InnerTube {
             if (next == null) break
             if (++pages >= 50) return@withContext null
             page = runCatching { post("browse", JSONObject().put("continuation", next)) }.getOrElse {
-                Log.w("Skipii", "bells: subscriptions page ${pages + 1} failed (${it.message})")
+                AppLog.w("Skipii", "bells: subscriptions page ${pages + 1} failed (${it.message})")
                 return@withContext null
             }
         }
@@ -741,7 +740,7 @@ object InnerTube {
             JSONObject().put("videoIds", JSONArray().put(videoId)).put("excludeWatchLater", false),
         )
         parseSaveChoices(answer).ifEmpty {
-            Log.w("Skipii", "playlists: no choices in the Save dialog's answer, using the Library's list")
+            AppLog.w("Skipii", "playlists: no choices in the Save dialog's answer, using the Library's list")
             playlists().map { PlaylistChoice(it.id, it.title, contains = null, privacy = null) }
         }
     }

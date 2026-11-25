@@ -1,7 +1,6 @@
 package com.decio.skipii
 
 import android.content.ComponentName
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +27,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -79,6 +79,34 @@ class PlayerState(private val scope: CoroutineScope) {
             }
         }
     }
+    /**
+     * The open video has shown the spinner for [StuckAfterMs] without starting or failing (GitHub #102: it can
+     * sit there for good, no error). The player then offers a problem report (Diagnostics.kt).
+     */
+    var stuck by mutableStateOf(false)
+        private set
+    private var waitingSince = 0L
+    /** How long the spinner has been up (0 = it isn't), for the report. */
+    val stuckForMs: Long get() = if (waitingSince > 0L) android.os.SystemClock.elapsedRealtime() - waitingSince else 0L
+
+    init {
+        scope.launch {
+            snapshotFlow { Triple(current?.id, isBuffering || (loading && details == null), error == null) }
+                .collectLatest { (id, waiting, noError) ->
+                    stuck = false
+                    if (id == null || !waiting || !noError) { waitingSince = 0L; return@collectLatest }
+                    waitingSince = android.os.SystemClock.elapsedRealtime()
+                    delay(StuckAfterMs)
+                    stuck = true
+                    AppLog.w(
+                        TAG,
+                        "player: $id still on the spinner after ${StuckAfterMs / 1000} s (details ${if (details != null) "in" else "not yet"}, " +
+                            "engine ${controller?.playbackState}, playWhenReady ${controller?.playWhenReady}, at ${positionMs / 1000}s, loaded to ${bufferedMs / 1000}s)",
+                    )
+                }
+        }
+    }
+
     var videoAspect by mutableFloatStateOf(16f / 9f)
         private set
     /** Set once real frames have reported their size; the stream's own numbers no longer apply. */
@@ -199,7 +227,7 @@ class PlayerState(private val scope: CoroutineScope) {
 
     private fun show(item: VideoItem, startPlayback: Boolean) {
         openedAt = android.os.SystemClock.elapsedRealtime()
-        Log.i("SkipiiTime", "open ${item.id}")
+        AppLog.i("SkipiiTime", "open ${item.id}")
         if (startPlayback) Net.prewarmMediaConnection()
         upNextCancelledFor = null
         UpNextHold.setHold(false)
@@ -222,7 +250,7 @@ class PlayerState(private val scope: CoroutineScope) {
         loadJob = scope.launch {
             runCatching { YouTube.details(item.id) }
                 .onSuccess { d ->
-                    Log.i("SkipiiTime", "details +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
+                    AppLog.i("SkipiiTime", "details +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
                     details = d
                     // The player takes the video's shape before its first frame arrives.
                     if (!aspectFromFrames) d.aspect?.let { videoAspect = it }
@@ -240,7 +268,7 @@ class PlayerState(private val scope: CoroutineScope) {
                     // Cancelled by the next open (a bot-check wait can last ~40 s): this
                     // video's outcome no longer matters, and the new load owns the state.
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "details failed for ${item.id}", it)
+                    AppLog.w(TAG, "details failed for ${item.id}", it)
                     fail(it)
                     // Comments wait for details; without this their spinner never stopped.
                     comments.load(item.id)
@@ -254,7 +282,7 @@ class PlayerState(private val scope: CoroutineScope) {
         scope.launch {
             runCatching { InnerTube.videoState(id) }
                 .onSuccess { if (current?.id == id) { accountState = it; originalLike = it.like } }
-                .onFailure { Log.w(TAG, "account state for $id", it) }
+                .onFailure { AppLog.w(TAG, "account state for $id", it) }
         }
     }
 
@@ -470,7 +498,7 @@ class PlayerState(private val scope: CoroutineScope) {
         scope.launch {
             runCatching { InnerTube.videoState(item.id) }
                 .onSuccess { if (current?.id == item.id) { accountState = it; originalLike = it.like } }
-                .onFailure { Log.w(TAG, "account state for ${item.id}", it) }
+                .onFailure { AppLog.w(TAG, "account state for ${item.id}", it) }
         }
     }
 
@@ -516,7 +544,7 @@ class PlayerState(private val scope: CoroutineScope) {
         scope.launch {
             runCatching { InnerTube.setInWatchLater(video.id, true) }
                 .onSuccess { actionMessage = str(R.string.player_saved_watch_later) }
-                .onFailure { actionMessage = str(R.string.player_watch_later_failed); Log.w(TAG, "watch later ${video.id}", it) }
+                .onFailure { actionMessage = str(R.string.player_watch_later_failed); AppLog.w(TAG, "watch later ${video.id}", it) }
         }
     }
 
@@ -535,7 +563,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 .onFailure {
                     Dismissed.restore(video, channel)
                     actionMessage = str(R.string.player_feedback_failed)
-                    Log.w(TAG, "feedback for ${video.id} (channel: $channel)", it)
+                    AppLog.w(TAG, "feedback for ${video.id} (channel: $channel)", it)
                 }
         }
     }
@@ -564,7 +592,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 .onSuccess { choices -> if (playlistTarget?.id == video.id) playlistChoices = choices }
                 .onFailure {
                     if (it is CancellationException) throw it
-                    Log.w(TAG, "playlists for ${video.id}", it)
+                    AppLog.w(TAG, "playlists for ${video.id}", it)
                     if (playlistTarget?.id == video.id) playlistError = YouTube.friendlyError(it)
                 }
         }
@@ -587,7 +615,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 .onFailure {
                     mark(choice.contains)
                     actionMessage = str(R.string.player_playlist_update_failed, choice.title)
-                    Log.w(TAG, "playlist ${choice.id} ${video.id}", it)
+                    AppLog.w(TAG, "playlist ${choice.id} ${video.id}", it)
                 }
         }
     }
@@ -603,7 +631,7 @@ class PlayerState(private val scope: CoroutineScope) {
                     }
                     actionMessage = str(R.string.player_saved_to, title)
                 }
-                .onFailure { actionMessage = str(R.string.player_create_playlist_failed); Log.w(TAG, "create playlist", it) }
+                .onFailure { actionMessage = str(R.string.player_create_playlist_failed); AppLog.w(TAG, "create playlist", it) }
         }
     }
 
@@ -843,7 +871,7 @@ class PlayerState(private val scope: CoroutineScope) {
         val off = wantBackground || wantAside || AudioOnly.enabled
         val player = controller ?: return
         if (player.trackSelectionParameters.disabledTrackTypes.contains(androidx.media3.common.C.TRACK_TYPE_VIDEO) == off) return
-        Log.i(TAG, if (off) "video off (${if (AudioOnly.enabled) "audio only" else if (wantAside) "Shorts" else "background"})" else "video on")
+        AppLog.i(TAG, if (off) "video off (${if (AudioOnly.enabled) "audio only" else if (wantAside) "Shorts" else "background"})" else "video on")
         player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
             .setTrackTypeDisabled(androidx.media3.common.C.TRACK_TYPE_VIDEO, off)
             .build()
@@ -917,7 +945,7 @@ class PlayerState(private val scope: CoroutineScope) {
                 avatar = null, durationSec = it.durationSec, views = -1, uploaded = null,
             ).also { item -> known[item.id] = item }
         }
-        Log.i(TAG, "restoring ${items.first().id} + ${items.size - 1} queued")
+        AppLog.i(TAG, "restoring ${items.first().id} + ${items.size - 1} queued")
         player.setMediaItems(items.map(::mediaItemFor), 0, ResumeStore.startPosition(items.first().id))
         show(items.first(), startPlayback = false)
     }
@@ -950,14 +978,14 @@ class PlayerState(private val scope: CoroutineScope) {
         }
 
         override fun onRenderedFirstFrame() {
-            Log.i("SkipiiTime", "first frame +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
+            AppLog.i("SkipiiTime", "first frame +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
             firstFrameRendered = true
             videoStale = false
         }
 
         override fun onPlayerError(e: PlaybackException) {
             val status = (e.cause as? androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException)?.responseCode
-            Log.w(TAG, "playback error ${e.errorCodeName}${status?.let { " (HTTP $it)" } ?: ""} for ${current?.id}", e)
+            AppLog.w(TAG, "playback error ${e.errorCodeName}${status?.let { " (HTTP $it)" } ?: ""} for ${current?.id}", e)
             // A refused or expired stream URL: the service is fetching fresh links (StreamRecoverer).
             if (e.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && StreamRecovery.recovering == current?.id) return
             botCheck = false
@@ -980,7 +1008,7 @@ class PlayerState(private val scope: CoroutineScope) {
 
     /** Fills the quality label and the "Playing …" line from the frames actually decoded. */
     private fun describeFormat(height: Int) {
-        if (decodedHeight != height) Log.i("SkipiiTime", "now ${height}p at +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
+        if (decodedHeight != height) AppLog.i("SkipiiTime", "now ${height}p at +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
         decodedHeight = height
         val formats = controller?.currentTracks?.groups.orEmpty()
             .filter { it.type == androidx.media3.common.C.TRACK_TYPE_VIDEO }
@@ -1040,6 +1068,9 @@ enum class PlayerSheet { Quality, Speed, Audio, Comments, Queue, Captions, Trans
 
 /** Comments and the transcript open as a panel inside the player (PlayerScreen), not a sheet. */
 val PlayerSheet?.isPanel: Boolean get() = this == PlayerSheet.Comments || this == PlayerSheet.Transcript
+
+/** The spinner this long on the open video: the player offers a problem report ([PlayerState.stuck]). */
+internal const val StuckAfterMs = 20_000L
 
 internal const val UpNextWindowMs = 8_000L
 internal const val UpNextMinVideoMs = 15_000L
