@@ -10,6 +10,8 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+## 0.6.7
+
 ### New
 - **Lagoon theme.** A new theme in **Settings › Appearance**: deep teal on a page with a hint of the same colour in light mode, a bright aqua glow on near-black in dark mode. It works with AMOLED black too.
 - **Open YouTube links in Skipii instead of the YouTube app.** **Settings › About › Open YouTube links** now shows which app opens them, and when it's the YouTube app, two buttons take you to the two Android switches that hand them to Skipii. Once set, links from chats, browsers and other apps (including youtu.be, embedded-video and channel links) open straight in Skipii's player.
