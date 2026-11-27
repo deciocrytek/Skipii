@@ -122,6 +122,9 @@ class PlaybackService : MediaSessionService() {
                 .build()
         }
         // Before the session's own listener: the UI must see the recovery when the error reaches it.
+        // DecoderStepDown first: it clears the flag of a step-down that failed in another way, and StreamRecoverer,
+        // which may take that error on, then sets its own.
+        player.addListener(DecoderStepDown(player, sources))
         player.addListener(StreamRecoverer(player, sources, resolver))
         resumeSaver = ResumeSaver(player).also(player::addListener)
         player.addListener(SessionSaver())
@@ -287,7 +290,7 @@ private class StreamRecoverer(
         StreamRecovery.recovering = id
         StreamCache.invalidate(id)
         resolver.execute {
-            val result = runCatching { BotCheck.retryingBlocking(id) { StreamCache.getOrLoad(id) } }
+            val result = runCatching { BotCheck.retryingBlocking(id) { Net.onceMoreAfterStall("links for $id") { StreamCache.getOrLoad(id) } } }
             main.post {
                 StreamRecovery.recovering = null
                 // The user moved on (another video, Try again) while the links loaded.
@@ -316,6 +319,65 @@ private class StreamRecoverer(
 
     private companion object {
         const val PROGRESS_MS = 30_000L
+    }
+}
+
+/**
+ * The phone's video decoder wouldn't start for a format it claims to support (a Redmi with Qualcomm's H.264
+ * decoder: every 1080p 60 fps stream failed, 720p 60 played; problem report 2026-11-26). [DecoderLimits] leaves
+ * that format out and the same video is rebuilt at the same spot: a pinned quality gets the nearest playable
+ * height, Auto's ladder loses the top rung. The UI keeps its spinner meanwhile ([StreamRecovery.recovering]).
+ * Nothing new left to leave out (the smallest format failed too) = the error stands.
+ */
+@OptIn(UnstableApi::class)
+private class DecoderStepDown(
+    private val player: ExoPlayer,
+    private val sources: MediaSource.Factory,
+) : Player.Listener {
+    private var stepping: String? = null
+
+    override fun onPlayerError(error: PlaybackException) {
+        // A rebuilt video that failed again: its spinner flag goes (StreamRecoverer, after this, sets its own if it takes over).
+        stepping?.let { if (StreamRecovery.recovering == it) StreamRecovery.recovering = null }
+        stepping = null
+        if (error.errorCode != PlaybackException.ERROR_CODE_DECODER_INIT_FAILED) return
+        val format = (error as? androidx.media3.exoplayer.ExoPlaybackException)?.rendererFormat ?: return
+        if (format.sampleMimeType?.startsWith("video/") != true) return
+        val item = player.currentMediaItem ?: return
+        // A download plays its one kept stream; without links (expired, network switch) a rebuild would be the bare
+        // watch page — StreamRecoverer fetches those first, and the next failure steps down.
+        if (Downloads.isReady(item.mediaId) || StreamCache.get(item.mediaId) == null) return
+        val fps = format.frameRate.takeIf { it > 0 }?.let { kotlin.math.round(it).toInt() } ?: 30
+        val side = if (format.width > 0 && format.height > 0) minOf(format.width, format.height) else format.height
+        if (!DecoderLimits.noteFailed(side, fps)) {
+            AppLog.w("Skipii", "decoder wouldn't start ${format.height}p$fps for ${item.mediaId}; nothing smaller left to try")
+            return
+        }
+        val position = player.currentPosition
+        AppLog.w("Skipii", "decoder wouldn't start ${format.height}p$fps (${format.codecs}) for ${item.mediaId}; stepping down at ${position / 1000}s")
+        stepping = item.mediaId
+        StreamRecovery.failed = null
+        StreamRecovery.recovering = item.mediaId
+        val index = player.currentMediaItemIndex
+        player.addMediaSource(index + 1, sources.createMediaSource(item))
+        player.removeMediaItem(index)
+        player.seekTo(index, position)
+        player.prepare()
+    }
+
+    override fun onPlaybackStateChanged(state: Int) {
+        // Ready, or stopped (idle with no error: the user moved on, closed the player).
+        if (state == Player.STATE_READY || state == Player.STATE_ENDED || (state == Player.STATE_IDLE && player.playerError == null)) done()
+    }
+
+    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        if (mediaItem?.mediaId != stepping) done()
+    }
+
+    private fun done() {
+        val id = stepping ?: return
+        stepping = null
+        if (StreamRecovery.recovering == id) StreamRecovery.recovering = null
     }
 }
 
@@ -597,8 +659,19 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
         // A downloaded video plays from the phone alone (Downloads.kt), with or without a connection.
         Downloads.mediaSource(mediaItem)?.let { return it }
         val info = StreamCache.get(mediaItem.mediaId) ?: return fallback.createMediaSource(mediaItem)
+        val postLive = info.streamType == org.schabi.newpipe.extractor.stream.StreamType.POST_LIVE_STREAM
         val picked = StreamSelection.pick(info, mediaItem.mediaId)
         val trackNote = picked.audio?.audioTrackId?.let { " [$it]" }.orEmpty()
+        // A live stream that just ended: its segments play from manifests made with the links (PostLiveManifests);
+        // without them, YouTube's own manifest still plays, with a stall for fresh links every so often.
+        if (postLive && info.dashMpdUrl.isNotBlank() &&
+            (picked.video == null || picked.audio == null || PostLiveManifests.cached(picked.video) == null || PostLiveManifests.cached(picked.audio) == null)
+        ) {
+            AppLog.i("Skipii", "media source ${mediaItem.mediaId}: YouTube's manifest (live stream that just ended)")
+            return DashMediaSource.Factory(dataSourceFactory).createMediaSource(
+                mediaItem.buildUpon().setUri(info.dashMpdUrl).setMimeType(androidx.media3.common.MimeTypes.APPLICATION_MPD).build(),
+            )
+        }
         // Auto: every quality as one adaptive set. A chosen quality stays pinned below.
         if (QualityPreference.height == null && picked.audio != null) {
             val adaptive = adaptiveVideo(info, mediaItem)
@@ -638,7 +711,7 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
         val durationSec = info.duration.takeIf { it > 0 } ?: return null
         val manifests = StreamSelection.autoLadder(info).mapNotNull { stream ->
             runCatching {
-                val xml = YoutubeProgressiveDashManifestCreator.fromProgressiveStreamingUrl(stream.content, stream.itagItem!!, durationSec)
+                val xml = manifestXml(stream, durationSec) ?: return@mapNotNull null
                 DashManifestParser().parse(Uri.parse(stream.content), ByteArrayInputStream(xml.toByteArray()))
             }.getOrNull()
         }
@@ -653,12 +726,17 @@ internal class YouTubeMediaSourceFactory(context: Context) : MediaSource.Factory
         return DashMediaSource.Factory(dataSourceFactory).createMediaSource(manifest, mediaItem)
     }
 
+    /** A one-stream DASH manifest: segments of a just-ended live stream (made ahead, [PostLiveManifests]) or byte ranges of a plain link. */
+    private fun manifestXml(stream: Stream, durationSec: Long): String? =
+        if (StreamSelection.isPostLive(stream)) PostLiveManifests.cached(stream)
+        else YoutubeProgressiveDashManifestCreator.fromProgressiveStreamingUrl(stream.content, stream.itagItem!!, durationSec)
+
     private fun source(stream: Stream, durationSec: Long, mediaItem: MediaItem): MediaSource {
         val url = stream.content
         val itag = stream.itagItem
         if (itag != null && durationSec > 0) {
             val dash = runCatching {
-                val xml = YoutubeProgressiveDashManifestCreator.fromProgressiveStreamingUrl(url, itag, durationSec)
+                val xml = manifestXml(stream, durationSec)!!
                 val manifest = DashManifestParser().parse(Uri.parse(url), ByteArrayInputStream(xml.toByteArray()))
                 DashMediaSource.Factory(dataSourceFactory).createMediaSource(manifest, mediaItem)
             }.getOrNull()

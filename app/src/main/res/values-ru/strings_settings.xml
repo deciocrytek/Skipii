@@ -105,6 +105,12 @@
     <string name="settings_background_play_off">Пауза, когда вы выходите из Skipii или экран гаснет (режим «только звук» играет дальше)</string>
     <string name="settings_open_links_title">Открывать ссылки YouTube</string>
     <string name="settings_open_links_line">Пусть Skipii открывает ссылки youtube.com и youtu.be из других приложений: Открывать по умолчанию › Добавить ссылки</string>
+    <string name="settings_open_links_done">Ссылки YouTube открываются в Skipii</string>
+    <string name="settings_open_links_other">Пока они открываются в %1$s: два шага ниже</string>
+    <string name="settings_open_links_step1_title">1. Запретить %1$s открывать их</string>
+    <string name="settings_open_links_step1_line">Открывать по умолчанию › «В браузере» или выключите «Открывать поддерживаемые ссылки»</string>
+    <string name="settings_open_links_step2_title">2. Разрешить Skipii открывать их</string>
+    <string name="settings_open_links_step2_line">Открывать по умолчанию › Добавить ссылки › отметьте все</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Отправить отчёт</string>
     <string name="report_email_prompt">Что произошло? (необязательно, на любом языке)</string>

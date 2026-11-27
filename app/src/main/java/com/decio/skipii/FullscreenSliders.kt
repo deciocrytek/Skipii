@@ -319,8 +319,8 @@ internal fun fromSlider(slider: Float): Float {
 private const val SwipeRangeShare = 0.4f
 private val RangeMin = 130.dp
 private val RangeMax = 260.dp
-/** Share of the video's width, from each side, whose vertical drags set brightness / volume. */
-private const val SideShare = 0.35f
+/** Share of the video's width, from each side, whose vertical drags set brightness / volume (leaves the middle 50% for pull-down exit and the drawer). */
+internal const val SideShare = 0.25f
 /** Starts this close to the top or bottom edge are left to the system's own swipes. */
 private val EdgeGuard = 28.dp
 /** The middle's swipe up opens the drawer past this far (or on a flick). */

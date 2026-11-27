@@ -10,6 +10,23 @@ changes something people see or feel (faster, fewer errors); then say that.
 
 ## Unreleased
 
+### New
+- **Lagoon theme.** A new theme in **Settings › Appearance**: deep teal on a page with a hint of the same colour in light mode, a bright aqua glow on near-black in dark mode. It works with AMOLED black too.
+- **Open YouTube links in Skipii instead of the YouTube app.** **Settings › About › Open YouTube links** now shows which app opens them, and when it's the YouTube app, two buttons take you to the two Android switches that hand them to Skipii. Once set, links from chats, browsers and other apps (including youtu.be, embedded-video and channel links) open straight in Skipii's player.
+
+### Fixed
+- **Live streams that just ended play.** A stream that finished in the last few hours said "No playable stream was found"; it now plays from the start, in every quality.
+- **Phones whose video chip can't do a quality now step down by themselves.** On some phones 1080p at 60 fps failed with "Couldn't play this video" while 720p worked. Skipii now drops to the next quality at the same spot and keeps playing.
+- **The old video stops when you open a new one.** It used to keep playing behind the new video's spinner, and even behind its error, until the new one loaded.
+- **Fewer videos stuck on the spinner.** A request to YouTube that stalls (often right after switching Wi-Fi or mobile data) now gives up and tries again within seconds, instead of leaving the video loading for half a minute or more.
+- **Videos try again by themselves when you're back online.** If a video failed for want of a connection, or on YouTube's "confirm you're not a bot" check, it now retries the moment your connection comes back, for example right after you turn airplane mode off.
+- **The bot-check message stays the bot-check message.** Leaving the app while Skipii waited out YouTube's check could turn it into "Couldn't reach YouTube" on a working connection.
+- **Picking the top quality on an upright video no longer pins every later video.** Qualities are now named like YouTube names them (an upright 1080×1920 video is 1080p). Auto also goes up to 1080p on upright videos now. If an odd quality like "1920p" was saved, it goes back to Auto once.
+
+### Improved
+- **Problem reports say more:** which YouTube requests were slow or failed, which video the player was really on, and which Skipii version a saved crash came from.
+- **Leaving fullscreen doesn't flip straight back.** After you swipe down (or tap exit, or press Back) from a sideways fullscreen video, the player stays upright for 5 seconds whatever the phone does, so you have time to turn it upright without it rotating back into fullscreen.
+
 ## 0.6.3
 
 ### Improved

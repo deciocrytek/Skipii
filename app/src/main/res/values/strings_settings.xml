@@ -120,6 +120,12 @@
     <string name="settings_background_play_off">Pauses when you leave Skipii or the screen turns off (audio only keeps playing)</string>
     <string name="settings_open_links_title">Open YouTube links</string>
     <string name="settings_open_links_line">Let Skipii open youtube.com and youtu.be links from other apps: Open by default › Add links</string>
+    <string name="settings_open_links_done">YouTube links open in Skipii</string>
+    <string name="settings_open_links_other">They open in %1$s for now: two steps below</string>
+    <string name="settings_open_links_step1_title">1. Stop %1$s opening them</string>
+    <string name="settings_open_links_step1_line">Open by default › In your browser, or turn off Open supported links</string>
+    <string name="settings_open_links_step2_title">2. Let Skipii open them</string>
+    <string name="settings_open_links_step2_line">Open by default › Add links › tick them all</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Send report</string>
     <string name="report_email_prompt">What happened? (optional, any language)</string>

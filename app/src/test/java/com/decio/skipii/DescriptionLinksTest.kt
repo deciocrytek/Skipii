@@ -41,4 +41,17 @@ class DescriptionLinksTest {
         assertEquals(70_000L, parseStartTime("1m10s"))
         assertEquals(null, parseStartTime("abc"))
     }
+
+    @Test fun vndYouTubeLinks() {
+        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", fromVndYouTube("vnd.youtube:dQw4w9WgXcQ"))
+        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=30", fromVndYouTube("vnd.youtube://dQw4w9WgXcQ?t=30"))
+        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", fromVndYouTube("vnd.youtube://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", fromVndYouTube("vnd.youtube:///watch?v=dQw4w9WgXcQ"))
+        assertEquals("https://youtu.be/dQw4w9WgXcQ", fromVndYouTube("vnd.youtube://youtu.be/dQw4w9WgXcQ"))
+        assertEquals(null, fromVndYouTube("vnd.youtube:"))
+        assertEquals(null, fromVndYouTube("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+        // What the player then does with it.
+        assertEquals(LinkTarget.Video("dQw4w9WgXcQ"), linkTarget(fromVndYouTube("vnd.youtube:dQw4w9WgXcQ")!!, null))
+        assertEquals(LinkTarget.Video("dQw4w9WgXcQ"), linkTarget("https://www.youtube.com/embed/dQw4w9WgXcQ", null))
+    }
 }

@@ -26,4 +26,9 @@ class BrightnessCurveTest {
         // skipii_qa's default brightness (0.3976 linear) sits at ~82% of the system slider.
         assertEquals(0.82f, toSlider(0.3976f), 0.01f)
     }
+
+    @Test
+    fun sideShareLeavesHalfForMiddle() {
+        assertEquals(0.25f, SideShare, 0.0001f)
+    }
 }

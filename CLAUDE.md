@@ -1086,6 +1086,79 @@ motion standard) and the approved mockup `docs/design/mockup.html` (open in a br
   Reduced motion: no pops / spin / nudge / rubber band, 100/120 ms fades. Verified on skipii_qa (debug + release) with the
   DebugSeed Tears of Steel download in fullscreen: volume 67% → 100%, brightness stack, Auto. NOT verified: the haptics' feel and
   TalkBack on Derek's Pixel.
+- 0.6.4 (2026-11-26, Derek: swiping down out of sideways fullscreen, the phone, still sideways, turned straight back into
+  fullscreen). `OrientationController.exitFullscreen` (landscape case) starts a hold: for `ExitRotationHoldMs` 5 s `apply()`
+  asks for PORTRAIT whatever the sensor says (`holding`, a Handler re-applies at its end); the forced-portrait release (phone
+  upright) works as before underneath. Any exit counts (swipe down, button, Back); `enterFullscreen` (button / swipe up) ends
+  the hold. After it, a phone still sideways goes fullscreen again as usual. Test on skipii_qa: `adb emu sensor set
+  acceleration 9.8:0:0` (sideways) / `0:9.8:0` (upright). Verified (debug + release): exit, upright → sideways within 5 s
+  stays portrait, fullscreen again after 5 s if still sideways; upright then sideways later → fullscreen; swipe up mid-hold.
+- 0.6.5 Lagoon (2026-11-26, Derek picked it from the first theme round: `docs/design/themes-claude.html` = Lagoon /
+  Marquee / Ink, `themes-neon.html` = Matcha / Fjord / Saffron; Neon's Fjord came out nearly the same teal). Skipii's own
+  theme like YouTube's (`SEED_LAGOON` #00677A, `lagoonScheme`, Theme.kt), second in the picker; written out for light and
+  dark with tertiaryContainer = secondaryContainer as `completeLedgiiScheme` would. Every text pair ≥ 4.5:1, AMOLED included.
+  Round 2 (Derek: themes should be more than a colour change — textures, glows) in `themes-2-claude.html` / `themes-2-neon.html`.
+  Round 3 (Derek on round 2: no textures, glows too much — "rethink the design, original themes that could actually work"):
+  `themes-3-claude.html` (Studio / Streetlight / Sunday: themes as colour + shape + heading font + depth + a still glow on play /
+  selected tab at most) and `themes-3-neon.html`. Shape/font/depth need a one-time theme switch (corners are hard-coded in ~85 places).
+  Round 4 (Derek: "No glassy textures. Keep it android"): `themes-4-claude.html` (Fern / Sunbeam / Graphite) and `themes-4-neon.html`:
+  colours straight from Google's material-color-utilities (seed + Pixel scheme style: Tonal spot / Vibrant / Monochrome), Skipii's
+  own font + corners, no glow / blur / glass / custom fonts; one signature `LobedShape` per theme for small badges (Settings icons,
+  picture-less avatars). Generator: npm @material/material-color-utilities 0.3.0, `new SchemeX(Hct.fromInt(seed), dark, 0)`.
+- 0.6.6 problem reports (2026-11-26, Derek: "work with Neon to resolve these reports", the Google Doc of the 9 in-app reports
+  of 2026-11-25/26; Neon (Gemini 4 Neon) analysed them independently, then reviewed the fixes). Just-ended live streams
+  (`StreamType.POST_LIVE_STREAM`, report 3's "No playable stream"): every stream is DASH, `isUrl` false, `content` = segment base,
+  `itagItem.targetDurationSec` > 0 (`StreamSelection.isPostLive` / `isUsable`). `PostLiveManifests` (YouTube.kt) builds NewPipe's
+  `YoutubePostLiveStreamDvrDashManifestCreator` manifests on the extraction thread (it asks YouTube for the segment count — a
+  network call, so never in `createMediaSource`, which runs on main) for the Auto ladder + picks; the media source reads the
+  creator's cache, else falls back to `info.dashMpdUrl`. Probed: the dashMpdUrl's segment links 403 from ~segment 42 on (stalls
+  every ~20 s for fresh links); the per-stream links served 400 segments. `DecoderLimits` + `DecoderStepDown` (PlaybackService.kt):
+  a Redmi's c2.qti.avc.decoder failed every 1080p60 (`DECODER_INIT_FAILED`, "format_supported=YES") while 720p60 played; the
+  service notes the format (per process only: a busy decoder mustn't cost HD forever), rebuilds the item at the same spot, and
+  `pick` / `autoLadder` / `heights` leave out that format and anything taller (same height at lower fps stays). Decoder fallback to
+  software was NOT enabled (1080p60 in software on a weak phone stutters worse than 720p). Test: a throwaway codec adapter factory
+  in `SyncedRenderersFactory` that throws for height ≥ N, with quality pinned (Auto switches rungs without a new decoder).
+  `PlayerState.show(startPlayback)` pauses + stops the previous item at once (it played on under the new video's spinner and its
+  bot-check error for 2 minutes, report 1; its errors landed on the new video, report 5); `onPlayerError` ignores an item that
+  isn't `current`, and anything while `StreamRecovery.recovering == current.id` (also set by the step-down). Extraction:
+  `Net.extractorClient` = callTimeout 20 s (no limit before: 20–44 s spinners with no log line, reports 2/9); every extractor
+  call is tracked and cancelled on a network change (`Net.networkChanged`, which also evicts the pool), and
+  `Net.onceMoreAfterStall` retries a stalled load once (timeouts / cancels / resets, never UnknownHost). Slow (>4 s) or failed
+  extractor requests are logged ("extractor: POST host/path …"). `Net.networkUps` (any network after none or another): an error
+  from no connection, a stall or the bot check (`retryOnNetwork`) retries by itself — the bot-check hint is airplane mode.
+  `BotCheck.retrying`: an IOException after a bot check rethrows the bot check (Android cuts an idle backgrounded app's DNS,
+  report 7 said "Couldn't reach YouTube" on working Wi-Fi); `ensureActive` before setting `waiting` (a cancelled load kept the
+  note on later videos). Stuck note not shown while the bot-check note is. `isBuffering`'s `recovering == current?.id` was
+  null == null with nothing open (Neon): "loading" forever, and the Shorts bank (`mainBusy`) never filled. Qualities are named
+  by the SHORT side (`StreamSelection.side`): an upright video's best saved "1920p"/"1126p" and pinned every later landscape video
+  (reports 3, 5); Auto now reaches 1080×1920 on upright videos (supersedes 0.5.51's note on the 1080 cap); non-standard saved
+  heights go back to Auto once (`quality_short_side`). Report: engine's own item, open requests only for the current item
+  (replaced sources never report their cancels: "oldest 944 s" ghosts), decoder limits; crash headers carry the version.
+  Neon's review (all fixed): NewPipe swallows a failed VISIONOS request and returns no separate streams — a load with none
+  after any extractor stall (`Net.lastStallAt`) throws as a stall instead of being cached 4 h; the first network never
+  cancels (`networkChanged(first)`); the body read is inside the tracked call; PlayerFallback uses `extractorClient`; the
+  network retry waits 1.5 s and never runs off screen / on Shorts (deferred to `setBackground(false)` / `setVideoAside(false)`);
+  while the engine still holds the stopped previous video (`engineOnOther`), position/play state read as this video's
+  (0, paused), Play retries a failed one instead of resuming the old, seeks are ignored, and the surface's old frame is
+  hidden (`videoStale`); DecoderStepDown runs before StreamRecoverer, skips downloads and items without links, clears on
+  stop; decoder limits and the decoded label use the short side; a done-but-failed in-flight load is replaced, not rejoined.
+  Tested by `ProblemReportsFixTest`. Verified on skipii_qa (debug; release: normal + post-live playback): post-live j68psVPvLy0
+  (1-s segments) 70 s with no 403, climbing to 1080p; old video idle the moment the next opens; throwaway 1080p/720p decoder
+  refusal → 480p at the same second, no error; airplane mode on → error, off → retried and played. NOT verified: a real
+  Redmi, report 2/9's hang cause (no per-request log then; now there is), the bot check itself (still needs PO tokens /
+  NewPipeExtractor 0.27's clients — 0.27.0 removed ANDROID/IOS PO-token paths, an upgrade would touch `PlayerFallback`).
+- 0.6.7 YouTube links (2026-11-26, Derek: "open YouTube links in our app instead of the YouTube app"). Checked on skipii_qa
+  (Android 16, YouTube installed): the YouTube app is verified for youtube.com / www / m / youtu.be and Android keeps a
+  VERIFIED app over a user-picked one, so Skipii's Add links alone changes nothing; YouTube's own links must go off first
+  (Open by default › "In your browser" on 16; "Open supported links" switch on older Android). `YouTubeLinks.status`
+  (Description.kt): resolves a sample link per host (manifest `<queries>` for those hosts + any https browser) → Skipii /
+  OtherApp (resolved package handles the link and isn't a browser; Android's chooser isn't among a link's handlers) / NotYet.
+  Settings › About `OpenLinksSetting`: status line (re-read on resume), and while another app has them, step rows 1 (that
+  app's Open by default page) and 2 (Skipii's). Manifest also takes /embed/ /v/ /c/ /user/ /hashtag/ and `vnd.youtube:`
+  (`fromVndYouTube`; not a web link, so Android shows its Open with sheet). Test: `pm set-app-links-allowed --user 0
+  --package com.google.android.youtube true|false`, `pm set-app-links-user-selection --user 0 --package com.skipii false all`.
+  Verified on skipii_qa (debug): status + both steps through Android's pages, ✓ after, youtu.be?t= / m. / embed open in Skipii.
+  NOT verified: Derek's Pixel, One UI's wording of those pages.
 - Themes = Ledgii's (2026-10-05): Wallpaper (default on 12+), Cream Rose, Erica, Lilac Air, Jai,
   Pumpkin, Moonstone, Iris, Harbor + System/Light/Dark, picked in the account sheet's Appearance
   card (`ThemeSettings`, persisted). Mode chips System / Light / Dark; AMOLED (2026-10-14) is a SWITCH under them since 0.5.111 (2026-11-06)

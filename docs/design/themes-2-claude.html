@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skipii Themes II · Claude</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght,ROND@6..144,400..1000,0..100&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<style>
+/* Layout: same gallery wall as round 1 — one band per theme: name + idea, mode switch, four phones,
+   then what the material is made of (effects table), contrast and colour roles. */
+:root{
+  --font:'Google Sans Flex','Google Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --bg:#F1F0EE; --panel:#FBFAF9; --panel-2:#E7E5E2; --ink:#1B1A19; --ink-2:#5F5C58; --ink-3:#8A8681;
+  --good:#1E6B3C; --good-bg:#D9F0E0; --warn:#7A4E00; --warn-bg:#FBE8C4;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#85827D;
+  --good:#9FE0B4; --good-bg:#16301F; --warn:#F6CD7E; --warn-bg:#3A2A0A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#85827D;
+  --good:#9FE0B4; --good-bg:#16301F; --warn:#F6CD7E; --warn-bg:#3A2A0A; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
+.wrap{max-width:1480px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro{max-width:70ch;display:grid;gap:10px;margin-bottom:36px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:0;font-weight:900;font-variation-settings:'ROND' 100;text-wrap:balance}
+.intro p{margin:0;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.legend a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);background:var(--panel);padding:8px 14px 8px 8px;border-radius:999px;font-weight:600}
+.legend a:focus-visible,.seg button:focus-visible,.copy:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.dot2{width:26px;height:26px;border-radius:50%;flex:none}
+.theme{background:var(--panel);border-radius:28px;padding:28px 0 24px;margin-bottom:28px}
+.theme-head{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between;padding:0 28px}
+.theme-head>div{min-width:0}
+.tname{font-size:34px;font-weight:900;line-height:1;margin:0 0 8px;font-variation-settings:'ROND' 100;display:flex;align-items:center;gap:12px}
+.pitch{margin:0;color:var(--ink-2);max-width:64ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tags span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--panel-2);color:var(--ink-2)}
+.seg{display:flex;background:var(--panel-2);border-radius:999px;padding:4px;gap:2px}
+.seg button{font:inherit;font-weight:600;font-size:14px;border:0;background:transparent;color:var(--ink-2);padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.strip{display:flex;gap:22px;overflow-x:auto;padding:24px 28px 14px;scroll-snap-type:x proximity}
+.shot{display:grid;gap:10px;flex:none;scroll-snap-align:start;margin:0}
+.shot figcaption{font-size:13px;color:var(--ink-3);font-weight:600;padding-left:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:18px;padding:6px 28px 0;align-items:start}
+.facts>*{min-width:0}
+.facts .wide{grid-column:1/-1}
+details{background:var(--bg);border-radius:20px;padding:4px 18px}
+summary{cursor:pointer;font-weight:700;padding:12px 0}
+.ctab{overflow-x:auto;padding-bottom:12px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--ink-3);font-size:12px;padding:6px 8px;white-space:nowrap}
+td{padding:6px 8px;vertical-align:top}
+td.role{font-family:var(--mono);color:var(--ink-2);white-space:nowrap}
+.fx td{border-top:4px solid var(--bg);background:var(--panel)}
+.fx td:first-child{border-radius:12px 0 0 12px;font-weight:700;white-space:nowrap}
+.fx td:last-child{border-radius:0 12px 12px 0}
+.fx td.n{font-family:var(--mono);font-size:12px;color:var(--ink-2);min-width:200px}
+.fx td.b{color:var(--ink-2);min-width:240px}
+.cost{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--good-bg);color:var(--good);white-space:nowrap}
+.cost.mid{background:var(--warn-bg);color:var(--warn)}
+.hex{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{width:22px;height:22px;border-radius:7px;flex:none;box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+.pairs{display:grid;gap:8px;padding:4px 0 16px}
+.pair{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;background:var(--panel);border-radius:14px;padding:8px 12px}
+.sample{width:58px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px}
+.pair .lbl{font-size:13px;color:var(--ink-2);min-width:0}
+.ratio{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--good-bg);color:var(--good)}
+.badge.low{background:var(--warn-bg);color:var(--warn)}
+.small{font-size:13px;color:var(--ink-2);margin:4px 0 12px}
+pre{font-family:var(--mono);font-size:12px;line-height:1.55;background:var(--panel);border-radius:14px;padding:14px;overflow-x:auto;margin:0 0 8px;max-height:340px}
+.copy{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:999px;padding:8px 16px;background:var(--ink);color:var(--panel);cursor:pointer;margin-bottom:14px}
+.notes{max-width:74ch;color:var(--ink-2);display:grid;gap:10px;margin-top:40px}
+.notes h2{color:var(--ink);font-size:20px;margin:0}
+.notes p{margin:0}
+
+/* ---------------- The phone. Colours come only from the theme's roles; the material layer
+   (textures, glows, light) comes from the --m* variables each theme sets. ---------------- */
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 500,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 500,'opsz' 24}
+.phone{width:320px;height:680px;border-radius:38px;padding:8px;background:#0c0c0c;flex:none;box-shadow:0 18px 40px -18px rgba(0,0,0,.45);
+  --none:linear-gradient(transparent,transparent);
+  --mPage:var(--none); --mCardTex:var(--none); --mCardFill:var(--surfaceContainerLow); --mCardShadow:none;
+  --mNavTex:var(--none); --mNavFill:var(--surfaceVariant); --mNavShadow:0 8px 20px -10px rgba(0,0,0,.45);
+  --mTileTex:var(--none); --mGlow:none; --mPillTex:var(--none); --mTextGlow:none}
+.scr{position:relative;isolation:isolate;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--mPage),var(--surface);color:var(--onSurface);font-family:var(--font);font-size:13px;line-height:1.35}
+.scr>*{position:relative;z-index:1}
+.scr>.art,.scr>.amb{position:absolute;z-index:0;pointer-events:none}
+.art{inset:0}
+.sb{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 24px;font-size:12px;font-weight:600;color:var(--onSurface)}
+.sb .ms{font-size:15px}
+.sb.vid{background:#000;color:#fff}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;font-variation-settings:'ROND' 100}
+.bm{width:30px;height:22px;border-radius:8px;display:grid;place-items:center;color:var(--onPrimary);background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 82%,transparent));box-shadow:var(--mGlow)}
+.bm .ms{font-size:17px}
+.hdr-act{display:flex;gap:8px;align-items:center}
+.ib{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurface)}
+.ib .ms{font-size:19px}
+.me{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8aa1b8,#4b5d70);color:#fff;display:grid;place-items:center;font-weight:800}
+.hchips{display:flex;gap:18px;padding:8px 18px 10px;font-weight:600;color:var(--onSurfaceVariant);font-size:14px;white-space:nowrap;overflow:hidden}
+.hchips span{position:relative}
+.hchips .on{color:var(--primary);font-weight:850;text-shadow:var(--mTextGlow)}
+.hchips .on::after{content:"";position:absolute;left:20%;right:20%;bottom:-6px;height:4px;border-radius:2px;background:var(--primary);box-shadow:var(--mGlow)}
+.card{position:relative;margin:0 5px 10px;background:var(--mCardTex),var(--mCardFill);border-radius:25px;padding:5px;box-shadow:var(--mCardShadow)}
+.card>.halo{position:absolute;z-index:-1;left:-12px;right:-12px;top:-10px;height:206px;border-radius:30px;background:var(--scene);filter:blur(26px) saturate(1.8) brightness(1.7);opacity:var(--mHalo,0)}
+.th{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;max-width:100%;background:var(--scene)}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px}
+.resume{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.35)}
+.resume i{display:block;height:100%;background:var(--primary);box-shadow:var(--mGlow)}
+.meta{display:grid;grid-template-columns:32px 1fr 16px;gap:10px;padding:9px 6px 8px}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+.tt{font-weight:700;font-size:13.5px;line-height:1.3;color:var(--onSurface);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sub{font-size:11.5px;color:var(--onSurfaceVariant);margin-top:2px}
+.meta .ms{font-size:17px;color:var(--onSurfaceVariant)}
+.vig{position:absolute!important;z-index:2!important;left:0;right:0;bottom:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 76%,transparent));pointer-events:none}
+.nav{position:absolute!important;z-index:3!important;left:12px;right:12px;bottom:14px;height:56px;border-radius:28px;background:var(--mNavTex),var(--mNavFill);display:flex;align-items:center;padding:0 5px;gap:2px;box-shadow:var(--mNavShadow);backdrop-filter:var(--mBlur,none);-webkit-backdrop-filter:var(--mBlur,none)}
+.tab{flex:1;height:46px;border-radius:23px;display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.tab .ms{font-size:22px}
+.tab.sel{flex:2.6;background:var(--primary);color:var(--onPrimary);display:flex;justify-content:center;gap:6px;font-weight:800;font-size:13px;box-shadow:var(--mGlow)}
+/* player */
+.video{aspect-ratio:16/9;position:relative;max-width:100%;background:var(--scene)}
+.amb{left:-40px;right:-40px;top:120px;height:470px;background:var(--scene);background-size:100% 60%;background-repeat:no-repeat;transform:scaleY(1.9);transform-origin:top;filter:blur(38px) saturate(1.5);opacity:var(--mAmb,0);-webkit-mask-image:linear-gradient(#000 20%,transparent 100%);mask-image:linear-gradient(#000 20%,transparent 100%)}
+.pd{padding:12px 14px 0}
+.ptitle{font-size:16.5px;font-weight:800;line-height:1.28;margin:0}
+.pmeta{font-size:12px;color:var(--onSurfaceVariant);margin-top:5px}
+.chrow{display:flex;align-items:center;gap:10px;margin-top:12px}
+.chrow .name{font-weight:800;font-size:13.5px}
+.chrow .grow{flex:1;min-width:0}
+.subbed{display:flex;gap:3px}
+.subbed span{height:34px;display:grid;place-items:center;font-weight:700;font-size:12.5px}
+.subbed .a{background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurface);padding:0 12px;border-radius:17px 7px 7px 17px}
+.subbed .b{width:38px;border-radius:50%;background:var(--primary);color:var(--onPrimary);box-shadow:var(--mGlow)}
+.subbed .b .ms{font-size:19px}
+.acts{display:flex;gap:6px;margin-top:12px;white-space:nowrap}
+.pill{height:34px;border-radius:17px;background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurface);display:flex;align-items:center;gap:6px;padding:0 12px;font-weight:700;font-size:12.5px}
+.pill .ms{font-size:18px}
+.pill.on{background:var(--primary);color:var(--onPrimary);box-shadow:var(--mGlow)}
+.desc,.cmts{margin-top:10px;background:var(--mCardTex),var(--mCardFill2,var(--surfaceContainer));border-radius:20px;padding:11px 13px;font-size:12px;color:var(--onSurfaceVariant);box-shadow:var(--mCardShadow)}
+.desc b{color:var(--onSurface)}
+.lnk{color:var(--primary);font-weight:650;text-shadow:var(--mTextGlow)}
+.cmts{margin-top:8px}
+.cmts .h{font-weight:800;font-size:13px;color:var(--onSurface)}
+.cmts .h span{color:var(--onSurfaceVariant);font-weight:600}
+.c1{display:flex;gap:9px;margin-top:8px;font-size:12px;color:var(--onSurface)}
+.c1 .av{width:24px;height:24px;font-size:10px;flex:none}
+.bar{position:absolute!important;z-index:3!important;left:50%;bottom:44px;transform:translateX(-50%);width:288px;height:76px;border-radius:38px;background:var(--mNavTex),var(--mNavFill);box-shadow:var(--mNavShadow);backdrop-filter:var(--mBlur,none);-webkit-backdrop-filter:var(--mBlur,none)}
+.grab{position:absolute;top:5px;left:50%;width:22px;height:3px;margin-left:-11px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 45%,transparent)}
+.brow{position:absolute;top:12px;left:5px;right:5px;height:50px;display:flex;align-items:center;justify-content:space-between}
+.bk{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--onSurface)}
+.bk .ms{font-size:24px}
+.bk.t{background:var(--mPillTex),var(--surfaceContainerHighest)}
+.play{width:92px;height:48px;border-radius:24px;background:var(--primary);color:var(--onPrimary);display:grid;place-items:center;box-shadow:var(--mGlow)}
+.play .ms{font-size:30px}
+.hair{position:absolute;left:30px;right:30px;bottom:7px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 28%,transparent)}
+.hair i{position:absolute;left:0;top:0;width:38%;height:100%;border-radius:2px;background:var(--primary);box-shadow:var(--mGlow)}
+.hair b{position:absolute;top:0;left:62%;width:5%;height:100%;background:#00D400}
+/* settings */
+.big{font-size:32px;font-weight:950;font-variation-settings:'ROND' 100;padding:14px 18px 10px;margin:0;line-height:1}
+.search{margin:0 14px;height:42px;border-radius:21px;background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurfaceVariant);display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13px}
+.search .ms{font-size:19px}
+.acct{margin:12px 14px 0;background:var(--mTileTex),var(--primaryContainer);color:var(--onPrimaryContainer);border-radius:22px;padding:12px;display:flex;align-items:center;gap:11px;box-shadow:var(--mCardShadow)}
+.acct .k{font-weight:800;font-size:14px}
+.acct .s{font-size:11.5px;opacity:.85}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 14px 0}
+.q{height:70px;border-radius:20px;background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurface);display:grid;place-items:center;align-content:center;gap:4px;font-size:10.5px;font-weight:700;text-align:center;line-height:1.1}
+.q .ms{font-size:21px}
+.q.on{background:var(--primary);color:var(--onPrimary);box-shadow:var(--mGlow)}
+.glabel{font-size:11.5px;font-weight:700;color:var(--onSurfaceVariant);padding:14px 22px 6px;letter-spacing:.02em}
+.joined{margin:0 14px;display:grid;gap:3px}
+.tile{background:var(--mTileTex),var(--mCardFill2,var(--surfaceContainer));border-radius:7px;display:flex;align-items:center;gap:11px;padding:10px 12px}
+.joined .tile:first-child{border-radius:21px 21px 7px 7px}
+.joined .tile:last-child{border-radius:7px 7px 21px 21px}
+.joined .tile:only-child{border-radius:21px}
+.ic{width:34px;height:34px;border-radius:11px;background:var(--primaryContainer);color:var(--onPrimaryContainer);display:grid;place-items:center;flex:none}
+.ic .ms{font-size:19px}
+.tile .tx{flex:1;min-width:0}
+.tile .k{font-weight:750;font-size:13px}
+.tile .s{font-size:11px;color:var(--onSurfaceVariant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile>.ms{font-size:18px;color:var(--onSurfaceVariant)}
+.topbar{display:flex;align-items:center;gap:10px;padding:6px 10px 4px}
+.topbar .t{font-weight:900;font-size:19px;font-variation-settings:'ROND' 100}
+.mchips{display:flex;gap:6px;padding:0 14px}
+.mchip{height:34px;border-radius:17px;background:var(--mPillTex),var(--surfaceContainerHigh);color:var(--onSurface);display:flex;align-items:center;gap:5px;padding:0 12px;font-weight:700;font-size:12px}
+.mchip .ms{font-size:16px}
+.mchip.on{background:var(--primary);color:var(--onPrimary);box-shadow:var(--mGlow)}
+.sw{width:42px;height:26px;border-radius:13px;background:var(--surfaceContainerHighest);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:7px;left:7px;width:12px;height:12px;border-radius:50%;background:var(--outline)}
+.sw.on{background:var(--primary);box-shadow:var(--mGlow)}
+.sw.on::after{top:3px;left:19px;width:20px;height:20px;background:var(--onPrimary)}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 14px}
+.tg{background:var(--mTileTex),var(--mCardFill2,var(--surfaceContainer));border-radius:18px;padding:10px 6px 8px;display:grid;justify-items:center;gap:6px;font-size:11px;font-weight:700;position:relative}
+.tg.on{background:var(--primaryContainer);color:var(--onPrimaryContainer)}
+.tg .ok{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:var(--onPrimary);display:grid;place-items:center;box-shadow:var(--mGlow)}
+.tg .ok .ms{font-size:13px}
+.tg .new{position:absolute;top:6px;left:6px;font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:6px;background:var(--tertiaryContainer);color:var(--onTertiaryContainer)}
+.disc{width:40px;height:40px;border-radius:50%;overflow:hidden;position:relative}
+
+/* ---------- Glasshouse: dappled daylight on the page, frosted-glass cards and bars, sun bloom ---------- */
+.m-glasshouse .art{background:
+  radial-gradient(ellipse 70% 30% at 15% 8%,var(--gLight) 0,transparent 70%),
+  radial-gradient(ellipse 45% 26% at 92% 38%,var(--gLight) 0,transparent 70%),
+  radial-gradient(ellipse 60% 26% at 20% 70%,var(--gLight2) 0,transparent 70%)}
+.m-glasshouse .art::before{content:"";position:absolute;inset:-20px;background:
+  radial-gradient(ellipse 26% 7% at 30% 22%,var(--gLeaf),transparent 70%),
+  radial-gradient(ellipse 18% 6% at 70% 30%,var(--gLeaf),transparent 70%),
+  radial-gradient(ellipse 22% 6% at 80% 58%,var(--gLeaf),transparent 70%),
+  radial-gradient(ellipse 30% 8% at 25% 52%,var(--gLeaf),transparent 70%),
+  radial-gradient(ellipse 20% 6% at 55% 82%,var(--gLeaf),transparent 70%);filter:blur(10px);transform:rotate(-14deg)}
+.m-glasshouse{--mCardFill:color-mix(in srgb,var(--surfaceContainerLow) 66%,transparent);--mCardFill2:color-mix(in srgb,var(--surfaceContainer) 70%,transparent);
+  --mCardTex:linear-gradient(170deg,var(--gSheen) 0,transparent 38%),var(--frost);--mTileTex:linear-gradient(170deg,var(--gSheen) 0,transparent 55%),var(--frost);
+  --mNavFill:color-mix(in srgb,var(--surfaceVariant) 62%,transparent);--mNavTex:linear-gradient(175deg,var(--gSheen) 0,transparent 45%),var(--frost);
+  --mBlur:blur(18px) saturate(1.3);--mCardShadow:0 10px 24px -16px var(--gShade);
+  --mGlow:0 0 0 1px transparent,0 6px 20px -4px color-mix(in srgb,var(--sun) 70%,transparent),inset 0 10px 14px -10px rgba(255,255,255,.45)}
+.m-glasshouse .card,.m-glasshouse .desc,.m-glasshouse .cmts,.m-glasshouse .tile,.m-glasshouse .tg{backdrop-filter:blur(14px) saturate(1.25);-webkit-backdrop-filter:blur(14px) saturate(1.25)}
+.m-glasshouse.light{--gLight:rgba(255,246,206,.85);--gLight2:color-mix(in srgb,var(--primaryContainer) 80%,transparent);--gLeaf:rgba(40,80,50,.16);--gSheen:rgba(255,255,255,.62);--gShade:rgba(30,60,40,.35);--sun:#F2C85B;--frost:var(--noiseW)}
+.m-glasshouse.dark,.m-glasshouse.amoled{--gLight:rgba(255,196,110,.16);--gLight2:color-mix(in srgb,var(--primaryContainer) 55%,transparent);--gLeaf:rgba(0,0,0,.4);--gSheen:rgba(255,255,255,.09);--gShade:rgba(0,0,0,.8);--sun:#F1C178;--frost:var(--noiseW2)}
+.m-glasshouse.amoled .art{opacity:.55}
+
+/* ---------- Afterglow: the video lights the room; film grain; the light itself is the accent ---------- */
+.m-afterglow{--mCardFill2:color-mix(in srgb,var(--surfaceContainer) 86%,transparent);--mPage:var(--grain);--mCardTex:var(--grain);--mTileTex:var(--grain);--mNavTex:var(--grain);--mPillTex:var(--grain)}
+.m-afterglow.light{--grain:var(--noiseK);--mHalo:.42;--mAmb:.45;--mGlow:0 8px 22px -6px rgba(168,80,47,.45);--mNavShadow:0 10px 24px -12px rgba(60,30,10,.4)}
+.m-afterglow.dark{--grain:var(--noiseW2);--mHalo:.62;--mAmb:.72;--mGlow:0 0 0 1px transparent,0 0 18px color-mix(in srgb,var(--primary) 55%,transparent),0 0 46px -6px rgba(255,170,110,.45);--mTextGlow:0 0 10px rgba(255,190,140,.55)}
+.m-afterglow.amoled{--grain:var(--noiseW2);--mPage:var(--none);--mHalo:.55;--mAmb:.62;--mGlow:0 0 0 1px transparent,0 0 18px color-mix(in srgb,var(--primary) 55%,transparent),0 0 46px -6px rgba(255,170,110,.45);--mTextGlow:0 0 10px rgba(255,190,140,.55)}
+
+/* ---------- Arcade: neon tubes in a dark arcade; scanlines and a glowing floor grid ---------- */
+.m-arcade{--mGlow:0 0 0 1px transparent,0 0 6px color-mix(in srgb,var(--primary) 80%,transparent),0 0 22px color-mix(in srgb,var(--primary) 50%,transparent)}
+.m-arcade.dark,.m-arcade.amoled{--scan:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);--mCardTex:var(--scan);--mTileTex:var(--scan);--mNavTex:var(--scan);--mPage:var(--none);
+  --mCardShadow:inset 0 16px 26px -22px color-mix(in srgb,var(--secondary) 70%,transparent);--mTextGlow:0 0 8px color-mix(in srgb,var(--primary) 75%,transparent);
+  --mNavShadow:0 10px 26px -10px rgba(0,0,0,.8),inset 0 14px 22px -20px color-mix(in srgb,var(--secondary) 80%,transparent)}
+.m-arcade.dark .art,.m-arcade.amoled .art{background:linear-gradient(180deg,transparent 58%,color-mix(in srgb,var(--primary) 16%,transparent) 100%)}
+.m-arcade.dark .art::after,.m-arcade.amoled .art::after{content:"";position:absolute;left:-60%;right:-60%;bottom:-10px;height:260px;transform:perspective(220px) rotateX(58deg);transform-origin:bottom;
+  background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--secondary) 30%,transparent) 0 1.5px,transparent 1.5px 34px),repeating-linear-gradient(0deg,color-mix(in srgb,var(--secondary) 30%,transparent) 0 1.5px,transparent 1.5px 34px);
+  -webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
+.m-arcade.amoled .art{opacity:.6}
+.m-arcade.light{--mGlow:0 6px 18px -4px color-mix(in srgb,var(--primary) 50%,transparent),0 0 0 1px transparent;
+  --dots:radial-gradient(color-mix(in srgb,var(--primary) 11%,transparent) 1.2px,transparent 1.6px) 0 0/7px 7px;--mTileTex:var(--none)}
+.m-arcade.light .art{background:var(--dots);-webkit-mask-image:radial-gradient(ellipse 80% 40% at 100% 0,#000,transparent 70%),radial-gradient(ellipse 80% 35% at 0 100%,#000,transparent 70%);mask-image:radial-gradient(ellipse 80% 40% at 100% 0,#000,transparent 70%),radial-gradient(ellipse 80% 35% at 0 100%,#000,transparent 70%)}
+@media (prefers-reduced-motion:no-preference){
+  .m-arcade.dark .play,.m-arcade.amoled .play,.m-afterglow.dark .play{animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{50%{box-shadow:0 0 0 1px transparent,0 0 10px color-mix(in srgb,var(--primary) 90%,transparent),0 0 34px color-mix(in srgb,var(--primary) 65%,transparent)}}
+}
+@media (max-width:520px){.theme-head,.facts{padding-left:16px;padding-right:16px}.strip{padding-left:16px;padding-right:16px}.tname{font-size:28px}}
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="eyebrow">Skipii · theme round 2 · Claude's three</div>
+    <h1>Glasshouse, Afterglow and Arcade</h1>
+    <p>This round each theme is a material, not only a set of colours. Glasshouse is frosted glass in dappled daylight. Afterglow lets the video light the room around it, through a fine film grain. Arcade is neon tubes over a glowing floor grid.</p>
+    <p>Every effect stays off the video picture itself and behind the words. Each theme has light, dark and AMOLED versions. Under each one: what every effect is made of, what it costs the phone, and what happens when Android's reduce-motion setting is on.</p>
+    <nav class="legend" id="legend" aria-label="Themes"></nav>
+  </header>
+  <div id="themes"></div>
+  <section class="notes">
+    <h2>One setting for all three</h2>
+    <p>Appearance would gain a <b>Glow &amp; texture</b> row: Full, Soft (half strength) or Off. Off leaves just the colours, so each theme still looks finished as a plain colour theme. Reduce motion turns every pulse into a steady glow.</p>
+    <h2>What stays the same</h2>
+    <p>The video, the black status strip over it, SponsorBlock's colours and the Shorts glass are untouched. Nothing is drawn with a thin outline. Surfaces are told apart by tone, light and shadow.</p>
+  </section>
+</main>
+
+<script>
+/* Noise tiles (the same idea as the app would use: one small tile, repeated, at low alpha). */
+const noise = (rgb, a, f) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${f}' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 ${rgb} 0 0 0 0 ${rgb} 0 0 0 0 ${rgb} ${a} 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`).replace(/%2523/g,'%23')}")`;
+document.documentElement.style.setProperty('--noiseW', noise(1, .55, .85));
+document.documentElement.style.setProperty('--noiseW2', noise(1, .09, .9));
+document.documentElement.style.setProperty('--noiseK', noise(0, .07, .9));
+
+const THEMES = [
+ {id:'glasshouse', name:'Glasshouse', seed:'#276B43',
+  pitch:'A greenhouse on a bright morning. Leaf green on a page washed with dappled sunlight, cards and bars of frosted glass that the light falls through, and a warm sun bloom around play and the selected tab. At night the same glass is lit by lanterns.',
+  tags:['Frosted glass','Dappled light','Sun bloom'],
+  light:{primary:'#276B43',onPrimary:'#FFFFFF',primaryContainer:'#C8EED3',onPrimaryContainer:'#00391B',secondary:'#52634F',onSecondary:'#FFFFFF',secondaryContainer:'#DCE9D6',onSecondaryContainer:'#17251A',tertiary:'#7A5A1E',background:'#F3F7F0',onBackground:'#142019',surface:'#F3F7F0',onSurface:'#142019',surfaceVariant:'#DCE7D8',onSurfaceVariant:'#43534A',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#EDF3EA',surfaceContainer:'#E6EEE3',surfaceContainerHigh:'#DEE8DB',surfaceContainerHighest:'#D5E1D2',outline:'#73847A',outlineVariant:'#C3D1C2'},
+  dark:{primary:'#8EDBA6',onPrimary:'#00391D',primaryContainer:'#1C5235',onPrimaryContainer:'#AAF5C1',secondary:'#B8CCB6',onSecondary:'#243626',secondaryContainer:'#243329',onSecondaryContainer:'#D4E8D2',tertiary:'#F1C178',background:'#0A120D',onBackground:'#E2EDE4',surface:'#0A120D',onSurface:'#E2EDE4',surfaceVariant:'#213027',onSurfaceVariant:'#A9BDAF',surfaceContainerLowest:'#050A07',surfaceContainerLow:'#101A14',surfaceContainer:'#15211A',surfaceContainerHigh:'#1D2B23',surfaceContainerHighest:'#27372E',outline:'#74887B',outlineVariant:'#26352C'},
+  fx:[
+   ['Dappled light','The page behind every list','3 soft light pools (warm white 85% light / lantern amber 16% dark) + 5 blurred leaf shadows (ink 16% / black 40%), rotated −14°, blur 10 dp. Moves at 0.3× the scroll. AMOLED: 55% strength.','One bitmap painted once per screen size (radial gradients, blurred once), drawn behind the list with a translation; no per-frame work.','low'],
+   ['Frosted glass','Cards, tiles, comments, tab bar, player bar','Fill = the card tone at 66% (bar 62%). Over it a white frost noise tile (light 55%·noise, dark 9%) and a sheen: white 62% → 0 over the top 38% (dark 9%). Blur behind = 14 dp (bars 18 dp).','No live blur: each card draws the SAME pre-blurred dapple bitmap, offset to where it sits, so it looks blurred through (the Shorts-glass trick, but static). Frost = one 140 px noise tile as an ImageShader.','low'],
+   ['Sun bloom','Play, selected tab, Subscribed bell, switches on, picked chips, the progress line','Warm glow under the shape: y 6 dp, radius 20 dp, sun yellow #F2C85B at 70% (dark #F1C178). A soft inner light along the top edge, white 45% over 10 dp.','A coloured shadow (graphicsLayer shadowElevation with spotShadowColor / ambientShadowColor, Android 9+) plus a vertical gradient on the shape. Free on the GPU.','low'],
+   ['Reduce motion','—','Light pools and leaves stop following the scroll. Nothing else moves.','—','low']]},
+ {id:'afterglow', name:'Afterglow', seed:'#2B1E17',
+  pitch:'A dark room with the film still running. Each video lights its own surroundings: thumbnails cast their colours onto the page, and the open player bathes the details under the picture in the video\'s light. The accent is the lamp itself, warm white at night and espresso by day, with a fine film grain over everything that isn\'t the picture.',
+  tags:['Video ambience','Film grain','Lamp glow'],
+  light:{primary:'#2B1E17',onPrimary:'#FFF4EC',primaryContainer:'#EFE3DA',onPrimaryContainer:'#2B1E17',secondary:'#6B5A50',onSecondary:'#FFFFFF',secondaryContainer:'#F1E7E0',onSecondaryContainer:'#2A1E18',tertiary:'#A8502F',background:'#FBF8F5',onBackground:'#1D1714',surface:'#FBF8F5',onSurface:'#1D1714',surfaceVariant:'#ECE4DE',onSurfaceVariant:'#5E524B',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#F5F0EC',surfaceContainer:'#F0EAE5',surfaceContainerHigh:'#EAE2DC',surfaceContainerHighest:'#E3DAD3',outline:'#8F837B',outlineVariant:'#DDD3CB'},
+  dark:{primary:'#FFE9D9',onPrimary:'#24170F',primaryContainer:'#3A2C23',onPrimaryContainer:'#FFE9D9',secondary:'#D6C3B6',onSecondary:'#3A2D25',secondaryContainer:'#2B231E',onSecondaryContainer:'#EFE1D7',tertiary:'#FFB38A',background:'#0E0C0B',onBackground:'#F3ECE7',surface:'#0E0C0B',onSurface:'#F3ECE7',surfaceVariant:'#2A2420',onSurfaceVariant:'#BFB2A9',surfaceContainerLowest:'#080706',surfaceContainerLow:'#161311',surfaceContainer:'#1C1816',surfaceContainerHigh:'#25201D',surfaceContainerHighest:'#302A26',outline:'#8C8079',outlineVariant:'#332C28'},
+  fx:[
+   ['Thumbnail light','Under every video card','The thumbnail\'s colours, blurred 24 dp and saturated 1.3×, glowing around and under the card: 62% dark, 42% light, 55% AMOLED. The details and comments cards are 86% opaque, so the light shows faintly through them.','The three brightest colours (Palette’s vibrant swatches, so a dark picture still glows) per thumbnail from AndroidX Palette (worked out once when the picture loads, kept with it), drawn as three radial gradients behind the card. No blur at draw time.','low'],
+   ['Room light','Open player, under the video; also the mini-player','The video\'s colours spread down behind the title, channel and buttons, fading out over 470 dp: 72% dark, 45% light, 62% AMOLED. Follows the video you\'re on, not each frame.','The same Palette colours from the video\'s thumbnail, as one big gradient behind the details, cross-faded over 600 ms when the video changes. Never reads the live picture.','low'],
+   ['Film grain','Page, cards, tiles, bars, pills; never the video','White grain at 9%·noise on dark, black at 7%·noise on light, 140 px tile. AMOLED: off on the page (pixels stay off), kept on cards and bars.','One noise tile as an ImageShader, drawn in each surface\'s background. Static: no moving grain.','low'],
+   ['Lamp glow','Play, selected tab, liked, switches on, picked chips, progress line, links','Dark: warm white halo, radius 18 dp at 55% + 46 dp peach #FFAA6E at 45%; links get a 10 dp text glow. Light: a terracotta shadow below instead (y 8 dp, radius 22 dp, 45%).','Coloured shadows (spotShadowColor) and a radial gradient behind play; text glow = TextStyle shadow.','low'],
+   ['Breathing','Play, only while a video plays','Dark: the glow swells to 90% and back every 2.4 s. Light: none.','One infinite transition read in a draw lambda (no recomposition).','mid'],
+   ['Reduce motion','—','No breathing; the glow stays at its resting strength. Room light changes with a 150 ms fade instead of 600 ms.','—','low']]},
+ {id:'arcade', name:'Arcade', seed:'#B0128F',
+  pitch:'Neon tubes in a dark arcade. Hot magenta for everything you press, with a cyan rim of light along the top of cards and bars, faint scanlines over the surfaces and a glowing floor grid under the tab bar. By day it turns into a printed flyer: white paper, magenta ink, halftone dots in the corners.',
+  tags:['Neon glow','Scanlines','Floor grid','Halftone (light)'],
+  light:{primary:'#B0128F',onPrimary:'#FFFFFF',primaryContainer:'#FFD7F1',onPrimaryContainer:'#3D0031',secondary:'#00658A',onSecondary:'#FFFFFF',secondaryContainer:'#DDF2FF',onSecondaryContainer:'#002B3D',tertiary:'#00658A',background:'#FBF8FF',onBackground:'#1A1529',surface:'#FBF8FF',onSurface:'#1A1529',surfaceVariant:'#E9E2F4',onSurfaceVariant:'#574E6B',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#F5F0FC',surfaceContainer:'#EFE9F8',surfaceContainerHigh:'#E9E2F4',surfaceContainerHighest:'#E1D9EE',outline:'#877D9A',outlineVariant:'#D7CEE5'},
+  dark:{primary:'#FF5AD9',onPrimary:'#3A002E',primaryContainer:'#6A0D58',onPrimaryContainer:'#FFD7F1',secondary:'#4FE3FF',onSecondary:'#00303D',secondaryContainer:'#1E1B3A',onSecondaryContainer:'#E2DEFF',tertiary:'#4FE3FF',background:'#0A0818',onBackground:'#F1ECFF',surface:'#0A0818',onSurface:'#F1ECFF',surfaceVariant:'#1F1A3A',onSurfaceVariant:'#B9B0D8',surfaceContainerLowest:'#05040D',surfaceContainerLow:'#110E24',surfaceContainer:'#16122D',surfaceContainerHigh:'#1E1938',surfaceContainerHighest:'#282145',outline:'#7E75A3',outlineVariant:'#2A2448'},
+  fx:[
+   ['Neon glow','Play, selected tab, bell, liked, switches on, picked chips, the progress line, the chosen Home chip','Two halos in magenta: 6 dp at 80% + 22 dp at 50%. The chosen chip\'s word and links glow 8 dp at 75%. Light mode: a soft magenta shadow instead (y 6 dp, 18 dp, 50%).','Coloured shadows for the shapes (spotShadowColor = primary) and TextStyle shadow for words. No blur passes.','low'],
+   ['Cyan rim light','Top edge of cards, tiles, tab bar and player bar (dark only)','A cyan #4FE3FF glow falling 16 dp down from the top edge inside the shape, 70% at the edge. Soft, never a line.','A vertical gradient drawn inside each shape\'s clip in drawBehind.','low'],
+   ['Scanlines','Cards, tiles, bars (dark only); never the video or the page','White 1 dp line every 3 dp at 3.5%.','A repeating line shader in the surface\'s background.','low'],
+   ['Floor grid','Bottom of every page, behind the tab bar (dark only)','Cyan grid, 34 dp squares, lines 1.5 dp at 30%, tipped back 58° in perspective, fading out upward; a magenta horizon glow at 16%. AMOLED: 60%.','A bitmap drawn once per screen size and placed behind the list. Static.','low'],
+   ['Halftone','Top-right and bottom-left corners of the page (light only)','Magenta dots, 7 dp grid, 1.2 dp, 11%, fading out toward the middle.','A dot tile as an ImageShader, masked by two radial gradients. Drawn once.','low'],
+   ['Breathing','Play, while a video plays (dark only)','Glow swells to 90% / 34 dp and back every 2.4 s.','One infinite transition read in a draw lambda.','mid'],
+   ['Reduce motion','—','No breathing; every glow holds steady.','—','low']]}
+];
+const OTHERS = [['YouTube','#E6002E','#FF0033'],['Lagoon','#00677A','#5ED3E8'],['Cream Rose','#833761','#F0B4CC'],['Erica','#6C2BD9','#D4C0FF'],['Jai','#D6005C','#FF6BA0'],['Pumpkin','#BC5628','#E97A3A']];
+const ROLE_ORDER = ['primary','onPrimary','primaryContainer','onPrimaryContainer','secondary','onSecondary','secondaryContainer','onSecondaryContainer','tertiary','background','onBackground','surface','onSurface','surfaceVariant','onSurfaceVariant','surfaceContainerLowest','surfaceContainerLow','surfaceContainer','surfaceContainerHigh','surfaceContainerHighest','outline','outlineVariant'];
+
+const rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const hex = a => '#' + a.map(v => Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase();
+const toBlack = (h,t) => hex(rgb(h).map(v => v*(1-t)));
+const lum = h => { const [r,g,b] = rgb(h).map(v => { v/=255; return v <= .04045 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }); return .2126*r + .7152*g + .0722*b; };
+const contrast = (a,b) => { const x = lum(a), y = lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+function amoled(s){ return {...s, background:'#000000', surface:'#000000', surfaceContainerLowest:'#000000',
+  surfaceContainerLow:toBlack(s.surfaceContainerLow,.55), surfaceContainer:toBlack(s.surfaceContainer,.45),
+  surfaceContainerHigh:toBlack(s.surfaceContainerHigh,.35), surfaceContainerHighest:toBlack(s.surfaceContainerHighest,.25),
+  surfaceVariant:toBlack(s.surfaceVariant,.25)}; }
+function schemeOf(t, mode){ const s = mode === 'light' ? t.light : mode === 'dark' ? t.dark : amoled(t.dark);
+  return {...s, tertiaryContainer:s.secondaryContainer, onTertiaryContainer:s.onSecondaryContainer}; }
+const vars = s => Object.entries(s).map(([k,v]) => `--${k}:${v}`).join(';');
+const I = (n, f) => `<span class="ms${f ? ' f' : ''}" aria-hidden="true">${n}</span>`;
+
+const SCENES = {
+  dusk:'radial-gradient(circle at 70% 58%,#ffd27a 0 7%,transparent 7.5%),linear-gradient(160deg,transparent 56%,#1d2540 56.4%),linear-gradient(205deg,transparent 62%,#2b3458 62.4%),linear-gradient(180deg,#3d4f8a,#e88d67 70%,#f6c48a)',
+  kitchen:'radial-gradient(ellipse at 32% 46%,#f4a259 0 16%,transparent 38%),radial-gradient(circle at 74% 68%,#efe0b4 0 11%,transparent 28%),radial-gradient(circle at 74% 68%,#c9b37c 0 16%,transparent 17%),linear-gradient(135deg,#3b2a20,#8c5a3c)',
+  sea:'radial-gradient(circle at 26% 30%,#fff3c4 0 6%,transparent 6.5%),linear-gradient(180deg,#8fd0ee 0 46%,#2a86a8 46.5%,#0d4d6e 80%,#0a3550)',
+  neon:'radial-gradient(circle at 70% 40%,#ff4fa3 0 9%,transparent 30%),radial-gradient(circle at 25% 65%,#3fd0ff 0 8%,transparent 32%),linear-gradient(160deg,#1b0d3a,#3a1260 60%,#120826)',
+  forest:'linear-gradient(170deg,transparent 60%,#1f3b2a 60.5%),linear-gradient(190deg,transparent 52%,#2f5a3c 52.5%),radial-gradient(circle at 50% 20%,#fef6d8 0 9%,transparent 30%),linear-gradient(#a6d3b0,#5f9a6f)',
+  space:'radial-gradient(circle at 30% 60%,#d9e2ff 0 10%,#7685d6 11%,transparent 23%),radial-gradient(circle at 78% 24%,#fff 0 .9%,transparent 1.4%),radial-gradient(circle at 60% 80%,#fff 0 .7%,transparent 1.2%),linear-gradient(#0b0f2a,#231a52)'};
+const AV = {f:'linear-gradient(135deg,#e9a25c,#a5532e)', k:'linear-gradient(135deg,#7bb38b,#2c6b4f)', o:'linear-gradient(135deg,#7f8ce0,#3b2f8f)', w:'linear-gradient(135deg,#5fb6d6,#1e5f86)', n:'linear-gradient(135deg,#ff6fb7,#6a2bd9)'};
+const FEED = {
+  glasshouse:[['forest','16:20',58,'F','k','A week rebuilding an old Victorian glasshouse, start to finish','Field Notes · 412K views · 2 days ago'],['kitchen','12:05',0,'K','f','The 20-minute weeknight ramen I keep coming back to','Kitchen Lab · 1.3M views · 1 week ago']],
+  afterglow:[['dusk','18:42',64,'F','f','Driving the coast road at golden hour, no music, just the engine','Field Notes · 412K views · 2 days ago'],['space','41:10',0,'O','o','What the new telescope actually saw','Orbit Weekly · 860K views · 5 days ago']],
+  arcade:[['neon','22:31',40,'N','n','I restored a 1987 arcade cabinet and it still eats quarters','Night Shift · 690K views · 4 days ago'],['space','41:10',0,'O','o','What the new telescope actually saw','Orbit Weekly · 860K views · 5 days ago']]};
+const PLAYER = {glasshouse:'forest', afterglow:'dusk', arcade:'neon'};
+
+function status(onVideo){ return `<div class="sb${onVideo ? ' vid' : ''}"><span>9:41</span><span>${I('signal_cellular_alt')} ${I('wifi')} ${I('battery_full',1)}</span></div>`; }
+function nav(){ return `<div class="vig"></div><div class="nav"><div class="tab sel">${I('home',1)}Home</div><div class="tab">${I('subscriptions')}</div><div class="tab">${I('smart_display')}</div><div class="tab">${I('search')}</div><div class="tab">${I('video_library')}</div></div>`; }
+function card([scene, dur, resume, av, avc, title, sub]){ return `<div class="card" style="--scene:${SCENES[scene]}"><div class="halo"></div><div class="th"><span class="dur">${dur}</span>${resume ? `<div class="resume"><i style="width:${resume}%"></i></div>` : ''}</div>
+  <div class="meta"><div class="av" style="background:${AV[avc]}">${av}</div><div><div class="tt">${title}</div><div class="sub">${sub}</div></div>${I('more_vert')}</div></div>`; }
+function home(t){ return `<div class="scr"><div class="art"></div>${status()}
+  <div class="hdr"><div class="brand"><span class="bm">${I('fast_forward',1)}</span>Skipii</div><div class="hdr-act"><span class="ib">${I('tune')}</span><span class="me">D</span></div></div>
+  <div class="hchips"><span class="on">All</span><span>Music</span><span>Science</span><span>Cooking</span><span>Travel</span></div>
+  ${FEED[t.id].map(card).join('')}${nav()}</div>`; }
+function player(t){ const sc = SCENES[PLAYER[t.id]]; return `<div class="scr" style="--scene:${sc}"><div class="art"></div><div class="amb"></div>${status(true)}
+  <div class="video"></div>
+  <div class="pd">
+   <h3 class="ptitle">${t.id === 'arcade' ? 'Inside the last 24-hour arcade in the city' : t.id === 'glasshouse' ? 'Morning light in the old glasshouse, one slow walk through' : 'One night on the coast road, filmed on 16 mm'}</h3>
+   <div class="pmeta">248K views · 3 days ago · more</div>
+   <div class="chrow"><div class="av" style="background:${AV.w}">W</div><div class="grow"><div class="name">Wide Water</div><div class="sub">1.1M subs</div></div>
+     <div class="subbed"><span class="a">Subscribed</span><span class="b">${I('notifications_active',1)}</span></div></div>
+   <div class="acts"><span class="pill on">${I('thumb_up',1)}18K</span><span class="pill">${I('thumb_down')}</span><span class="pill">${I('share')}Share</span><span class="pill">${I('playlist_add')}Playlist</span></div>
+   <div class="desc"><b>Chapters</b> <span class="lnk">0:00</span> Setting off · <span class="lnk">3:12</span> The long stretch · <span class="lnk">9:47</span> Home again.</div>
+   <div class="cmts"><div class="h">Comments <span>1.2K</span></div><div class="c1"><div class="av" style="background:${AV.k}">M</div><div>The light at <span class="lnk">9:52</span> is unreal.</div></div></div>
+  </div>
+  <div class="vig"></div>
+  <div class="bar"><div class="grab"></div><div class="brow"><span class="bk">${I('headphones')}</span><span class="bk t">${I('replay_10')}</span><span class="play">${I('pause',1)}</span><span class="bk t">${I('forward_10')}</span><span class="bk">${I('more_vert')}</span></div><div class="hair"><i></i><b></b></div></div>
+  </div>`; }
+function settings(t){ return `<div class="scr"><div class="art"></div>${status()}
+  <h3 class="big">Settings</h3>
+  <div class="search">${I('search')}Search settings</div>
+  <div class="acct"><span class="me">D</span><div><div class="k">Derek</div><div class="s">Signed in · full sync</div></div></div>
+  <div class="quick"><div class="q">${I('headphones')}Audio only</div><div class="q on">${I('fast_forward',1)}Sponsor­Block</div><div class="q on">${I('smart_display',1)}Shorts</div><div class="q">${I('speed')}Keep speed</div></div>
+  <div class="glabel">Watching</div>
+  <div class="joined">
+   <div class="tile"><span class="ic">${I('play_circle',1)}</span><div class="tx"><div class="k">Playback</div><div class="s">Controls in the pill · 10 s steps</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('closed_caption',1)}</span><div class="tx"><div class="k">Captions &amp; Dubbing</div><div class="s">Foreign languages · Skipii look</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('fast_forward',1)}</span><div class="tx"><div class="k">SponsorBlock</div><div class="s">Skips sponsors · asks on self-promo</div></div>${I('chevron_right')}</div>
+  </div>
+  <div class="glabel">Look &amp; language</div>
+  <div class="joined">
+   <div class="tile"><span class="ic">${I('palette',1)}</span><div class="tx"><div class="k">Appearance</div><div class="s">${t.name} · Glow &amp; texture full</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('translate')}</span><div class="tx"><div class="k">Language</div><div class="s">Phone's language</div></div>${I('chevron_right')}</div>
+  </div></div>`; }
+function disc(p, surf, extra){ return `<span class="disc" style="background:linear-gradient(135deg,${p} 50%,color-mix(in srgb,${p} 30%,${surf}) 50%);${extra || ''}"></span>`; }
+const DISC_FX = {glasshouse:'box-shadow:0 4px 12px -2px rgba(242,200,91,.8),inset 0 10px 12px -8px rgba(255,255,255,.7)', afterglow:'box-shadow:0 0 14px rgba(255,170,110,.65)', arcade:'box-shadow:0 0 6px #FF5AD9,0 0 16px rgba(79,227,255,.6)'};
+function appearance(t, mode, s){
+  const dark = mode !== 'light';
+  const mine = THEMES.map(x => { const sc = dark ? x.dark : x.light; const on = x.id === t.id;
+    return `<div class="tg${on ? ' on' : ''}">${on ? `<span class="ok">${I('check')}</span>` : ''}<span class="new">NEW</span>${disc(sc.primary, sc.surface, DISC_FX[x.id])}${x.name}</div>`; }).join('');
+  const rest = OTHERS.map(([n,l,d]) => `<div class="tg">${disc(dark ? d : l, s.surface)}${n}</div>`).join('');
+  return `<div class="scr"><div class="art"></div>${status()}
+  <div class="topbar"><span class="ib">${I('arrow_back')}</span><span class="t">Appearance</span></div>
+  <div class="glabel">Mode</div>
+  <div class="mchips"><span class="mchip${mode === 'light' ? ' on' : ''}">${I('light_mode')}Light</span><span class="mchip${dark ? ' on' : ''}">${I('dark_mode')}Dark</span><span class="mchip">${I('contrast')}System</span></div>
+  <div class="joined" style="margin-top:8px"><div class="tile"><div class="tx"><div class="k">AMOLED black</div><div class="s">Pure black when dark</div></div><span class="sw${mode === 'amoled' ? ' on' : ''}"></span></div></div>
+  <div class="glabel">Glow &amp; texture</div>
+  <div class="mchips"><span class="mchip on">${I('auto_awesome',1)}Full</span><span class="mchip">Soft</span><span class="mchip">Off</span></div>
+  <div class="glabel">Theme</div>
+  <div class="tgrid">${mine}${rest}</div></div>`; }
+
+function pairRow(label, fg, bg, text){ const r = contrast(fg, bg);
+  return `<div class="pair"><span class="sample" style="background:${bg};color:${fg}">${text}</span><span class="lbl">${label}</span><span class="ratio">${r.toFixed(2)}:1</span><span class="badge${r < 4.5 ? ' low' : ''}">${r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : 'large only'}</span></div>`; }
+function kotlin(t){
+  const block = (fn, s) => `${fn}(\n` + ROLE_ORDER.map(k => `    ${k} = Color(0xFF${s[k].slice(1)}),`).join('\n') +
+    `\n    tertiaryContainer = Color(0xFF${s.secondaryContainer.slice(1)}), onTertiaryContainer = Color(0xFF${s.onSecondaryContainer.slice(1)}),\n)`;
+  return `const val SEED_${t.id.toUpperCase()} = "${t.seed}"\n\nprivate fun ${t.id}Scheme(dark: Boolean): ColorScheme = if (!dark) ${block('lightColorScheme', t.light)} else ${block('darkColorScheme', t.dark)}`;
+}
+
+const state = {};
+function renderStrip(t){
+  const mode = state[t.id]; const s = schemeOf(t, mode);
+  const shots = [['Home', home(t)], ['Player', player(t)], ['Settings', settings(t)], ['Appearance', appearance(t, mode, s)]];
+  document.getElementById('strip-' + t.id).innerHTML = shots.map(([n, html]) => `<figure class="shot"><div class="phone m-${t.id} ${mode}" style="${vars(s)}">${html}</div><figcaption>${n}</figcaption></figure>`).join('');
+  document.querySelectorAll(`#seg-${t.id} button`).forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode));
+  document.getElementById('pairs-' + t.id).innerHTML = `<div class="eyebrow" style="padding:2px 2px 4px">Contrast · ${mode === 'amoled' ? 'AMOLED' : mode}</div>` + [
+    ['Play button, selected tab', s.onPrimary, s.primary, 'Aa'],
+    ['Body text on the page', s.onSurface, s.surface, 'Aa'],
+    ['Video details on a card', s.onSurfaceVariant, s.surfaceContainerLow, 'Aa'],
+    ['Links and timestamps', s.primary, s.surfaceContainer, '3:12'],
+    ['Account card', s.onPrimaryContainer, s.primaryContainer, 'Aa'],
+    ['Tab icons on the tab bar', s.onSurfaceVariant, s.surfaceVariant, 'Aa']
+  ].map(p => pairRow(...p)).join('') + `<p class="small" style="margin:6px 2px 0">Measured on the plain tones. The textures move a surface's brightness by under 3%, and glass cards sit over a page of the same family, so the ratios hold within about ±0.3.</p>`;
+}
+const prefersDark = (() => { try { return matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { return false; } })();
+document.getElementById('themes').innerHTML = THEMES.map(t => `
+ <section class="theme" id="${t.id}" aria-labelledby="h-${t.id}">
+  <div class="theme-head"><div>
+    <h2 class="tname" id="h-${t.id}"><span class="dot2" style="background:linear-gradient(135deg,${t.light.primary} 50%,${t.dark.primary} 50%);${DISC_FX[t.id]}"></span>${t.name}</h2>
+    <p class="pitch">${t.pitch}</p><div class="tags">${t.tags.map(x => `<span>${x}</span>`).join('')}</div></div>
+   <div class="seg" id="seg-${t.id}" role="group" aria-label="${t.name} mode"><button type="button" data-mode="light">Light</button><button type="button" data-mode="dark">Dark</button><button type="button" data-mode="amoled">AMOLED</button></div></div>
+  <div class="strip" id="strip-${t.id}"></div>
+  <div class="facts">
+   <details open class="wide"><summary>What the material is made of</summary><div class="ctab"><table class="fx"><thead><tr><th>Effect</th><th>Where</th><th>Numbers</th><th>How it's built on the phone</th><th>Cost</th></tr></thead><tbody>
+    ${t.fx.map(([e,w,n,b,c]) => `<tr><td>${e}</td><td>${w}</td><td class="n">${n}</td><td class="b">${b}</td><td><span class="cost${c === 'mid' ? ' mid' : ''}">${c === 'mid' ? 'small, only while playing' : 'tiny'}</span></td></tr>`).join('')}
+   </tbody></table></div></details>
+   <details open><summary>Contrast</summary><div class="pairs" id="pairs-${t.id}"></div></details>
+   <details><summary>Every colour role</summary><div class="ctab"><table><thead><tr><th>Role</th><th>Light</th><th>Dark</th></tr></thead><tbody>
+    ${ROLE_ORDER.map(k => `<tr><td class="role">${k}</td><td><span class="hex"><span class="chip" style="background:${t.light[k]}"></span>${t.light[k]}</span></td><td><span class="hex"><span class="chip" style="background:${t.dark[k]}"></span>${t.dark[k]}</span></td></tr>`).join('')}
+   </tbody></table></div>
+   <p class="small">Compose, ready for the theme file:</p><pre id="code-${t.id}">${kotlin(t)}</pre><button type="button" class="copy" data-copy="code-${t.id}">Copy code</button></details>
+  </div>
+ </section>`).join('');
+document.getElementById('legend').innerHTML = THEMES.map(t => `<a href="#${t.id}"><span class="dot2" style="background:linear-gradient(135deg,${t.light.primary} 50%,${t.dark.primary} 50%)"></span>${t.name}</a>`).join('');
+THEMES.forEach(t => { state[t.id] = prefersDark || t.id !== 'glasshouse' ? 'dark' : 'light'; renderStrip(t);
+  document.getElementById('seg-' + t.id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[t.id] = b.dataset.mode; renderStrip(t); }); });
+document.addEventListener('click', e => { const b = e.target.closest('.copy'); if (!b) return;
+  const pre = document.getElementById(b.dataset.copy);
+  const done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy code', 1600); };
+  const select = () => { const r = document.createRange(); r.selectNodeContents(pre); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Selected, press copy'; };
+  try { navigator.clipboard.writeText(pre.textContent).then(done, select); } catch (err) { select(); } });
+</script>

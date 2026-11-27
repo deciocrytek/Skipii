@@ -8,12 +8,15 @@ android {
     namespace = "com.decio.skipii"
     compileSdk = 36
 
+    // Unit tests run code that logs through AppLog (android.util.Log): stubbed, it answers 0 instead of throwing.
+    testOptions { unitTests.isReturnDefaultValues = true }
+
     defaultConfig {
         applicationId = "com.skipii"
         minSdk = 26
         targetSdk = 36
-        versionCode = 142
-        versionName = "0.6.3"
+        versionCode = 146
+        versionName = "0.6.7"
     }
 
     buildTypes {

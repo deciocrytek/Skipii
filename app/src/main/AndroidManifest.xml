@@ -24,6 +24,26 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
 
+    <!-- Who opens YouTube links now (YouTubeLinks, Settings › About › Open YouTube links): the apps that take
+         them and the browsers, to tell the YouTube app apart from a browser. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" android:host="www.youtube.com" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" android:host="youtu.be" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:name=".SkipiiApplication"
         android:allowBackup="false"
@@ -80,6 +100,11 @@
                 <data android:pathPrefix="/playlist" />
                 <data android:pathPrefix="/channel/" />
                 <data android:pathPrefix="/@" />
+                <data android:pathPrefix="/embed/" />
+                <data android:pathPrefix="/v/" />
+                <data android:pathPrefix="/c/" />
+                <data android:pathPrefix="/user/" />
+                <data android:pathPrefix="/hashtag/" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -88,6 +113,14 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="youtu.be" />
+            </intent-filter>
+            <!-- vnd.youtube:<id> — what some apps send straight to "the YouTube app". Not a web link, so
+                 Android asks which app (with Always) instead of needing Open by default. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vnd.youtube" />
             </intent-filter>
             <!-- A link shared to Skipii as text. -->
             <intent-filter>

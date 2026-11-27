@@ -175,7 +175,7 @@ object IncomingLinks {
     fun take(intent: android.content.Intent?) {
         intent ?: return
         val url = when (intent.action) {
-            android.content.Intent.ACTION_VIEW -> intent.dataString?.takeIf { it.startsWith("http") }
+            android.content.Intent.ACTION_VIEW -> intent.dataString?.let { if (it.startsWith("http")) it else fromVndYouTube(it) }
             android.content.Intent.ACTION_SEND -> intent.getStringExtra(android.content.Intent.EXTRA_TEXT)
                 ?.let { AnyUrl.find(it)?.value?.trimEnd('.', ',', ')', '!', '?', ';', '\'', '"') }
             else -> null
@@ -185,6 +185,87 @@ object IncomingLinks {
         intent.data = null
         pending = url
     }
+}
+
+/**
+ * vnd.youtube links (what some apps send straight to the YouTube app) as web links: "vnd.youtube:<id>",
+ * "vnd.youtube://<id>?t=30", "vnd.youtube://www.youtube.com/watch?v=<id>", "vnd.youtube:///watch?v=<id>".
+ */
+internal fun fromVndYouTube(data: String): String? {
+    if (!data.startsWith("vnd.youtube:", ignoreCase = true)) return null
+    val rest = data.substring("vnd.youtube:".length).trimStart('/')
+    if (rest.isEmpty()) return null
+    val first = rest.substringBefore('?').substringBefore('/')
+    val head = first.lowercase()
+    return when {
+        head == "youtu.be" || head == "youtube.com" || head.endsWith(".youtube.com") -> "https://$rest"
+        head == "watch" || head in setOf("shorts", "live", "embed", "playlist", "channel", "c", "user") || head.startsWith("@") ->
+            "https://www.youtube.com/$rest"
+        VideoId.matches(first) -> {
+            val query = rest.substringAfter('?', "")
+            "https://www.youtube.com/watch?v=$first" + if (query.isNotEmpty()) "&$query" else ""
+        }
+        else -> null
+    }
+}
+
+/**
+ * Which app opens YouTube links on this phone (Settings › About › Open YouTube links). An app can't verify a domain
+ * that isn't its own, so on Android 12+ Skipii only gets youtube.com / youtu.be links once it's allowed under its
+ * "Open by default" — and not even then while the YouTube app (verified for them) still has "Open supported links"
+ * on: Android keeps a verified app over a picked one. Hence two steps when the YouTube app has them.
+ */
+object YouTubeLinks {
+    sealed interface Status {
+        /** Every kind of YouTube link opens in Skipii. */
+        data object Skipii : Status
+        /** Another app (the YouTube app, a mod of it) takes them: its links have to be turned off first. */
+        data class OtherApp(val packageName: String, val label: String) : Status
+        /** A browser or Android's chooser takes them: only Skipii's own links to add. */
+        data object NotYet : Status
+    }
+
+    /** One link per host Skipii takes (the hosts Android's Add links lists). */
+    private val Samples = listOf(
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://m.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://youtu.be/dQw4w9WgXcQ",
+    )
+
+    fun status(context: android.content.Context): Status {
+        val pm = context.packageManager
+        val own = context.packageName
+        val browsers = handlers(pm, "https://example.com")
+        var allOurs = true
+        for (url in Samples) {
+            val picked = pm.resolveActivity(view(url), android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
+            if (picked == own) continue
+            allOurs = false
+            // Android's chooser isn't among a link's handlers; a browser is among example.com's.
+            if (picked != null && picked !in browsers && picked in handlers(pm, url)) {
+                val label = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(picked, 0)).toString() }.getOrDefault(picked)
+                AppLog.i("Skipii", "links: $url opens in $picked")
+                return Status.OtherApp(picked, label)
+            }
+        }
+        AppLog.i("Skipii", "links: " + if (allOurs) "all open in Skipii" else "not all in Skipii, no other app")
+        return if (allOurs) Status.Skipii else Status.NotYet
+    }
+
+    /** Android's "Open by default" page of [packageName] (app info below Android 12). */
+    fun openByDefault(packageName: String): android.content.Intent {
+        val pkg = android.net.Uri.parse("package:$packageName")
+        return if (android.os.Build.VERSION.SDK_INT >= 31) android.content.Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, pkg)
+        else android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
+    }
+
+    private fun view(url: String) = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+        .addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+
+    private fun handlers(pm: android.content.pm.PackageManager, url: String): Set<String> =
+        pm.queryIntentActivities(view(url), android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)
+            .mapTo(HashSet()) { it.activityInfo.packageName }
 }
 
 private fun videoOrSeek(id: String, t: String?, currentId: String?): LinkTarget {

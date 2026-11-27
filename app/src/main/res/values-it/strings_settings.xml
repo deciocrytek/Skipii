@@ -104,6 +104,12 @@
     <string name="settings_background_play_off">Va in pausa quando esci da Skipii o lo schermo si spegne (solo audio continua)</string>
     <string name="settings_open_links_title">Apri i link di YouTube</string>
     <string name="settings_open_links_line">Lascia che Skipii apra i link youtube.com e youtu.be dalle altre app: Apri per impostazione predefinita › Aggiungi link</string>
+    <string name="settings_open_links_done">I link di YouTube si aprono in Skipii</string>
+    <string name="settings_open_links_other">Per ora si aprono in %1$s: due passaggi qui sotto</string>
+    <string name="settings_open_links_step1_title">1. Impedisci a %1$s di aprirli</string>
+    <string name="settings_open_links_step1_line">Apri per impostazione predefinita › Nel browser, o disattiva Apri link supportati</string>
+    <string name="settings_open_links_step2_title">2. Lascia che Skipii li apra</string>
+    <string name="settings_open_links_step2_line">Apri per impostazione predefinita › Aggiungi link › selezionali tutti</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Invia segnalazione</string>
     <string name="report_email_prompt">Cos\'è successo? (facoltativo, in qualsiasi lingua)</string>

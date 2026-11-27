@@ -1,0 +1,2792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skipii — Three New Colour Themes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Nunito:wght@700;800;900&family=Roboto+Flex:opsz,wght@8..144,400..800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --page-bg: #111214;
+    --page-elev: #191B1F;
+    --page-elev-2: #22252B;
+    --page-ink: #F2F3F5;
+    --page-muted: #9BA0AB;
+    --page-subtle: #696F7A;
+    --font-ui: 'Roboto Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-rounded: 'Nunito', 'Roboto Flex', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  html {
+    background: var(--page-bg);
+    color: var(--page-ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    padding-bottom: 96px;
+  }
+
+  /* ── Top Showcase Bar ───────────────────────────────────────────── */
+  .studio-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(17, 18, 20, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    padding: 14px 20px;
+  }
+  .studio-bar-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .studio-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .studio-brand-mark {
+    width: 34px;
+    height: 26px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #246A44 0%, #00667A 52%, #F4C247 100%);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .studio-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: -0.4px;
+  }
+  .studio-sub {
+    font-size: 12px;
+    color: var(--page-muted);
+    font-weight: 500;
+  }
+
+  .studio-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .jump-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: var(--page-elev);
+    color: var(--page-ink);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: transform 140ms ease, background 140ms ease;
+  }
+  .jump-pill:hover { background: var(--page-elev-2); }
+  .jump-pill:active { transform: scale(0.95); }
+  .jump-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mode-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--page-elev);
+    padding: 4px;
+    border-radius: 999px;
+    gap: 3px;
+  }
+  .mode-btn {
+    border: none;
+    background: transparent;
+    color: var(--page-muted);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 130ms ease, background 160ms ease, color 160ms ease;
+    white-space: nowrap;
+  }
+  .mode-btn:hover { color: var(--page-ink); }
+  .mode-btn:active { transform: scale(0.94); }
+  .mode-btn.active {
+    background: var(--page-ink);
+    color: #111214;
+  }
+
+  /* ── Intro Hero ─────────────────────────────────────────────────── */
+  .page-intro {
+    max-width: 1240px;
+    margin: 32px auto 12px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+  }
+  .intro-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+    margin-bottom: 10px;
+  }
+  .intro-h1 {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: clamp(28px, 4.5vw, 44px);
+    letter-spacing: -1.1px;
+    line-height: 1.08;
+    margin-bottom: 12px;
+  }
+  .intro-lead {
+    color: var(--page-muted);
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 660px;
+  }
+  .intro-chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .summary-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--page-elev);
+    padding: 10px 14px;
+    border-radius: 18px;
+    text-decoration: none;
+    color: var(--page-ink);
+    transition: transform 140ms ease, background 160ms ease;
+  }
+  .summary-chip:hover { background: var(--page-elev-2); }
+  .summary-chip:active { transform: scale(0.96); }
+  .summary-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-shrink: 0;
+  }
+  .summary-swatch span { flex: 1; height: 100%; }
+  .summary-chip-name { font-weight: 800; font-size: 14px; display: block; }
+  .summary-chip-hex { font-family: var(--font-mono); font-size: 11px; color: var(--page-muted); }
+
+  /* ── Theme Section ──────────────────────────────────────────────── */
+  .theme-section {
+    max-width: 1240px;
+    margin: 56px auto 0;
+    padding: 0 20px;
+    scroll-margin-top: 78px;
+  }
+  .theme-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .theme-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .theme-index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--page-muted);
+    background: var(--page-elev);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .theme-name {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 38px);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .theme-pill-hex {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    background: var(--page-elev);
+    color: var(--page-muted);
+    padding: 5px 10px;
+    border-radius: 999px;
+  }
+  .mini-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .theme-pitch {
+    font-size: 15.5px;
+    color: #C7CBD4;
+    line-height: 1.5;
+    max-width: 680px;
+  }
+  .theme-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Live palette preview bar in header */
+  .dual-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .mode-card {
+    border-radius: 20px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 140ms ease, opacity 160ms ease, box-shadow 180ms ease;
+    position: relative;
+  }
+  .mode-card.active-mode {
+    box-shadow: 0 0 0 2px rgba(242, 243, 245, 0.85) !important;
+  }
+  .mode-card:active { transform: scale(0.98); }
+  .mode-card-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mode-card-label { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+  .mode-card-sub { font-family: var(--font-mono); font-size: 11px; opacity: 0.78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mode-card-dots { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .mode-card-dot { width: 22px; height: 22px; border-radius: 50%; }
+  .mode-card-pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+
+  /* ── Phone Mockup Stage ─────────────────────────────────────────── */
+  .mode-block { margin-bottom: 28px; }
+  .mode-block-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+  }
+  .mode-block-heading .badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--page-elev);
+    color: var(--page-ink);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .phones-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 360px);
+    justify-content: space-between;
+    gap: 24px;
+  }
+  @media (max-width: 1180px) {
+    .phones-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+    }
+  }
+  @media (max-width: 420px) {
+    .page-intro { grid-template-columns: 1fr; }
+    .intro-chips { justify-content: flex-start; }
+    .dual-strip { grid-template-columns: 1fr; }
+    .theme-section { padding: 0 12px; }
+    .phones-grid { gap: 20px; }
+  }
+
+  .phone-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 360px;
+    max-width: 100%;
+  }
+  .phone-caption {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--page-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Pixel Device Shell (≈360×780) ──────────────────────────────── */
+  .phone {
+    width: 360px;
+    max-width: 100%;
+    height: 780px;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface);
+    color: var(--on-surface);
+    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.55), 0 0 0 6px #070809;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    font-family: var(--font-ui);
+    transition: background-color 220ms ease, color 220ms ease;
+  }
+  @media (max-width: 390px) {
+    .phone {
+      width: 100%;
+      border-radius: 30px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5), 0 0 0 4px #070809;
+    }
+  }
+
+  /* Binding UI Rule #1: pressable scale, zero ripples */
+  .pressable {
+    cursor: pointer;
+    transition: transform 140ms cubic-bezier(0.2, 0.9, 0.3, 1), background-color 200ms ease, color 200ms ease;
+  }
+  .pressable:active { transform: scale(0.94); }
+
+  /* ── Android Status Bar ─────────────────────────────────────────── */
+  .status-bar {
+    height: 32px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 4;
+  }
+  .status-bar.over-video {
+    background: #000000;
+    color: #FFFFFF;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .camera-dot {
+    position: absolute;
+    left: 50%;
+    top: 9px;
+    transform: translateX(-50%);
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #050506;
+  }
+
+  /* ── Screen 1: Home Feed ────────────────────────────────────────── */
+  .screen-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .home-header {
+    padding: 8px 16px 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .brand-mark {
+    width: 40px;
+    height: 30px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 82%, transparent) 100%);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .home-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 30px;
+    letter-spacing: -1.2px;
+    line-height: 1;
+    flex: 1;
+    color: var(--on-surface);
+  }
+  .circle-action {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .avatar-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Home Underline Chips (0.5.89) */
+  .home-chips {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 2px 18px 10px;
+    overflow: hidden;
+  }
+  .home-chip {
+    position: relative;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    padding-bottom: 7px;
+    white-space: nowrap;
+  }
+  .home-chip.active {
+    color: var(--primary);
+    font-weight: 800;
+  }
+  .home-chip.active::after {
+    content: '';
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--primary);
+  }
+
+  /* Feed Video Cards (28dp card, 5dp padding, 23dp thumb, NO border) */
+  .feed-list {
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .video-card {
+    background: var(--surface-container-low);
+    border-radius: 28px;
+    padding: 5px;
+    transition: background-color 200ms ease;
+  }
+  .thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 23px;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-container-highest);
+  }
+  .queued-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: 999px;
+    padding: 4px 9px 4px 7px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -0.1px;
+  }
+  .duration-pill {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.74);
+    color: #FFFFFF;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .resume-bar-track {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 6px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.42);
+    overflow: hidden;
+  }
+  .resume-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--primary);
+  }
+  .card-info {
+    display: flex;
+    gap: 12px;
+    padding: 11px 8px 9px 8px;
+    align-items: flex-start;
+  }
+  .channel-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--tertiary-container);
+    color: var(--on-tertiary-container);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .channel-avatar.cookie {
+    border-radius: 0;
+    clip-path: url(#cookie-clip);
+  }
+  .card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--on-surface);
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-meta {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Smoothstep Bottom Vignette (Ledgii/Skipii) */
+  .bottom-vignette {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 124px;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--surface) 0%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 28%, transparent) 42%,
+      color-mix(in srgb, var(--surface) 78%, transparent) 100%
+    );
+    z-index: 3;
+  }
+
+  /* Floating NavPill (328x62, surfaceVariant, selected = full primary/onPrimary, NO border) */
+  .nav-pill-wrap {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 18px;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+  }
+  .nav-pill {
+    width: 328px;
+    max-width: 100%;
+    height: 62px;
+    border-radius: 999px;
+    background: var(--surface-variant);
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+  }
+  .nav-tab {
+    flex: 1;
+    height: 50px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: var(--on-surface-variant);
+    font-size: 13.5px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: flex 220ms ease, background-color 180ms ease, color 180ms ease, transform 130ms ease;
+    padding: 0 6px;
+  }
+  .nav-tab:active { transform: scale(0.94); }
+  .nav-tab .tab-label { display: none; white-space: nowrap; }
+  .nav-tab.active {
+    flex: 2.9;
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 0 14px;
+  }
+  .nav-tab.active .tab-label { display: inline; }
+
+  /* ── Screen 2: Open Player & Floating Bar ───────────────────────── */
+  .player-stage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #08090B;
+  }
+  .player-scroll {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .player-wash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 220px;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--primary-container) 75%, transparent) 0%,
+      var(--surface) 100%
+    );
+    pointer-events: none;
+  }
+  .player-content {
+    position: relative;
+    z-index: 2;
+    padding: 16px 18px 0;
+  }
+  .player-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 20.5px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    color: var(--on-surface);
+    margin-bottom: 6px;
+  }
+  .player-stats {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    margin-bottom: 14px;
+  }
+  .player-stats strong {
+    color: var(--on-surface);
+    font-weight: 800;
+    margin-left: 4px;
+  }
+  .channel-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .channel-meta { flex: 1; min-width: 0; }
+  .channel-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .channel-subs {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+  }
+  /* SubscribeWithBell (Bell.kt): Subscribed (secondaryContainer, inner 7) + 3dp + Bell (full primary, round) */
+  .sub-bell-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .sub-btn {
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 20px 7px 7px 20px;
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    border: none;
+  }
+  .bell-btn {
+    width: 44px;
+    height: 40px;
+    border-radius: 20px;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+    border: none;
+  }
+  .bell-btn.off {
+    border-radius: 7px 20px 20px 7px;
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+  }
+
+  /* Action pills row (PlayerUi.kt: bleed horizontally so scrolling feels natural) */
+  .action-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 -18px 13px;
+    padding: 0 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .action-row::-webkit-scrollbar { display: none; }
+  .like-pair {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .action-pill {
+    height: 40px;
+    padding: 0 13px;
+    border-radius: 20px;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .action-pill.like-left { border-radius: 20px 7px 7px 20px; }
+  .action-pill.like-right { border-radius: 7px 20px 20px 7px; padding: 0 11px; }
+  .action-pill.active {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+
+  /* Comments Card */
+  .comments-card {
+    background: var(--surface-container);
+    border-radius: 22px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .comments-head {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+  .comments-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--on-surface);
+  }
+  .comments-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+  }
+  .comment-preview {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .comment-mini-av {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+    font-size: 11px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .comment-text {
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--on-surface);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* More videos section */
+  .more-heading {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: -0.4px;
+    color: var(--on-surface);
+    margin-bottom: 10px;
+  }
+  .video-row {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+  }
+  .video-row-thumb {
+    width: 128px;
+    aspect-ratio: 16 / 9;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .video-row-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--on-surface);
+    margin-bottom: 3px;
+  }
+  .video-row-meta {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+  }
+
+  /* Floating Player Bar (316x83, surfaceVariant, lifted, NO border) */
+  .player-bar-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 28px;
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    padding: 0 18px;
+  }
+  .player-bar {
+    width: 316px;
+    max-width: 100%;
+    height: 83px;
+    border-radius: 42px;
+    background: var(--surface-variant);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 6px 8px;
+  }
+  .bar-grabber {
+    width: 24px;
+    height: 3px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--on-surface-variant) 34%, transparent);
+  }
+  .bar-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .bar-side-btn {
+    width: 41px;
+    height: 46px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--on-surface-variant);
+    display: grid;
+    place-items: center;
+  }
+  .bar-seek-btn {
+    width: 50px;
+    height: 46px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--on-surface);
+    display: grid;
+    place-items: center;
+  }
+  .bar-play-btn {
+    width: 102px;
+    height: 49px;
+    border-radius: 999px;
+    border: none;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+  }
+  .bar-progress-row {
+    width: 244px;
+    max-width: 82%;
+    height: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .prog-seg {
+    height: 3px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--on-surface-variant) 26%, transparent);
+    overflow: hidden;
+    position: relative;
+  }
+  .prog-seg.played { background: var(--primary); }
+  .prog-seg-partial {
+    position: relative;
+    height: 3px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--on-surface-variant) 26%, transparent);
+    overflow: hidden;
+  }
+  .prog-seg-partial > span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+  }
+  .prog-sb {
+    position: absolute;
+    right: 16%;
+    width: 16%;
+    top: 0;
+    bottom: 0;
+    background: #24C26B;
+    border-radius: 999px;
+  }
+
+  /* ── Screen 3: Settings & Appearance ────────────────────────────── */
+  .settings-wrap {
+    flex: 1;
+    padding: 4px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .settings-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .back-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    display: grid;
+    place-items: center;
+  }
+  .settings-h1 {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 32px;
+    letter-spacing: -1.1px;
+    line-height: 1;
+    color: var(--on-surface);
+  }
+
+  /* Account card (primaryContainer / onPrimaryContainer, 21dp) */
+  .account-card {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border-radius: 21px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .account-av {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .account-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--on-primary-container);
+  }
+  .account-sub {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--on-primary-container) 78%, transparent);
+    margin-top: 1px;
+  }
+
+  /* 2x2 Quick Toggles (22dp, full primary when on, surfaceContainerHigh when off) */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+  .quick-toggle {
+    border-radius: 21px;
+    padding: 10px 13px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    text-align: left;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+  }
+  .quick-toggle.on {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .qt-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    line-height: 1.15;
+    display: block;
+  }
+  .qt-state {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.78;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* Group label in primary */
+  .group-label {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--primary);
+    padding: 2px 12px 6px;
+  }
+
+  /* Joined tiles (3dp gap, inner 7dp, outer 21dp, surfaceContainer, NO borders) */
+  .joined-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 11px;
+  }
+  .joined-tile {
+    background: var(--surface-container);
+    padding: 11px 14px;
+    border-radius: 7px;
+  }
+  .joined-tile:first-child { border-top-left-radius: 21px; border-top-right-radius: 21px; }
+  .joined-tile:last-child { border-bottom-left-radius: 21px; border-bottom-right-radius: 21px; }
+  .tile-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .icon-square {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: var(--secondary-container);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .tile-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--on-surface);
+    line-height: 1.18;
+  }
+  .tile-sub {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    margin-top: 2px;
+  }
+  .tile-chevron {
+    color: var(--on-surface-variant);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* Choice chips (picked = full primary / onPrimary, unpicked = surfaceContainerHighest / onSurfaceVariant) */
+  .chips-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 9px;
+  }
+  .choice-chip {
+    border: none;
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface-container-highest);
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+  }
+  .choice-chip.picked {
+    border-radius: 18px;
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+
+  /* M3 Switch */
+  .m3-switch {
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--surface-container-highest);
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+    border: none;
+    transition: background-color 180ms ease;
+  }
+  .m3-switch-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--outline);
+    transition: transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1), background-color 180ms ease;
+  }
+  .m3-switch.on {
+    background: var(--primary);
+  }
+  .m3-switch.on .m3-switch-thumb {
+    transform: translateX(18px);
+    background: var(--on-primary);
+  }
+
+  /* Theme Picker Swatch Row (Settings.kt:1908) */
+  .swatch-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .swatch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 56px;
+  }
+  .swatch-outer {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    padding: 4px;
+    display: grid;
+    place-items: center;
+  }
+  .swatch-outer.selected {
+    border-radius: 0;
+    clip-path: url(#cookie-clip);
+  }
+  .swatch-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  .swatch-outer.selected .swatch-inner {
+    border-radius: 0;
+    clip-path: url(#cookie-clip);
+  }
+  .swatch-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+  }
+  .swatch-item.selected .swatch-label {
+    font-weight: 800;
+    color: var(--on-surface);
+  }
+
+  /* ── CSS Art Thumbnails (Zero external images) ──────────────────── */
+  .art-1 {
+    background:
+      radial-gradient(circle at 74% 30%, rgba(255, 224, 152, 0.85) 0%, rgba(255, 178, 102, 0.25) 26%, transparent 56%),
+      linear-gradient(155deg, #1E3231 0%, #2C4A43 44%, #8E5B3A 100%);
+  }
+  .art-1::before {
+    content: '';
+    position: absolute;
+    left: -8%;
+    right: -8%;
+    bottom: -14%;
+    height: 52%;
+    background: linear-gradient(170deg, #162322 0%, #0D1615 100%);
+    border-radius: 55% 45% 0 0 / 60% 45% 0 0;
+  }
+  .art-1::after {
+    content: '';
+    position: absolute;
+    left: 16%;
+    bottom: 24%;
+    width: 44%;
+    height: 22%;
+    background: rgba(255, 232, 184, 0.22);
+    filter: blur(10px);
+    border-radius: 50%;
+  }
+
+  .art-2 {
+    background:
+      radial-gradient(circle at 26% 32%, rgba(124, 214, 236, 0.55) 0%, transparent 48%),
+      radial-gradient(circle at 80% 72%, rgba(244, 176, 98, 0.45) 0%, transparent 45%),
+      linear-gradient(135deg, #121B28 0%, #1F3448 52%, #2B2435 100%);
+  }
+  .art-2::before {
+    content: '';
+    position: absolute;
+    left: 18%;
+    top: 22%;
+    width: 46%;
+    height: 56%;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03));
+    transform: rotate(-7deg);
+  }
+  .art-2::after {
+    content: '';
+    position: absolute;
+    right: 14%;
+    top: 26%;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #F6D07C, #C46F32);
+    opacity: 0.92;
+  }
+
+  .art-3 {
+    background:
+      radial-gradient(ellipse at 50% 24%, rgba(255, 211, 138, 0.72) 0%, rgba(226, 134, 72, 0.24) 36%, transparent 66%),
+      linear-gradient(180deg, #1A222E 0%, #393446 52%, #19181D 100%);
+  }
+  .art-3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 36%;
+    background: linear-gradient(180deg, rgba(16, 18, 24, 0.1), #0B0D11 82%);
+  }
+  .art-3::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    transform: translate(-50%, -50%);
+    width: 118px;
+    height: 62px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .art-4 {
+    background:
+      radial-gradient(circle at 72% 28%, rgba(162, 236, 194, 0.52) 0%, transparent 45%),
+      linear-gradient(135deg, #17231E 0%, #243C32 55%, #121B18 100%);
+  }
+  .art-4::before {
+    content: '';
+    position: absolute;
+    left: 14%;
+    bottom: 16%;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.18);
+    transform: rotate(14deg);
+  }
+
+  /* ── Contrast Strip & Token Table ───────────────────────────────── */
+  .spec-panel {
+    margin-top: 28px;
+    background: var(--page-elev);
+    border-radius: 26px;
+    padding: 22px;
+  }
+  .spec-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .spec-heading {
+    font-family: var(--font-rounded);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+  }
+  .spec-sub {
+    font-size: 12.5px;
+    color: var(--page-muted);
+    margin-top: 2px;
+  }
+  .copy-kt-btn {
+    border: none;
+    background: var(--page-elev-2);
+    color: var(--page-ink);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 9px 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: transform 130ms ease, background 150ms ease;
+  }
+  .copy-kt-btn:hover { background: #2D313A; }
+  .copy-kt-btn:active { transform: scale(0.95); }
+
+  .contrast-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 900px) {
+    .contrast-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .contrast-grid { grid-template-columns: 1fr; }
+  }
+  .contrast-card {
+    background: rgba(255, 255, 255, 0.035);
+    border-radius: 16px;
+    padding: 12px 14px;
+  }
+  .contrast-pair-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--page-muted);
+    margin-bottom: 8px;
+  }
+  .contrast-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .contrast-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .contrast-sample {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .contrast-chip {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 18px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .contrast-ratio {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .pass-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(54, 198, 122, 0.16);
+    color: #77E5A8;
+    margin-left: 4px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    min-width: 620px;
+  }
+  .token-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .token-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+    vertical-align: middle;
+  }
+  .token-table tr:last-child td { border-bottom: none; }
+  .role-code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--page-ink);
+  }
+  .hex-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #DCE0E8;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .hex-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .hex-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  }
+  .usage-cell {
+    color: var(--page-muted);
+    font-size: 12px;
+  }
+  .amoled-same {
+    color: var(--page-subtle);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .kt-drawer {
+    margin-top: 14px;
+    display: none;
+  }
+  .kt-drawer.open { display: block; }
+  .kt-pre {
+    background: #0B0C0E;
+    color: #D8DEE9;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    padding: 16px;
+    border-radius: 16px;
+    overflow-x: auto;
+    max-height: 360px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 16px);
+    background: #F2F3F5;
+    color: #111214;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared SVG defs: Skipii's 9-lobe CookieShape (UiKit.kt:115) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="cookie-clip" clipPathUnits="objectBoundingBox">
+      <path id="cookie-path" d="" />
+    </clipPath>
+  </defs>
+</svg>
+
+<header class="studio-bar">
+  <div class="studio-bar-inner">
+    <div class="studio-brand">
+      <div class="studio-brand-mark" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+      </div>
+      <div>
+        <div class="studio-title">Skipii Theme Proposals</div>
+        <div class="studio-sub">3 hand-tuned Material 3 schemes · Light, Dark &amp; AMOLED</div>
+      </div>
+    </div>
+
+    <nav class="studio-nav" aria-label="Jump to theme">
+      <a class="jump-pill" href="#theme-matcha"><span class="jump-dot" style="background:#246A44"></span>Matcha</a>
+      <a class="jump-pill" href="#theme-fjord"><span class="jump-dot" style="background:#00667A"></span>Fjord</a>
+      <a class="jump-pill" href="#theme-saffron"><span class="jump-dot" style="background:#995E00"></span>Saffron</a>
+    </nav>
+
+    <div class="mode-group" role="group" aria-label="Global preview mode">
+      <button class="mode-btn active" data-global-mode="light">Light</button>
+      <button class="mode-btn" data-global-mode="dark">Dark</button>
+      <button class="mode-btn" data-global-mode="amoled">AMOLED</button>
+      <button class="mode-btn" data-global-mode="split">Light + Dark</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-intro">
+  <div>
+    <div class="intro-eyebrow">Skipii · Pixel Material 3 Expressive</div>
+    <h1 class="intro-h1">Three new palettes built for watching video every day.</h1>
+    <p class="intro-lead">
+      Skipii already covers red, rose, violet, pink, burnt orange, grey, and cobalt. These three open up completely unused colour territory—botanical matcha green, Nordic petrol teal, and burnished saffron gold—with zero 1&nbsp;dp outlines, full-primary active pills, verified ≥&nbsp;5:1 contrast, and tonal separation that holds up after <code style="font-family:var(--font-mono);font-size:13px;color:#E2E5EC">ColorScheme.amoled()</code>. Tap switches, tabs, or swatches inside any phone to test them live.
+    </p>
+  </div>
+  <div class="intro-chips">
+    <a class="summary-chip" href="#theme-matcha">
+      <div class="summary-swatch"><span style="background:#246A44"></span><span style="background:#7ADAA4"></span></div>
+      <div><span class="summary-chip-name">Matcha</span><span class="summary-chip-hex">#246A44 · #7ADAA4</span></div>
+    </a>
+    <a class="summary-chip" href="#theme-fjord">
+      <div class="summary-swatch"><span style="background:#00667A"></span><span style="background:#5BD5E8"></span></div>
+      <div><span class="summary-chip-name">Fjord</span><span class="summary-chip-hex">#00667A · #5BD5E8</span></div>
+    </a>
+    <a class="summary-chip" href="#theme-saffron">
+      <div class="summary-swatch"><span style="background:#995E00"></span><span style="background:#F4C247"></span></div>
+      <div><span class="summary-chip-name">Saffron</span><span class="summary-chip-hex">#995E00 · #F4C247</span></div>
+    </a>
+  </div>
+</section>
+
+<main id="app-root"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ── Build exact 9-lobe CookieShape from UiKit.kt (lobes = 9, depth = 0.075f) ──
+(function buildCookiePath() {
+  const lobes = 9, depth = 0.075, steps = 120;
+  let d = '';
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * Math.PI * 2;
+    const r = 1 - depth + depth * Math.cos(lobes * t);
+    const x = 0.5 + 0.5 * r * Math.cos(t);
+    const y = 0.5 + 0.5 * r * Math.sin(t);
+    d += (i === 0 ? 'M' : 'L') + x.toFixed(4) + ' ' + y.toFixed(4) + ' ';
+  }
+  document.getElementById('cookie-path').setAttribute('d', d + 'Z');
+})();
+
+// ── Theme Definitions (29 hand-tuned Material 3 roles, Light + Dark) ──────────
+const THEMES = [
+  {
+    id: 'matcha',
+    index: '01',
+    name: 'Matcha',
+    seedConst: 'SEED_MATCHA',
+    pitch: 'Ceremonial tea green glazed over warm washi-stone light surfaces and deep pine charcoal—calm beside colourful thumbnails, never clinical or neon.',
+    light: {
+      primary: '#246A44',
+      onPrimary: '#FFFFFF',
+      primaryContainer: '#C8EED6',
+      onPrimaryContainer: '#08321B',
+      secondary: '#4B6354',
+      onSecondary: '#FFFFFF',
+      secondaryContainer: '#DCE7DE',
+      onSecondaryContainer: '#192D21',
+      tertiary: '#7A6027',
+      onTertiary: '#FFFFFF',
+      tertiaryContainer: '#F4E5BE',
+      onTertiaryContainer: '#2D2105',
+      background: '#F7F6F0',
+      onBackground: '#191D1A',
+      surface: '#F7F6F0',
+      onSurface: '#191D1A',
+      surfaceVariant: '#DFE4DA',
+      onSurfaceVariant: '#454F47',
+      surfaceContainerLowest: '#FFFFFF',
+      surfaceContainerLow: '#EFECE3',
+      surfaceContainer: '#E9E6DC',
+      surfaceContainerHigh: '#E1DFD3',
+      surfaceContainerHighest: '#D7D6C8',
+      outline: '#747E75',
+      outlineVariant: '#C5CBC1',
+      error: '#BA1A1A',
+      onError: '#FFFFFF',
+      errorContainer: '#FFDAD6',
+      onErrorContainer: '#410002',
+    },
+    dark: {
+      primary: '#7ADAA4',
+      onPrimary: '#04331A',
+      primaryContainer: '#154E30',
+      onPrimaryContainer: '#C4F4D7',
+      secondary: '#B2C8B8',
+      onSecondary: '#1D3225',
+      secondaryContainer: '#273A2E',
+      onSecondaryContainer: '#D7E8DC',
+      tertiary: '#DEC486',
+      onTertiary: '#3B2C08',
+      tertiaryContainer: '#4D3D17',
+      onTertiaryContainer: '#F8E5B8',
+      background: '#0E1210',
+      onBackground: '#E8EEE9',
+      surface: '#0E1210',
+      onSurface: '#E8EEE9',
+      surfaceVariant: '#2D3932',
+      onSurfaceVariant: '#B9C5BC',
+      surfaceContainerLowest: '#080B09',
+      surfaceContainerLow: '#1A221D',
+      surfaceContainer: '#212A24',
+      surfaceContainerHigh: '#29342D',
+      surfaceContainerHighest: '#334038',
+      outline: '#7F8E84',
+      outlineVariant: '#37443C',
+      error: '#FFB4AB',
+      onError: '#690005',
+      errorContainer: '#93000A',
+      onErrorContainer: '#FFDAD6',
+    },
+    sampleVideos: [
+      { title: 'Why Kyoto Cafes Still Pour Over Ceramic Drippers', channel: 'Still Frames', views: '248K views', age: '3 hours ago', dur: '18:42', art: 'art-1', av: 'S', cookie: false, resume: 0.64 },
+      { title: 'Designing Quiet Hardware: Inside a Pocket Field Recorder', channel: 'Form & Signal', views: '94K views', age: '1 day ago', dur: '14:15', art: 'art-2', av: 'F', cookie: true, queued: 1 },
+    ],
+    playerVideo: {
+      title: 'How Rain Changes Film Colour: Shooting 16mm on the Pacific Coast',
+      stats: '412K views · 2 days ago · 29K likes',
+      channel: 'Still Frames',
+      subs: '1.4M subscribers',
+      av: 'S',
+      likes: '29K',
+      commentCount: '1.2K',
+      commentAv: 'M',
+      comment: 'The way the muted greens hold skin tones in overcast light is unreal—best colour grading breakdown all year.',
+      moreTitle: 'Building a Zero-Plastic Desk Setup That Ages Well',
+      moreMeta: 'Studio Drift · 186K views',
+      moreDur: '11:28',
+    }
+  },
+  {
+    id: 'fjord',
+    index: '02',
+    name: 'Fjord',
+    seedConst: 'SEED_FJORD',
+    pitch: 'Deep Nordic petrol teal over glacial sea-salt mist and abyssal slate—crisp, editorial, and naturally complementary to warm cinema frames.',
+    light: {
+      primary: '#00667A',
+      onPrimary: '#FFFFFF',
+      primaryContainer: '#C5ECF5',
+      onPrimaryContainer: '#002B35',
+      secondary: '#436069',
+      onSecondary: '#FFFFFF',
+      secondaryContainer: '#D5E6EC',
+      onSecondaryContainer: '#132D35',
+      tertiary: '#3F5985',
+      onTertiary: '#FFFFFF',
+      tertiaryContainer: '#D7E4FA',
+      onTertiaryContainer: '#112445',
+      background: '#F2F7F9',
+      onBackground: '#141D21',
+      surface: '#F2F7F9',
+      onSurface: '#141D21',
+      surfaceVariant: '#D4E3E8',
+      onSurfaceVariant: '#415259',
+      surfaceContainerLowest: '#FFFFFF',
+      surfaceContainerLow: '#E7EFF3',
+      surfaceContainer: '#DFEAEE',
+      surfaceContainerHigh: '#D5E2E8',
+      surfaceContainerHighest: '#CAD9E0',
+      outline: '#6E8088',
+      outlineVariant: '#BDCDD4',
+      error: '#BA1A1A',
+      onError: '#FFFFFF',
+      errorContainer: '#FFDAD6',
+      onErrorContainer: '#410002',
+    },
+    dark: {
+      primary: '#5BD5E8',
+      onPrimary: '#002E38',
+      primaryContainer: '#0A4857',
+      onPrimaryContainer: '#C1F0FA',
+      secondary: '#AEC8D2',
+      onSecondary: '#17313B',
+      secondaryContainer: '#233942',
+      onSecondaryContainer: '#D2E6EE',
+      tertiary: '#B3C8F0',
+      onTertiary: '#1A3054',
+      tertiaryContainer: '#2C4269',
+      onTertiaryContainer: '#DAE6FC',
+      background: '#0B1114',
+      onBackground: '#E5EFF3',
+      surface: '#0B1114',
+      onSurface: '#E5EFF3',
+      surfaceVariant: '#283942',
+      onSurfaceVariant: '#B2C4CC',
+      surfaceContainerLowest: '#060A0C',
+      surfaceContainerLow: '#182228',
+      surfaceContainer: '#1E2A31',
+      surfaceContainerHigh: '#26343C',
+      surfaceContainerHighest: '#2F4049',
+      outline: '#788C96',
+      outlineVariant: '#32444D',
+      error: '#FFB4AB',
+      onError: '#690005',
+      errorContainer: '#93000A',
+      onErrorContainer: '#FFDAD6',
+    },
+    sampleVideos: [
+      { title: 'Why Cinema Loves Teal Shadows & Amber Highlights', channel: 'Frame Lab', views: '618K views', age: '5 hours ago', dur: '21:08', art: 'art-2', av: 'F', cookie: false, resume: 0.42 },
+      { title: '48 Hours Crossing the Faroe Islands by Ferry in Winter', channel: 'Northline', views: '310K views', age: '2 days ago', dur: '26:50', art: 'art-1', av: 'N', cookie: true, queued: 1 },
+    ],
+    playerVideo: {
+      title: 'Why Cinema Loves Teal Shadows & Amber Highlights',
+      stats: '618K views · 5 hours ago · 44K likes',
+      channel: 'Frame Lab',
+      subs: '890K subscribers',
+      av: 'F',
+      likes: '44K',
+      commentCount: '2.4K',
+      commentAv: 'A',
+      comment: 'The side-by-side waveforms at 08:15 finally made split-toning click for me. Instant bookmark.',
+      moreTitle: 'Acoustic Architecture: Why Nordic Concert Halls Sound So Clear',
+      moreMeta: 'Soundfield · 205K views',
+      moreDur: '16:04',
+    }
+  },
+  {
+    id: 'saffron',
+    index: '03',
+    name: 'Saffron',
+    seedConst: 'SEED_SAFFRON',
+    pitch: 'Burnished honey-ochre and spun saffron gold anchored by crisp alabaster ivory and neutral espresso black—warm hi-fi luxury, distinct from Pumpkin’s terracotta.',
+    light: {
+      primary: '#995E00',
+      onPrimary: '#FFFFFF',
+      primaryContainer: '#FFE5A3',
+      onPrimaryContainer: '#341F00',
+      secondary: '#6B5B3F',
+      onSecondary: '#FFFFFF',
+      secondaryContainer: '#F1E5CE',
+      onSecondaryContainer: '#2B2110',
+      tertiary: '#4D6632',
+      onTertiary: '#FFFFFF',
+      tertiaryContainer: '#D7EBB9',
+      onTertiaryContainer: '#172608',
+      background: '#FBF8F1',
+      onBackground: '#1F1B14',
+      surface: '#FBF8F1',
+      onSurface: '#1F1B14',
+      surfaceVariant: '#E7DEC9',
+      onSurfaceVariant: '#534A3B',
+      surfaceContainerLowest: '#FFFFFF',
+      surfaceContainerLow: '#F3EDE1',
+      surfaceContainer: '#EDE6D7',
+      surfaceContainerHigh: '#E5DCCA',
+      surfaceContainerHighest: '#DCD1BC',
+      outline: '#837866',
+      outlineVariant: '#D1C6B2',
+      error: '#BA1A1A',
+      onError: '#FFFFFF',
+      errorContainer: '#FFDAD6',
+      onErrorContainer: '#410002',
+    },
+    dark: {
+      primary: '#F4C247',
+      onPrimary: '#2D1C00',
+      primaryContainer: '#593A00',
+      onPrimaryContainer: '#FFE6A8',
+      secondary: '#D2C3A8',
+      onSecondary: '#332917',
+      secondaryContainer: '#383024',
+      onSecondaryContainer: '#EDE0CA',
+      tertiary: '#B5CE91',
+      onTertiary: '#20330D',
+      tertiaryContainer: '#354B1E',
+      onTertiaryContainer: '#D6ECBA',
+      background: '#11100D',
+      onBackground: '#F2EDE3',
+      surface: '#11100D',
+      onSurface: '#F2EDE3',
+      surfaceVariant: '#363026',
+      onSurfaceVariant: '#C4BAAB',
+      surfaceContainerLowest: '#0A0907',
+      surfaceContainerLow: '#1F1C17',
+      surfaceContainer: '#26221C',
+      surfaceContainerHigh: '#2F2A22',
+      surfaceContainerHighest: '#39332A',
+      outline: '#8E8475',
+      outlineVariant: '#423C32',
+      error: '#FFB4AB',
+      onError: '#690005',
+      errorContainer: '#93000A',
+      onErrorContainer: '#FFDAD6',
+    },
+    sampleVideos: [
+      { title: 'Restoring a 1978 Brass-Face Integrated Amplifier From Scratch', channel: 'Analog Bench', views: '530K views', age: '6 hours ago', dur: '29:14', art: 'art-3', av: 'A', cookie: false, resume: 0.78 },
+      { title: 'Why Golden Hour Lasts Twice as Long Above 60° Latitude', channel: 'Solaris', views: '142K views', age: '3 days ago', dur: '12:37', art: 'art-4', av: 'S', cookie: true, queued: 1 },
+    ],
+    playerVideo: {
+      title: 'Restoring a 1978 Brass-Face Integrated Amplifier From Scratch',
+      stats: '530K views · 6 hours ago · 38K likes',
+      channel: 'Analog Bench',
+      subs: '1.1M subscribers',
+      av: 'A',
+      likes: '38K',
+      commentCount: '1.9K',
+      commentAv: 'D',
+      comment: 'When those warm VU meter bulbs came back to life at 24:10 I actually smiled at my phone.',
+      moreTitle: 'Inside a Tokyo Jazz Kissa: Altec Horns and Hand-Pressed Vinyl',
+      moreMeta: 'Listening Room · 294K views',
+      moreDur: '19:02',
+    }
+  }
+];
+
+// Reference swatches for the Settings theme picker row
+const SWATCH_NEIGHBORS = {
+  youtube:  { name: 'YouTube',  light: ['#E6002E','#FFE3E8','#FFFFFF','#FFFFFF'], dark: ['#FF0033','#4A0010','#0F0F0F','#FFFFFF'] },
+  pumpkin:  { name: 'Pumpkin',  light: ['#BC5628','#FBE2CE','#FDFAF6','#FFFFFF'], dark: ['#E97A3A','#63300F','#121110','#2A1200'] },
+};
+
+// Exact ColorScheme.amoled() from Theme.kt lines 533-544
+function hexToRgb(h) {
+  const n = h.replace('#', '');
+  return [parseInt(n.slice(0,2),16), parseInt(n.slice(2,4),16), parseInt(n.slice(4,6),16)];
+}
+function rgbToHex([r,g,b]) {
+  return '#' + [r,g,b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function lerpBlack(hex, t) {
+  const [r,g,b] = hexToRgb(hex);
+  return rgbToHex([r*(1-t), g*(1-t), b*(1-t)]);
+}
+function toAmoled(dark) {
+  return {
+    ...dark,
+    background: '#000000',
+    surface: '#000000',
+    surfaceContainerLowest: '#000000',
+    surfaceContainerLow: lerpBlack(dark.surfaceContainerLow, 0.55),
+    surfaceContainer: lerpBlack(dark.surfaceContainer, 0.45),
+    surfaceContainerHigh: lerpBlack(dark.surfaceContainerHigh, 0.35),
+    surfaceContainerHighest: lerpBlack(dark.surfaceContainerHighest, 0.25),
+    surfaceVariant: lerpBlack(dark.surfaceVariant, 0.25),
+  };
+}
+
+// WCAG 2.1 contrast ratio
+function relLum(hex) {
+  const f = c => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const [r,g,b] = hexToRgb(hex);
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function contrastRatio(a, b) {
+  let l1 = relLum(a), l2 = relLum(b);
+  if (l1 < l2) [l1, l2] = [l2, l1];
+  return (l1 + 0.05) / (l2 + 0.05);
+}
+
+const ROLE_META = [
+  ['primary', 'Selected nav tab, Play button, progress hairline, active quick toggles & choice chips, group labels'],
+  ['onPrimary', 'Icon & label ink on full-primary pills, Play button, quick toggles & choice chips'],
+  ['primaryContainer', 'Settings Account card, open-player top gradient wash, theme swatch split'],
+  ['onPrimaryContainer', 'Text & icons on Account card and primaryContainer surfaces'],
+  ['secondary', 'Supporting accents & secondary interactive elements'],
+  ['onSecondary', 'Ink over secondary fills'],
+  ['secondaryContainer', 'Subscribed button, Settings tile icon squares, Developer email pill'],
+  ['onSecondaryContainer', 'Ink on Subscribed pill and secondaryContainer surfaces'],
+  ['tertiary', 'Complementary highlight accent & Library Liked badge'],
+  ['onTertiary', 'Ink over tertiary fills'],
+  ['tertiaryContainer', 'Fallback channel avatars (cookie shape) & Library Liked tile'],
+  ['onTertiaryContainer', 'Initials inside fallback channel avatars'],
+  ['background', 'Window & root background (matches surface)'],
+  ['onBackground', 'Default ink on background'],
+  ['surface', 'All screen pages & bottom smoothstep vignette'],
+  ['onSurface', 'Primary titles, video headlines, active icons & "…more"'],
+  ['surfaceVariant', 'Floating bottom NavPill & floating PlayerBar capsule'],
+  ['onSurfaceVariant', 'Video metadata, subtitles, unselected nav icons & chevrons'],
+  ['surfaceContainerLowest', 'Purest canvas step (modal & card base)'],
+  ['surfaceContainerLow', 'Home feed VideoCards (28 dp radius, no outline) & bottom sheets'],
+  ['surfaceContainer', 'Joined Settings category tiles, Comments card & Developer card'],
+  ['surfaceContainerHigh', 'Header circle actions, inactive quick toggles & player action pills'],
+  ['surfaceContainerHighest', 'Settings search bar, unpicked choice chips & mini-player card'],
+  ['outline', 'Switch thumb (off) & subtle indicator tokens'],
+  ['outlineVariant', 'Optional tonal hairlines & inactive track helpers'],
+  ['error', 'Error state accents'],
+  ['onError', 'Ink on error fills'],
+  ['errorContainer', 'Swipe-remove playlist tray & destructive banners'],
+  ['onErrorContainer', 'Ink on errorContainer'],
+];
+
+const AMOLED_CHANGED = new Set([
+  'background','surface','surfaceContainerLowest','surfaceContainerLow',
+  'surfaceContainer','surfaceContainerHigh','surfaceContainerHighest','surfaceVariant'
+]);
+
+// Inline crisp rounded Material-style SVGs
+const ICO = {
+  ff: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
+  tune: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>`,
+  home: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z"/></svg>`,
+  subs: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2zm-6 4l-6-3.27v6.53L16 16z"/></svg>`,
+  shorts: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.8 3.2c1.8-1 4 .3 4 2.4 0 1-.5 1.9-1.4 2.4l-1.3.7 1.3.7c1.8 1 1.8 3.6 0 4.6l-7.2 4.1c-1.8 1-4-.3-4-2.4 0-1 .5-1.9 1.4-2.4l1.3-.7-1.3-.7c-1.8-1-1.8-3.6 0-4.6l7.2-4.1zM10.5 9.5v5l4.3-2.5-4.3-2.5z"/></svg>`,
+  search: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`,
+  library: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>`,
+  queue: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10h11v2H3v-2zm0-4h11v2H3V6zm0 8h7v2H3v-2zm13-1v8l6-4-6-4z"/></svg>`,
+  bellOn: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.39 6.42h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42zM18 11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2v-5zm-6 11c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/></svg>`,
+  bellOff: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>`,
+  thumbUp: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66-.23-.45-.52-.86-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84C7 18.95 8.05 20 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg>`,
+  thumbDown: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>`,
+  playlist: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>`,
+  download: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+  share: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>`,
+  headphones: `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>`,
+  replay10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V2.21c0-.45-.54-.67-.85-.35l-3.8 3.79c-.2.2-.2.51 0 .71l3.79 3.79c.32.31.86.09.86-.36V7c3.73 0 6.68 3.42 5.86 7.29-.47 2.27-2.31 4.1-4.57 4.57-3.57.75-6.75-1.7-7.23-5.01-.07-.48-.49-.85-.98-.85-.6 0-1.08.53-1 1.13.62 4.39 4.8 7.64 9.53 6.72 3.12-.61 5.63-3.12 6.24-6.24C20.84 9.48 16.94 5 12 5z"/><text x="12" y="16" text-anchor="middle" font-size="7.5" font-weight="800" font-family="Roboto Flex, sans-serif">10</text></svg>`,
+  forward10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V2.21c0-.45.54-.67.85-.35l3.8 3.79c.2.2.2.51 0 .71l-3.79 3.79c-.32.31-.86.09-.86-.36V7c-3.73 0-6.68 3.42-5.86 7.29.47 2.27 2.31 4.1 4.57 4.57 3.57.75 6.75-1.7 7.23-5.01.07-.48.49-.85.98-.85.6 0 1.08.53 1 1.13-.62 4.39-4.8 7.64-9.53 6.72-3.12-.61-5.63-3.12-6.24-6.24C3.16 9.48 7.06 5 12 5z"/><text x="12" y="16" text-anchor="middle" font-size="7.5" font-weight="800" font-family="Roboto Flex, sans-serif">10</text></svg>`,
+  pause: `<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 1.1.9 2 2 2zm6-12v10c0 1.1.9 2 2 2s2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2z"/></svg>`,
+  play: `<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/></svg>`,
+  moreVert: `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>`,
+  back: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42a.996.996 0 0 0-1.41 0l-6.59 6.59a.996.996 0 0 0 0 1.41l6.59 6.59a.996.996 0 1 0 1.41-1.41L7.83 13H19c.55 0 1-.45 1-1s-.45-1-1-1z"/></svg>`,
+  chevron: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"/></svg>`,
+  speed: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/></svg>`,
+  playCircle: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 13.5v-7a.5.5 0 0 1 .8-.4l4.67 3.5c.27.2.27.6 0 .8l-4.67 3.5a.5.5 0 0 1-.8-.4z"/></svg>`,
+  palette: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`,
+  darkMode: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>`,
+  check: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`,
+  copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+  wifi: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>`,
+  signal: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h20V2z"/></svg>`,
+  battery: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>`,
+};
+
+// State per theme: 'light' | 'dark' | 'amoled' | 'split'
+const themeViewMode = { matcha: 'light', fjord: 'light', saffron: 'light' };
+
+function schemeVarsStyle(s) {
+  return [
+    `--primary:${s.primary}`,
+    `--on-primary:${s.onPrimary}`,
+    `--primary-container:${s.primaryContainer}`,
+    `--on-primary-container:${s.onPrimaryContainer}`,
+    `--secondary:${s.secondary}`,
+    `--on-secondary:${s.onSecondary}`,
+    `--secondary-container:${s.secondaryContainer}`,
+    `--on-secondary-container:${s.onSecondaryContainer}`,
+    `--tertiary:${s.tertiary}`,
+    `--on-tertiary:${s.onTertiary}`,
+    `--tertiary-container:${s.tertiaryContainer}`,
+    `--on-tertiary-container:${s.onTertiaryContainer}`,
+    `--background:${s.background}`,
+    `--on-background:${s.onBackground}`,
+    `--surface:${s.surface}`,
+    `--on-surface:${s.onSurface}`,
+    `--surface-variant:${s.surfaceVariant}`,
+    `--on-surface-variant:${s.onSurfaceVariant}`,
+    `--surface-container-lowest:${s.surfaceContainerLowest}`,
+    `--surface-container-low:${s.surfaceContainerLow}`,
+    `--surface-container:${s.surfaceContainer}`,
+    `--surface-container-high:${s.surfaceContainerHigh}`,
+    `--surface-container-highest:${s.surfaceContainerHighest}`,
+    `--outline:${s.outline}`,
+    `--outline-variant:${s.outlineVariant}`,
+    `--error:${s.error}`,
+    `--on-error:${s.onError}`,
+    `--error-container:${s.errorContainer}`,
+    `--on-error-container:${s.onErrorContainer}`,
+  ].join(';');
+}
+
+function statusBarHtml(overVideo = false) {
+  return `
+    <div class="status-bar ${overVideo ? 'over-video' : ''}">
+      <span>9:41</span>
+      <span class="camera-dot" aria-hidden="true"></span>
+      <span class="status-icons">${ICO.wifi}${ICO.signal}${ICO.battery}</span>
+    </div>
+  `;
+}
+
+function renderHomePhone(theme, scheme) {
+  const cards = theme.sampleVideos.map((v, idx) => `
+    <article class="video-card pressable">
+      <div class="thumb ${v.art}">
+        ${v.queued ? `<div class="queued-badge">${ICO.queue}<span>Queued #${v.queued}</span></div>` : ''}
+        <div class="duration-pill">${v.dur}</div>
+        ${v.resume ? `<div class="resume-bar-track"><div class="resume-bar-fill" style="width:${Math.round(v.resume*100)}%"></div></div>` : ''}
+      </div>
+      <div class="card-info">
+        <div class="channel-avatar ${v.cookie ? 'cookie' : ''}">${v.av}</div>
+        <div style="min-width:0;flex:1">
+          <div class="card-title">${v.title}</div>
+          <div class="card-meta">${v.channel} · ${v.views} · ${v.age}</div>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  return `
+    <div class="phone-col">
+      <div class="phone-caption">Home Feed</div>
+      <div class="phone" style="${schemeVarsStyle(scheme)}">
+        ${statusBarHtml(false)}
+        <div class="screen-body">
+          <div class="home-header">
+            <div class="brand-mark">${ICO.ff}</div>
+            <div class="home-title">Skipii</div>
+            <div class="circle-action pressable" title="Feed filters">${ICO.tune}</div>
+            <div class="avatar-btn pressable" title="Settings">D</div>
+          </div>
+          <div class="home-chips">
+            <span class="home-chip active pressable" data-chip>All</span>
+            <span class="home-chip pressable" data-chip>Design</span>
+            <span class="home-chip pressable" data-chip>Audio</span>
+            <span class="home-chip pressable" data-chip>Cinema</span>
+            <span class="home-chip pressable" data-chip>Gear</span>
+          </div>
+          <div class="feed-list">${cards}</div>
+          <div class="bottom-vignette"></div>
+          <div class="nav-pill-wrap">
+            <div class="nav-pill" role="tablist">
+              <button class="nav-tab active" data-tab>${ICO.home}<span class="tab-label">Home</span></button>
+              <button class="nav-tab" data-tab>${ICO.subs}<span class="tab-label">Subs</span></button>
+              <button class="nav-tab" data-tab>${ICO.shorts}<span class="tab-label">Shorts</span></button>
+              <button class="nav-tab" data-tab>${ICO.search}<span class="tab-label">Search</span></button>
+              <button class="nav-tab" data-tab>${ICO.library}<span class="tab-label">Library</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPlayerPhone(theme, scheme) {
+  const pv = theme.playerVideo;
+  return `
+    <div class="phone-col">
+      <div class="phone-caption">Open Player &amp; Bar</div>
+      <div class="phone" style="${schemeVarsStyle(scheme)}">
+        ${statusBarHtml(true)}
+        <div class="player-stage ${theme.sampleVideos[0].art}"></div>
+        <div class="player-scroll">
+          <div class="player-wash"></div>
+          <div class="player-content">
+            <div class="player-title">${pv.title}</div>
+            <div class="player-stats">${pv.stats}<strong>…more</strong></div>
+
+            <div class="channel-row">
+              <div class="channel-avatar" style="width:42px;height:42px;font-size:16px">${pv.av}</div>
+              <div class="channel-meta">
+                <div class="channel-name">${pv.channel}</div>
+                <div class="channel-subs">${pv.subs}</div>
+              </div>
+              <div class="sub-bell-group">
+                <button class="sub-btn pressable">Subscribed</button>
+                <button class="bell-btn pressable" data-bell title="Toggle notifications">${ICO.bellOn}</button>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <div class="like-pair">
+                <button class="action-pill like-left active pressable" data-like>${ICO.thumbUp}<span>${pv.likes}</span></button>
+                <button class="action-pill like-right pressable" data-dislike>${ICO.thumbDown}</button>
+              </div>
+              <button class="action-pill pressable">${ICO.playlist}<span>Playlist</span></button>
+              <button class="action-pill pressable">${ICO.download}</button>
+              <button class="action-pill pressable">${ICO.share}<span>Share</span></button>
+            </div>
+
+            <div class="comments-card pressable">
+              <div class="comments-head">
+                <span class="comments-title">Comments</span>
+                <span class="comments-count">${pv.commentCount}</span>
+              </div>
+              <div class="comment-preview">
+                <div class="comment-mini-av">${pv.commentAv}</div>
+                <div class="comment-text">${pv.comment}</div>
+              </div>
+            </div>
+
+            <div class="more-heading">More videos</div>
+            <div class="video-row pressable">
+              <div class="video-row-thumb ${theme.sampleVideos[1].art}">
+                <div class="duration-pill" style="bottom:6px;right:6px;padding:2px 7px;font-size:10.5px">${pv.moreDur}</div>
+              </div>
+              <div style="min-width:0;flex:1">
+                <div class="video-row-title">${pv.moreTitle}</div>
+                <div class="video-row-meta">${pv.moreMeta}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-vignette"></div>
+          <div class="player-bar-wrap">
+            <div class="player-bar">
+              <div class="bar-grabber"></div>
+              <div class="bar-controls">
+                <button class="bar-side-btn pressable" title="Audio only">${ICO.headphones}</button>
+                <button class="bar-seek-btn pressable" title="Back 10s">${ICO.replay10}</button>
+                <button class="bar-play-btn pressable" data-play-btn title="Play / Pause">${ICO.pause}</button>
+                <button class="bar-seek-btn pressable" title="Forward 10s">${ICO.forward10}</button>
+                <button class="bar-side-btn pressable" title="More tools">${ICO.moreVert}</button>
+              </div>
+              <div class="bar-progress-row" aria-label="Playback progress">
+                <div class="prog-seg played" style="flex:1.2"></div>
+                <div class="prog-seg-partial" style="flex:1.8"><span style="width:68%"></span></div>
+                <div class="prog-seg" style="flex:2.2"><div class="prog-sb"></div></div>
+                <div class="prog-seg" style="flex:1.1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSettingsPhone(theme, scheme, modeKey) {
+  const isDark = modeKey !== 'light';
+  const isAmoled = modeKey === 'amoled';
+
+  // Swatch picker row: YouTube + our 3 new themes + Pumpkin
+  const swatchList = [
+    {
+      id: 'youtube', name: 'YouTube',
+      colors: isDark ? SWATCH_NEIGHBORS.youtube.dark : SWATCH_NEIGHBORS.youtube.light
+    },
+    ...THEMES.map(t => {
+      const sc = isAmoled ? toAmoled(t.dark) : (isDark ? t.dark : t.light);
+      return { id: t.id, name: t.name, colors: [sc.primary, sc.primaryContainer, sc.surface, sc.onPrimary] };
+    }),
+    {
+      id: 'pumpkin', name: 'Pumpkin',
+      colors: isDark ? SWATCH_NEIGHBORS.pumpkin.dark : SWATCH_NEIGHBORS.pumpkin.light
+    }
+  ];
+
+  const swatchesHtml = swatchList.map(sw => {
+    const sel = sw.id === theme.id;
+    const [p, pc, surf, onp] = sw.colors;
+    return `
+      <div class="swatch-item ${sel ? 'selected' : ''}">
+        <div class="swatch-outer ${sel ? 'selected' : ''}" style="background:${surf}">
+          <div class="swatch-inner" style="background:linear-gradient(135deg, ${p} 0%, ${p} 50%, ${pc} 50%, ${pc} 100%);color:${onp}">
+            ${sel ? ICO.check : ''}
+          </div>
+        </div>
+        <span class="swatch-label">${sw.name}</span>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="phone-col">
+      <div class="phone-caption">Settings &amp; Appearance</div>
+      <div class="phone" style="${schemeVarsStyle(scheme)}">
+        ${statusBarHtml(false)}
+        <div class="settings-wrap">
+          <div class="settings-top">
+            <div class="back-circle pressable">${ICO.back}</div>
+            <div class="settings-h1">Settings</div>
+          </div>
+
+          <div class="account-card pressable">
+            <div class="account-av">D</div>
+            <div style="flex:1;min-width:0">
+              <div class="account-name">Derek</div>
+              <div class="account-sub">Full sync · Home, subs &amp; likes</div>
+            </div>
+            <div style="opacity:0.75">${ICO.chevron}</div>
+          </div>
+
+          <div class="quick-grid">
+            <button class="quick-toggle pressable" data-qt>
+              <span>${ICO.headphones}</span>
+              <span><span class="qt-title">Audio only</span><span class="qt-state">Off</span></span>
+            </button>
+            <button class="quick-toggle on pressable" data-qt>
+              <span>${ICO.ff}</span>
+              <span><span class="qt-title">SponsorBlock</span><span class="qt-state">On</span></span>
+            </button>
+            <button class="quick-toggle on pressable" data-qt>
+              <span>${ICO.shorts}</span>
+              <span><span class="qt-title">Shorts</span><span class="qt-state">On</span></span>
+            </button>
+            <button class="quick-toggle pressable" data-qt>
+              <span>${ICO.speed}</span>
+              <span><span class="qt-title">Keep speed</span><span class="qt-state">Off</span></span>
+            </button>
+          </div>
+
+          <div class="group-label">Watching</div>
+          <div class="joined-group">
+            <div class="joined-tile pressable">
+              <div class="tile-row">
+                <div class="icon-square">${ICO.playCircle}</div>
+                <div style="flex:1;min-width:0">
+                  <div class="tile-title">Playback</div>
+                  <div class="tile-sub">Playback pill · 10 s · Background play</div>
+                </div>
+                <div class="tile-chevron">${ICO.chevron}</div>
+              </div>
+            </div>
+            <div class="joined-tile pressable">
+              <div class="tile-row">
+                <div class="icon-square">${ICO.download}</div>
+                <div style="flex:1;min-width:0">
+                  <div class="tile-title">Downloads</div>
+                  <div class="tile-sub">Wi-Fi only · 1080p · 4 videos ready</div>
+                </div>
+                <div class="tile-chevron">${ICO.chevron}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group-label">Appearance</div>
+          <div class="joined-group" style="margin-bottom:0">
+            <div class="joined-tile">
+              <div class="tile-row">
+                <div class="icon-square">${ICO.darkMode}</div>
+                <div style="flex:1;min-width:0">
+                  <div class="tile-title">Mode &amp; AMOLED</div>
+                  <div class="tile-sub">${isAmoled ? 'Pure black dark mode on' : (isDark ? 'Dark surfaces' : 'Light surfaces')}</div>
+                </div>
+                <button class="m3-switch ${isAmoled ? 'on' : ''} pressable" data-phone-amoled="${theme.id}" title="Toggle AMOLED" ${!isDark ? 'style="opacity:0.42"' : ''}>
+                  <span class="m3-switch-thumb"></span>
+                </button>
+              </div>
+              <div class="chips-row">
+                <button class="choice-chip pressable" data-phone-mode="${theme.id}:light">System</button>
+                <button class="choice-chip ${!isDark ? 'picked' : ''} pressable" data-phone-mode="${theme.id}:light">Light</button>
+                <button class="choice-chip ${isDark ? 'picked' : ''} pressable" data-phone-mode="${theme.id}:dark">Dark</button>
+              </div>
+            </div>
+
+            <div class="joined-tile">
+              <div class="tile-row">
+                <div class="icon-square">${ICO.palette}</div>
+                <div class="tile-title">Theme</div>
+              </div>
+              <div class="swatch-row">${swatchesHtml}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPhonesBlock(theme, modeKey, showLabel) {
+  const scheme = modeKey === 'amoled' ? toAmoled(theme.dark) : theme[modeKey];
+  const labelText = modeKey === 'amoled' ? 'AMOLED (Pure Black)' : (modeKey === 'dark' ? 'Dark Mode' : 'Light Mode');
+  const noteText = modeKey === 'amoled'
+    ? `surface #000000 · card ${scheme.surfaceContainerLow} · nav ${scheme.surfaceVariant}`
+    : `surface ${scheme.surface} · primary ${scheme.primary}`;
+  return `
+    <div class="mode-block">
+      ${showLabel ? `<div class="mode-block-heading"><span>${labelText}</span><span class="badge">${noteText}</span></div>` : ''}
+      <div class="phones-grid">
+        ${renderHomePhone(theme, scheme)}
+        ${renderPlayerPhone(theme, scheme)}
+        ${renderSettingsPhone(theme, scheme, modeKey)}
+      </div>
+    </div>
+  `;
+}
+
+function renderContrastStrip(theme) {
+  const am = toAmoled(theme.dark);
+  const checks = [
+    { label: 'primary / onPrimary', fg: 'onPrimary', bg: 'primary' },
+    { label: 'onSurface / surface', fg: 'onSurface', bg: 'surface' },
+    { label: 'onSurfaceVariant / surfaceContainer', fg: 'onSurfaceVariant', bg: 'surfaceContainer' },
+    { label: 'primary / surface (labels & links)', fg: 'primary', bg: 'surface' },
+    { label: 'onPrimaryContainer / primaryContainer', fg: 'onPrimaryContainer', bg: 'primaryContainer' },
+    { label: 'onSurfaceVariant / surfaceVariant (nav)', fg: 'onSurfaceVariant', bg: 'surfaceVariant' },
+  ];
+
+  return `
+    <div class="contrast-grid">
+      ${checks.map(c => {
+        const rows = [
+          { tag: 'Light', s: theme.light },
+          { tag: 'Dark', s: theme.dark },
+          { tag: 'AMOLED', s: am },
+        ].map(({ tag, s }) => {
+          const r = contrastRatio(s[c.fg], s[c.bg]);
+          const grade = r >= 7 ? 'AAA' : 'AA';
+          return `
+            <div class="contrast-line">
+              <span class="contrast-sample">
+                <span class="contrast-chip" style="background:${s[c.bg]};color:${s[c.fg]}">Aa</span>
+                <span style="color:var(--page-muted)">${tag}</span>
+              </span>
+              <span>
+                <span class="contrast-ratio">${r.toFixed(2)}:1</span>
+                <span class="pass-pill">${grade}</span>
+              </span>
+            </div>
+          `;
+        }).join('');
+        return `
+          <div class="contrast-card">
+            <div class="contrast-pair-name">${c.label}</div>
+            <div class="contrast-rows">${rows}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function buildKotlinSnippet(theme) {
+  const fmt = (obj) => Object.entries(obj)
+    .map(([k, v]) => `    ${k} = Color(0xFF${v.slice(1)}),`)
+    .join('\n');
+  return `const val ${theme.seedConst} = "${theme.light.primary}"
+
+// ${theme.name} — ${theme.pitch}
+if (seedHex.equals(${theme.seedConst}, ignoreCase = true)) {
+    return if (!dark) lightColorScheme(
+${fmt(theme.light)}
+    ) else darkColorScheme(
+${fmt(theme.dark)}
+    )
+}`;
+}
+
+function renderTokenTable(theme) {
+  const am = toAmoled(theme.dark);
+  const rows = ROLE_META.map(([role, usage]) => {
+    const lHex = theme.light[role];
+    const dHex = theme.dark[role];
+    const aHex = am[role];
+    const aChanged = AMOLED_CHANGED.has(role);
+    return `
+      <tr>
+        <td><span class="role-code">${role}</span></td>
+        <td>
+          <button class="hex-btn" data-copy="${lHex}" title="Copy ${lHex}">
+            <span class="hex-swatch" style="background:${lHex}"></span>${lHex}
+          </button>
+        </td>
+        <td>
+          <button class="hex-btn" data-copy="${dHex}" title="Copy ${dHex}">
+            <span class="hex-swatch" style="background:${dHex}"></span>${dHex}
+          </button>
+        </td>
+        <td>
+          ${aChanged
+            ? `<button class="hex-btn" data-copy="${aHex}" title="Copy ${aHex}"><span class="hex-swatch" style="background:${aHex}"></span>${aHex}</button>`
+            : `<span class="amoled-same">same as dark</span>`}
+        </td>
+        <td class="usage-cell">${usage}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const kt = buildKotlinSnippet(theme).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  return `
+    <div class="spec-panel">
+      <div class="spec-top">
+        <div>
+          <div class="spec-heading">${theme.name} — Complete Material 3 ColorScheme &amp; Contrast Audit</div>
+          <div class="spec-sub">Click any hex to copy · AMOLED column is derived via Theme.kt’s exact ColorScheme.amoled() lerp</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="copy-kt-btn" data-toggle-kt="${theme.id}">View Compose Kotlin</button>
+          <button class="copy-kt-btn" data-copy-kt="${theme.id}">${ICO.copy}<span>Copy ColorScheme</span></button>
+        </div>
+      </div>
+
+      ${renderContrastStrip(theme)}
+
+      <div class="table-scroll">
+        <table class="token-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Light</th>
+              <th>Dark</th>
+              <th>AMOLED (derived)</th>
+              <th>Used in Skipii</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+
+      <div class="kt-drawer" id="kt-${theme.id}">
+        <pre class="kt-pre">${kt}</pre>
+      </div>
+    </div>
+  `;
+}
+
+function renderThemeSection(theme) {
+  const mode = themeViewMode[theme.id];
+  const am = toAmoled(theme.dark);
+
+  const phonesHtml = mode === 'split'
+    ? renderPhonesBlock(theme, 'light', true) + renderPhonesBlock(theme, 'dark', true)
+    : renderPhonesBlock(theme, mode, false);
+
+  return `
+    <section class="theme-section" id="theme-${theme.id}" data-theme-section="${theme.id}">
+      <div class="theme-header">
+        <div>
+          <div class="theme-title-row">
+            <span class="theme-index">${theme.index}</span>
+            <h2 class="theme-name">${theme.name}</h2>
+            <span class="theme-pill-hex"><span class="mini-dot" style="background:${theme.light.primary}"></span>Light ${theme.light.primary}</span>
+            <span class="theme-pill-hex"><span class="mini-dot" style="background:${theme.dark.primary}"></span>Dark ${theme.dark.primary}</span>
+          </div>
+          <p class="theme-pitch">${theme.pitch}</p>
+        </div>
+        <div class="theme-controls">
+          <div class="mode-group" role="group" aria-label="${theme.name} mode">
+            ${['light','dark','amoled','split'].map(m => `
+              <button class="mode-btn ${mode === m ? 'active' : ''}" data-theme-mode="${theme.id}:${m}">
+                ${m === 'split' ? 'Light + Dark' : (m === 'amoled' ? 'AMOLED' : m[0].toUpperCase() + m.slice(1))}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="dual-strip">
+        <div class="mode-card ${mode === 'light' || mode === 'split' ? 'active-mode' : ''}" data-theme-mode="${theme.id}:light" style="background:${theme.light.surface};color:${theme.light.onSurface}">
+          <div class="mode-card-meta">
+            <span class="mode-card-label">Light</span>
+            <span class="mode-card-sub">${theme.light.surface} · ${theme.light.primary}</span>
+          </div>
+          <div class="mode-card-dots">
+            <span class="mode-card-dot" style="background:${theme.light.surfaceContainerLow}" title="Card"></span>
+            <span class="mode-card-dot" style="background:${theme.light.primaryContainer}" title="Primary container"></span>
+            <span class="mode-card-pill" style="background:${theme.light.primary};color:${theme.light.onPrimary}">Play</span>
+          </div>
+        </div>
+
+        <div class="mode-card ${mode === 'dark' || mode === 'split' ? 'active-mode' : ''}" data-theme-mode="${theme.id}:dark" style="background:${theme.dark.surface};color:${theme.dark.onSurface}">
+          <div class="mode-card-meta">
+            <span class="mode-card-label">Dark</span>
+            <span class="mode-card-sub">${theme.dark.surface} · ${theme.dark.primary}</span>
+          </div>
+          <div class="mode-card-dots">
+            <span class="mode-card-dot" style="background:${theme.dark.surfaceContainerLow}" title="Card"></span>
+            <span class="mode-card-dot" style="background:${theme.dark.primaryContainer}" title="Primary container"></span>
+            <span class="mode-card-pill" style="background:${theme.dark.primary};color:${theme.dark.onPrimary}">Play</span>
+          </div>
+        </div>
+
+        <div class="mode-card ${mode === 'amoled' ? 'active-mode' : ''}" data-theme-mode="${theme.id}:amoled" style="background:${am.surface};color:${am.onSurface};box-shadow:inset 0 0 0 1px rgba(255,255,255,0.09)">
+          <div class="mode-card-meta">
+            <span class="mode-card-label">AMOLED</span>
+            <span class="mode-card-sub">#000000 · card ${am.surfaceContainerLow}</span>
+          </div>
+          <div class="mode-card-dots">
+            <span class="mode-card-dot" style="background:${am.surfaceContainerLow}" title="AMOLED card"></span>
+            <span class="mode-card-dot" style="background:${am.surfaceVariant}" title="AMOLED nav pill"></span>
+            <span class="mode-card-pill" style="background:${am.primary};color:${am.onPrimary}">Play</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phones-host" data-phones-host="${theme.id}">
+        ${phonesHtml}
+      </div>
+
+      ${renderTokenTable(theme)}
+    </section>
+  `;
+}
+
+function renderAll() {
+  document.getElementById('app-root').innerHTML = THEMES.map(renderThemeSection).join('');
+}
+
+function updateThemePhones(themeId) {
+  const theme = THEMES.find(t => t.id === themeId);
+  const mode = themeViewMode[themeId];
+  const host = document.querySelector(`[data-phones-host="${themeId}"]`);
+  if (host) {
+    host.innerHTML = mode === 'split'
+      ? renderPhonesBlock(theme, 'light', true) + renderPhonesBlock(theme, 'dark', true)
+      : renderPhonesBlock(theme, mode, false);
+  }
+  document.querySelectorAll(`[data-theme-mode^="${themeId}:"]`).forEach(el => {
+    const targetMode = el.dataset.themeMode.split(':')[1];
+    if (el.classList.contains('mode-btn')) {
+      el.classList.toggle('active', targetMode === mode);
+    } else if (el.classList.contains('mode-card')) {
+      el.classList.toggle('active-mode', targetMode === mode || (mode === 'split' && (targetMode === 'light' || targetMode === 'dark')));
+    }
+  });
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function copyText(text, label) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(label)).catch(() => fallbackCopy(text, label));
+  } else {
+    fallbackCopy(text, label);
+  }
+}
+function fallbackCopy(text, label) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast(label); } catch (_) {}
+  document.body.removeChild(ta);
+}
+
+// ── Event Delegation (mode switching + interactive phone controls) ────────────
+document.addEventListener('click', (e) => {
+  // Global mode switcher
+  const globalBtn = e.target.closest('[data-global-mode]');
+  if (globalBtn) {
+    const mode = globalBtn.dataset.globalMode;
+    document.querySelectorAll('[data-global-mode]').forEach(b => b.classList.toggle('active', b === globalBtn));
+    THEMES.forEach(t => {
+      themeViewMode[t.id] = mode;
+      updateThemePhones(t.id);
+    });
+    return;
+  }
+
+  // Per-theme mode switcher or strip card
+  const tmEl = e.target.closest('[data-theme-mode]');
+  if (tmEl) {
+    const [tid, mode] = tmEl.dataset.themeMode.split(':');
+    themeViewMode[tid] = mode;
+    updateThemePhones(tid);
+    return;
+  }
+
+  // In-phone Mode chips (Settings)
+  const phoneMode = e.target.closest('[data-phone-mode]');
+  if (phoneMode) {
+    const [tid, mode] = phoneMode.dataset.phoneMode.split(':');
+    themeViewMode[tid] = mode;
+    updateThemePhones(tid);
+    return;
+  }
+
+  // In-phone AMOLED switch (Settings)
+  const phoneAmoled = e.target.closest('[data-phone-amoled]');
+  if (phoneAmoled) {
+    const tid = phoneAmoled.dataset.phoneAmoled;
+    themeViewMode[tid] = themeViewMode[tid] === 'amoled' ? 'dark' : 'amoled';
+    updateThemePhones(tid);
+    return;
+  }
+
+  // In-phone NavPill tab click
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) {
+    const pill = tabBtn.closest('.nav-pill');
+    pill.querySelectorAll('[data-tab]').forEach(t => t.classList.toggle('active', t === tabBtn));
+    return;
+  }
+
+  // In-phone Home underline chip click
+  const chip = e.target.closest('[data-chip]');
+  if (chip) {
+    const row = chip.closest('.home-chips');
+    row.querySelectorAll('[data-chip]').forEach(c => c.classList.toggle('active', c === chip));
+    return;
+  }
+
+  // In-phone Quick Toggle
+  const qt = e.target.closest('[data-qt]');
+  if (qt) {
+    const on = qt.classList.toggle('on');
+    const st = qt.querySelector('.qt-state');
+    if (st) st.textContent = on ? 'On' : 'Off';
+    return;
+  }
+
+  // In-phone Bell toggle
+  const bell = e.target.closest('[data-bell]');
+  if (bell) {
+    const off = bell.classList.toggle('off');
+    bell.innerHTML = off ? ICO.bellOff : ICO.bellOn;
+    return;
+  }
+
+  // In-phone Like / Dislike toggle
+  const like = e.target.closest('[data-like]');
+  if (like) {
+    const pair = like.closest('.like-pair');
+    const dis = pair.querySelector('[data-dislike]');
+    like.classList.toggle('active');
+    if (like.classList.contains('active') && dis) dis.classList.remove('active');
+    return;
+  }
+  const dislike = e.target.closest('[data-dislike]');
+  if (dislike) {
+    const pair = dislike.closest('.like-pair');
+    const lk = pair.querySelector('[data-like]');
+    dislike.classList.toggle('active');
+    if (dislike.classList.contains('active') && lk) lk.classList.remove('active');
+    return;
+  }
+
+  // In-phone Play / Pause toggle
+  const playBtn = e.target.closest('[data-play-btn]');
+  if (playBtn) {
+    const paused = playBtn.dataset.paused === '1';
+    playBtn.dataset.paused = paused ? '0' : '1';
+    playBtn.innerHTML = paused ? ICO.pause : ICO.play;
+    return;
+  }
+
+  // Copy single hex
+  const copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) {
+    const hex = copyBtn.dataset.copy;
+    copyText(hex, `Copied ${hex}`);
+    return;
+  }
+
+  // Toggle Kotlin drawer
+  const toggleKt = e.target.closest('[data-toggle-kt]');
+  if (toggleKt) {
+    const drawer = document.getElementById('kt-' + toggleKt.dataset.toggleKt);
+    if (drawer) {
+      const open = drawer.classList.toggle('open');
+      toggleKt.textContent = open ? 'Hide Compose Kotlin' : 'View Compose Kotlin';
+    }
+    return;
+  }
+
+  // Copy Kotlin ColorScheme
+  const copyKt = e.target.closest('[data-copy-kt]');
+  if (copyKt) {
+    const t = THEMES.find(x => x.id === copyKt.dataset.copyKt);
+    if (t) copyText(buildKotlinSnippet(t), `Copied ${t.name} Compose ColorScheme`);
+    return;
+  }
+});
+
+renderAll();
+</script>
+</body>
+</html>

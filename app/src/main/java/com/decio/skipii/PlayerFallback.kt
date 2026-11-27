@@ -112,7 +112,7 @@ object PlayerFallback {
             .header("X-YouTube-Client-Name", CLIENT_ID)
             .header("X-YouTube-Client-Version", CLIENT_VERSION)
             .build()
-        val visitorData = Net.client.newCall(visitor).execute().use { response ->
+        val visitorData = Net.extractorClient.newCall(visitor).execute().use { response ->
             if (!response.isSuccessful) null
             else runCatching { JSONObject(response.body!!.string()).optJSONObject("responseContext")?.optString("visitorData") }.getOrNull()
         }.orEmpty()
@@ -147,7 +147,7 @@ object PlayerFallback {
             .header("X-YouTube-Client-Version", CLIENT_VERSION)
             .apply { if (visitorData.isNotEmpty()) header("X-Goog-Visitor-Id", visitorData) }
             .build()
-        Net.client.newCall(request).execute().use { response ->
+        Net.extractorClient.newCall(request).execute().use { response ->
             check(response.isSuccessful) { "HTTP ${response.code}" }
             return JSONObject(response.body!!.string())
         }

@@ -102,6 +102,12 @@
     <string name="settings_background_play_off">Tạm dừng khi bạn rời Skipii hoặc màn hình tắt (chế độ chỉ âm thanh vẫn phát)</string>
     <string name="settings_open_links_title">Mở liên kết YouTube</string>
     <string name="settings_open_links_line">Cho Skipii mở liên kết youtube.com và youtu.be từ ứng dụng khác: Mở theo mặc định › Thêm đường liên kết</string>
+    <string name="settings_open_links_done">Liên kết YouTube mở trong Skipii</string>
+    <string name="settings_open_links_other">Hiện đang mở trong %1$s: hai bước bên dưới</string>
+    <string name="settings_open_links_step1_title">1. Không cho %1$s mở chúng</string>
+    <string name="settings_open_links_step1_line">Mở theo mặc định › Trong trình duyệt, hoặc tắt Mở các đường liên kết được hỗ trợ</string>
+    <string name="settings_open_links_step2_title">2. Cho Skipii mở chúng</string>
+    <string name="settings_open_links_step2_line">Mở theo mặc định › Thêm đường liên kết › chọn tất cả</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Gửi báo cáo</string>
     <string name="report_email_prompt">Đã xảy ra chuyện gì? (không bắt buộc, ngôn ngữ nào cũng được)</string>

@@ -67,6 +67,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.WatchLater
 import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material.icons.rounded.AddLink
+import androidx.compose.material.icons.rounded.LinkOff
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.HighQuality
 import androidx.compose.material.icons.rounded.AutoDelete
 import androidx.compose.material.icons.rounded.Storage
@@ -2094,22 +2097,54 @@ private fun AboutPage(player: PlayerState) {
         }
     }
     // GitHub #59: Skipii takes youtube.com / youtu.be links, but Android 12+ only hands them over once allowed
-    // under the app's "Open by default" (an app can't verify a domain that isn't its own). Not on a TV (no links there).
+    // under the app's "Open by default" (an app can't verify a domain that isn't its own), and never while the
+    // YouTube app still has its own links on (YouTubeLinks). Not on a TV (no links there).
     if (!LocalWindowLayout.current.tv) {
         Spacer(Modifier.height(14.dp))
-        Joined(1) { _, shape ->
-            LinkSetting(
-                "links", shape, Icons.Rounded.Link,
-                stringResource(R.string.settings_open_links_title), stringResource(R.string.settings_open_links_line),
-            ) {
-                val pkg = Uri.parse("package:${context.packageName}")
-                val page = if (Build.VERSION.SDK_INT >= 31) Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, pkg)
-                else Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
-                context.openOrSay(page) { player.actionMessage = it }
-            }
-        }
+        OpenLinksSetting(player)
     }
     if (whatsNew) AppUpdate.available?.let { WhatsNewSheet(it, onDismiss = { whatsNew = false }) }
+}
+
+/**
+ * Who opens YouTube links now, read again whenever the page comes back from Android's settings. While another
+ * app (the YouTube app) has them, two step rows: turn its links off, then add Skipii's — in that order, since
+ * Android keeps the YouTube app's verified links over Skipii's.
+ */
+@Composable
+private fun OpenLinksSetting(player: PlayerState) {
+    val context = LocalContext.current
+    var status by remember { mutableStateOf(YouTubeLinks.status(context)) }
+    LifecycleResumeEffect(Unit) {
+        status = YouTubeLinks.status(context)
+        onPauseOrDispose { }
+    }
+    fun open(pkg: String) = context.openOrSay(YouTubeLinks.openByDefault(pkg)) { player.actionMessage = it }
+    val other = status as? YouTubeLinks.Status.OtherApp
+    Joined(if (other != null) 3 else 1) { i, shape ->
+        when (i) {
+            0 -> LinkSetting(
+                "links", shape,
+                if (status == YouTubeLinks.Status.Skipii) Icons.Rounded.CheckCircle else Icons.Rounded.Link,
+                stringResource(R.string.settings_open_links_title),
+                when {
+                    status == YouTubeLinks.Status.Skipii -> stringResource(R.string.settings_open_links_done)
+                    other != null -> stringResource(R.string.settings_open_links_other, other.label)
+                    else -> stringResource(R.string.settings_open_links_line)
+                },
+            ) { open(context.packageName) }
+            1 -> LinkSetting(
+                "links_other", shape, Icons.Rounded.LinkOff,
+                stringResource(R.string.settings_open_links_step1_title, other!!.label),
+                stringResource(R.string.settings_open_links_step1_line, other.label),
+            ) { open(other.packageName) }
+            else -> LinkSetting(
+                "links_skipii", shape, Icons.Rounded.AddLink,
+                stringResource(R.string.settings_open_links_step2_title),
+                stringResource(R.string.settings_open_links_step2_line),
+            ) { open(context.packageName) }
+        }
+    }
 }
 
 private tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {

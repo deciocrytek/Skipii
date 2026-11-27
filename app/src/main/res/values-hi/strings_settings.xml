@@ -103,6 +103,12 @@
     <string name="settings_background_play_off">Skipii छोड़ने या स्क्रीन बंद होने पर रुक जाता है (सिर्फ़ ऑडियो चलता रहता है)</string>
     <string name="settings_open_links_title">YouTube लिंक खोलें</string>
     <string name="settings_open_links_line">दूसरे ऐप्लिकेशन से youtube.com और youtu.be लिंक Skipii में खुलें: डिफ़ॉल्ट रूप से खोलें › लिंक जोड़ें</string>
+    <string name="settings_open_links_done">YouTube लिंक Skipii में खुलते हैं</string>
+    <string name="settings_open_links_other">अभी ये %1$s में खुलते हैं: नीचे दो चरण</string>
+    <string name="settings_open_links_step1_title">1. %1$s में इन्हें खुलने से रोकें</string>
+    <string name="settings_open_links_step1_line">डिफ़ॉल्ट रूप से खोलें › आपके ब्राउज़र में, या समर्थित लिंक खोलें बंद करें</string>
+    <string name="settings_open_links_step2_title">2. Skipii में खुलने दें</string>
+    <string name="settings_open_links_step2_line">डिफ़ॉल्ट रूप से खोलें › लिंक जोड़ें › सभी चुनें</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">रिपोर्ट भेजें</string>
     <string name="report_email_prompt">क्या हुआ? (वैकल्पिक, किसी भी भाषा में)</string>

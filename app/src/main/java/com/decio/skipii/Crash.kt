@@ -69,7 +69,8 @@ object CrashLog {
         val rt = Runtime.getRuntime()
         val up = (SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime()) / 1000
         File(dir, "crash-$now.txt").writeText(buildString {
-            appendLine("### Crash ${stamp(now)}")
+            // The version: a crash kept from an older build read as one in the build that sent the report.
+            appendLine("### Crash ${stamp(now)} · Skipii ${BuildConfig.VERSION_NAME}")
             appendLine("Thread \"${thread.name}\" · up ${up} s · heap ${mb(rt.totalMemory() - rt.freeMemory())} of ${mb(rt.maxMemory())} MB")
             appendLine("```")
             appendLine(trace.take(MaxTrace).trimEnd())

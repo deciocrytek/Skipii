@@ -104,6 +104,12 @@
     <string name="settings_background_play_off">Se pausa al salir de Skipii o al apagarse la pantalla (solo audio sigue sonando)</string>
     <string name="settings_open_links_title">Abrir enlaces de YouTube</string>
     <string name="settings_open_links_line">Deja que Skipii abra enlaces de youtube.com y youtu.be de otras apps: Abrir de forma predeterminada › Añadir enlaces</string>
+    <string name="settings_open_links_done">Los enlaces de YouTube se abren en Skipii</string>
+    <string name="settings_open_links_other">Por ahora se abren en %1$s: dos pasos abajo</string>
+    <string name="settings_open_links_step1_title">1. Que %1$s deje de abrirlos</string>
+    <string name="settings_open_links_step1_line">Abrir de forma predeterminada › En el navegador, o desactiva Abrir enlaces compatibles</string>
+    <string name="settings_open_links_step2_title">2. Deja que Skipii los abra</string>
+    <string name="settings_open_links_step2_line">Abrir de forma predeterminada › Añadir enlaces › márcalos todos</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Enviar informe</string>
     <string name="report_email_prompt">¿Qué pasó? (opcional, en cualquier idioma)</string>

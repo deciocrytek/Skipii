@@ -102,6 +102,12 @@
     <string name="settings_background_play_off">Dijeda saat keluar dari Skipii atau layar mati (hanya audio tetap diputar)</string>
     <string name="settings_open_links_title">Buka tautan YouTube</string>
     <string name="settings_open_links_line">Izinkan Skipii membuka tautan youtube.com dan youtu.be dari aplikasi lain: Buka secara default › Tambahkan tautan</string>
+    <string name="settings_open_links_done">Tautan YouTube terbuka di Skipii</string>
+    <string name="settings_open_links_other">Untuk sekarang terbuka di %1$s: dua langkah di bawah</string>
+    <string name="settings_open_links_step1_title">1. Hentikan %1$s membukanya</string>
+    <string name="settings_open_links_step1_line">Buka secara default › Di browser, atau nonaktifkan Buka link yang didukung</string>
+    <string name="settings_open_links_step2_title">2. Izinkan Skipii membukanya</string>
+    <string name="settings_open_links_step2_line">Buka secara default › Tambahkan tautan › centang semuanya</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Kirim laporan</string>
     <string name="report_email_prompt">Apa yang terjadi? (opsional, bahasa apa saja)</string>

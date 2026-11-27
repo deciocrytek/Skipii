@@ -1,0 +1,3392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skipii — Round 2 Material &amp; Glow Themes (Washi, Phosphor, Alloy)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Nunito:wght@700;800;900&family=Roboto+Flex:opsz,wght@8..144,400..800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --page-bg: #0D0E11;
+    --page-elev: #16181D;
+    --page-elev-2: #1F2229;
+    --page-ink: #F2F3F7;
+    --page-muted: #9BA0AE;
+    --page-subtle: #6D7382;
+    --font-ui: 'Roboto Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-rounded: 'Nunito', 'Roboto Flex', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Seamless inline SVG textures (work straight from file://) */
+    --tex-washi-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.038 0.44' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.25  0 0 0 0 0.16  0 0 0 0 0.09  0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)'/%3E%3C/svg%3E");
+    --tex-washi-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.038 0.44' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.98  0 0 0 0 0.88  0 0 0 0 0.78  0 0 0 0.85 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23f)'/%3E%3C/svg%3E");
+    --tex-washi-speck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' seed='19' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.42  0 0 0 0 0.26  0 0 0 0 0.14  0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23s)'/%3E%3C/svg%3E");
+
+    --tex-phosphor-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.08  0 0 0 0 0.18  0 0 0 0 0.46  0 0 0 0.85 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+    --tex-phosphor-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.62  0 0 0 0 0.78  0 0 0 0 1.0  0 0 0 0.85 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+
+    --tex-alloy-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.88' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12  0 0 0 0 0.11  0 0 0 0 0.18  0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='240' height='160' filter='url(%23a)'/%3E%3C/svg%3E");
+    --tex-alloy-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.88' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92  0 0 0 0 0.90  0 0 0 0 1.0  0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='240' height='160' filter='url(%23a)'/%3E%3C/svg%3E");
+  }
+
+  html {
+    background: var(--page-bg);
+    color: var(--page-ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    padding-bottom: 100px;
+    overflow-x: hidden;
+  }
+
+  /* ── Top Studio Bar ─────────────────────────────────────────────── */
+  .studio-bar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: rgba(13, 14, 17, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 12px 20px;
+  }
+  .studio-bar-inner {
+    max-width: 1380px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .studio-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .studio-brand-mark {
+    width: 36px;
+    height: 27px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #B53322 0%, #1A4FD0 52%, #9B36C9 100%);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(96, 86, 224, 0.35);
+  }
+  .studio-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 17px;
+    letter-spacing: -0.35px;
+    line-height: 1.1;
+  }
+  .studio-sub {
+    font-size: 11.5px;
+    color: var(--page-muted);
+    font-weight: 500;
+  }
+
+  .studio-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .jump-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: var(--page-elev);
+    color: var(--page-ink);
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 700;
+    transition: transform 140ms ease, background 140ms ease;
+  }
+  .jump-pill:hover { background: var(--page-elev-2); }
+  .jump-pill:active { transform: scale(0.95); }
+  .jump-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .studio-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mode-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--page-elev);
+    padding: 4px;
+    border-radius: 999px;
+    gap: 3px;
+  }
+  .mode-btn {
+    border: none;
+    background: transparent;
+    color: var(--page-muted);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 130ms ease, background 160ms ease, color 160ms ease;
+    white-space: nowrap;
+  }
+  .mode-btn:hover { color: var(--page-ink); }
+  .mode-btn:active { transform: scale(0.94); }
+  .mode-btn.active {
+    background: var(--page-ink);
+    color: #0D0E11;
+  }
+
+  .motion-toggle {
+    border: none;
+    background: var(--page-elev);
+    color: var(--page-muted);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: transform 130ms ease, background 160ms ease, color 160ms ease;
+    white-space: nowrap;
+  }
+  .motion-toggle:hover { color: var(--page-ink); background: var(--page-elev-2); }
+  .motion-toggle:active { transform: scale(0.95); }
+  .motion-toggle.active {
+    background: #2B2440;
+    color: #DF8CFF;
+  }
+  .motion-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── Intro Hero ─────────────────────────────────────────────────── */
+  .page-intro {
+    max-width: 1380px;
+    margin: 34px auto 12px;
+    padding: 0 20px;
+  }
+  .intro-top {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 28px;
+    align-items: end;
+  }
+  .intro-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+    margin-bottom: 10px;
+  }
+  .intro-h1 {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: clamp(28px, 4.4vw, 44px);
+    letter-spacing: -1.1px;
+    line-height: 1.07;
+    margin-bottom: 12px;
+  }
+  .intro-lead {
+    color: var(--page-muted);
+    font-size: 15px;
+    line-height: 1.56;
+    max-width: 650px;
+  }
+
+  .world-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .world-card {
+    background: var(--page-elev);
+    border-radius: 22px;
+    padding: 14px;
+    text-decoration: none;
+    color: var(--page-ink);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 150ms ease, background 150ms ease;
+  }
+  .world-card:hover { background: var(--page-elev-2); transform: translateY(-2px); }
+  .world-card:active { transform: scale(0.97); }
+  .world-card-swatch {
+    height: 44px;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 10px;
+  }
+  .world-card-orb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  .world-card-name {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+  .world-card-meta {
+    font-size: 11.5px;
+    color: var(--page-muted);
+    line-height: 1.38;
+  }
+
+  /* ── Theme Section ──────────────────────────────────────────────── */
+  .theme-section {
+    max-width: 1380px;
+    margin: 64px auto 0;
+    padding: 0 20px;
+    scroll-margin-top: 76px;
+  }
+  .theme-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .theme-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .theme-index {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--page-muted);
+    background: var(--page-elev);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .theme-name {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 40px);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .theme-pill-hex {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    background: var(--page-elev);
+    color: var(--page-muted);
+    padding: 5px 11px;
+    border-radius: 999px;
+  }
+  .mini-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .theme-pitch {
+    font-size: 15.5px;
+    color: #CFD3DF;
+    line-height: 1.5;
+    max-width: 740px;
+  }
+
+  /* Quick mode bar per theme */
+  .dual-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .mode-card {
+    border-radius: 20px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 140ms ease, box-shadow 180ms ease;
+  }
+  .mode-card:active { transform: scale(0.98); }
+  .mode-card.active-mode {
+    box-shadow: 0 0 0 2px rgba(242, 243, 247, 0.9) !important;
+  }
+  .mode-card-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; position: relative; z-index: 1; }
+  .mode-card-label { font-size: 11.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+  .mode-card-sub { font-family: var(--font-mono); font-size: 10.5px; opacity: 0.78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mode-card-dots { display: flex; align-items: center; gap: 5px; flex-shrink: 0; position: relative; z-index: 1; }
+  .mode-card-dot { width: 20px; height: 20px; border-radius: 50%; }
+  .mode-card-pill { padding: 4px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 800; }
+
+  /* ── Phones Row (4 phones × 320×680) ────────────────────────────── */
+  .phones-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(308px, 320px));
+    justify-content: space-between;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 6px 2px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.18) transparent;
+  }
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-caption {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--page-muted);
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .phone-caption-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--page-elev);
+    color: var(--page-muted);
+  }
+
+  /* ── Phone Shell (320×680) ──────────────────────────────────────── */
+  .phone-shell {
+    width: 320px;
+    height: 680px;
+    border-radius: 40px;
+    background: #1C1E24;
+    padding: 7px;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.56), 0 4px 14px rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 34px;
+    background: var(--surface);
+    color: var(--on-surface);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-ui);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Surface texture overlay layer inside each phone */
+  .surface-tex {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: var(--page-tex-img);
+    background-size: var(--page-tex-size, 220px 220px);
+    opacity: var(--page-tex-opacity, 0);
+    mix-blend-mode: var(--page-tex-blend, normal);
+  }
+  .surface-tex-2 {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: var(--page-tex2-img, none);
+    background-size: var(--page-tex2-size, 180px 180px);
+    opacity: var(--page-tex2-opacity, 0);
+  }
+
+  .phone-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 30px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 6;
+  }
+  .status-bar.over-video {
+    background: #000000;
+    color: #FFFFFF;
+  }
+  .status-camera {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #0A0B0E;
+    position: absolute;
+    left: 50%;
+    top: 9px;
+    transform: translateX(-50%);
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Pressable feedback (Rule 1: no ripple, 0.94 scale spring) */
+  .pressable {
+    cursor: pointer;
+    transition: transform 140ms cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 200ms ease, background 180ms ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pressable:active { transform: scale(0.94); }
+
+  /* ── Theme Material Animations ──────────────────────────────────── */
+  @keyframes washiBreathe {
+    0%, 100% { box-shadow: var(--play-glow-a); }
+    50% { box-shadow: var(--play-glow-b); }
+  }
+  @keyframes phosphorPulse {
+    0%, 100% { box-shadow: var(--play-glow-a); }
+    50% { box-shadow: var(--play-glow-b); }
+  }
+  @keyframes alloySweep {
+    0%, 62% { transform: translateX(-135%) skewX(-22deg); opacity: 0; }
+    72% { opacity: 0.7; }
+    100% { transform: translateX(230%) skewX(-22deg); opacity: 0; }
+  }
+  @keyframes sparkPulse {
+    0%, 100% { opacity: 0.85; transform: translateY(-50%) scale(1); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.28); }
+  }
+
+  /* Respect both system prefers-reduced-motion AND the page's live toggle */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-breathe, .anim-pulse, .anim-sweep, .anim-spark {
+      animation: none !important;
+    }
+    .pressable:active { transform: none !important; opacity: 0.86; }
+  }
+  body.reduced-motion .anim-breathe,
+  body.reduced-motion .anim-pulse,
+  body.reduced-motion .anim-sweep,
+  body.reduced-motion .anim-spark {
+    animation: none !important;
+  }
+  body.reduced-motion .pressable:active {
+    transform: none !important;
+    opacity: 0.86;
+  }
+
+  /* ── Shared Phone Components (ZERO 1 dp borders!) ───────────────── */
+  /* Home header */
+  .app-header {
+    padding: 4px 14px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-mark {
+    width: 29px;
+    height: 22px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--accent-glow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-name {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: -0.6px;
+    color: var(--on-surface);
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface-container-high);
+    color: var(--on-surface-variant);
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--avatar-derek);
+    color: #fff;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 13px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+  }
+
+  /* Chips row */
+  .chips-row {
+    display: flex;
+    gap: 6px;
+    padding: 2px 14px 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .feed-chip {
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: var(--surface-container-high);
+    color: var(--on-surface-variant);
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .feed-chip.active {
+    border-radius: 16px;
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--accent-glow-sm);
+  }
+
+  /* Video feed cards (28 dp card corners, 23 dp thumb corners, on surfaceContainerLow) */
+  .feed-list {
+    flex: 1;
+    padding: 0 12px 92px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    overflow: hidden;
+  }
+  .v-card {
+    background: var(--surface-container-low);
+    border-radius: 26px; /* ~28 dp scaled to 320px */
+    padding: 7px 7px 11px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .v-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--card-tex-img);
+    background-size: var(--card-tex-size, 200px 200px);
+    opacity: var(--card-tex-opacity, 0);
+    z-index: 0;
+  }
+  /* Soft top rim-light / satin sheen wash (NO 1 dp border!) */
+  .v-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--card-sheen, none);
+    z-index: 0;
+  }
+  .v-card > * { position: relative; z-index: 1; }
+
+  .v-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 21px; /* ~23 dp scaled to 320px */
+    position: relative;
+    overflow: hidden;
+    background: #222;
+  }
+  .v-dur {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 2px 6px;
+    border-radius: 7px;
+    background: rgba(10, 10, 12, 0.78);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+  }
+  .v-resume-track {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .v-resume-fill {
+    height: 100%;
+    background: var(--primary);
+    box-shadow: var(--prog-glow);
+  }
+  .v-meta {
+    display: flex;
+    gap: 9px;
+    padding: 9px 6px 0;
+    align-items: flex-start;
+  }
+  .v-ava {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 11px;
+    color: #fff;
+  }
+  .v-text { min-width: 0; flex: 1; }
+  .v-title {
+    font-family: var(--font-rounded);
+    font-weight: 800;
+    font-size: 12.5px;
+    line-height: 1.25;
+    color: var(--on-surface);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .v-sub {
+    font-size: 10.5px;
+    color: var(--on-surface-variant);
+    margin-top: 3px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Bottom smoothstep vignette */
+  .bottom-vignette {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 92px;
+    pointer-events: none;
+    z-index: 8;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0) 0%,
+      color-mix(in srgb, var(--surface) 28%, transparent) 38%,
+      color-mix(in srgb, var(--surface) 76%, transparent) 100%);
+  }
+
+  /* Floating 5-tab NavPill (on surfaceVariant, selected tab full primary/onPrimary) */
+  .nav-pill {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 14px;
+    height: 54px;
+    border-radius: 28px;
+    background: var(--nav-bg);
+    backdrop-filter: var(--nav-blur, none);
+    -webkit-backdrop-filter: var(--nav-blur, none);
+    box-shadow: var(--nav-shadow);
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    z-index: 12;
+    overflow: hidden;
+  }
+  .nav-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--nav-tex-img, none);
+    background-size: 180px 180px;
+    opacity: var(--nav-tex-opacity, 0);
+  }
+  .nav-pill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--nav-sheen, none);
+  }
+  .nav-item {
+    height: 44px;
+    flex: 1;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: var(--on-surface-variant);
+    font-size: 11px;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .nav-item.selected {
+    flex: 2.35;
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--tab-glow);
+    padding: 0 11px;
+  }
+  .nav-item .sheen-bar {
+    display: none;
+  }
+
+  /* ── Open Player Screen ─────────────────────────────────────────── */
+  .player-stage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    flex-shrink: 0;
+    z-index: 5;
+    /* Nothing is ever drawn ON the video picture itself! */
+  }
+  .player-body {
+    flex: 1;
+    position: relative;
+    padding: 12px 13px 104px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+  /* Ambient light bleed strictly BELOW the video rectangle */
+  .ambient-bleed {
+    position: absolute;
+    top: 0;
+    left: -16px;
+    right: -16px;
+    height: 175px;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--ambient-bleed);
+  }
+  .player-body > *:not(.ambient-bleed) {
+    position: relative;
+    z-index: 1;
+  }
+  .player-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 14.5px;
+    line-height: 1.24;
+    letter-spacing: -0.25px;
+    color: var(--on-surface);
+  }
+  .player-meta-line {
+    font-size: 10.5px;
+    color: var(--on-surface-variant);
+    margin-top: -5px;
+    font-weight: 500;
+  }
+
+  /* Channel row */
+  .channel-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .ch-info { flex: 1; min-width: 0; }
+  .ch-name {
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ch-subs {
+    font-size: 10px;
+    color: var(--on-surface-variant);
+  }
+  .sub-pill {
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    font-size: 11px;
+    font-weight: 800;
+    position: relative;
+    overflow: hidden;
+  }
+  .bell-pill {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--bell-glow, none);
+  }
+
+  /* Action pills row (surfaceContainerHigh) */
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .action-pill {
+    height: 33px;
+    padding: 0 11px;
+    border-radius: 16px;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .action-pill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--pill-sheen, none);
+  }
+  .action-pill.liked {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    box-shadow: var(--like-glow);
+  }
+  .action-pill.liked svg {
+    color: var(--primary);
+    filter: var(--like-icon-glow);
+  }
+
+  /* Description & Comments cards (surfaceContainer) */
+  .info-card {
+    background: var(--surface-container);
+    border-radius: 18px;
+    padding: 10px 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--subcard-shadow, none);
+  }
+  .info-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--card-tex-img);
+    background-size: var(--card-tex-size, 200px 200px);
+    opacity: var(--subcard-tex-opacity, 0);
+  }
+  .info-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--card-sheen, none);
+  }
+  .info-card > * { position: relative; z-index: 1; }
+  .info-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--on-surface);
+    margin-bottom: 4px;
+  }
+  .info-card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .info-card-body {
+    font-size: 10.8px;
+    line-height: 1.4;
+    color: var(--on-surface-variant);
+  }
+  .info-link {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .comment-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+  }
+  .comment-ava {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 900;
+    color: #fff;
+  }
+
+  /* Floating Player Bar (audio only · −10 · play (full primary) · +10 · ⋮ + thin primary progress line) */
+  .player-bar {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 22px;
+    height: 70px;
+    border-radius: 34px;
+    background: var(--nav-bg);
+    backdrop-filter: var(--nav-blur, none);
+    -webkit-backdrop-filter: var(--nav-blur, none);
+    box-shadow: var(--playerbar-shadow);
+    padding: 6px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 14;
+    overflow: visible;
+  }
+  .player-bar-surface {
+    position: absolute;
+    inset: 0;
+    border-radius: 34px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .player-bar-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--nav-tex-img, none);
+    background-size: 180px 180px;
+    opacity: var(--nav-tex-opacity, 0);
+  }
+  .player-bar-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--nav-sheen, none);
+  }
+  .bar-grabber {
+    width: 22px;
+    height: 3px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--on-surface-variant) 42%, transparent);
+    position: relative;
+    z-index: 2;
+  }
+  .bar-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    position: relative;
+    z-index: 2;
+  }
+  .bar-side-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--on-surface);
+  }
+  .bar-skip-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--on-surface);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .bar-play-btn {
+    width: 86px;
+    height: 42px;
+    border-radius: 22px;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--play-glow-a);
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-play-btn.paused {
+    animation: none !important;
+    box-shadow: var(--accent-glow-sm);
+  }
+  .bar-progress-wrap {
+    width: 82%;
+    height: 3px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--on-surface-variant) 26%, transparent);
+    position: relative;
+    z-index: 2;
+  }
+  .bar-progress-fill {
+    width: 58%;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--primary);
+    box-shadow: var(--prog-glow);
+    position: relative;
+  }
+  /* Chapter slit */
+  .bar-chapter-slit {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--nav-slit-bg);
+    left: 34%;
+  }
+  .bar-chapter-slit.s2 { left: 71%; }
+  /* Playhead luminous spark (Phosphor & Alloy) */
+  .bar-playhead-spark {
+    display: var(--spark-display, none);
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--spark-core, #fff);
+    box-shadow: var(--spark-glow);
+  }
+
+  /* ── Settings Screen ────────────────────────────────────────────── */
+  .settings-scroll {
+    flex: 1;
+    padding: 0 14px 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .settings-top-row {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    color: var(--on-surface);
+  }
+  .settings-big-title {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 27px;
+    letter-spacing: -0.9px;
+    line-height: 1.05;
+    color: var(--on-surface);
+    margin: 2px 0 10px 2px;
+  }
+  .search-pill {
+    height: 38px;
+    border-radius: 19px;
+    background: var(--surface-container-highest);
+    color: var(--on-surface-variant);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .acct-card {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border-radius: 19px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 9px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--subcard-shadow, none);
+  }
+  .acct-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--card-sheen, none);
+  }
+  .acct-ava {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--avatar-derek);
+    color: #fff;
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 14px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .acct-name { font-weight: 800; font-size: 13px; }
+  .acct-sub { font-size: 10.5px; opacity: 0.78; margin-top: 1px; }
+
+  /* 2×2 Quick toggles (full primary when on) */
+  .qt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+  .qt-tile {
+    height: 50px;
+    border-radius: 18px;
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    padding: 0 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .qt-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--pill-sheen, none);
+  }
+  .qt-tile.on {
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--toggle-glow);
+  }
+  .qt-label { font-weight: 800; font-size: 11px; line-height: 1.15; }
+  .qt-state { font-size: 9.5px; opacity: 0.78; font-weight: 600; }
+  .qt-led {
+    display: var(--led-dot-display, none);
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--on-primary);
+    box-shadow: 0 0 8px var(--on-primary);
+  }
+  .qt-tile:not(.on) .qt-led { display: none; }
+
+  .group-label {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 11px;
+    padding: 2px 0 6px 10px;
+    letter-spacing: 0.01em;
+  }
+
+  /* Joined category tiles: 3 dp apart, inner corners 7 dp, outer corners 21 dp */
+  .joined-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .j-tile {
+    background: var(--surface-container-low);
+    border-radius: 7px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .j-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--card-tex-img);
+    background-size: var(--card-tex-size, 200px 200px);
+    opacity: var(--card-tex-opacity, 0);
+  }
+  .j-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--tile-sheen, none);
+  }
+  .j-tile > * { position: relative; z-index: 1; }
+  .j-tile:first-child { border-top-left-radius: 21px; border-top-right-radius: 21px; }
+  .j-tile:last-child { border-bottom-left-radius: 21px; border-bottom-right-radius: 21px; }
+  .j-tile-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 11px;
+    background: var(--surface-container-high);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .j-tile-text { flex: 1; min-width: 0; }
+  .j-tile-title { font-weight: 800; font-size: 12.5px; color: var(--on-surface); line-height: 1.15; }
+  .j-tile-sub { font-size: 10px; color: var(--on-surface-variant); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Appearance / Theme Picker Screen ───────────────────────────── */
+  .app-summary {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    margin: -6px 0 11px 2px;
+  }
+  .setting-block {
+    background: var(--surface-container-low);
+    border-radius: 7px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .setting-block::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--card-tex-img);
+    background-size: var(--card-tex-size, 200px 200px);
+    opacity: var(--card-tex-opacity, 0);
+  }
+  .setting-block::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--tile-sheen, none);
+  }
+  .setting-block > * { position: relative; z-index: 1; }
+  .setting-block:first-child { border-top-left-radius: 21px; border-top-right-radius: 21px; }
+  .setting-block:last-child { border-bottom-left-radius: 21px; border-bottom-right-radius: 21px; }
+
+  .sb-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sb-title { font-weight: 800; font-size: 13px; color: var(--on-surface); }
+  .sb-line { font-size: 10px; color: var(--on-surface-variant); margin-top: 2px; line-height: 1.3; }
+  .mode-chips-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .mode-chip {
+    padding: 7px 13px;
+    border-radius: 10px;
+    background: var(--surface-container-highest);
+    color: var(--on-surface-variant);
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .mode-chip.active {
+    border-radius: 16px;
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--accent-glow-sm);
+  }
+
+  /* M3 Switch */
+  .m3-switch {
+    width: 42px;
+    height: 24px;
+    border-radius: 99px;
+    background: var(--surface-container-highest);
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: background 180ms ease, box-shadow 180ms ease;
+  }
+  .m3-switch.on {
+    background: var(--primary);
+    justify-content: flex-end;
+    box-shadow: var(--accent-glow-sm);
+  }
+  .m3-switch.dimmed { opacity: 0.42; }
+  .m3-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--on-surface-variant);
+  }
+  .m3-switch.on .m3-thumb {
+    background: var(--on-primary);
+  }
+
+  /* Theme picker swatches (Skipii's CookieShape when selected, CircleShape unselected) */
+  .swatch-rail {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px 6px;
+    margin-top: 12px;
+  }
+  .swatch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .swatch-outer {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    padding: 4px;
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .swatch-outer.selected {
+    border-radius: 18px;
+    clip-path: polygon(
+      50% 1%, 57% 5%, 64% 3%, 71% 9%, 79% 9%, 84% 17%, 91% 21%, 93% 29%,
+      98% 36%, 96% 43%, 99% 50%, 96% 57%, 98% 64%, 93% 71%, 91% 79%, 84% 83%,
+      79% 91%, 71% 91%, 64% 97%, 57% 95%, 50% 99%, 43% 95%, 36% 97%, 29% 91%,
+      21% 91%, 16% 83%, 9% 79%, 7% 71%, 2% 64%, 4% 57%, 1% 50%, 4% 43%,
+      2% 36%, 7% 29%, 9% 21%, 16% 17%, 21% 9%, 29% 9%, 36% 3%, 43% 5%
+    );
+    filter: var(--swatch-selected-glow);
+  }
+  .swatch-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch-outer.selected .swatch-inner {
+    border-radius: 15px;
+    clip-path: polygon(
+      50% 1%, 57% 5%, 64% 3%, 71% 9%, 79% 9%, 84% 17%, 91% 21%, 93% 29%,
+      98% 36%, 96% 43%, 99% 50%, 96% 57%, 98% 64%, 93% 71%, 91% 79%, 84% 83%,
+      79% 91%, 71% 91%, 64% 97%, 57% 95%, 50% 99%, 43% 95%, 36% 97%, 29% 91%,
+      21% 91%, 16% 83%, 9% 79%, 7% 71%, 2% 64%, 4% 57%, 1% 50%, 4% 43%,
+      2% 36%, 7% 29%, 9% 21%, 16% 17%, 21% 9%, 29% 9%, 36% 3%, 43% 5%
+    );
+  }
+  .swatch-name {
+    font-size: 9.8px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .swatch-name.selected {
+    color: var(--on-surface);
+    font-weight: 900;
+  }
+
+  /* Material preview card inside Appearance */
+  .material-live-card {
+    margin-top: 12px;
+    border-radius: 16px;
+    background: var(--surface);
+    padding: 10px 11px;
+    position: relative;
+    overflow: hidden;
+  }
+  .material-live-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--page-tex-img);
+    background-size: 160px 160px;
+    opacity: var(--page-tex-opacity, 0);
+  }
+  .mlc-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .mlc-title { font-size: 10.5px; font-weight: 800; color: var(--on-surface); }
+  .mlc-sub { font-size: 9.5px; color: var(--on-surface-variant); margin-top: 1px; }
+  .mlc-pill {
+    padding: 5px 10px;
+    border-radius: 99px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 9.5px;
+    font-weight: 800;
+    box-shadow: var(--play-glow-a);
+    white-space: nowrap;
+  }
+
+  /* ── Spec Panels Under Each Theme ───────────────────────────────── */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .spec-panel {
+    background: var(--page-elev);
+    border-radius: 24px;
+    padding: 20px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .spec-heading {
+    font-family: var(--font-rounded);
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .spec-sub {
+    font-size: 12.5px;
+    color: var(--page-muted);
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+
+  /* Contrast cards */
+  .contrast-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .contrast-card {
+    background: var(--page-elev-2);
+    border-radius: 15px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .cc-pair {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--page-muted);
+  }
+  .cc-vals {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cc-ratio {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--page-ink);
+  }
+  .cc-badge {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: rgba(56, 209, 128, 0.16);
+    color: #6CE5A4;
+  }
+
+  /* Colour roles table */
+  .roles-table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  .roles-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .roles-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--page-muted);
+    padding: 0 6px 9px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .roles-table td {
+    padding: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .roles-table tr:last-child td { border-bottom: none; }
+  .role-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--page-ink);
+  }
+  .hex-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #CFD3DF;
+    white-space: nowrap;
+  }
+  .hex-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
+  }
+
+  /* Material Spec Items */
+  .mat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .mat-item {
+    background: var(--page-elev-2);
+    border-radius: 17px;
+    padding: 13px 15px;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .mat-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .mat-item-title {
+    font-weight: 800;
+    font-size: 13.5px;
+    color: var(--page-ink);
+  }
+  .mat-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.07);
+    color: #CFD3DF;
+  }
+  .mat-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .mat-metric {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--page-muted);
+    background: rgba(0,0,0,0.25);
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .mat-metric strong { color: var(--page-ink); font-weight: 600; }
+  .mat-compose {
+    font-size: 12px;
+    line-height: 1.48;
+    color: #C7CCDA;
+  }
+  .mat-compose strong {
+    color: var(--page-ink);
+    font-weight: 700;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     THEME 1: WASHI — Handmade Cotton Paper & Vermilion Stamp
+     ══════════════════════════════════════════════════════════════════ */
+  .theme-washi[data-mode="light"] {
+    --primary: #A82D1E;
+    --on-primary: #FFF9F5;
+    --primary-container: #F9D9D0;
+    --on-primary-container: #4A1008;
+    --secondary: #6F5747;
+    --surface: #F7F1E6;
+    --on-surface: #241A14;
+    --surface-variant: #E8DDD0;
+    --on-surface-variant: #5E4D42;
+    --surface-container-low: #F2E9DB;
+    --surface-container: #ECE2D2;
+    --surface-container-high: #E4D7C5;
+    --surface-container-highest: #DACBB7;
+
+    --page-tex-img: var(--tex-washi-light);
+    --page-tex-size: 220px 220px;
+    --page-tex-opacity: 0.16;
+    --page-tex-blend: multiply;
+    --page-tex2-img: var(--tex-washi-speck);
+    --page-tex2-size: 180px 180px;
+    --page-tex2-opacity: 0.08;
+
+    --card-tex-img: var(--tex-washi-light);
+    --card-tex-size: 200px 200px;
+    --card-tex-opacity: 0.075;
+    --subcard-tex-opacity: 0.065;
+    --card-shadow: 0 8px 22px -6px rgba(64, 38, 18, 0.12), 0 2px 6px rgba(64, 38, 18, 0.06);
+    --subcard-shadow: 0 4px 14px -4px rgba(64, 38, 18, 0.08);
+    --card-sheen: linear-gradient(180deg, rgba(255, 251, 244, 0.55) 0%, rgba(255, 251, 244, 0) 22px);
+    --tile-sheen: linear-gradient(180deg, rgba(255, 251, 244, 0.42) 0%, rgba(255, 251, 244, 0) 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(255, 251, 244, 0.32) 0%, transparent 50%);
+
+    --nav-bg: #E8DDD0;
+    --nav-tex-img: var(--tex-washi-light);
+    --nav-tex-opacity: 0.045;
+    --nav-sheen: linear-gradient(180deg, rgba(255, 250, 242, 0.45) 0%, transparent 38%);
+    --nav-shadow: 0 12px 26px -6px rgba(56, 30, 14, 0.22), 0 2px 8px rgba(56, 30, 14, 0.10);
+    --playerbar-shadow: 0 14px 30px -6px rgba(56, 30, 14, 0.26), 0 3px 10px rgba(56, 30, 14, 0.12);
+    --nav-slit-bg: #E8DDD0;
+
+    --accent-glow-sm: 0 5px 14px -3px rgba(168, 45, 30, 0.36);
+    --tab-glow: 0 6px 18px -2px rgba(168, 45, 30, 0.44), 0 0 10px rgba(168, 45, 30, 0.18);
+    --toggle-glow: 0 7px 18px -3px rgba(168, 45, 30, 0.38);
+    --play-glow-a: 0 8px 22px -2px rgba(168, 45, 30, 0.46), 0 0 16px rgba(214, 72, 46, 0.24);
+    --play-glow-b: 0 10px 28px -1px rgba(168, 45, 30, 0.56), 0 0 24px rgba(214, 72, 46, 0.36);
+    --prog-glow: 0 0 9px rgba(168, 45, 30, 0.50);
+    --like-glow: 0 4px 14px -2px rgba(168, 45, 30, 0.22);
+    --like-icon-glow: drop-shadow(0 0 6px rgba(168, 45, 30, 0.45));
+    --swatch-selected-glow: drop-shadow(0 5px 12px rgba(168, 45, 30, 0.32));
+    --ambient-bleed: radial-gradient(ellipse 96% 165px at 50% 0%, rgba(214, 92, 56, 0.20) 0%, rgba(196, 118, 68, 0.08) 52%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #B53322, #D97248);
+  }
+
+  .theme-washi[data-mode="dark"] {
+    --primary: #FF826C;
+    --on-primary: #3D0B04;
+    --primary-container: #662116;
+    --on-primary-container: #FFDAD3;
+    --secondary: #D4BFA8;
+    --surface: #15110E;
+    --on-surface: #F5ECE3;
+    --surface-variant: #392F29;
+    --on-surface-variant: #C9B8AA;
+    --surface-container-low: #241E1A;
+    --surface-container: #2B241F;
+    --surface-container-high: #342C26;
+    --surface-container-highest: #40362F;
+
+    --page-tex-img: var(--tex-washi-dark);
+    --page-tex-size: 220px 220px;
+    --page-tex-opacity: 0.11;
+    --page-tex-blend: screen;
+    --page-tex2-img: var(--tex-washi-speck);
+    --page-tex2-size: 180px 180px;
+    --page-tex2-opacity: 0.05;
+
+    --card-tex-img: var(--tex-washi-dark);
+    --card-tex-size: 200px 200px;
+    --card-tex-opacity: 0.06;
+    --subcard-tex-opacity: 0.05;
+    --card-shadow: 0 10px 26px -6px rgba(0, 0, 0, 0.44);
+    --subcard-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+    --card-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.065) 0%, transparent 22px);
+    --tile-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.05) 0%, transparent 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.05) 0%, transparent 45%);
+
+    --nav-bg: #392F29;
+    --nav-tex-img: var(--tex-washi-dark);
+    --nav-tex-opacity: 0.045;
+    --nav-sheen: linear-gradient(180deg, rgba(255, 224, 196, 0.11) 0%, transparent 40%);
+    --nav-shadow: 0 14px 30px rgba(0, 0, 0, 0.56);
+    --playerbar-shadow: 0 16px 34px rgba(0, 0, 0, 0.62);
+    --nav-slit-bg: #392F29;
+
+    --accent-glow-sm: 0 0 14px rgba(255, 130, 108, 0.34);
+    --tab-glow: 0 0 18px rgba(255, 130, 108, 0.42), 0 4px 14px rgba(255, 96, 70, 0.28);
+    --toggle-glow: 0 0 18px rgba(255, 130, 108, 0.34);
+    --play-glow-a: 0 0 22px rgba(255, 130, 108, 0.46), 0 6px 18px rgba(255, 90, 62, 0.30);
+    --play-glow-b: 0 0 32px rgba(255, 130, 108, 0.62), 0 6px 24px rgba(255, 96, 68, 0.42);
+    --prog-glow: 0 0 10px rgba(255, 130, 108, 0.72);
+    --like-glow: 0 0 14px rgba(255, 130, 108, 0.26);
+    --like-icon-glow: drop-shadow(0 0 8px rgba(255, 130, 108, 0.65));
+    --swatch-selected-glow: drop-shadow(0 0 10px rgba(255, 130, 108, 0.42));
+    --ambient-bleed: radial-gradient(ellipse 96% 170px at 50% 0%, rgba(255, 118, 84, 0.25) 0%, rgba(214, 92, 56, 0.10) 50%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #E8674E, #B53322);
+  }
+
+  /* Exact ColorScheme.amoled() lerp from Theme.kt */
+  .theme-washi[data-mode="amoled"] {
+    --primary: #FF826C;
+    --on-primary: #3D0B04;
+    --primary-container: #662116;
+    --on-primary-container: #FFDAD3;
+    --secondary: #D4BFA8;
+    --surface: #000000;
+    --on-surface: #F5ECE3;
+    --surface-variant: #2B231F;
+    --on-surface-variant: #C9B8AA;
+    --surface-container-low: #100D0C;
+    --surface-container: #181411;
+    --surface-container-high: #221D19;
+    --surface-container-highest: #302823;
+
+    /* Page pixels stay pure #000000 (0% texture), cards keep subtle warm paper fibre */
+    --page-tex-img: none;
+    --page-tex-opacity: 0;
+    --page-tex2-img: none;
+    --page-tex2-opacity: 0;
+
+    --card-tex-img: var(--tex-washi-dark);
+    --card-tex-size: 200px 200px;
+    --card-tex-opacity: 0.065;
+    --subcard-tex-opacity: 0.055;
+    --card-shadow: none;
+    --subcard-shadow: none;
+    --card-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.07) 0%, transparent 20px);
+    --tile-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.055) 0%, transparent 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(255, 224, 198, 0.055) 0%, transparent 45%);
+
+    --nav-bg: #2B231F;
+    --nav-tex-img: var(--tex-washi-dark);
+    --nav-tex-opacity: 0.05;
+    --nav-sheen: linear-gradient(180deg, rgba(255, 224, 196, 0.11) 0%, transparent 40%);
+    --nav-shadow: 0 12px 28px rgba(0, 0, 0, 0.85);
+    --playerbar-shadow: 0 14px 32px rgba(0, 0, 0, 0.9);
+    --nav-slit-bg: #2B231F;
+
+    --accent-glow-sm: 0 0 14px rgba(255, 130, 108, 0.36);
+    --tab-glow: 0 0 20px rgba(255, 130, 108, 0.48), 0 2px 12px rgba(255, 96, 70, 0.30);
+    --toggle-glow: 0 0 18px rgba(255, 130, 108, 0.38);
+    --play-glow-a: 0 0 24px rgba(255, 130, 108, 0.50), 0 4px 16px rgba(255, 90, 62, 0.32);
+    --play-glow-b: 0 0 34px rgba(255, 130, 108, 0.68), 0 4px 22px rgba(255, 96, 68, 0.45);
+    --prog-glow: 0 0 12px rgba(255, 130, 108, 0.82);
+    --like-glow: 0 0 14px rgba(255, 130, 108, 0.30);
+    --like-icon-glow: drop-shadow(0 0 8px rgba(255, 130, 108, 0.72));
+    --swatch-selected-glow: drop-shadow(0 0 10px rgba(255, 130, 108, 0.48));
+    --ambient-bleed: radial-gradient(ellipse 92% 145px at 50% 0%, rgba(255, 118, 84, 0.22) 0%, rgba(196, 78, 46, 0.08) 44%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #E8674E, #B53322);
+  }
+  .theme-washi .bar-play-btn:not(.paused) {
+    animation: washiBreathe 4.2s ease-in-out infinite;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     THEME 2: PHOSPHOR — Midnight Cobalt Optics & Cathode Glow
+     ══════════════════════════════════════════════════════════════════ */
+  .theme-phosphor[data-mode="light"] {
+    --primary: #1A4FD0;
+    --on-primary: #FFFFFF;
+    --primary-container: #D6E2FF;
+    --on-primary-container: #071D59;
+    --secondary: #4B5A7E;
+    --surface: #F1F5FC;
+    --on-surface: #111829;
+    --surface-variant: #DCE4F5;
+    --on-surface-variant: #44516E;
+    --surface-container-low: #E8EEF9;
+    --surface-container: #E0E7F6;
+    --surface-container-high: #D5DFF2;
+    --surface-container-highest: #C9D5EC;
+
+    --page-tex-img: var(--tex-phosphor-light);
+    --page-tex-size: 160px 160px;
+    --page-tex-opacity: 0.085;
+    --page-tex-blend: multiply;
+    --page-tex2-img: repeating-linear-gradient(180deg, rgba(26, 79, 208, 0.032) 0px, rgba(26, 79, 208, 0.032) 1px, transparent 1px, transparent 4px);
+    --page-tex2-size: 100% 4px;
+    --page-tex2-opacity: 1;
+
+    --card-tex-img: var(--tex-phosphor-light);
+    --card-tex-size: 160px 160px;
+    --card-tex-opacity: 0.045;
+    --subcard-tex-opacity: 0.04;
+    --card-shadow: 0 8px 22px -6px rgba(17, 36, 92, 0.12), 0 2px 6px rgba(17, 36, 92, 0.05);
+    --subcard-shadow: 0 4px 12px -4px rgba(17, 36, 92, 0.08);
+    --card-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 20px);
+    --tile-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 48%);
+
+    /* Frosted optical glass bars */
+    --nav-bg: rgba(218, 228, 248, 0.78);
+    --nav-blur: blur(22px) saturate(1.35);
+    --nav-tex-img: var(--tex-phosphor-light);
+    --nav-tex-opacity: 0.03;
+    --nav-sheen: radial-gradient(ellipse 85% 55% at 50% 0%, rgba(255, 255, 255, 0.75) 0%, transparent 72%);
+    --nav-shadow: 0 12px 28px -6px rgba(17, 42, 118, 0.22), 0 2px 10px rgba(26, 79, 208, 0.10);
+    --playerbar-shadow: 0 16px 34px -6px rgba(17, 42, 118, 0.28), 0 3px 12px rgba(26, 79, 208, 0.14);
+    --nav-slit-bg: #DCE4F5;
+
+    --accent-glow-sm: 0 5px 15px -2px rgba(26, 79, 208, 0.38);
+    --tab-glow: 0 6px 20px -2px rgba(26, 79, 208, 0.48), 0 0 12px rgba(59, 118, 255, 0.25);
+    --toggle-glow: 0 7px 18px -2px rgba(26, 79, 208, 0.42);
+    --play-glow-a: 0 8px 24px -2px rgba(26, 79, 208, 0.48), 0 0 16px rgba(68, 128, 255, 0.30);
+    --play-glow-b: 0 10px 30px 0px rgba(26, 79, 208, 0.60), 0 0 28px rgba(68, 128, 255, 0.45);
+    --prog-glow: 0 0 10px rgba(26, 79, 208, 0.62);
+    --spark-display: block;
+    --spark-core: #FFFFFF;
+    --spark-glow: 0 0 8px #1A4FD0, 0 0 14px rgba(26, 79, 208, 0.8);
+    --like-glow: 0 4px 14px -2px rgba(26, 79, 208, 0.25);
+    --like-icon-glow: drop-shadow(0 0 6px rgba(26, 79, 208, 0.55));
+    --swatch-selected-glow: drop-shadow(0 5px 12px rgba(26, 79, 208, 0.38));
+    --ambient-bleed: radial-gradient(ellipse 98% 165px at 50% 0%, rgba(44, 108, 255, 0.21) 0%, rgba(92, 86, 232, 0.08) 52%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #1A4FD0, #597CFF);
+  }
+
+  .theme-phosphor[data-mode="dark"] {
+    --primary: #74A8FF;
+    --on-primary: #031B4A;
+    --primary-container: #133478;
+    --on-primary-container: #D8E6FF;
+    --secondary: #B4C4E6;
+    --surface: #0B0F1A;
+    --on-surface: #EDF2FF;
+    --surface-variant: #26314A;
+    --on-surface-variant: #B1C0DE;
+    --surface-container-low: #161E31;
+    --surface-container: #1C253C;
+    --surface-container-high: #24304C;
+    --surface-container-highest: #2E3C5E;
+
+    --page-tex-img: var(--tex-phosphor-dark);
+    --page-tex-size: 160px 160px;
+    --page-tex-opacity: 0.095;
+    --page-tex-blend: screen;
+    --page-tex2-img: repeating-linear-gradient(180deg, rgba(140, 190, 255, 0.045) 0px, rgba(140, 190, 255, 0.045) 1px, transparent 1px, transparent 4px);
+    --page-tex2-size: 100% 4px;
+    --page-tex2-opacity: 1;
+
+    --card-tex-img: var(--tex-phosphor-dark);
+    --card-tex-size: 160px 160px;
+    --card-tex-opacity: 0.055;
+    --subcard-tex-opacity: 0.045;
+    --card-shadow: 0 12px 28px -6px rgba(2, 6, 18, 0.56);
+    --subcard-shadow: 0 4px 16px rgba(2, 6, 18, 0.30);
+    --card-sheen: linear-gradient(180deg, rgba(164, 206, 255, 0.085) 0%, transparent 22px);
+    --tile-sheen: linear-gradient(180deg, rgba(164, 206, 255, 0.065) 0%, transparent 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(164, 206, 255, 0.07) 0%, transparent 48%);
+
+    /* Frosted optical glass bars */
+    --nav-bg: rgba(34, 46, 74, 0.78);
+    --nav-blur: blur(22px) saturate(1.4);
+    --nav-tex-img: var(--tex-phosphor-dark);
+    --nav-tex-opacity: 0.04;
+    --nav-sheen: radial-gradient(ellipse 85% 55% at 50% 0%, rgba(168, 208, 255, 0.22) 0%, transparent 72%);
+    --nav-shadow: 0 14px 32px rgba(2, 5, 16, 0.66), 0 0 24px -8px rgba(116, 168, 255, 0.16);
+    --playerbar-shadow: 0 16px 36px rgba(2, 5, 16, 0.72), 0 0 28px -8px rgba(116, 168, 255, 0.20);
+    --nav-slit-bg: #26314A;
+
+    --accent-glow-sm: 0 0 16px rgba(116, 168, 255, 0.42);
+    --tab-glow: 0 0 14px rgba(116, 168, 255, 0.55), 0 0 28px rgba(68, 134, 255, 0.34);
+    --toggle-glow: 0 0 14px rgba(116, 168, 255, 0.46), 0 0 26px rgba(68, 134, 255, 0.24);
+    --play-glow-a: 0 0 14px rgba(116, 168, 255, 0.58), 0 0 32px rgba(68, 134, 255, 0.36);
+    --play-glow-b: 0 0 22px rgba(146, 192, 255, 0.78), 0 0 44px rgba(68, 134, 255, 0.52);
+    --prog-glow: 0 0 10px rgba(116, 168, 255, 0.92), 0 0 4px rgba(210, 232, 255, 0.75);
+    --spark-display: block;
+    --spark-core: #EEF5FF;
+    --spark-glow: 0 0 8px #74A8FF, 0 0 16px #4B8BFF;
+    --like-glow: 0 0 16px rgba(116, 168, 255, 0.30);
+    --like-icon-glow: drop-shadow(0 0 9px rgba(116, 168, 255, 0.85));
+    --swatch-selected-glow: drop-shadow(0 0 12px rgba(116, 168, 255, 0.52));
+    --ambient-bleed: radial-gradient(ellipse 98% 165px at 50% 0%, rgba(92, 158, 255, 0.32) 0%, rgba(114, 96, 255, 0.12) 50%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #4B8BFF, #2B45A8);
+  }
+
+  /* Exact ColorScheme.amoled() lerp from Theme.kt */
+  .theme-phosphor[data-mode="amoled"] {
+    --primary: #74A8FF;
+    --on-primary: #031B4A;
+    --primary-container: #133478;
+    --on-primary-container: #D8E6FF;
+    --secondary: #B4C4E6;
+    --surface: #000000;
+    --on-surface: #EDF2FF;
+    --surface-variant: #1C2538;
+    --on-surface-variant: #B1C0DE;
+    --surface-container-low: #0A0D16;
+    --surface-container: #0F1421;
+    --surface-container-high: #171F31;
+    --surface-container-highest: #222D46;
+
+    /* Page stays pure #000000 (0% texture/scanline); cards carry the micro-scan weave */
+    --page-tex-img: none;
+    --page-tex-opacity: 0;
+    --page-tex2-img: none;
+    --page-tex2-opacity: 0;
+
+    --card-tex-img: repeating-linear-gradient(180deg, rgba(140, 190, 255, 0.05) 0px, rgba(140, 190, 255, 0.05) 1px, transparent 1px, transparent 4px);
+    --card-tex-size: 100% 4px;
+    --card-tex-opacity: 1;
+    --subcard-tex-opacity: 0.75;
+    --card-shadow: none;
+    --subcard-shadow: none;
+    --card-sheen: linear-gradient(180deg, rgba(154, 198, 255, 0.09) 0%, transparent 20px);
+    --tile-sheen: linear-gradient(180deg, rgba(154, 198, 255, 0.07) 0%, transparent 14px);
+    --pill-sheen: linear-gradient(180deg, rgba(154, 198, 255, 0.08) 0%, transparent 48%);
+
+    --nav-bg: rgba(28, 37, 56, 0.82);
+    --nav-blur: blur(22px) saturate(1.4);
+    --nav-tex-img: var(--tex-phosphor-dark);
+    --nav-tex-opacity: 0.04;
+    --nav-sheen: radial-gradient(ellipse 85% 55% at 50% 0%, rgba(158, 204, 255, 0.22) 0%, transparent 72%);
+    --nav-shadow: 0 12px 30px rgba(0, 0, 0, 0.9), 0 0 26px -8px rgba(116, 168, 255, 0.22);
+    --playerbar-shadow: 0 14px 34px rgba(0, 0, 0, 0.92), 0 0 30px -8px rgba(116, 168, 255, 0.26);
+    --nav-slit-bg: #1C2538;
+
+    --accent-glow-sm: 0 0 16px rgba(116, 168, 255, 0.48);
+    --tab-glow: 0 0 16px rgba(116, 168, 255, 0.62), 0 0 32px rgba(68, 134, 255, 0.40);
+    --toggle-glow: 0 0 16px rgba(116, 168, 255, 0.50), 0 0 28px rgba(68, 134, 255, 0.28);
+    --play-glow-a: 0 0 16px rgba(116, 168, 255, 0.64), 0 0 36px rgba(68, 134, 255, 0.42);
+    --play-glow-b: 0 0 24px rgba(146, 192, 255, 0.84), 0 0 48px rgba(68, 134, 255, 0.58);
+    --prog-glow: 0 0 12px rgba(116, 168, 255, 0.95), 0 0 5px rgba(210, 232, 255, 0.82);
+    --spark-display: block;
+    --spark-core: #FFFFFF;
+    --spark-glow: 0 0 9px #74A8FF, 0 0 18px #4B8BFF;
+    --like-glow: 0 0 16px rgba(116, 168, 255, 0.34);
+    --like-icon-glow: drop-shadow(0 0 9px rgba(116, 168, 255, 0.92));
+    --swatch-selected-glow: drop-shadow(0 0 12px rgba(116, 168, 255, 0.58));
+    --ambient-bleed: radial-gradient(ellipse 92% 145px at 50% 0%, rgba(92, 158, 255, 0.26) 0%, rgba(114, 96, 255, 0.09) 44%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #4B8BFF, #2B45A8);
+  }
+  .theme-phosphor .bar-play-btn:not(.paused) {
+    animation: phosphorPulse 3.4s ease-in-out infinite;
+  }
+  .theme-phosphor .bar-playhead-spark {
+    animation: sparkPulse 2.2s ease-in-out infinite;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     THEME 3: ALLOY — Machined Brushed Titanium & Ultraviolet LED
+     ══════════════════════════════════════════════════════════════════ */
+  .theme-alloy[data-mode="light"] {
+    --primary: #7B20A3;
+    --on-primary: #FFFFFF;
+    --primary-container: #F1D9FC;
+    --on-primary-container: #330547;
+    --secondary: #5D5868;
+    --surface: #EFEFF3;
+    --on-surface: #18171E;
+    --surface-variant: #DCDCE4;
+    --on-surface-variant: #504E5C;
+    --surface-container-low: #E7E7EE;
+    --surface-container: #DFDFE8;
+    --surface-container-high: #D5D5E0;
+    --surface-container-highest: #CACAD7;
+
+    --page-tex-img: var(--tex-alloy-light);
+    --page-tex-size: 240px 160px;
+    --page-tex-opacity: 0.06;
+    --page-tex-blend: multiply;
+    --page-tex2-img: linear-gradient(132deg, rgba(255,255,255,0.45) 0%, transparent 40%, rgba(123,32,163,0.03) 72%, rgba(255,255,255,0.35) 100%);
+    --page-tex2-size: 100% 100%;
+    --page-tex2-opacity: 1;
+
+    --card-tex-img: var(--tex-alloy-light);
+    --card-tex-size: 240px 140px;
+    --card-tex-opacity: 0.11;
+    --subcard-tex-opacity: 0.09;
+    --card-shadow: 0 9px 22px -6px rgba(24, 20, 40, 0.14), 0 2px 5px rgba(24, 20, 40, 0.06);
+    --subcard-shadow: 0 4px 12px -4px rgba(24, 20, 40, 0.09);
+    /* Chamfered top rim-light + diagonal satin sheen (NO 1 dp border!) */
+    --card-sheen: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0) 14px), linear-gradient(125deg, rgba(255,255,255,0.28) 0%, transparent 45%, rgba(123,32,163,0.04) 100%);
+    --tile-sheen: linear-gradient(180deg, rgba(255,255,255,0.68) 0%, transparent 11px), linear-gradient(125deg, rgba(255,255,255,0.20) 0%, transparent 50%);
+    --pill-sheen: linear-gradient(180deg, rgba(255,255,255,0.60) 0%, transparent 46%);
+
+    --nav-bg: linear-gradient(180deg, #E2E2EA 0%, #D5D5DF 100%);
+    --nav-tex-img: var(--tex-alloy-light);
+    --nav-tex-opacity: 0.08;
+    --nav-sheen: linear-gradient(180deg, rgba(255,255,255,0.82) 0%, transparent 13px);
+    --nav-shadow: 0 12px 26px -6px rgba(26, 18, 46, 0.24), 0 3px 8px rgba(26, 18, 46, 0.10);
+    --playerbar-shadow: 0 14px 30px -6px rgba(26, 18, 46, 0.28), 0 4px 10px rgba(26, 18, 46, 0.12);
+    --nav-slit-bg: #DCDCE4;
+
+    --accent-glow-sm: 0 5px 14px -2px rgba(123, 32, 163, 0.36);
+    --tab-glow: 0 6px 18px -2px rgba(123, 32, 163, 0.45), 0 0 10px rgba(162, 68, 212, 0.24);
+    --toggle-glow: 0 6px 16px -2px rgba(123, 32, 163, 0.40);
+    --play-glow-a: 0 7px 20px -2px rgba(123, 32, 163, 0.48), 0 0 14px rgba(168, 68, 224, 0.30);
+    --play-glow-b: 0 7px 22px -2px rgba(123, 32, 163, 0.54), 0 0 18px rgba(168, 68, 224, 0.36);
+    --prog-glow: 0 0 9px rgba(123, 32, 163, 0.58);
+    --spark-display: block;
+    --spark-core: #FFFFFF;
+    --spark-glow: 0 0 7px #7B20A3, 0 0 12px rgba(154, 58, 204, 0.8);
+    --led-dot-display: block;
+    --like-glow: 0 4px 14px -2px rgba(123, 32, 163, 0.24);
+    --like-icon-glow: drop-shadow(0 0 6px rgba(123, 32, 163, 0.50));
+    --swatch-selected-glow: drop-shadow(0 5px 12px rgba(123, 32, 163, 0.36));
+    --ambient-bleed: linear-gradient(180deg, rgba(164, 72, 214, 0.18) 0%, rgba(138, 86, 198, 0.06) 44%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #7B20A3, #B75CE0);
+  }
+
+  .theme-alloy[data-mode="dark"] {
+    --primary: #DF8CFF;
+    --on-primary: #2F0342;
+    --primary-container: #541670;
+    --on-primary-container: #F5DEFF;
+    --secondary: #C4BFCF;
+    --surface: #111116;
+    --on-surface: #F2F1F7;
+    --surface-variant: #312F3B;
+    --on-surface-variant: #BCBAC9;
+    --surface-container-low: #1E1D25;
+    --surface-container: #25242E;
+    --surface-container-high: #2E2D39;
+    --surface-container-highest: #393746;
+
+    --page-tex-img: var(--tex-alloy-dark);
+    --page-tex-size: 240px 160px;
+    --page-tex-opacity: 0.05;
+    --page-tex-blend: screen;
+    --page-tex2-img: linear-gradient(130deg, rgba(255,255,255,0.035) 0%, transparent 42%, rgba(223,140,255,0.025) 75%, rgba(255,255,255,0.03) 100%);
+    --page-tex2-size: 100% 100%;
+    --page-tex2-opacity: 1;
+
+    --card-tex-img: var(--tex-alloy-dark);
+    --card-tex-size: 240px 140px;
+    --card-tex-opacity: 0.10;
+    --subcard-tex-opacity: 0.085;
+    --card-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.56);
+    --subcard-shadow: 0 4px 14px rgba(0, 0, 0, 0.30);
+    /* Machined chamfered top rim-light + anisotropic diagonal satin sheen */
+    --card-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.13) 0%, rgba(242, 232, 255, 0) 13px), linear-gradient(125deg, rgba(255,255,255,0.05) 0%, transparent 44%, rgba(223,140,255,0.04) 100%);
+    --tile-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.11) 0%, transparent 11px), linear-gradient(125deg, rgba(255,255,255,0.04) 0%, transparent 48%);
+    --pill-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.12) 0%, transparent 46%);
+
+    --nav-bg: linear-gradient(180deg, #373442 0%, #292732 100%);
+    --nav-tex-img: var(--tex-alloy-dark);
+    --nav-tex-opacity: 0.085;
+    --nav-sheen: linear-gradient(180deg, rgba(244, 234, 255, 0.19) 0%, transparent 14px);
+    --nav-shadow: 0 14px 32px rgba(0, 0, 0, 0.66);
+    --playerbar-shadow: 0 16px 36px rgba(0, 0, 0, 0.72);
+    --nav-slit-bg: #312F3B;
+
+    --accent-glow-sm: 0 0 14px rgba(223, 140, 255, 0.42);
+    --tab-glow: 0 0 14px rgba(223, 140, 255, 0.58), 0 4px 16px rgba(176, 82, 240, 0.32);
+    --toggle-glow: 0 0 14px rgba(223, 140, 255, 0.46), 0 3px 12px rgba(176, 82, 240, 0.25);
+    --play-glow-a: 0 0 16px rgba(223, 140, 255, 0.62), 0 4px 22px rgba(176, 82, 240, 0.35);
+    --play-glow-b: 0 0 22px rgba(235, 174, 255, 0.76), 0 4px 28px rgba(176, 82, 240, 0.44);
+    --prog-glow: 0 0 10px rgba(223, 140, 255, 0.90);
+    --spark-display: block;
+    --spark-core: #FCF5FF;
+    --spark-glow: 0 0 8px #DF8CFF, 0 0 14px #B852F5;
+    --led-dot-display: block;
+    --like-glow: 0 0 14px rgba(223, 140, 255, 0.28);
+    --like-icon-glow: drop-shadow(0 0 8px rgba(223, 140, 255, 0.85));
+    --swatch-selected-glow: drop-shadow(0 0 10px rgba(223, 140, 255, 0.52));
+    --ambient-bleed: linear-gradient(180deg, rgba(212, 128, 255, 0.24) 0%, rgba(154, 96, 224, 0.08) 44%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #B955EB, #681D91);
+  }
+
+  /* Exact ColorScheme.amoled() lerp from Theme.kt */
+  .theme-alloy[data-mode="amoled"] {
+    --primary: #DF8CFF;
+    --on-primary: #2F0342;
+    --primary-container: #541670;
+    --on-primary-container: #F5DEFF;
+    --secondary: #C4BFCF;
+    --surface: #000000;
+    --on-surface: #F2F1F7;
+    --surface-variant: #25232C;
+    --on-surface-variant: #BCBAC9;
+    --surface-container-low: #0D0D11;
+    --surface-container: #141419;
+    --surface-container-high: #1E1D25;
+    --surface-container-highest: #2B2934;
+
+    /* Page stays pure #000000; cards keep brushed titanium grain + top chamfer rim-light */
+    --page-tex-img: none;
+    --page-tex-opacity: 0;
+    --page-tex2-img: none;
+    --page-tex2-opacity: 0;
+
+    --card-tex-img: var(--tex-alloy-dark);
+    --card-tex-size: 240px 140px;
+    --card-tex-opacity: 0.11;
+    --subcard-tex-opacity: 0.095;
+    --card-shadow: none;
+    --subcard-shadow: none;
+    --card-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.14) 0%, rgba(242, 232, 255, 0) 13px), linear-gradient(125deg, rgba(255,255,255,0.045) 0%, transparent 45%);
+    --tile-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.12) 0%, transparent 11px);
+    --pill-sheen: linear-gradient(180deg, rgba(242, 232, 255, 0.13) 0%, transparent 46%);
+
+    --nav-bg: linear-gradient(180deg, #2A2833 0%, #1F1D26 100%);
+    --nav-tex-img: var(--tex-alloy-dark);
+    --nav-tex-opacity: 0.09;
+    --nav-sheen: linear-gradient(180deg, rgba(244, 234, 255, 0.20) 0%, transparent 14px);
+    --nav-shadow: 0 12px 28px rgba(0, 0, 0, 0.92);
+    --playerbar-shadow: 0 14px 32px rgba(0, 0, 0, 0.94);
+    --nav-slit-bg: #25232C;
+
+    --accent-glow-sm: 0 0 15px rgba(223, 140, 255, 0.48);
+    --tab-glow: 0 0 16px rgba(223, 140, 255, 0.65), 0 3px 16px rgba(176, 82, 240, 0.36);
+    --toggle-glow: 0 0 16px rgba(223, 140, 255, 0.50), 0 3px 14px rgba(176, 82, 240, 0.28);
+    --play-glow-a: 0 0 18px rgba(223, 140, 255, 0.68), 0 4px 24px rgba(176, 82, 240, 0.40);
+    --play-glow-b: 0 0 24px rgba(235, 174, 255, 0.82), 0 4px 30px rgba(176, 82, 240, 0.50);
+    --prog-glow: 0 0 12px rgba(223, 140, 255, 0.96);
+    --spark-display: block;
+    --spark-core: #FFFFFF;
+    --spark-glow: 0 0 9px #DF8CFF, 0 0 16px #B852F5;
+    --led-dot-display: block;
+    --like-glow: 0 0 16px rgba(223, 140, 255, 0.34);
+    --like-icon-glow: drop-shadow(0 0 9px rgba(223, 140, 255, 0.92));
+    --swatch-selected-glow: drop-shadow(0 0 12px rgba(223, 140, 255, 0.60));
+    --ambient-bleed: linear-gradient(180deg, rgba(212, 128, 255, 0.22) 0%, rgba(154, 96, 224, 0.06) 40%, transparent 100%);
+    --avatar-derek: linear-gradient(135deg, #B955EB, #681D91);
+  }
+  .theme-alloy .nav-item.selected .sheen-bar,
+  .theme-alloy .bar-play-btn .sheen-bar {
+    display: block;
+    position: absolute;
+    top: -10%;
+    bottom: -10%;
+    left: 0;
+    width: 34%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+    pointer-events: none;
+    animation: alloySweep 5.5s ease-in-out infinite;
+  }
+
+  /* ── Pure CSS Video Thumbnails & Stages (Zero external images) ──── */
+  .thumb-washi-1 {
+    background:
+      radial-gradient(circle at 72% 28%, rgba(255, 206, 148, 0.88) 0%, rgba(228, 120, 68, 0.42) 32%, transparent 62%),
+      linear-gradient(180deg, rgba(42, 22, 16, 0.1) 0%, rgba(28, 15, 10, 0.65) 100%),
+      repeating-linear-gradient(90deg, rgba(96, 48, 24, 0.25) 0px, rgba(96, 48, 24, 0.25) 14px, transparent 14px, transparent 34px),
+      linear-gradient(135deg, #52281A 0%, #9E4A2B 48%, #2E1912 100%);
+  }
+  .thumb-washi-2 {
+    background:
+      radial-gradient(ellipse at 32% 42%, rgba(255, 218, 168, 0.72) 0%, transparent 54%),
+      radial-gradient(circle at 76% 62%, rgba(214, 72, 42, 0.55) 0%, transparent 48%),
+      linear-gradient(145deg, #211612 0%, #583424 52%, #1B120E 100%);
+  }
+  .stage-washi {
+    background:
+      radial-gradient(circle at 66% 36%, rgba(255, 214, 158, 0.92) 0%, rgba(234, 118, 66, 0.48) 34%, transparent 66%),
+      radial-gradient(ellipse at 26% 78%, rgba(210, 82, 46, 0.68) 0%, transparent 56%),
+      linear-gradient(180deg, #3D1F15 0%, #7C3620 48%, #B85232 82%, #D46642 100%);
+  }
+
+  .thumb-phosphor-1 {
+    background:
+      radial-gradient(circle at 64% 38%, rgba(132, 198, 255, 0.92) 0%, rgba(44, 108, 255, 0.45) 34%, transparent 64%),
+      radial-gradient(circle at 26% 68%, rgba(140, 110, 255, 0.55) 0%, transparent 52%),
+      linear-gradient(135deg, #09122B 0%, #162E6B 52%, #0B1430 100%);
+  }
+  .thumb-phosphor-2 {
+    background:
+      radial-gradient(ellipse at 50% 48%, rgba(116, 184, 255, 0.78) 0%, rgba(36, 92, 224, 0.32) 38%, transparent 68%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 3px),
+      linear-gradient(155deg, #070C1E 0%, #172752 55%, #0D1633 100%);
+  }
+  .stage-phosphor {
+    background:
+      radial-gradient(circle at 32% 44%, rgba(118, 182, 255, 0.88) 0%, rgba(46, 110, 255, 0.42) 35%, transparent 66%),
+      radial-gradient(circle at 74% 66%, rgba(144, 114, 255, 0.75) 0%, transparent 55%),
+      linear-gradient(180deg, #070C1D 0%, #142B66 56%, #2F66D8 88%, #4F88FA 100%);
+  }
+
+  .thumb-alloy-1 {
+    background:
+      radial-gradient(circle at 58% 36%, rgba(238, 178, 255, 0.85) 0%, rgba(154, 62, 212, 0.36) 34%, transparent 62%),
+      linear-gradient(125deg, #1E1C28 0%, #443E54 38%, #252230 62%, #594D70 84%, #1A1822 100%);
+  }
+  .thumb-alloy-2 {
+    background:
+      radial-gradient(circle at 28% 58%, rgba(223, 140, 255, 0.78) 0%, transparent 48%),
+      radial-gradient(circle at 74% 34%, rgba(164, 152, 224, 0.56) 0%, transparent 50%),
+      linear-gradient(145deg, #16151E 0%, #342E46 54%, #181620 100%);
+  }
+  .stage-alloy {
+    background:
+      radial-gradient(circle at 62% 38%, rgba(242, 188, 255, 0.88) 0%, rgba(170, 74, 228, 0.42) 34%, transparent 64%),
+      linear-gradient(115deg, rgba(255,255,255,0.16) 0%, transparent 44%, rgba(223,140,255,0.22) 100%),
+      linear-gradient(180deg, #1B1924 0%, #3B3250 56%, #6C3C8C 84%, #9E56C4 100%);
+  }
+
+  /* ── Responsive Layout (works great at 360px phone width!) ──────── */
+  @media (max-width: 1120px) {
+    .intro-top { grid-template-columns: 1fr; }
+    .spec-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .studio-bar { padding: 10px 14px; }
+    .studio-nav { display: none; }
+    .page-intro, .theme-section { padding: 0 14px; }
+    .world-cards { grid-template-columns: 1fr; }
+    .dual-strip { grid-template-columns: 1fr; }
+    .phones-grid {
+      grid-template-columns: repeat(4, 320px);
+      justify-content: flex-start;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-left: 4px;
+      padding-right: 16px;
+    }
+    .phone-wrap { scroll-snap-align: center; }
+    .contrast-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Sticky Top Showcase Bar ──────────────────────────────────────── -->
+<header class="studio-bar">
+  <div class="studio-bar-inner">
+    <div class="studio-brand">
+      <div class="studio-brand-mark" aria-hidden="true">
+        <svg width="18" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="studio-title">Skipii · Round 2 Themes</div>
+        <div class="studio-sub">Material textures, subtle glow &amp; AMOLED-safe surfaces</div>
+      </div>
+    </div>
+
+    <nav class="studio-nav" aria-label="Jump to theme">
+      <a class="jump-pill" href="#washi"><span class="jump-dot" style="background:#FF826C;box-shadow:0 0 8px #FF826C"></span>Washi</a>
+      <a class="jump-pill" href="#phosphor"><span class="jump-dot" style="background:#74A8FF;box-shadow:0 0 8px #74A8FF"></span>Phosphor</a>
+      <a class="jump-pill" href="#alloy"><span class="jump-dot" style="background:#DF8CFF;box-shadow:0 0 8px #DF8CFF"></span>Alloy</a>
+    </nav>
+
+    <div class="studio-controls">
+      <div class="mode-group" role="group" aria-label="Global appearance mode">
+        <button class="mode-btn" data-global-mode="light" type="button">Light</button>
+        <button class="mode-btn active" data-global-mode="dark" type="button">Dark</button>
+        <button class="mode-btn" data-global-mode="amoled" type="button">AMOLED</button>
+      </div>
+      <button class="motion-toggle" id="reducedMotionBtn" type="button" aria-pressed="false">
+        <span class="motion-dot"></span>
+        <span>Reduced motion</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Intro Hero ───────────────────────────────────────────────────── -->
+<section class="page-intro">
+  <div class="intro-top">
+    <div>
+      <div class="intro-eyebrow">Round 2 · Colour + Texture + Light · Zero Teal, Zero Gold</div>
+      <h1 class="intro-h1">Three tactile worlds, not three flat recolours.</h1>
+      <p class="intro-lead">
+        Each theme pairs a hand-tuned Light, Dark, and exact <code>ColorScheme.amoled()</code> palette with its own physical surface texture and restrained lighting physics. Every rule holds: zero 1 dp borders, zero tap ripples, full <code>primary / onPrimary</code> on active tabs, nothing ever drawn on the video picture, and ≥ 4.5:1 text contrast measured over the textured surfaces.
+      </p>
+    </div>
+
+    <div class="world-cards">
+      <a class="world-card" href="#washi">
+        <div class="world-card-swatch" style="background-color:#241E1A; background-image:var(--tex-washi-dark), radial-gradient(circle at 20% 50%, rgba(255,130,108,0.28), transparent 65%); background-size:180px 180px, 100% 100%;">
+          <span class="world-card-orb" style="background:#FF826C; box-shadow:0 0 18px rgba(255,130,108,0.72)"></span>
+        </div>
+        <div class="world-card-name">Washi</div>
+        <div class="world-card-meta">Laid cotton paper fibre · warm projector bleed · vermilion stamp glow</div>
+      </a>
+
+      <a class="world-card" href="#phosphor">
+        <div class="world-card-swatch" style="background-color:#161E31; background-image:repeating-linear-gradient(180deg, rgba(140,190,255,0.09) 0 1px, transparent 1px 4px), radial-gradient(circle at 25% 50%, rgba(116,168,255,0.34), transparent 65%);">
+          <span class="world-card-orb" style="background:#74A8FF; box-shadow:0 0 20px rgba(116,168,255,0.85)"></span>
+        </div>
+        <div class="world-card-name">Phosphor</div>
+        <div class="world-card-meta">Micro-scan grain · frosted glass bars · breathing cobalt cathode bloom</div>
+      </a>
+
+      <a class="world-card" href="#alloy">
+        <div class="world-card-swatch" style="background-color:#1E1D25; background-image:var(--tex-alloy-dark), linear-gradient(180deg, rgba(242,232,255,0.18) 0%, transparent 14px); background-size:200px 120px, 100% 100%;">
+          <span class="world-card-orb" style="background:#DF8CFF; box-shadow:0 0 18px rgba(223,140,255,0.82)"></span>
+        </div>
+        <div class="world-card-name">Alloy</div>
+        <div class="world-card-meta">Brushed titanium grain · chamfered rim-light · orchid hardware LED</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Themes are rendered cleanly by inline script below so every screen, interactive control, contrast ratio and AMOLED hex stays 100% in sync -->
+<main id="themesRoot"></main>
+
+<script>
+(() => {
+  /* ── Inline SVG Icons (clean, self-contained, zero external dependencies) ── */
+  const ICONS = {
+    brand: `<svg width="16" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
+    filter: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M7 12h10M10 17h4"/></svg>`,
+    home: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M10.7 3.3a2 2 0 0 1 2.6 0l7 6.1A2 2 0 0 1 21 10.9V19a2 2 0 0 1-2 2h-4.5a1 1 0 0 1-1-1v-4.5h-3V20a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2v-8.1a2 2 0 0 1 .7-1.5l7-6.1z"/></svg>`,
+    subs: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M6 5h12M9 2h6"/></svg>`,
+    shorts: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5l4.2 2.4a3 3 0 0 1 1 4.1l-1.1 1.9 1.1 1.9a3 3 0 0 1-1 4.1l-4.2 2.4a3 3 0 0 1-4.1-1l-1.1-1.9-1.1 1.9"/><path d="M10 9.5l5 2.5-5 2.5v-5z" fill="currentColor" stroke="none"/></svg>`,
+    search: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>`,
+    library: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/></svg>`,
+    bell: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-5v-5a7 7 0 0 0-5.5-6.84V4a1.5 1.5 0 0 0-3 0v1.16A7 7 0 0 0 5 12v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7L19 17z"/></svg>`,
+    thumbUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h9a2 2 0 0 0 1.92-1.45l2-7A2 2 0 0 0 20 10h-5.31l.83-4.15A2 2 0 0 0 13.56 3.5L13 3.5a1 1 0 0 0-.89.55L8 11v10h1zM3 11h3v10H3a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1z"/></svg>`,
+    bookmark: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v16l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>`,
+    playlist: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h12M4 12h12M4 17h8M17 15v6M14 18h6"/></svg>`,
+    share: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v12M8 7l4-4 4 4"/></svg>`,
+    headphones: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0"/><rect x="3" y="13" width="4" height="7" rx="2"/><rect x="17" y="13" width="4" height="7" rx="2"/></svg>`,
+    pause: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4.5" height="15" rx="2"/><rect x="13.5" y="4.5" width="4.5" height="15" rx="2"/></svg>`,
+    play: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5.5a1.5 1.5 0 0 1 2.27-1.29l10.2 6.5a1.5 1.5 0 0 1 0 2.58l-10.2 6.5A1.5 1.5 0 0 1 7 18.5v-13z"/></svg>`,
+    more: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="18.5" r="1.9"/></svg>`,
+    back: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`,
+    chev: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`,
+    fastFwd: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 17.5l7.5-5.5L4 6.5v11zm8.5-11v11L20 12l-7.5-5.5z"/></svg>`,
+    speed: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13l4-4"/></svg>`,
+    playCircle: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="12" r="9"/><path d="M10 8.8l5.5 3.2-5.5 3.2V8.8z" fill="currentColor" stroke="none"/></svg>`,
+    download: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11.5L12 16l4.5-4.5M5 20h14"/></svg>`,
+    captions: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7.5 12h3M13.5 12h3M7.5 15h6"/></svg>`,
+    moon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg>`,
+    contrast: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z" fill="currentColor" stroke="none"/></svg>`,
+    palette: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M12 3a9 9 0 1 0 0 18h1.5a2.5 2.5 0 0 0 0-5H13a1.5 1.5 0 0 1 0-3h3.5A4.5 4.5 0 0 0 12 3z"/><circle cx="7.5" cy="10.5" r="1.1" fill="currentColor"/><circle cx="11" cy="7.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor"/></svg>`,
+    check: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
+    wifi: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4.5 9.5a11 11 0 0 1 15 0M8 13a6 6 0 0 1 8 0"/><circle cx="12" cy="17" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+    battery: `<svg width="16" height="10" viewBox="0 0 24 14" fill="currentColor"><rect x="1" y="2" width="19" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="4.5" width="12" height="5" rx="1"/><rect x="21" y="5" width="2" height="4" rx="1"/></svg>`
+  };
+
+  /* Exact ColorScheme.amoled() lerp helper mirroring Theme.kt */
+  function lerpBlack(hex, t) {
+    const h = hex.replace('#', '');
+    const r = Math.round(parseInt(h.slice(0, 2), 16) * (1 - t));
+    const g = Math.round(parseInt(h.slice(2, 4), 16) * (1 - t));
+    const b = Math.round(parseInt(h.slice(4, 6), 16) * (1 - t));
+    return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  /* Picker swatches shared across Appearance screens */
+  function pickerSwatchesFor(activeId, mode) {
+    const isDark = mode !== 'light';
+    const isAmoled = mode === 'amoled';
+    const list = [
+      { id: 'wallpaper', name: 'Wallpaper', surf: isAmoled ? '#000000' : (isDark ? '#141318' : '#F8F6FC'), p: isDark ? '#CBB8FF' : '#65558F', pc: isDark ? '#4F378B' : '#EADDFF', onP: isDark ? '#321E61' : '#FFFFFF' },
+      { id: 'youtube',   name: 'YouTube',   surf: isAmoled ? '#000000' : (isDark ? '#0F0F0F' : '#FFFFFF'), p: isDark ? '#FF0033' : '#E6002E', pc: isDark ? '#4A0010' : '#FFE3E8', onP: '#FFFFFF' },
+      { id: 'lagoon',    name: 'Lagoon',    surf: isAmoled ? '#000000' : (isDark ? '#0B1618' : '#F1F8F8'), p: isDark ? '#5CD4D8' : '#0D6E73', pc: isDark ? '#10494D' : '#CBEFF0', onP: isDark ? '#00282A' : '#FFFFFF' },
+      { id: 'washi',     name: 'Washi',     surf: isAmoled ? '#000000' : (isDark ? '#15110E' : '#F7F1E6'), p: isDark ? '#FF826C' : '#A82D1E', pc: isDark ? '#662116' : '#F9D9D0', onP: isDark ? '#3D0B04' : '#FFF9F5' },
+      { id: 'phosphor',  name: 'Phosphor',  surf: isAmoled ? '#000000' : (isDark ? '#0B0F1A' : '#F1F5FC'), p: isDark ? '#74A8FF' : '#1A4FD0', pc: isDark ? '#133478' : '#D6E2FF', onP: isDark ? '#031B4A' : '#FFFFFF' },
+      { id: 'alloy',     name: 'Alloy',     surf: isAmoled ? '#000000' : (isDark ? '#111116' : '#EFEFF3'), p: isDark ? '#DF8CFF' : '#7B20A3', pc: isDark ? '#541670' : '#F1D9FC', onP: isDark ? '#2F0342' : '#FFFFFF' },
+      { id: 'cream',     name: 'Cream Rose',surf: isAmoled ? '#000000' : (isDark ? '#0E0A0D' : '#FCF4EE'), p: isDark ? '#F0B4CC' : '#833761', pc: isDark ? '#4A2A3C' : '#EED6DF', onP: isDark ? '#3A1628' : '#FFF3FC' },
+      { id: 'moonstone', name: 'Moonstone', surf: isAmoled ? '#000000' : (isDark ? '#111214' : '#F9F9FA'), p: isDark ? '#C8CBD0' : '#636870', pc: isDark ? '#3B3E44' : '#E3E5E8', onP: isDark ? '#1A1C1F' : '#FFFFFF' },
+    ];
+    return list.map(s => ({ ...s, selected: s.id === activeId }));
+  }
+
+  /* ── The Three Themes Data ──────────────────────────────────────── */
+  const THEMES = [
+    {
+      id: 'washi',
+      index: '01 / 03',
+      name: 'Washi',
+      seedHex: '#A82D1E',
+      darkHex: '#FF826C',
+      pitch: 'Handmade laid cotton paper and warm vermilion-clay stamp ink — where the video’s light spills gently across fibrous matte stock below the frame.',
+      materialBadge: 'Cotton Fibre · Projector Bleed · Ember Glow',
+      home: {
+        chips: ['All', 'Craft', 'Cinema', 'Design'],
+        videos: [
+          {
+            thumbClass: 'thumb-washi-1',
+            dur: '18:42',
+            resume: 62,
+            avaBg: 'linear-gradient(135deg,#9E4A2B,#52281A)',
+            avaInit: 'CT',
+            title: 'Hand-Forging a Cedar Tea Pavilion Without a Single Nail',
+            sub: 'Craft & Timber · 412K views · 3 days ago'
+          },
+          {
+            thumbClass: 'thumb-washi-2',
+            dur: '14:15',
+            resume: 28,
+            avaBg: 'linear-gradient(135deg,#B53322,#6E2B1E)',
+            avaInit: 'GF',
+            title: 'Why 35mm Print Film Still Feels Different on Screen',
+            sub: 'Grain & Frame · 198K views · 1 week ago'
+          }
+        ]
+      },
+      player: {
+        stageClass: 'stage-washi',
+        title: 'How Kyoto’s Last Paper Makers Press Washi by Hand',
+        meta: '684K views · 5 days ago · 21:08',
+        chAvaBg: 'linear-gradient(135deg,#B53322,#E0784E)',
+        chInit: 'KA',
+        chName: 'Kōgei Archive',
+        chSubs: '842K subscribers',
+        likes: '38K',
+        descHead: 'Description',
+        descTag: '08:14 · Pressing the pulp',
+        descBody: 'Filmed over three winter mornings in Echizen. Notes, tools & workshop archive at ',
+        descLink: 'kogeiarchive.jp/washi',
+        commentAvaBg: 'linear-gradient(135deg,#7C4B32,#3E2417)',
+        commentInit: 'M',
+        commentCount: '1.2K',
+        commentText: 'The sound of the bamboo sugeta screen at 04:32 is pure calm.'
+      },
+      appearanceSummary: 'Dark · Washi (cotton paper & ember)',
+      liveCard: { title: 'Laid paper + ember glow', sub: 'Page 7% · Cards 3.5% · Nav 2%', pill: 'Active' },
+      roles: [
+        ['primary', '#A82D1E', '#FF826C', '#FF826C'],
+        ['onPrimary', '#FFF9F5', '#3D0B04', '#3D0B04'],
+        ['primaryContainer', '#F9D9D0', '#662116', '#662116'],
+        ['onPrimaryContainer', '#4A1008', '#FFDAD3', '#FFDAD3'],
+        ['secondary', '#6F5747', '#D4BFA8', '#D4BFA8'],
+        ['secondaryContainer', '#EDE2D4', '#3D3128', '#3D3128'],
+        ['tertiary', '#8E5238', '#E5A98A', '#E5A98A'],
+        ['surface', '#F7F1E6', '#15110E', '#000000'],
+        ['onSurface', '#241A14', '#F5ECE3', '#F5ECE3'],
+        ['surfaceVariant', '#E8DDD0', '#392F29', lerpBlack('#392F29', 0.25)],
+        ['onSurfaceVariant', '#5E4D42', '#C9B8AA', '#C9B8AA'],
+        ['surfaceContainerLow', '#F2E9DB', '#241E1A', lerpBlack('#241E1A', 0.55)],
+        ['surfaceContainer', '#ECE2D2', '#2B241F', lerpBlack('#2B241F', 0.45)],
+        ['surfaceContainerHigh', '#E4D7C5', '#342C26', lerpBlack('#342C26', 0.35)],
+        ['surfaceContainerHighest', '#DACBB7', '#40362F', lerpBlack('#40362F', 0.25)],
+        ['outline', '#8E7B6D', '#968375', '#968375'],
+      ],
+      contrasts: [
+        { pair: 'primary / onPrimary', light: '6.58:1', dark: '6.94:1', note: 'AA / AAA-lg' },
+        { pair: 'onSurface / surface (textured)', light: '13.37:1', dark: '14.30:1', note: 'AAA' },
+        { pair: 'onSurfaceVariant / containerLow (tex)', light: '6.21:1', dark: '7.87:1', note: 'AA / AAA' },
+        { pair: 'primary / surfaceContainer (tex)', light: '4.97:1', dark: '5.80:1', note: 'AA' },
+      ],
+      materials: [
+        {
+          title: 'Laid Cotton-Paper Fibre & Deckle Grain',
+          tag: 'Surface texture',
+          metrics: [
+            ['Page surface', '7% light / 5.5% dark / 0% AMOLED'],
+            ['Cards (containerLow)', '3.5% light & dark / 4% AMOLED'],
+            ['Nav & player bar', '2% smooth matte'],
+            ['Tile size', '256×256 dp']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Pre-bake one 256×256 alpha-only <code>ImageBitmap</code> once at startup (64 KB) with horizontal laid fibres + subtle speckle, wrapped in an <code>ImageShader(TileMode.Repeated)</code>. Paint it in <code>Modifier.drawBehind</code> tinted warm sepia (light) or cream (dark) at the role’s alpha — one single textured quad per screen, ~0.08 ms/frame on Pixel, zero per-frame allocations.'
+        },
+        {
+          title: 'Projector Ambient Bleed (Open Player)',
+          tag: 'Ambient light',
+          metrics: [
+            ['Zone', 'Strictly below video edge (0 px on picture)'],
+            ['Height', '170 dp vertical falloff'],
+            ['Opacity', '17% light / 22% dark / 19% AMOLED'],
+            ['Update rate', 'Cross-fades over 900 ms on dominant hue change']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Reuse Skipii’s tiny 16×9 sampled video frame (once every 1.5 s while playing, bottom 20% average RGB — never every frame) to drive a single <code>Brush.radialGradient</code> in <code>drawBehind</code> behind the details list. Reduced motion locks it to the video thumbnail’s dominant warm tint with no live updates; GPU cost is one gradient fill (~0.05 ms).'
+        },
+        {
+          title: 'Vermilion Stamp Ember Glow & Candlelit Breath',
+          tag: 'Interactive glow',
+          metrics: [
+            ['Targets', 'Play button, selected tab, active toggles, liked thumb, progress line'],
+            ['Radius', '22 dp soft halo (dark) / 18 dp tinted lift (light)'],
+            ['Colour', '#A82D1E @ 36% (L) / #FF826C @ 46% (D/AMOLED)'],
+            ['Timing', '4.2 s sine breath on play while playing; static in reduced-motion']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Draw a soft <code>Brush.radialGradient</code> (or framework <code>Paint.setShadowLayer</code> on API 28+ hardware canvas) inside <code>drawBehind</code> behind the pill — never blur live content and never pair nested <code>.shadow()</code> with outer layer alpha. Only the open player’s play button animates its alpha float in a draw lambda (zero recomposition); reduced-motion holds steady at 0.42.'
+        },
+        {
+          title: 'Warm Paper-Stock Lift (Zero Borders)',
+          tag: 'Depth & shape',
+          metrics: [
+            ['Card shadow', '8 dp warm sepia ambient (L) / tonal lift (D/AMOLED)'],
+            ['Top catch', '16 dp vertical top-luminance wash (0 dp stroke)'],
+            ['Press feel', '0.94 scale spring + 180 ms glow swell (1.0→1.25×)']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Combines standard <code>graphicsLayer { shadowElevation }</code> with a 2-stop vertical <code>Brush.verticalGradient</code> inside the clipped card surface. Zero outline strokes; stays under 0.1 ms total across a scrolling <code>LazyColumn</code>.'
+        }
+      ]
+    },
+
+    {
+      id: 'phosphor',
+      index: '02 / 03',
+      name: 'Phosphor',
+      seedHex: '#1A4FD0',
+      darkHex: '#74A8FF',
+      pitch: 'Deep midnight-cobalt cinema optics with fine micro-scan film grain, frosted optical-glass bars, and a softly breathing cathode bloom.',
+      materialBadge: 'Micro-Scan Grain · Optical Glass · Cathode Bloom',
+      home: {
+        chips: ['All', 'Optics', 'Audio', '4K HDR'],
+        videos: [
+          {
+            thumbClass: 'thumb-phosphor-1',
+            dur: '22:18',
+            resume: 48,
+            avaBg: 'linear-gradient(135deg,#1A4FD0,#5E8BFF)',
+            avaInit: 'AL',
+            title: 'Inside the Optical Labs Grinding Tomorrow’s Cinema Lenses',
+            sub: 'Aperture Lab · 624K views · 2 days ago'
+          },
+          {
+            thumbClass: 'thumb-phosphor-2',
+            dur: '16:04',
+            resume: 78,
+            avaBg: 'linear-gradient(135deg,#2E4A9E,#74A8FF)',
+            avaInit: 'CB',
+            title: 'Restoring a 1984 Sony Trinitron Broadcast Monitor',
+            sub: 'Cathode Bench · 319K views · 5 days ago'
+          }
+        ]
+      },
+      player: {
+        stageClass: 'stage-phosphor',
+        title: 'Night Drive Through Rainy Tokyo in 4K HDR',
+        meta: '1.9M views · 3 days ago · 28:40',
+        chAvaBg: 'linear-gradient(135deg,#1A4FD0,#6B5BFF)',
+        chInit: 'NV',
+        chName: 'Nocturne Visuals',
+        chSubs: '1.4M subscribers',
+        likes: '94K',
+        descHead: 'Description',
+        descTag: '12:05 · Shinjuku Expressway',
+        descBody: 'Shot on full-frame anamorphic with binaural cabin mics. Camera LUTs at ',
+        descLink: 'nocturne.film/lut',
+        commentAvaBg: 'linear-gradient(135deg,#25479E,#142554)',
+        commentInit: 'K',
+        commentCount: '3.4K',
+        commentText: 'The cobalt reflections on the wet asphalt at 12:05 look unreal on OLED.'
+      },
+      appearanceSummary: 'Dark · Phosphor (optics & cobalt glow)',
+      liveCard: { title: 'Scan-grain + optical bloom', sub: 'Frosted bars · Lit filament', pill: 'Active' },
+      roles: [
+        ['primary', '#1A4FD0', '#74A8FF', '#74A8FF'],
+        ['onPrimary', '#FFFFFF', '#031B4A', '#031B4A'],
+        ['primaryContainer', '#D6E2FF', '#133478', '#133478'],
+        ['onPrimaryContainer', '#071D59', '#D8E6FF', '#D8E6FF'],
+        ['secondary', '#4B5A7E', '#B4C4E6', '#B4C4E6'],
+        ['secondaryContainer', '#DEE5F7', '#23304C', '#23304C'],
+        ['tertiary', '#5046A8', '#A79EFF', '#A79EFF'],
+        ['surface', '#F1F5FC', '#0B0F1A', '#000000'],
+        ['onSurface', '#111829', '#EDF2FF', '#EDF2FF'],
+        ['surfaceVariant', '#DCE4F5', '#26314A', lerpBlack('#26314A', 0.25)],
+        ['onSurfaceVariant', '#44516E', '#B1C0DE', '#B1C0DE'],
+        ['surfaceContainerLow', '#E8EEF9', '#161E31', lerpBlack('#161E31', 0.55)],
+        ['surfaceContainer', '#E0E7F6', '#1C253C', lerpBlack('#1C253C', 0.45)],
+        ['surfaceContainerHigh', '#D5DFF2', '#24304C', lerpBlack('#24304C', 0.35)],
+        ['surfaceContainerHighest', '#C9D5EC', '#2E3C5E', lerpBlack('#2E3C5E', 0.25)],
+        ['outline', '#7280A0', '#7A8BB0', '#7A8BB0'],
+      ],
+      contrasts: [
+        { pair: 'primary / onPrimary', light: '6.83:1', dark: '6.98:1', note: 'AA / AAA-lg' },
+        { pair: 'onSurface / surface (textured)', light: '14.93:1', dark: '15.97:1', note: 'AAA' },
+        { pair: 'onSurfaceVariant / containerLow (tex)', light: '6.50:1', dark: '8.56:1', note: 'AA / AAA' },
+        { pair: 'primary / surfaceContainer (tex)', light: '5.25:1', dark: '6.04:1', note: 'AA' },
+      ],
+      materials: [
+        {
+          title: 'Micro-Phosphor Grain + 4 dp Optical Scanline Weave',
+          tag: 'Surface texture',
+          metrics: [
+            ['Page surface', '4.5% grain + 2.2% scanlines (0% on AMOLED #000)'],
+            ['Cards (containerLow)', '2.5% grain (L/D) · 3% micro-scan (AMOLED)'],
+            ['Scan pitch', '1 dp line every 4 dp vertical']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Combine a tiny 128×128 tileable film-grain <code>ImageShader</code> with a 1×4 px repeated scanline bitmap (or an API 33+ AGSL <code>RuntimeShader</code> with bitmap fallback below API 33) in one <code>drawBehind</code> pass. Costs ~0.07 ms/frame and skips the page entirely when <code>amoled</code> is on so OLED pixels stay off.'
+        },
+        {
+          title: 'Frosted Optical Glass Floating Bars',
+          tag: 'Nav & player bar',
+          metrics: [
+            ['Blur radius', '22 dp live backdrop blur (API 31+)'],
+            ['Tint', 'surfaceVariant @ 78% + top radial lens sheen'],
+            ['Fallback (< API 31)', 'Opaque surfaceVariant @ 94% + top sheen']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> On Android 12+ (API 31+, Derek’s Pixel), render the bar’s backdrop node through <code>RenderEffect.createBlurEffect(22.dp, 22.dp, TileMode.Clamp)</code> clipped to the 28/34 dp pill, then overlay <code>surfaceVariant.copy(0.78f)</code> and a soft top radial reflection (zero 1 dp border). Bounded to the single 54–70 dp bar rect (~0.25 ms on Pixel GPU); falls back cleanly to a high-opacity tint on older devices.'
+        },
+        {
+          title: 'Two-Stage Cathode Bloom & Lit Filament Progress',
+          tag: 'Interactive glow',
+          metrics: [
+            ['Bloom', '14 dp bright core + 32 dp atmospheric cobalt halo'],
+            ['Filament', '3 dp progress track + 6 dp luminous playhead spark'],
+            ['Timing', '3.4 s breathing pulse while playing; 2.2 s spark shimmer'],
+            ['Reduced motion', 'Static bloom @ 0.48 alpha, steady playhead dot']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Paint two concentric <code>Brush.radialGradient</code> halos in <code>drawBehind</code> behind Play, active tab, and active toggles, and a blurred <code>Stroke</code> pass under <code>BarProgress</code> plus a small radial dot at the played fraction. Driven purely from a draw-phase clock while playing (zero recomposition, ~0.06 ms).'
+        },
+        {
+          title: 'Chromatic Horizon Video Bleed',
+          tag: 'Ambient light',
+          metrics: [
+            ['Zone', '155 dp soft radial pool directly below video edge'],
+            ['Opacity', '18% light / 28% dark / 24% AMOLED'],
+            ['Picture safety', 'Strictly clipped outside VideoStage']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Samples the video’s bottom-edge accent hue every 1.5 s (or uses the thumbnail’s palette in reduced-motion) and paints a single elliptical <code>Brush.radialGradient</code> at the top of the player details column. Zero cost during feed scrolling since it only exists on the open watch screen.'
+        }
+      ]
+    },
+
+    {
+      id: 'alloy',
+      index: '03 / 03',
+      name: 'Alloy',
+      seedHex: '#7B20A3',
+      darkHex: '#DF8CFF',
+      pitch: 'Milled silver-titanium and bead-blasted gunmetal with anisotropic brushed grain, overhead chamfer rim-light, and crisp ultraviolet-orchid LED accents.',
+      materialBadge: 'Brushed Metal · Chamfer Rim-Light · Precision LED',
+      home: {
+        chips: ['All', 'Hardware', 'Synths', 'Machining'],
+        videos: [
+          {
+            thumbClass: 'thumb-alloy-1',
+            dur: '19:35',
+            resume: 41,
+            avaBg: 'linear-gradient(135deg,#7B20A3,#B86EE0)',
+            avaInit: 'FT',
+            title: 'Milling a Solid Titanium Turntable From One Billet',
+            sub: 'Form & Tolerance · 518K views · 4 days ago'
+          },
+          {
+            thumbClass: 'thumb-alloy-2',
+            dur: '12:50',
+            resume: 84,
+            avaBg: 'linear-gradient(135deg,#5D5868,#9E56C4)',
+            avaInit: 'SP',
+            title: 'Modular Synths and the Return of Tactile Hardware',
+            sub: 'Signal Path · 284K views · 6 days ago'
+          }
+        ]
+      },
+      player: {
+        stageClass: 'stage-alloy',
+        title: 'Designing Precision Audio Hardware That Lasts 40 Years',
+        meta: '532K views · 6 days ago · 24:12',
+        chAvaBg: 'linear-gradient(135deg,#7B20A3,#D67BFF)',
+        chInit: 'AS',
+        chName: 'Atelier Sound',
+        chSubs: '690K subscribers',
+        likes: '47K',
+        descHead: 'Description',
+        descTag: '09:40 · Anodizing & tolerances',
+        descBody: 'Behind the brushed aluminium chassis, stepped attenuators & schematics at ',
+        descLink: 'ateliersound.co/specs',
+        commentAvaBg: 'linear-gradient(135deg,#463D5C,#231E30)',
+        commentInit: 'R',
+        commentCount: '1.8K',
+        commentText: 'The macro shot of the bead-blasted chamfer catching the purple key light is chef’s kiss.'
+      },
+      appearanceSummary: 'Dark · Alloy (brushed metal & orchid LED)',
+      liveCard: { title: 'Brushed titanium + LED glow', sub: 'Soft top rim-light · 0 dp borders', pill: 'Active' },
+      roles: [
+        ['primary', '#7B20A3', '#DF8CFF', '#DF8CFF'],
+        ['onPrimary', '#FFFFFF', '#2F0342', '#2F0342'],
+        ['primaryContainer', '#F1D9FC', '#541670', '#541670'],
+        ['onPrimaryContainer', '#330547', '#F5DEFF', '#F5DEFF'],
+        ['secondary', '#5D5868', '#C4BFCF', '#C4BFCF'],
+        ['secondaryContainer', '#E6E3EC', '#33303D', '#33303D'],
+        ['tertiary', '#8E3474', '#EE96C8', '#EE96C8'],
+        ['surface', '#EFEFF3', '#111116', '#000000'],
+        ['onSurface', '#18171E', '#F2F1F7', '#F2F1F7'],
+        ['surfaceVariant', '#DCDCE4', '#312F3B', lerpBlack('#312F3B', 0.25)],
+        ['onSurfaceVariant', '#504E5C', '#BCBAC9', '#BCBAC9'],
+        ['surfaceContainerLow', '#E7E7EE', '#1E1D25', lerpBlack('#1E1D25', 0.55)],
+        ['surfaceContainer', '#DFDFE8', '#25242E', lerpBlack('#25242E', 0.45)],
+        ['surfaceContainerHigh', '#D5D5E0', '#2E2D39', lerpBlack('#2E2D39', 0.35)],
+        ['surfaceContainerHighest', '#CACAD7', '#393746', lerpBlack('#393746', 0.25)],
+        ['outline', '#7B7889', '#848194', '#848194'],
+      ],
+      contrasts: [
+        { pair: 'primary / onPrimary', light: '8.15:1', dark: '7.70:1', note: 'AAA' },
+        { pair: 'onSurface / surface (textured)', light: '14.04:1', dark: '15.10:1', note: 'AAA' },
+        { pair: 'onSurfaceVariant / containerLow (tex)', light: '6.24:1', dark: '8.14:1', note: 'AA / AAA' },
+        { pair: 'primary / surfaceContainer (tex)', light: '5.81:1', dark: '6.29:1', note: 'AA' },
+      ],
+      materials: [
+        {
+          title: 'Anisotropic Horizontal Brushed-Metal Grain',
+          tag: 'Surface texture',
+          metrics: [
+            ['Page surface', '3.5% fine bead-blast (0% on AMOLED #000)'],
+            ['Cards & tiles', '6.5% horizontal brushed streaks (7% AMOLED)'],
+            ['Nav & player bar', '5.5% anodized satin gradient'],
+            ['Tile size', '256×128 dp stretched 1D streak noise']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Generate one 256×128 horizontal-streak <code>ImageBitmap</code> (32 KB) once and cache its <code>ImageShader(TileMode.Repeated)</code>. Drawn in <code>drawBehind</code> across cards and bars alongside a 3-stop diagonal satin <code>Brush.linearGradient</code> — super cheap (~0.06 ms/frame), crisp at any DPI, and completely off on AMOLED page backgrounds.'
+        },
+        {
+          title: 'Overhead Chamfer Rim-Light (Zero 1 dp Outlines)',
+          tag: 'Surface lighting',
+          metrics: [
+            ['Height', '12 dp soft vertical fade along top of cards, tiles & nav'],
+            ['Opacity', '12% violet-white (D/AMOLED) / 65% pure white (L)'],
+            ['Stroke width', '0 dp (strictly gradient wash, no hairline border)']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Inside each clipped rounded container, paint a 12 dp tall <code>Brush.verticalGradient</code> from soft specular highlight to 0% alpha at the top edge. Simulates light catching milled bevelled metal without breaking Rule 7 (no 1 dp borders); virtually free (~0.02 ms per visible card).'
+        },
+        {
+          title: 'Precision Ultraviolet-Orchid LED Glow & Status Pip',
+          tag: 'Interactive glow',
+          metrics: [
+            ['Targets', 'Play button, selected tab, active toggles, progress tip'],
+            ['Radius', '16 dp focused tight halo (crisper than Phosphor)'],
+            ['Indicator', '5 dp glowing LED pip on active quick toggles & progress tip'],
+            ['Shimmer', '5.5 s diagonal satin light sweep across selected pill (off in reduced-motion)']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> Focused radial glow via <code>drawBehind</code> behind the active pill, plus a 5 dp glowing circle in <code>Canvas</code> on active toggles. The optional satin sweep translates a single 40 dp angled <code>Brush.linearGradient</code> inside the clipped pill on a lightweight frame clock — skipped completely when <code>rememberReducedMotion()</code> is true.'
+        },
+        {
+          title: 'Deck Specular Reflection Bleed (Open Player)',
+          tag: 'Ambient light',
+          metrics: [
+            ['Zone', '120 dp brushed-metal reflection band below video'],
+            ['Opacity', '16% light / 22% dark / 20% AMOLED'],
+            ['Look', 'Tighter horizontal reflection than Washi’s wide wash']
+          ],
+          compose: '<strong>Compose build &amp; cost:</strong> A 3-stop vertical <code>Brush.verticalGradient</code> tinted by the video’s bottom-edge dominant colour laid over the brushed titanium grain below <code>VideoStage</code>, fading smoothly to transparent (and pure `#000000` on AMOLED). Zero overlap with video pixels; ~0.04 ms/frame.'
+        }
+      ]
+    }
+  ];
+
+  /* ── Render Phone 1: Home ───────────────────────────────────────── */
+  function renderHomePhone(t) {
+    const chips = t.home.chips.map((c, i) =>
+      `<div class="feed-chip pressable${i === 0 ? ' active' : ''}">${c}</div>`
+    ).join('');
+
+    const cards = t.home.videos.map(v => `
+      <article class="v-card pressable">
+        <div class="v-thumb ${v.thumbClass}">
+          <span class="v-dur">${v.dur}</span>
+          <div class="v-resume-track"><div class="v-resume-fill" style="width:${v.resume}%"></div></div>
+        </div>
+        <div class="v-meta">
+          <div class="v-ava" style="background:${v.avaBg}">${v.avaInit}</div>
+          <div class="v-text">
+            <div class="v-title">${v.title}</div>
+            <div class="v-sub">${v.sub}</div>
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    return `
+      <div class="phone-wrap">
+        <div class="phone-caption">Home <span class="phone-caption-tag">Feed + Tab Bar</span></div>
+        <div class="phone-shell">
+          <div class="phone-screen">
+            <div class="surface-tex"></div>
+            <div class="surface-tex-2"></div>
+            <div class="phone-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-camera"></div>
+                <div class="status-icons">${ICONS.wifi}${ICONS.battery}</div>
+              </div>
+              <div class="app-header">
+                <div class="brand-row">
+                  <div class="brand-mark">${ICONS.brand}</div>
+                  <div class="brand-name">Skipii</div>
+                </div>
+                <div class="header-actions">
+                  <div class="header-icon-btn pressable" aria-label="Your feed">${ICONS.filter}</div>
+                  <div class="header-avatar pressable" aria-label="Account">D</div>
+                </div>
+              </div>
+              <div class="chips-row">${chips}</div>
+              <div class="feed-list">${cards}</div>
+            </div>
+            <div class="bottom-vignette"></div>
+            <nav class="nav-pill" aria-label="Bottom tabs">
+              <div class="nav-item selected pressable" data-nav="home">${ICONS.home}<span>Home</span><span class="sheen-bar anim-sweep"></span></div>
+              <div class="nav-item pressable" data-nav="subs">${ICONS.subs}</div>
+              <div class="nav-item pressable" data-nav="shorts">${ICONS.shorts}</div>
+              <div class="nav-item pressable" data-nav="search">${ICONS.search}</div>
+              <div class="nav-item pressable" data-nav="library">${ICONS.library}</div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Render Phone 2: Open Player ────────────────────────────────── */
+  function renderPlayerPhone(t) {
+    const p = t.player;
+    return `
+      <div class="phone-wrap">
+        <div class="phone-caption">Open Player <span class="phone-caption-tag">Bleed + Bar</span></div>
+        <div class="phone-shell">
+          <div class="phone-screen">
+            <div class="surface-tex"></div>
+            <div class="surface-tex-2"></div>
+            <div class="phone-content">
+              <div class="status-bar over-video">
+                <span>9:41</span>
+                <div class="status-camera"></div>
+                <div class="status-icons">${ICONS.wifi}${ICONS.battery}</div>
+              </div>
+              <div class="player-stage ${p.stageClass}" aria-label="Video picture untouched"></div>
+              <div class="player-body">
+                <div class="ambient-bleed"></div>
+                <div class="player-title">${p.title}</div>
+                <div class="player-meta-line">${p.meta}</div>
+
+                <div class="channel-row">
+                  <div class="v-ava" style="background:${p.chAvaBg}">${p.chInit}</div>
+                  <div class="ch-info">
+                    <div class="ch-name">${p.chName}</div>
+                    <div class="ch-subs">${p.chSubs}</div>
+                  </div>
+                  <div class="sub-pill pressable">Subscribed</div>
+                  <div class="bell-pill pressable" aria-label="Notifications on">${ICONS.bell}</div>
+                </div>
+
+                <div class="actions-row">
+                  <div class="action-pill liked pressable" data-like-btn="1">${ICONS.thumbUp}<span>${p.likes}</span></div>
+                  <div class="action-pill pressable">${ICONS.bookmark}<span>Save</span></div>
+                  <div class="action-pill pressable">${ICONS.playlist}<span>Playlist</span></div>
+                  <div class="action-pill pressable">${ICONS.share}<span>Share</span></div>
+                </div>
+
+                <div class="info-card pressable">
+                  <div class="info-card-head">
+                    <span>${p.descHead}</span>
+                    <span class="info-card-tag">${p.descTag}</span>
+                  </div>
+                  <div class="info-card-body">${p.descBody}<span class="info-link">${p.descLink}</span></div>
+                </div>
+
+                <div class="info-card pressable">
+                  <div class="info-card-head">
+                    <span>Comments</span>
+                    <span class="info-card-tag">${p.commentCount}</span>
+                  </div>
+                  <div class="comment-row">
+                    <div class="comment-ava" style="background:${p.commentAvaBg}">${p.commentInit}</div>
+                    <div class="info-card-body">${p.commentText}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-vignette"></div>
+            <div class="player-bar">
+              <div class="player-bar-surface"></div>
+              <div class="bar-grabber"></div>
+              <div class="bar-controls">
+                <div class="bar-side-btn pressable" title="Audio only">${ICONS.headphones}</div>
+                <div class="bar-skip-btn pressable" title="Back 10s">−10</div>
+                <div class="bar-play-btn pressable anim-breathe anim-pulse" data-play-btn="1" title="Play / Pause">
+                  ${ICONS.pause}
+                  <span class="sheen-bar anim-sweep"></span>
+                </div>
+                <div class="bar-skip-btn pressable" title="Forward 10s">+10</div>
+                <div class="bar-side-btn pressable" title="More tools">${ICONS.more}</div>
+              </div>
+              <div class="bar-progress-wrap">
+                <div class="bar-progress-fill">
+                  <span class="bar-playhead-spark anim-spark"></span>
+                </div>
+                <span class="bar-chapter-slit"></span>
+                <span class="bar-chapter-slit s2"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Render Phone 3: Settings ───────────────────────────────────── */
+  function renderSettingsPhone(t) {
+    const tiles = [
+      { icon: ICONS.playCircle, title: 'Playback', sub: 'In bar · 10 s · Auto PiP' },
+      { icon: ICONS.download, title: 'Downloads', sub: '3 videos · Wi-Fi only · 1080p' },
+      { icon: ICONS.captions, title: 'Captions & Dubbing', sub: 'English · Original audio' },
+      { icon: ICONS.fastFwd, title: 'SponsorBlock', sub: 'Skip sponsors · Ask self-promo' },
+      { icon: ICONS.palette, title: 'Appearance', sub: t.appearanceSummary },
+    ];
+    const tilesHtml = tiles.map(tile => `
+      <div class="j-tile pressable">
+        <div class="j-tile-icon">${tile.icon}</div>
+        <div class="j-tile-text">
+          <div class="j-tile-title">${tile.title}</div>
+          <div class="j-tile-sub">${tile.sub}</div>
+        </div>
+        <span style="color:var(--on-surface-variant)">${ICONS.chev}</span>
+      </div>
+    `).join('');
+
+    return `
+      <div class="phone-wrap">
+        <div class="phone-caption">Settings <span class="phone-caption-tag">Toggles + Joined Tiles</span></div>
+        <div class="phone-shell">
+          <div class="phone-screen">
+            <div class="surface-tex"></div>
+            <div class="surface-tex-2"></div>
+            <div class="phone-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-camera"></div>
+                <div class="status-icons">${ICONS.wifi}${ICONS.battery}</div>
+              </div>
+              <div class="settings-scroll">
+                <div class="settings-top-row">${ICONS.back}</div>
+                <div class="settings-big-title">Settings</div>
+                <div class="search-pill">${ICONS.search}<span>Search settings</span></div>
+
+                <div class="acct-card pressable">
+                  <div class="acct-ava">D</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="acct-name">Derek</div>
+                    <div class="acct-sub">Full sync on · Home, likes &amp; history</div>
+                  </div>
+                  <span>${ICONS.chev}</span>
+                </div>
+
+                <div class="qt-grid">
+                  <div class="qt-tile pressable" data-qt="1">
+                    ${ICONS.headphones}
+                    <div><div class="qt-label">Audio only</div><div class="qt-state">Off</div></div>
+                    <span class="qt-led"></span>
+                  </div>
+                  <div class="qt-tile on pressable" data-qt="1">
+                    ${ICONS.fastFwd}
+                    <div><div class="qt-label">SponsorBlock</div><div class="qt-state">On</div></div>
+                    <span class="qt-led"></span>
+                  </div>
+                  <div class="qt-tile on pressable" data-qt="1">
+                    ${ICONS.shorts}
+                    <div><div class="qt-label">Shorts</div><div class="qt-state">On</div></div>
+                    <span class="qt-led"></span>
+                  </div>
+                  <div class="qt-tile pressable" data-qt="1">
+                    ${ICONS.speed}
+                    <div><div class="qt-label">Keep speed</div><div class="qt-state">Off</div></div>
+                    <span class="qt-led"></span>
+                  </div>
+                </div>
+
+                <div class="group-label">Watching &amp; Look</div>
+                <div class="joined-group">${tilesHtml}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Render Phone 4: Appearance / Theme Picker ──────────────────── */
+  function renderAppearancePhone(t, mode) {
+    const swatches = pickerSwatchesFor(t.id, mode).map(s => `
+      <div class="swatch-col">
+        <div class="swatch-outer${s.selected ? ' selected' : ''}" style="background:${s.surf}">
+          <div class="swatch-inner" style="background:linear-gradient(135deg, ${s.p} 0% 50%, ${s.pc} 50% 100%); color:${s.onP}">
+            ${s.selected ? ICONS.check : ''}
+          </div>
+        </div>
+        <div class="swatch-name${s.selected ? ' selected' : ''}">${s.name}</div>
+      </div>
+    `).join('');
+
+    const isLight = mode === 'light';
+    const isAmoled = mode === 'amoled';
+
+    return `
+      <div class="phone-wrap">
+        <div class="phone-caption">Appearance <span class="phone-caption-tag">Theme Picker</span></div>
+        <div class="phone-shell">
+          <div class="phone-screen">
+            <div class="surface-tex"></div>
+            <div class="surface-tex-2"></div>
+            <div class="phone-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-camera"></div>
+                <div class="status-icons">${ICONS.wifi}${ICONS.battery}</div>
+              </div>
+              <div class="settings-scroll">
+                <div class="settings-top-row">${ICONS.back}</div>
+                <div class="settings-big-title">Appearance</div>
+                <div class="app-summary">${isLight ? 'Light' : (isAmoled ? 'Dark · AMOLED black' : 'Dark')} · ${t.name}</div>
+
+                <div class="joined-group">
+                  <div class="setting-block">
+                    <div class="sb-head">
+                      <div class="j-tile-icon">${ICONS.moon}</div>
+                      <div><div class="sb-title">Mode</div></div>
+                    </div>
+                    <div class="mode-chips-row">
+                      <div class="mode-chip pressable" data-phone-mode="dark" data-theme-target="${t.id}">System</div>
+                      <div class="mode-chip pressable${isLight ? ' active' : ''}" data-phone-mode="light" data-theme-target="${t.id}">Light</div>
+                      <div class="mode-chip pressable${!isLight ? ' active' : ''}" data-phone-mode="dark" data-theme-target="${t.id}">Dark</div>
+                    </div>
+                  </div>
+
+                  <div class="setting-block">
+                    <div class="sb-head">
+                      <div class="j-tile-icon">${ICONS.contrast}</div>
+                      <div style="flex:1;min-width:0">
+                        <div class="sb-title">AMOLED black</div>
+                        <div class="sb-line">${isLight ? 'Applies only in dark mode' : 'Pure black page; textures stay on cards'}</div>
+                      </div>
+                      <div class="m3-switch pressable${isAmoled ? ' on' : ''}${isLight ? ' dimmed' : ''}" data-amoled-toggle="${t.id}" role="switch" aria-checked="${isAmoled}">
+                        <div class="m3-thumb"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="setting-block">
+                    <div class="sb-head">
+                      <div class="j-tile-icon">${ICONS.palette}</div>
+                      <div>
+                        <div class="sb-title">Theme</div>
+                        <div class="sb-line">${t.name} · ${t.materialBadge}</div>
+                      </div>
+                    </div>
+                    <div class="swatch-rail">${swatches}</div>
+                    <div class="material-live-card">
+                      <div class="mlc-row">
+                        <div>
+                          <div class="mlc-title">${t.liveCard.title}</div>
+                          <div class="mlc-sub">${t.liveCard.sub}</div>
+                        </div>
+                        <div class="mlc-pill">${t.liveCard.pill}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Render Full Theme Section ──────────────────────────────────── */
+  function renderThemeSection(t, mode) {
+    const lSurf = t.roles.find(r => r[0] === 'surface')[1];
+    const dSurf = t.roles.find(r => r[0] === 'surface')[2];
+    const lOnS  = t.roles.find(r => r[0] === 'onSurface')[1];
+    const dOnS  = t.roles.find(r => r[0] === 'onSurface')[2];
+    const lPri  = t.roles.find(r => r[0] === 'primary')[1];
+    const dPri  = t.roles.find(r => r[0] === 'primary')[2];
+    const lOnP  = t.roles.find(r => r[0] === 'onPrimary')[1];
+    const dOnP  = t.roles.find(r => r[0] === 'onPrimary')[2];
+    const lLow  = t.roles.find(r => r[0] === 'surfaceContainerLow')[1];
+    const dLow  = t.roles.find(r => r[0] === 'surfaceContainerLow')[2];
+    const aLow  = t.roles.find(r => r[0] === 'surfaceContainerLow')[3];
+
+    const contrastHtml = t.contrasts.map(c => `
+      <div class="contrast-card">
+        <div class="cc-pair">${c.pair}</div>
+        <div class="cc-vals">
+          <span class="cc-ratio">L ${c.light} · D ${c.dark}</span>
+          <span class="cc-badge">${c.note} ✓</span>
+        </div>
+      </div>
+    `).join('');
+
+    const rolesRows = t.roles.map(([role, lh, dh, ah]) => `
+      <tr>
+        <td class="role-name">${role}</td>
+        <td><span class="hex-cell"><span class="hex-dot" style="background:${lh}"></span>${lh}</span></td>
+        <td><span class="hex-cell"><span class="hex-dot" style="background:${dh}"></span>${dh}</span></td>
+        <td><span class="hex-cell"><span class="hex-dot" style="background:${ah}"></span>${ah}</span></td>
+      </tr>
+    `).join('');
+
+    const matsHtml = t.materials.map(m => `
+      <div class="mat-item">
+        <div class="mat-item-top">
+          <div class="mat-item-title">${m.title}</div>
+          <span class="mat-tag">${m.tag}</span>
+        </div>
+        <div class="mat-metrics">
+          ${m.metrics.map(([k, v]) => `<span class="mat-metric"><strong>${k}:</strong> ${v}</span>`).join('')}
+        </div>
+        <div class="mat-compose">${m.compose}</div>
+      </div>
+    `).join('');
+
+    return `
+      <section class="theme-section theme-${t.id}" id="${t.id}" data-theme-section="${t.id}" data-mode="${mode}">
+        <div class="theme-header">
+          <div>
+            <div class="theme-title-row">
+              <span class="theme-index">${t.index}</span>
+              <h2 class="theme-name">${t.name}</h2>
+              <span class="theme-pill-hex"><span class="mini-dot" style="background:${lPri}"></span>Light ${lPri}</span>
+              <span class="theme-pill-hex"><span class="mini-dot" style="background:${dPri}; box-shadow:0 0 8px ${dPri}"></span>Dark ${dPri}</span>
+            </div>
+            <p class="theme-pitch">${t.pitch}</p>
+          </div>
+          <div class="mode-group" role="group" aria-label="${t.name} mode">
+            <button class="mode-btn${mode === 'light' ? ' active' : ''}" data-section-mode="light" data-theme-target="${t.id}" type="button">Light</button>
+            <button class="mode-btn${mode === 'dark' ? ' active' : ''}" data-section-mode="dark" data-theme-target="${t.id}" type="button">Dark</button>
+            <button class="mode-btn${mode === 'amoled' ? ' active' : ''}" data-section-mode="amoled" data-theme-target="${t.id}" type="button">AMOLED</button>
+          </div>
+        </div>
+
+        <div class="dual-strip">
+          <div class="mode-card${mode === 'light' ? ' active-mode' : ''}" data-section-mode="light" data-theme-target="${t.id}" style="background:${lSurf}; color:${lOnS}">
+            <div class="mode-card-meta">
+              <span class="mode-card-label">Light</span>
+              <span class="mode-card-sub">surface ${lSurf} · card ${lLow}</span>
+            </div>
+            <div class="mode-card-dots">
+              <span class="mode-card-dot" style="background:${lLow}"></span>
+              <span class="mode-card-pill" style="background:${lPri}; color:${lOnP}">${lPri}</span>
+            </div>
+          </div>
+
+          <div class="mode-card${mode === 'dark' ? ' active-mode' : ''}" data-section-mode="dark" data-theme-target="${t.id}" style="background:${dSurf}; color:${dOnS}">
+            <div class="mode-card-meta">
+              <span class="mode-card-label">Dark</span>
+              <span class="mode-card-sub">surface ${dSurf} · card ${dLow}</span>
+            </div>
+            <div class="mode-card-dots">
+              <span class="mode-card-dot" style="background:${dLow}"></span>
+              <span class="mode-card-pill" style="background:${dPri}; color:${dOnP}; box-shadow:0 0 12px ${dPri}66">${dPri}</span>
+            </div>
+          </div>
+
+          <div class="mode-card${mode === 'amoled' ? ' active-mode' : ''}" data-section-mode="amoled" data-theme-target="${t.id}" style="background:#000000; color:${dOnS}">
+            <div class="mode-card-meta">
+              <span class="mode-card-label">AMOLED · Theme.kt lerp</span>
+              <span class="mode-card-sub">surface #000000 · card ${aLow}</span>
+            </div>
+            <div class="mode-card-dots">
+              <span class="mode-card-dot" style="background:${aLow}"></span>
+              <span class="mode-card-pill" style="background:${dPri}; color:${dOnP}; box-shadow:0 0 14px ${dPri}88">OLED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="phones-grid">
+          ${renderHomePhone(t)}
+          ${renderPlayerPhone(t)}
+          ${renderSettingsPhone(t)}
+          <div class="appearance-slot" data-appearance-slot="${t.id}">
+            ${renderAppearancePhone(t, mode)}
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-panel">
+            <div class="spec-heading">
+              <span>Colour Roles &amp; Contrast</span>
+              <span class="mat-tag">WCAG ≥ 4.5:1 on textured surface</span>
+            </div>
+            <div class="spec-sub">AMOLED values are computed directly from <code>ColorScheme.amoled()</code> in <code>Theme.kt</code> (<code>surface #000000</code>; containers lerped 55% / 45% / 35% / 25% toward black).</div>
+            <div class="contrast-grid">${contrastHtml}</div>
+            <div class="roles-table-wrap">
+              <table class="roles-table">
+                <thead>
+                  <tr><th>Material Role</th><th>Light</th><th>Dark</th><th>AMOLED</th></tr>
+                </thead>
+                <tbody>${rolesRows}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="spec-panel">
+            <div class="spec-heading">
+              <span>Material &amp; Light Spec</span>
+              <span class="mat-tag">${t.materialBadge}</span>
+            </div>
+            <div class="spec-sub">Every texture, glow and light-catch with exact opacity, radius, AMOLED handling, reduced-motion fallback, and Jetpack Compose build cost.</div>
+            <div class="mat-list">${matsHtml}</div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /* ── Mount & Wire Interactivity ─────────────────────────────────── */
+  const state = {
+    globalMode: 'dark',
+    modes: { washi: 'dark', phosphor: 'dark', alloy: 'dark' }
+  };
+
+  const root = document.getElementById('themesRoot');
+  root.innerHTML = THEMES.map(t => renderThemeSection(t, state.modes[t.id])).join('');
+
+  function setSectionMode(themeId, newMode) {
+    state.modes[themeId] = newMode;
+    const sec = document.querySelector(`[data-theme-section="${themeId}"]`);
+    if (!sec) return;
+    sec.setAttribute('data-mode', newMode);
+
+    sec.querySelectorAll('[data-section-mode]').forEach(el => {
+      const m = el.getAttribute('data-section-mode');
+      if (el.classList.contains('mode-btn')) el.classList.toggle('active', m === newMode);
+      if (el.classList.contains('mode-card')) el.classList.toggle('active-mode', m === newMode);
+    });
+
+    const themeObj = THEMES.find(x => x.id === themeId);
+    const slot = sec.querySelector(`[data-appearance-slot="${themeId}"]`);
+    if (slot && themeObj) {
+      slot.innerHTML = renderAppearancePhone(themeObj, newMode);
+    }
+  }
+
+  function syncGlobalButtons() {
+    const allSame = Object.values(state.modes).every(m => m === state.globalMode);
+    document.querySelectorAll('[data-global-mode]').forEach(btn => {
+      btn.classList.toggle('active', allSame && btn.getAttribute('data-global-mode') === state.globalMode);
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    /* Global mode switcher */
+    const gBtn = e.target.closest('[data-global-mode]');
+    if (gBtn) {
+      const m = gBtn.getAttribute('data-global-mode');
+      state.globalMode = m;
+      THEMES.forEach(t => setSectionMode(t.id, m));
+      syncGlobalButtons();
+      return;
+    }
+
+    /* Per-section mode buttons & mode cards */
+    const sBtn = e.target.closest('[data-section-mode]');
+    if (sBtn) {
+      const tid = sBtn.getAttribute('data-theme-target');
+      const m = sBtn.getAttribute('data-section-mode');
+      setSectionMode(tid, m);
+      if (Object.values(state.modes).every(x => x === m)) state.globalMode = m;
+      syncGlobalButtons();
+      return;
+    }
+
+    /* In-phone Appearance mode chips */
+    const pChip = e.target.closest('[data-phone-mode]');
+    if (pChip) {
+      const tid = pChip.getAttribute('data-theme-target');
+      const m = pChip.getAttribute('data-phone-mode');
+      setSectionMode(tid, m);
+      syncGlobalButtons();
+      return;
+    }
+
+    /* In-phone AMOLED switch */
+    const amSw = e.target.closest('[data-amoled-toggle]');
+    if (amSw) {
+      const tid = amSw.getAttribute('data-amoled-toggle');
+      if (state.modes[tid] === 'light') return;
+      const next = state.modes[tid] === 'amoled' ? 'dark' : 'amoled';
+      setSectionMode(tid, next);
+      syncGlobalButtons();
+      return;
+    }
+
+    /* Interactive Play/Pause toggle inside Open Player */
+    const playBtn = e.target.closest('[data-play-btn]');
+    if (playBtn) {
+      const paused = playBtn.classList.toggle('paused');
+      const sheen = playBtn.querySelector('.sheen-bar');
+      playBtn.innerHTML = (paused ? ICONS.play : ICONS.pause) + (sheen ? '<span class="sheen-bar anim-sweep"></span>' : '');
+      return;
+    }
+
+    /* Interactive Like pill toggle inside Open Player */
+    const likeBtn = e.target.closest('[data-like-btn]');
+    if (likeBtn) {
+      likeBtn.classList.toggle('liked');
+      return;
+    }
+
+    /* Interactive Quick Toggles inside Settings */
+    const qt = e.target.closest('[data-qt]');
+    if (qt) {
+      const isOn = qt.classList.toggle('on');
+      const st = qt.querySelector('.qt-state');
+      if (st) st.textContent = isOn ? 'On' : 'Off';
+      return;
+    }
+  });
+
+  /* Reduced motion toggle */
+  const rmBtn = document.getElementById('reducedMotionBtn');
+  rmBtn.addEventListener('click', () => {
+    const on = document.body.classList.toggle('reduced-motion');
+    rmBtn.classList.toggle('active', on);
+    rmBtn.setAttribute('aria-pressed', String(on));
+  });
+})();
+</script>
+</body>
+</html>

@@ -103,6 +103,12 @@
     <string name="settings_background_play_off">Skipii\'den çıktığınızda veya ekran kapandığında duraklar (yalnızca ses devam eder)</string>
     <string name="settings_open_links_title">YouTube bağlantılarını aç</string>
     <string name="settings_open_links_line">Skipii diğer uygulamalardaki youtube.com ve youtu.be bağlantılarını açsın: Varsayılan olarak aç › Bağlantı ekle</string>
+    <string name="settings_open_links_done">YouTube bağlantıları Skipii\'de açılıyor</string>
+    <string name="settings_open_links_other">Şimdilik %1$s ile açılıyor: aşağıda iki adım</string>
+    <string name="settings_open_links_step1_title">1. %1$s bunları açmasın</string>
+    <string name="settings_open_links_step1_line">Varsayılan olarak aç › Tarayıcınızda ya da Desteklenen bağlantıları aç\'ı kapatın</string>
+    <string name="settings_open_links_step2_title">2. Skipii açsın</string>
+    <string name="settings_open_links_step2_line">Varsayılan olarak aç › Bağlantı ekle › hepsini işaretleyin</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">Rapor gönder</string>
     <string name="report_email_prompt">Ne oldu? (isteğe bağlı, herhangi bir dilde)</string>

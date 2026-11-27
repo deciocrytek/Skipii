@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skipii Themes · Claude</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght,ROND@6..144,400..1000,0..100&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<style>
+/* Layout: a quiet gallery wall. Each theme is a band: name + pitch, a mode switch,
+   a strip of four phones in that theme, then the colour roles and Compose code. */
+:root{
+  --font:'Google Sans Flex','Google Sans','Roboto Flex',Roboto,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --bg:#F1F0EE; --panel:#FBFAF9; --panel-2:#E7E5E2; --ink:#1B1A19; --ink-2:#5F5C58; --ink-3:#8A8681;
+  --good:#1E6B3C; --good-bg:#D9F0E0; --warn:#7A4E00; --warn-bg:#FBE8C4;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#85827D;
+  --good:#9FE0B4; --good-bg:#16301F; --warn:#F6CD7E; --warn-bg:#3A2A0A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#85827D;
+  --good:#9FE0B4; --good-bg:#16301F; --warn:#F6CD7E; --warn-bg:#3A2A0A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
+.wrap{max-width:1480px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro{max-width:68ch;display:grid;gap:10px;margin-bottom:36px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:0;font-weight:900;font-variation-settings:'ROND' 100;text-wrap:balance}
+.intro p{margin:0;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.legend a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);background:var(--panel);padding:8px 14px 8px 8px;border-radius:999px;font-weight:600}
+.legend a:focus-visible,.seg button:focus-visible,.copy:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.dot2{width:26px;height:26px;border-radius:50%;flex:none}
+
+.theme{background:var(--panel);border-radius:28px;padding:28px 0 24px;margin-bottom:28px}
+.theme-head{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between;padding:0 28px}
+.theme-head>div{min-width:0}
+.tname{font-size:34px;font-weight:900;line-height:1;margin:0 0 8px;font-variation-settings:'ROND' 100;display:flex;align-items:center;gap:12px}
+.pitch{margin:0;color:var(--ink-2);max-width:62ch}
+.seg{display:flex;background:var(--panel-2);border-radius:999px;padding:4px;gap:2px}
+.seg button{font:inherit;font-weight:600;font-size:14px;border:0;background:transparent;color:var(--ink-2);padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.strip{display:flex;gap:22px;overflow-x:auto;padding:24px 28px 14px;scroll-snap-type:x proximity}
+.shot{display:grid;gap:10px;flex:none;scroll-snap-align:start}
+.shot figcaption{font-size:13px;color:var(--ink-3);font-weight:600;padding-left:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px;padding:6px 28px 0;align-items:start}
+.facts>*{min-width:0}
+details{background:var(--bg);border-radius:20px;padding:4px 18px}
+summary{cursor:pointer;font-weight:700;padding:12px 0;list-style-position:inside}
+.ctab{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--ink-3);font-size:12px;padding:6px 8px}
+td{padding:4px 8px;white-space:nowrap}
+td.role{font-family:var(--mono);color:var(--ink-2)}
+.hex{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.chip{width:22px;height:22px;border-radius:7px;flex:none;box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+.pairs{display:grid;gap:8px;padding:4px 0 16px}
+.pair{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;background:var(--panel);border-radius:14px;padding:8px 12px}
+.sample{width:58px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px}
+.pair .lbl{font-size:13px;color:var(--ink-2);min-width:0}
+.ratio{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--good-bg);color:var(--good)}
+.badge.low{background:var(--warn-bg);color:var(--warn)}
+pre{font-family:var(--mono);font-size:12px;line-height:1.55;background:var(--panel);border-radius:14px;padding:14px;overflow-x:auto;margin:0 0 8px;max-height:340px}
+.copy{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:999px;padding:8px 16px;background:var(--ink);color:var(--panel);cursor:pointer;margin-bottom:14px}
+.notes{max-width:72ch;color:var(--ink-2);display:grid;gap:10px;margin-top:40px}
+.notes h2{color:var(--ink);font-size:20px;margin:0}
+.notes p{margin:0}
+
+/* ---------- The phone: every colour below comes from the theme's roles ---------- */
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 500,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 500,'opsz' 24}
+.phone{width:320px;height:680px;border-radius:38px;padding:8px;background:#0c0c0c;flex:none;box-shadow:0 18px 40px -18px rgba(0,0,0,.45)}
+.scr{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--surface);color:var(--onSurface);font-family:var(--font);font-size:13px;line-height:1.35}
+.sb{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 24px;font-size:12px;font-weight:600;color:var(--onSurface)}
+.sb .ms{font-size:15px}
+.sb.vid{background:#000;color:#fff}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;font-variation-settings:'ROND' 100}
+.bm{width:30px;height:22px;border-radius:8px;display:grid;place-items:center;color:var(--onPrimary);background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 82%,transparent))}
+.bm .ms{font-size:17px}
+.hdr-act{display:flex;gap:8px;align-items:center}
+.ib{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surfaceContainerHigh);color:var(--onSurface)}
+.ib .ms{font-size:19px}
+.me{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8aa1b8,#4b5d70);color:#fff;display:grid;place-items:center;font-weight:800}
+.hchips{display:flex;gap:18px;padding:8px 18px 10px;font-weight:600;color:var(--onSurfaceVariant);font-size:14px;white-space:nowrap;overflow:hidden}
+.hchips span{position:relative}
+.hchips .on{color:var(--primary);font-weight:850}
+.hchips .on::after{content:"";position:absolute;left:20%;right:20%;bottom:-6px;height:4px;border-radius:2px;background:var(--primary)}
+.card{margin:0 5px 8px;background:var(--surfaceContainerLow);border-radius:25px;padding:5px}
+.th{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;max-width:100%}
+.dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px}
+.resume{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.35)}
+.resume i{display:block;height:100%;background:var(--primary)}
+.meta{display:grid;grid-template-columns:32px 1fr 16px;gap:10px;padding:9px 6px 8px}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+.tt{font-weight:700;font-size:13.5px;line-height:1.3;color:var(--onSurface);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sub{font-size:11.5px;color:var(--onSurfaceVariant);margin-top:2px}
+.meta .ms{font-size:17px;color:var(--onSurfaceVariant)}
+.vig{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--surface) 0%,transparent),color-mix(in srgb,var(--surface) 76%,transparent));pointer-events:none}
+.nav{position:absolute;left:12px;right:12px;bottom:14px;height:56px;border-radius:28px;background:var(--surfaceVariant);display:flex;align-items:center;padding:0 5px;gap:2px;box-shadow:0 8px 20px -10px rgba(0,0,0,.45)}
+.tab{flex:1;height:46px;border-radius:23px;display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.tab .ms{font-size:22px}
+.tab.sel{flex:2.6;background:var(--primary);color:var(--onPrimary);display:flex;justify-content:center;gap:6px;font-weight:800;font-size:13px}
+/* player */
+.video{aspect-ratio:16/9;position:relative;max-width:100%}
+.pd{padding:12px 14px 0}
+.ptitle{font-size:16.5px;font-weight:800;line-height:1.28;margin:0}
+.pmeta{font-size:12px;color:var(--onSurfaceVariant);margin-top:5px}
+.chrow{display:flex;align-items:center;gap:10px;margin-top:12px}
+.chrow .name{font-weight:800;font-size:13.5px}
+.chrow .grow{flex:1;min-width:0}
+.subbed{display:flex;gap:3px}
+.subbed span{height:34px;display:grid;place-items:center;font-weight:700;font-size:12.5px}
+.subbed .a{background:var(--surfaceContainerHigh);color:var(--onSurface);padding:0 12px;border-radius:17px 7px 7px 17px}
+.subbed .b{width:38px;border-radius:50%;background:var(--primary);color:var(--onPrimary)}
+.subbed .b .ms{font-size:19px}
+.acts{display:flex;gap:6px;margin-top:12px;white-space:nowrap}
+.pill{height:34px;border-radius:17px;background:var(--surfaceContainerHigh);color:var(--onSurface);display:flex;align-items:center;gap:6px;padding:0 12px;font-weight:700;font-size:12.5px}
+.pill .ms{font-size:18px}
+.pill.on{background:var(--primary);color:var(--onPrimary)}
+.desc{margin-top:12px;background:var(--surfaceContainer);border-radius:20px;padding:11px 13px;font-size:12px;color:var(--onSurfaceVariant)}
+.desc b{color:var(--onSurface)}
+.lnk{color:var(--primary);font-weight:650}
+.cmts{margin-top:8px;background:var(--surfaceContainer);border-radius:20px;padding:11px 13px}
+.cmts .h{font-weight:800;font-size:13px;color:var(--onSurface)}
+.cmts .h span{color:var(--onSurfaceVariant);font-weight:600}
+.c1{display:flex;gap:9px;margin-top:8px;font-size:12px;color:var(--onSurface)}
+.c1 .av{width:24px;height:24px;font-size:10px;flex:none}
+.bar{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);width:288px;height:76px;border-radius:38px;background:var(--surfaceVariant);box-shadow:0 12px 26px -10px rgba(0,0,0,.5)}
+.grab{position:absolute;top:5px;left:50%;width:22px;height:3px;margin-left:-11px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 45%,transparent)}
+.brow{position:absolute;top:12px;left:5px;right:5px;height:50px;display:flex;align-items:center;justify-content:space-between}
+.bk{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--onSurface)}
+.bk .ms{font-size:24px}
+.bk.t{background:var(--surfaceContainerHighest)}
+.play{width:92px;height:48px;border-radius:24px;background:var(--primary);color:var(--onPrimary);display:grid;place-items:center}
+.play .ms{font-size:30px}
+.hair{position:absolute;left:30px;right:30px;bottom:7px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 28%,transparent);overflow:hidden}
+.hair i{display:block;width:38%;height:100%;background:var(--primary)}
+.hair b{position:absolute;top:0;left:62%;width:5%;height:100%;background:#00D400}
+/* settings */
+.big{font-size:32px;font-weight:950;font-variation-settings:'ROND' 100;padding:14px 18px 10px;margin:0;line-height:1}
+.search{margin:0 14px;height:42px;border-radius:21px;background:var(--surfaceContainerHigh);color:var(--onSurfaceVariant);display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13px}
+.search .ms{font-size:19px}
+.acct{margin:12px 14px 0;background:var(--primaryContainer);color:var(--onPrimaryContainer);border-radius:22px;padding:12px;display:flex;align-items:center;gap:11px}
+.acct .k{font-weight:800;font-size:14px}
+.acct .s{font-size:11.5px;opacity:.82}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 14px 0}
+.q{height:70px;border-radius:20px;background:var(--surfaceContainerHigh);color:var(--onSurface);display:grid;place-items:center;align-content:center;gap:4px;font-size:10.5px;font-weight:700;text-align:center;line-height:1.1}
+.q .ms{font-size:21px}
+.q.on{background:var(--primary);color:var(--onPrimary)}
+.glabel{font-size:11.5px;font-weight:700;color:var(--onSurfaceVariant);padding:14px 22px 6px;letter-spacing:.02em}
+.joined{margin:0 14px;display:grid;gap:3px}
+.tile{background:var(--surfaceContainer);border-radius:7px;display:flex;align-items:center;gap:11px;padding:10px 12px}
+.joined .tile:first-child{border-radius:21px 21px 7px 7px}
+.joined .tile:last-child{border-radius:7px 7px 21px 21px}
+.joined .tile:only-child{border-radius:21px}
+.ic{width:34px;height:34px;border-radius:11px;background:var(--primaryContainer);color:var(--onPrimaryContainer);display:grid;place-items:center;flex:none}
+.ic .ms{font-size:19px}
+.tile .tx{flex:1;min-width:0}
+.tile .k{font-weight:750;font-size:13px}
+.tile .s{font-size:11px;color:var(--onSurfaceVariant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile>.ms{font-size:18px;color:var(--onSurfaceVariant)}
+.topbar{display:flex;align-items:center;gap:10px;padding:6px 10px 4px}
+.topbar .t{font-weight:900;font-size:19px;font-variation-settings:'ROND' 100}
+.mchips{display:flex;gap:6px;padding:0 14px}
+.mchip{height:36px;border-radius:18px;background:var(--surfaceContainerHigh);color:var(--onSurface);display:flex;align-items:center;gap:5px;padding:0 13px;font-weight:700;font-size:12.5px}
+.mchip .ms{font-size:16px}
+.mchip.on{background:var(--primary);color:var(--onPrimary)}
+.sw{width:42px;height:26px;border-radius:13px;background:var(--surfaceContainerHighest);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:7px;left:7px;width:12px;height:12px;border-radius:50%;background:var(--outline)}
+.sw.on{background:var(--primary)}
+.sw.on::after{top:3px;left:19px;width:20px;height:20px;background:var(--onPrimary)}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 14px}
+.tg{background:var(--surfaceContainer);border-radius:18px;padding:10px 6px 8px;display:grid;justify-items:center;gap:6px;font-size:11px;font-weight:700;position:relative}
+.tg.on{background:var(--primaryContainer);color:var(--onPrimaryContainer)}
+.tg .ok{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:var(--onPrimary);display:grid;place-items:center}
+.tg .ok .ms{font-size:13px}
+.tg .new{position:absolute;top:6px;left:6px;font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:6px;background:var(--tertiaryContainer);color:var(--onTertiaryContainer)}
+.disc{width:40px;height:40px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.disc i:first-child{grid-row:1/3}
+
+@media (max-width:520px){.theme-head,.facts{padding-left:16px;padding-right:16px}.strip{padding-left:16px;padding-right:16px}.tname{font-size:28px}}
+@media (prefers-reduced-motion:no-preference){.scr{transition:background .25s}}
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="eyebrow">Skipii · theme round · Claude's three</div>
+    <h1>Lagoon, Marquee and Ink</h1>
+    <p>Three new themes for the Appearance page, each written out by hand for light and dark like Jai and Pumpkin, and checked with AMOLED on. Every phone below is drawn only from the theme's own colour roles, placed the way the app uses them: cards, the tab bar, the player bar, Settings and the theme picker.</p>
+    <p>Switch each theme between Light, Dark and AMOLED with its buttons. Neon's three are in a separate page.</p>
+    <nav class="legend" id="legend" aria-label="Themes"></nav>
+  </header>
+  <div id="themes"></div>
+  <section class="notes">
+    <h2>How they'd ship</h2>
+    <p>Each one becomes a written-out scheme in the app's theme file and a new swatch in Appearance, tagged New. Nothing else in the app changes: the video, the black status strip over it, SponsorBlock's colours and the shorts glass stay as they are.</p>
+    <p>The app copies the secondary container into the tertiary container for every theme, so the "New" tags in the picker use that tone.</p>
+  </section>
+</main>
+
+<script>
+const THEMES = [
+ {id:'lagoon', name:'Lagoon', seed:'#00677A',
+  pitch:'Clear tropical water. A deep teal that reads cool and calm in daylight and turns into a bright aqua glow at night, with surfaces that carry just a breath of the same hue.',
+  light:{primary:'#00677A',onPrimary:'#FFFFFF',primaryContainer:'#C6EEF5',onPrimaryContainer:'#002A33',secondary:'#4A6268',onSecondary:'#FFFFFF',secondaryContainer:'#D6ECEF',onSecondaryContainer:'#132B30',tertiary:'#2E6A5C',background:'#F4FAFB',onBackground:'#0E1D21',surface:'#F4FAFB',onSurface:'#0E1D21',surfaceVariant:'#D3E5E9',onSurfaceVariant:'#3D5960',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#ECF5F7',surfaceContainer:'#E6F1F3',surfaceContainerHigh:'#DDEBEE',surfaceContainerHighest:'#D3E5E9',outline:'#6E8A90',outlineVariant:'#C3D6DA'},
+  dark:{primary:'#5ED3E8',onPrimary:'#00363F',primaryContainer:'#004E5C',onPrimaryContainer:'#B8EEF7',secondary:'#B1CBD1',onSecondary:'#1C3439',secondaryContainer:'#21373C',onSecondaryContainer:'#CDE7EC',tertiary:'#8DD5C2',background:'#081316',onBackground:'#E3F1F4',surface:'#081316',onSurface:'#E3F1F4',surfaceVariant:'#22393E',onSurfaceVariant:'#A9C3C9',surfaceContainerLowest:'#040C0E',surfaceContainerLow:'#0E1B1F',surfaceContainer:'#132327',surfaceContainerHigh:'#1B2E33',surfaceContainerHighest:'#253B40',outline:'#6F8B91',outlineVariant:'#2A3E43'}},
+ {id:'marquee', name:'Marquee', seed:'#8C5A00',
+  pitch:'The lights over a cinema door. Gold on a warm white page by day; by night a saffron glow on near-black that makes the play button feel like a sign switching on.',
+  light:{primary:'#8C5A00',onPrimary:'#FFFFFF',primaryContainer:'#FFE2AE',onPrimaryContainer:'#2C1A00',secondary:'#6E5C40',onSecondary:'#FFFFFF',secondaryContainer:'#F4E4C9',onSecondaryContainer:'#261A06',tertiary:'#9B4A2C',background:'#FFFBF5',onBackground:'#211A10',surface:'#FFFBF5',onSurface:'#211A10',surfaceVariant:'#F0E2CD',onSurfaceVariant:'#5C4D39',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#FCF4E8',surfaceContainer:'#F9EFDF',surfaceContainerHigh:'#F4E8D5',surfaceContainerHighest:'#F0E2CD',outline:'#8D7D66',outlineVariant:'#E0D1BA'},
+  dark:{primary:'#FFC24A',onPrimary:'#2B1A00',primaryContainer:'#5C3F00',onPrimaryContainer:'#FFDEA3',secondary:'#D8C4A6',onSecondary:'#3A2E1B',secondaryContainer:'#2F2A22',onSecondaryContainer:'#EFE0C8',tertiary:'#FF9F7A',background:'#0E0D0B',onBackground:'#F5EFE6',surface:'#0E0D0B',onSurface:'#F5EFE6',surfaceVariant:'#2C2821',onSurfaceVariant:'#C4B8A6',surfaceContainerLowest:'#080706',surfaceContainerLow:'#151310',surfaceContainer:'#1C1A16',surfaceContainerHigh:'#25221D',surfaceContainerHighest:'#302C26',outline:'#8A7F70',outlineVariant:'#39342D'}},
+ {id:'ink', name:'Ink', seed:'#141414',
+  pitch:'Nothing on screen but the video. Black ink on paper by day, white on black by night: the selected tab, play and every switch are the one strong tone, so the thumbnails bring all the colour.',
+  light:{primary:'#151515',onPrimary:'#FFFFFF',primaryContainer:'#E4E4E2',onPrimaryContainer:'#151515',secondary:'#5C5C5A',onSecondary:'#FFFFFF',secondaryContainer:'#EAEAE8',onSecondaryContainer:'#1A1A1A',tertiary:'#3A3A3A',background:'#FBFBFA',onBackground:'#121212',surface:'#FBFBFA',onSurface:'#121212',surfaceVariant:'#E6E6E4',onSurfaceVariant:'#57575A',surfaceContainerLowest:'#FFFFFF',surfaceContainerLow:'#F4F4F3',surfaceContainer:'#EFEFEE',surfaceContainerHigh:'#E9E9E8',surfaceContainerHighest:'#E2E2E1',outline:'#8C8C8B',outlineVariant:'#DADAD9'},
+  dark:{primary:'#F2F2F0',onPrimary:'#111111',primaryContainer:'#303030',onPrimaryContainer:'#F2F2F0',secondary:'#BDBDBA',onSecondary:'#1E1E1E',secondaryContainer:'#262626',onSecondaryContainer:'#EDEDEB',tertiary:'#D6D6D3',background:'#0B0B0B',onBackground:'#F2F2F0',surface:'#0B0B0B',onSurface:'#F2F2F0',surfaceVariant:'#262626',onSurfaceVariant:'#ADADAA',surfaceContainerLowest:'#050505',surfaceContainerLow:'#131313',surfaceContainer:'#1A1A1A',surfaceContainerHigh:'#232323',surfaceContainerHighest:'#2E2E2E',outline:'#7A7A78',outlineVariant:'#2C2C2B'}}
+];
+/* The rest of the picker, for context (primaries from Theme.kt; Wallpaper follows the phone). */
+const OTHERS = [
+ ['YouTube','#E6002E','#FF0033'],['Cream Rose','#833761','#F0B4CC'],['Erica','#6C2BD9','#D4C0FF'],
+ ['Lilac Air','#7454CE','#C5B1F0'],['Jai','#D6005C','#FF6BA0'],['Pumpkin','#BC5628','#E97A3A'],
+ ['Moonstone','#636970','#C6CAD0'],['Iris','#6750A4','#D0BCFF'],['Harbor','#2F51CC','#B9C5FF']];
+
+const ROLE_ORDER = ['primary','onPrimary','primaryContainer','onPrimaryContainer','secondary','onSecondary','secondaryContainer','onSecondaryContainer','tertiary','background','onBackground','surface','onSurface','surfaceVariant','onSurfaceVariant','surfaceContainerLowest','surfaceContainerLow','surfaceContainer','surfaceContainerHigh','surfaceContainerHighest','outline','outlineVariant'];
+
+const rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const hex = a => '#' + a.map(v => Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase();
+const toBlack = (h,t) => hex(rgb(h).map(v => v*(1-t)));
+const lum = h => { const [r,g,b] = rgb(h).map(v => { v/=255; return v <= .04045 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }); return .2126*r + .7152*g + .0722*b; };
+const contrast = (a,b) => { const x = lum(a), y = lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+
+/* Same maths as ColorScheme.amoled() in Theme.kt. */
+function amoled(s){ return {...s, background:'#000000', surface:'#000000', surfaceContainerLowest:'#000000',
+  surfaceContainerLow:toBlack(s.surfaceContainerLow,.55), surfaceContainer:toBlack(s.surfaceContainer,.45),
+  surfaceContainerHigh:toBlack(s.surfaceContainerHigh,.35), surfaceContainerHighest:toBlack(s.surfaceContainerHighest,.25),
+  surfaceVariant:toBlack(s.surfaceVariant,.25)}; }
+function schemeOf(t, mode){ const s = mode === 'light' ? t.light : mode === 'dark' ? t.dark : amoled(t.dark);
+  return {...s, tertiaryContainer:s.secondaryContainer, onTertiaryContainer:s.onSecondaryContainer}; }
+const vars = s => Object.entries(s).map(([k,v]) => `--${k}:${v}`).join(';');
+const I = (n, f) => `<span class="ms${f ? ' f' : ''}" aria-hidden="true">${n}</span>`;
+
+const SCENES = {
+  dusk:'radial-gradient(circle at 70% 58%,#ffd27a 0 7%,transparent 7.5%),linear-gradient(160deg,transparent 56%,#1d2540 56.4%),linear-gradient(205deg,transparent 62%,#2b3458 62.4%),linear-gradient(180deg,#3d4f8a,#e88d67 70%,#f6c48a)',
+  kitchen:'radial-gradient(ellipse at 32% 46%,#f4a259 0 16%,transparent 38%),radial-gradient(circle at 74% 68%,#efe0b4 0 11%,transparent 28%),radial-gradient(circle at 74% 68%,#c9b37c 0 16%,transparent 17%),linear-gradient(135deg,#3b2a20,#8c5a3c)',
+  sea:'radial-gradient(circle at 26% 30%,#fff3c4 0 6%,transparent 6.5%),linear-gradient(180deg,#8fd0ee 0 46%,#2a86a8 46.5%,#0d4d6e 80%,#0a3550)',
+  space:'radial-gradient(circle at 30% 60%,#d9e2ff 0 10%,#7685d6 11%,transparent 23%),radial-gradient(circle at 78% 24%,#fff 0 .9%,transparent 1.4%),radial-gradient(circle at 60% 80%,#fff 0 .7%,transparent 1.2%),radial-gradient(circle at 88% 62%,#fff 0 .6%,transparent 1%),linear-gradient(#0b0f2a,#231a52)',
+  forest:'linear-gradient(170deg,transparent 60%,#1f3b2a 60.5%),linear-gradient(190deg,transparent 52%,#2f5a3c 52.5%),radial-gradient(circle at 50% 20%,#fef6d8 0 9%,transparent 30%),linear-gradient(#a6d3b0,#5f9a6f)'};
+const AV = {f:'linear-gradient(135deg,#e9a25c,#a5532e)', k:'linear-gradient(135deg,#7bb38b,#2c6b4f)', o:'linear-gradient(135deg,#7f8ce0,#3b2f8f)', w:'linear-gradient(135deg,#5fb6d6,#1e5f86)'};
+
+function status(onVideo){ return `<div class="sb${onVideo ? ' vid' : ''}"><span>9:41</span><span>${I('signal_cellular_alt')} ${I('wifi')} ${I('battery_full',1)}</span></div>`; }
+function nav(){ return `<div class="vig"></div><div class="nav">
+  <div class="tab sel">${I('home',1)}Home</div><div class="tab">${I('subscriptions')}</div><div class="tab">${I('smart_display')}</div><div class="tab">${I('search')}</div><div class="tab">${I('video_library')}</div></div>`; }
+function card(scene, dur, resume, av, avc, title, sub){ return `<div class="card"><div class="th" style="background:${SCENES[scene]}"><span class="dur">${dur}</span>${resume ? `<div class="resume"><i style="width:${resume}%"></i></div>` : ''}</div>
+  <div class="meta"><div class="av" style="background:${AV[avc]}">${av}</div><div><div class="tt">${title}</div><div class="sub">${sub}</div></div>${I('more_vert')}</div></div>`; }
+
+function home(){ return `<div class="scr">${status()}
+  <div class="hdr"><div class="brand"><span class="bm">${I('fast_forward',1)}</span>Skipii</div><div class="hdr-act"><span class="ib">${I('tune')}</span><span class="me">D</span></div></div>
+  <div class="hchips"><span class="on">All</span><span>Music</span><span>Science</span><span>Cooking</span><span>Travel</span></div>
+  ${card('dusk','18:42',64,'F','f','Driving the coast road at golden hour, no music, just the engine','Field Notes · 412K views · 2 days ago')}
+  ${card('kitchen','12:05',0,'K','k','The 20-minute weeknight ramen I keep coming back to','Kitchen Lab · 1.3M views · 1 week ago')}
+  ${card('space','41:10',0,'O','o','What the new telescope actually saw','Orbit Weekly · 860K views · 5 days ago')}
+  ${nav()}</div>`; }
+
+function player(){ return `<div class="scr">${status(true)}
+  <div class="video" style="background:${SCENES.sea}"></div>
+  <div class="pd">
+   <h3 class="ptitle">Snorkelling the outer reef at low tide</h3>
+   <div class="pmeta">248K views · 3 days ago · more</div>
+   <div class="chrow"><div class="av" style="background:${AV.w}">W</div><div class="grow"><div class="name">Wide Water</div><div class="sub">1.1M subs</div></div>
+     <div class="subbed"><span class="a">Subscribed</span><span class="b">${I('notifications_active',1)}</span></div></div>
+   <div class="acts"><span class="pill on">${I('thumb_up',1)}18K</span><span class="pill">${I('thumb_down')}</span><span class="pill">${I('share')}Share</span><span class="pill">${I('playlist_add')}Playlist</span></div>
+   <div class="desc"><b>Chapters</b> <span class="lnk">0:00</span> Wading out · <span class="lnk">3:12</span> The drop-off · <span class="lnk">9:47</span> Turtles. Gear list at <span class="lnk">widewater.example/gear</span></div>
+   <div class="cmts"><div class="h">Comments <span>1.2K</span></div><div class="c1"><div class="av" style="background:${AV.k}">M</div><div>The colour at <span class="lnk">9:52</span> is unreal.</div></div></div>
+  </div>
+  <div class="vig"></div>
+  <div class="bar"><div class="grab"></div><div class="brow"><span class="bk">${I('headphones')}</span><span class="bk t">${I('replay_10')}</span><span class="play">${I('pause',1)}</span><span class="bk t">${I('forward_10')}</span><span class="bk">${I('more_vert')}</span></div>
+   <div class="hair"><i></i><b></b></div></div>
+  </div>`; }
+
+function settings(t){ return `<div class="scr">${status()}
+  <h3 class="big">Settings</h3>
+  <div class="search">${I('search')}Search settings</div>
+  <div class="acct"><span class="me">D</span><div><div class="k">Derek</div><div class="s">Signed in · full sync</div></div></div>
+  <div class="quick"><div class="q">${I('headphones')}Audio only</div><div class="q on">${I('fast_forward',1)}Sponsor­Block</div><div class="q on">${I('smart_display',1)}Shorts</div><div class="q">${I('speed')}Keep speed</div></div>
+  <div class="glabel">Watching</div>
+  <div class="joined">
+   <div class="tile"><span class="ic">${I('play_circle',1)}</span><div class="tx"><div class="k">Playback</div><div class="s">Controls in the pill · 10 s steps</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('closed_caption',1)}</span><div class="tx"><div class="k">Captions &amp; Dubbing</div><div class="s">Foreign languages · Skipii look</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('fast_forward',1)}</span><div class="tx"><div class="k">SponsorBlock</div><div class="s">Skips sponsors · asks on self-promo</div></div>${I('chevron_right')}</div>
+  </div>
+  <div class="glabel">Look &amp; language</div>
+  <div class="joined">
+   <div class="tile"><span class="ic">${I('palette',1)}</span><div class="tx"><div class="k">Appearance</div><div class="s">${t.name} · System</div></div>${I('chevron_right')}</div>
+   <div class="tile"><span class="ic">${I('translate')}</span><div class="tx"><div class="k">Language</div><div class="s">Phone's language</div></div>${I('chevron_right')}</div>
+  </div></div>`; }
+
+function disc(p, mode, surf){ const c = `color-mix(in srgb,${p} 28%,${surf})`, d = `color-mix(in srgb,${p} 55%,${surf})`;
+  return `<span class="disc"><i style="background:${p}"></i><i style="background:${c}"></i><i style="background:${d}"></i></span>`; }
+function appearance(t, mode, s){
+  const dark = mode !== 'light';
+  const mine = THEMES.map(x => { const sc = dark ? x.dark : x.light; const on = x.id === t.id;
+    return `<div class="tg${on ? ' on' : ''}">${on ? `<span class="ok">${I('check')}</span>` : ''}<span class="new">NEW</span>${disc(sc.primary, mode, sc.surface)}${x.name}</div>`; }).join('');
+  const rest = OTHERS.map(([n,l,d]) => `<div class="tg">${disc(dark ? d : l, mode, s.surface)}${n}</div>`).join('');
+  return `<div class="scr">${status()}
+  <div class="topbar"><span class="ib">${I('arrow_back')}</span><span class="t">Appearance</span></div>
+  <div class="glabel">Mode</div>
+  <div class="mchips"><span class="mchip${mode === 'light' ? ' on' : ''}">${I('light_mode')}Light</span><span class="mchip${dark ? ' on' : ''}">${I('dark_mode')}Dark</span><span class="mchip">${I('contrast')}System</span></div>
+  <div class="joined" style="margin-top:8px"><div class="tile"><div class="tx"><div class="k">AMOLED black</div><div class="s">Pure black when dark</div></div><span class="sw${mode === 'amoled' ? ' on' : ''}"></span></div></div>
+  <div class="glabel">Theme</div>
+  <div class="tgrid">${mine}${rest}</div></div>`; }
+
+function pairRow(label, fg, bg, text){ const r = contrast(fg, bg);
+  return `<div class="pair"><span class="sample" style="background:${bg};color:${fg}">${text}</span><span class="lbl">${label}</span><span class="ratio">${r.toFixed(2)}:1</span><span class="badge${r < 4.5 ? ' low' : ''}">${r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : 'large only'}</span></div>`; }
+
+function kotlin(t){
+  const block = (fn, s) => `${fn}(\n` + ROLE_ORDER.map(k => `            ${k} = Color(0xFF${s[k].slice(1)}),`).join('\n') +
+    (fn === 'lightColorScheme' ? `\n            error = Color(0xFFB3261E), onError = Color.White,\n            errorContainer = Color(0xFFFFDAD5), onErrorContainer = Color(0xFF410E0B)` :
+     `\n            error = Color(0xFFFFB4AB), onError = Color(0xFF690005),\n            errorContainer = Color(0xFF93000A), onErrorContainer = Color(0xFFFFDAD6)`) + `\n        )`;
+  const C = 'SEED_' + t.id.toUpperCase();
+  return `const val ${C} = "${t.seed}"\n\n    if (seedHex.equals(${C}, ignoreCase = true)) {\n        return if (!dark) ${block('lightColorScheme', t.light)} else ${block('darkColorScheme', t.dark)}\n    }`;
+}
+
+const state = {};
+function renderStrip(t){
+  const mode = state[t.id]; const s = schemeOf(t, mode);
+  const el = document.getElementById('strip-' + t.id);
+  const shots = [['Home', home()], ['Player', player()], ['Settings', settings(t)], ['Appearance', appearance(t, mode, s)]];
+  el.innerHTML = shots.map(([n, html]) => `<figure class="shot" style="margin:0"><div class="phone" style="${vars(s)}">${html}</div><figcaption>${n}</figcaption></figure>`).join('');
+  document.querySelectorAll(`#seg-${t.id} button`).forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode));
+  const sc = mode === 'light' ? t.light : t.dark;
+  document.getElementById('pairs-' + t.id).innerHTML = `<div class="eyebrow" style="padding:2px 2px 4px">Contrast · ${mode === 'amoled' ? 'AMOLED' : mode}</div>` + [
+    ['Play button, selected tab', s.onPrimary, s.primary, 'Aa'],
+    ['Body text on the page', s.onSurface, s.surface, 'Aa'],
+    ['Video details on a card', s.onSurfaceVariant, s.surfaceContainerLow, 'Aa'],
+    ['Links and timestamps', s.primary, s.surfaceContainer, '3:12'],
+    ['Account card', s.onPrimaryContainer, s.primaryContainer, 'Aa'],
+    ['Tab icons on the tab bar', s.onSurfaceVariant, s.surfaceVariant, 'Aa']
+  ].map(p => pairRow(...p)).join('');
+}
+
+const prefersDark = (() => { try { return matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { return false; } })();
+const root = document.getElementById('themes');
+root.innerHTML = THEMES.map(t => `
+ <section class="theme" id="${t.id}" aria-labelledby="h-${t.id}">
+  <div class="theme-head"><div>
+    <h2 class="tname" id="h-${t.id}"><span class="dot2" style="background:linear-gradient(135deg,${t.light.primary} 50%,${t.dark.primary} 50%)"></span>${t.name}</h2>
+    <p class="pitch">${t.pitch}</p></div>
+   <div class="seg" id="seg-${t.id}" role="group" aria-label="${t.name} mode">
+    <button type="button" data-mode="light">Light</button><button type="button" data-mode="dark">Dark</button><button type="button" data-mode="amoled">AMOLED</button></div></div>
+  <div class="strip" id="strip-${t.id}"></div>
+  <div class="facts">
+   <details open><summary>Contrast</summary><div class="pairs" id="pairs-${t.id}"></div></details>
+   <details><summary>Every colour role</summary><div class="ctab"><table><thead><tr><th>Role</th><th>Light</th><th>Dark</th></tr></thead><tbody>
+    ${ROLE_ORDER.map(k => `<tr><td class="role">${k}</td><td><span class="hex"><span class="chip" style="background:${t.light[k]}"></span>${t.light[k]}</span></td><td><span class="hex"><span class="chip" style="background:${t.dark[k]}"></span>${t.dark[k]}</span></td></tr>`).join('')}
+   </tbody></table></div>
+   <p class="pitch" style="font-size:13px;margin:8px 0 6px">Compose, ready for the theme file:</p>
+   <pre id="code-${t.id}">${kotlin(t)}</pre><button type="button" class="copy" data-copy="code-${t.id}">Copy code</button></details>
+  </div>
+ </section>`).join('');
+document.getElementById('legend').innerHTML = THEMES.map(t => `<a href="#${t.id}"><span class="dot2" style="background:linear-gradient(135deg,${t.light.primary} 50%,${t.dark.primary} 50%)"></span>${t.name}</a>`).join('');
+THEMES.forEach(t => { state[t.id] = prefersDark ? 'dark' : 'light'; renderStrip(t);
+  document.getElementById('seg-' + t.id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[t.id] = b.dataset.mode; renderStrip(t); }); });
+document.addEventListener('click', e => { const b = e.target.closest('.copy'); if (!b) return;
+  const pre = document.getElementById(b.dataset.copy);
+  const done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy code', 1600); };
+  const select = () => { const r = document.createRange(); r.selectNodeContents(pre); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Selected, press copy'; };
+  try { navigator.clipboard.writeText(pre.textContent).then(done, select); } catch (err) { select(); } });
+</script>

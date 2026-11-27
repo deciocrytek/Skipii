@@ -1,0 +1,1702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Three Android-Native Themes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --font-display:'Google Sans Flex','Roboto',sans-serif;
+  --font-body:'Google Sans Flex','Roboto',sans-serif;
+  --page-bg:#F4F3F1;
+  --page-card:#FFFFFF;
+  --page-card-alt:#ECEAE6;
+  --page-ink:#1C1B1A;
+  --page-ink-2:#5A5754;
+  --page-line:#DFDCD6;
+  --page-pill:#E7E4DF;
+  --page-pill-active:#1C1B1A;
+  --page-pill-active-ink:#FFFFFF;
+  --bezel:#19191B;
+  --bezel-ring:#323236;
+  --pass-bg:#DCECE0;
+  --pass-ink:#174D28;
+  --fail-bg:#F8D7D5;
+  --fail-ink:#7C1C18;
+}
+html[data-page-mode="dark"]{
+  --page-bg:#111112;
+  --page-card:#1B1B1D;
+  --page-card-alt:#242427;
+  --page-ink:#F2F1EE;
+  --page-ink-2:#B2AFA9;
+  --page-line:#2F2F33;
+  --page-pill:#27272B;
+  --page-pill-active:#F2F1EE;
+  --page-pill-active-ink:#111112;
+  --bezel:#0B0B0C;
+  --bezel-ring:#2D2D31;
+  --pass-bg:#1B3A24;
+  --pass-ink:#A9E2B8;
+  --fail-bg:#4B1A18;
+  --fail-ink:#FFB4AE;
+}
+
+html,body{
+  background:var(--page-bg);
+  color:var(--page-ink);
+  font-family:var(--font-body);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+svg{display:block;flex:none}
+.num{font-variant-numeric:tabular-nums}
+
+.wrap{
+  max-width:1180px;
+  margin:0 auto;
+  padding:36px 24px 80px;
+}
+
+/* ── Page header & intro ── */
+.top-bar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:28px;
+}
+.top-bar h1{
+  font-family:var(--font-display);
+  font-size:clamp(28px,4.4vw,42px);
+  font-weight:850;
+  letter-spacing:-0.04em;
+  line-height:1.08;
+}
+.page-switch{
+  display:inline-flex;
+  align-items:center;
+  background:var(--page-pill);
+  border-radius:999px;
+  padding:4px;
+  gap:2px;
+  flex:none;
+}
+.page-switch button{
+  height:34px;
+  padding:0 14px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--page-ink-2);
+  transition:background-color .18s ease,color .18s ease;
+}
+.page-switch button[aria-pressed="true"]{
+  background:var(--page-pill-active);
+  color:var(--page-pill-active-ink);
+}
+
+.intro{
+  background:var(--page-card);
+  border-radius:24px;
+  padding:22px 24px;
+  margin-bottom:44px;
+  max-width:860px;
+}
+.intro p{
+  font-size:15.5px;
+  color:var(--page-ink-2);
+  line-height:1.58;
+}
+.intro p + p{margin-top:10px}
+.intro strong{color:var(--page-ink);font-weight:700}
+
+/* ── Theme sections ── */
+.theme-sec{
+  background:var(--page-card);
+  border-radius:30px;
+  padding:28px 26px 30px;
+  margin-bottom:36px;
+  max-width:100%;
+  overflow-x:clip;
+}
+.theme-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px 24px;
+  margin-bottom:22px;
+}
+.theme-title-col{flex:1 1 440px;min-width:0}
+.theme-title-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.theme-title-row h2{
+  font-family:var(--font-display);
+  font-size:clamp(26px,3.2vw,34px);
+  font-weight:850;
+  letter-spacing:-0.035em;
+  line-height:1.1;
+}
+.theme-badge-shape{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+.theme-pitch{
+  margin-top:10px;
+  font-size:15px;
+  color:var(--page-ink-2);
+  max-width:650px;
+  line-height:1.55;
+}
+.meta-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+.meta-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:var(--page-card-alt);
+  font-size:12.5px;
+  font-weight:650;
+  color:var(--page-ink);
+}
+.meta-chip .lbl{color:var(--page-ink-2);font-weight:500}
+.meta-swatch{
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  border:1px solid var(--page-line);
+  flex:none;
+}
+
+.mode-switch{
+  display:inline-flex;
+  align-items:center;
+  background:var(--page-pill);
+  border-radius:999px;
+  padding:4px;
+  gap:2px;
+  flex:none;
+  align-self:flex-start;
+}
+.mode-switch button{
+  height:36px;
+  padding:0 15px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--page-ink-2);
+  transition:background-color .18s ease,color .18s ease;
+}
+.mode-switch button[aria-pressed="true"]{
+  background:var(--page-pill-active);
+  color:var(--page-pill-active-ink);
+}
+
+/* ── Phone showcase row ── */
+.phones-scroll{
+  overflow-x:auto;
+  overflow-y:hidden;
+  max-width:100%;
+  margin:0 -6px 26px;
+  padding:4px 6px 10px;
+  -webkit-overflow-scrolling:touch;
+}
+.phones-row{
+  display:flex;
+  gap:22px;
+  justify-content:center;
+  min-width:max-content;
+}
+.phone-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  width:336px;
+  flex:none;
+}
+.phone-cap{
+  font-size:12px;
+  font-weight:750;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--page-ink-2);
+}
+
+/* Flat Android bezel — strictly NO shadow */
+.phone-frame{
+  width:336px;
+  height:696px;
+  border-radius:42px;
+  padding:8px;
+  background:var(--bezel);
+  border:1px solid var(--bezel-ring);
+}
+.screen{
+  width:320px;
+  height:680px;
+  border-radius:34px;
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  background:var(--surface);
+  color:var(--onSurface);
+  font-family:var(--font-body);
+  user-select:none;
+  --bar-shadow:0 3px 10px rgba(0,0,0,.18),0 1px 3px rgba(0,0,0,.12);
+}
+.theme-sec[data-mode="dark"] .screen,
+.theme-sec[data-mode="amoled"] .screen{
+  --bar-shadow:0 4px 14px rgba(0,0,0,.52),0 1px 4px rgba(0,0,0,.36);
+}
+
+/* ── Status bar ── */
+.sb{
+  height:28px;
+  padding:8px 20px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--onSurface);
+  position:relative;
+  flex:none;
+}
+.sb-cam{
+  position:absolute;
+  top:7px;
+  left:50%;
+  width:12px;
+  height:12px;
+  margin-left:-6px;
+  border-radius:50%;
+  background:#09090B;
+}
+.sb-icons{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.sb.over-video{
+  background:#000000;
+  color:#FFFFFF;
+  height:28px;
+  padding-top:6px;
+}
+.sb.over-video .sb-cam{background:#18181B}
+
+/* Gesture pill at bottom */
+.gesture-pill{
+  position:absolute;
+  left:50%;
+  bottom:5px;
+  width:88px;
+  height:3.5px;
+  margin-left:-44px;
+  border-radius:999px;
+  background:var(--outlineVariant);
+  z-index:12;
+  pointer-events:none;
+}
+
+/* ── HOME SCREEN ── */
+.home-head{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 14px 8px;
+  flex:none;
+}
+.brand-mark{
+  width:32px;
+  height:24px;
+  border-radius:9px;
+  background:var(--primary);
+  color:var(--onPrimary);
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+.home-wordmark{
+  font-family:var(--font-display);
+  font-size:22px;
+  font-weight:850;
+  letter-spacing:-0.04em;
+  line-height:1;
+  color:var(--onSurface);
+}
+.profile-av{
+  margin-left:auto;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--primaryContainer);
+  color:var(--onPrimaryContainer);
+  display:grid;
+  place-items:center;
+  font-size:12.5px;
+  font-weight:800;
+}
+
+.filter-row{
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  padding:4px 16px 10px;
+  overflow:hidden;
+  flex:none;
+}
+.filter-word{
+  position:relative;
+  padding:0 0 8px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--onSurfaceVariant);
+  line-height:1.15;
+  flex:none;
+}
+.filter-word.active{
+  color:var(--primary);
+  font-weight:800;
+}
+.filter-word.active::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:18px;
+  height:4px;
+  border-radius:999px;
+  background:var(--primary);
+}
+
+.feed-list{
+  flex:1;
+  padding:0 10px 80px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:hidden;
+}
+.vcard{
+  background:var(--surfaceContainerLow);
+  border-radius:28px;
+  padding:5px;
+}
+.thumb{
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:23px;
+  position:relative;
+  overflow:hidden;
+}
+.thumb-dur{
+  position:absolute;
+  right:9px;
+  bottom:8px;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#141416;
+  color:#FFFFFF;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.25;
+}
+.vcard-meta{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:9px 6px 8px 7px;
+}
+.ch-av{
+  width:32px;
+  height:32px;
+  flex:none;
+  display:grid;
+  place-items:center;
+  font-size:12px;
+  font-weight:800;
+  position:relative;
+}
+.ch-av.circle{
+  border-radius:50%;
+  background:var(--secondaryContainer);
+  color:var(--onSecondaryContainer);
+}
+.ch-av.shaped svg.shape-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  fill:var(--tertiaryContainer);
+}
+.ch-av.shaped span{
+  position:relative;
+  z-index:1;
+  color:var(--onTertiaryContainer);
+}
+.vcard-text{flex:1;min-width:0}
+.vcard-title{
+  font-size:13px;
+  font-weight:750;
+  line-height:1.26;
+  color:var(--onSurface);
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.vcard-sub{
+  margin-top:3px;
+  font-size:10.5px;
+  font-weight:500;
+  color:var(--onSurfaceVariant);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.more-btn{
+  width:20px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  color:var(--onSurfaceVariant);
+  flex:none;
+}
+
+/* Floating Tab Bar — Android-standard neutral elevation shadow ONLY */
+.tabbar{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:14px;
+  height:54px;
+  border-radius:999px;
+  background:var(--surfaceVariant);
+  box-shadow:var(--bar-shadow);
+  padding:5px;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  z-index:8;
+}
+.tab-item{
+  flex:1;
+  height:44px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--onSurfaceVariant);
+}
+.tab-item.active{
+  flex:2.45;
+  background:var(--primary);
+  color:var(--onPrimary);
+  gap:6px;
+  padding:0 12px;
+  font-size:12.5px;
+  font-weight:800;
+}
+
+/* ── OPEN PLAYER SCREEN ── */
+.video-stage{
+  width:100%;
+  aspect-ratio:16/9;
+  position:relative;
+  flex:none;
+  overflow:hidden;
+}
+.video-prog-track{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:3px;
+  background:#343438;
+}
+.video-prog-fill{
+  width:42%;
+  height:100%;
+  background:var(--primary);
+}
+.player-body{
+  flex:1;
+  padding:11px 14px 86px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:hidden;
+}
+.player-title{
+  font-family:var(--font-display);
+  font-size:15px;
+  font-weight:800;
+  line-height:1.22;
+  letter-spacing:-0.02em;
+  color:var(--onSurface);
+}
+.player-stats{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:500;
+  color:var(--onSurfaceVariant);
+}
+.player-stats strong{color:var(--onSurface);font-weight:700}
+
+.ch-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.ch-info{flex:1;min-width:0}
+.ch-name{font-size:12.5px;font-weight:750;color:var(--onSurface);line-height:1.2}
+.ch-subs{font-size:10.5px;color:var(--onSurfaceVariant)}
+.sub-btn{
+  height:32px;
+  padding:0 14px;
+  border-radius:999px;
+  background:var(--primary);
+  color:var(--onPrimary);
+  font-size:11.5px;
+  font-weight:750;
+  display:inline-flex;
+  align-items:center;
+}
+
+.action-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.act-pill{
+  height:32px;
+  padding:0 11px;
+  border-radius:999px;
+  background:var(--surfaceContainerHigh);
+  color:var(--onSurface);
+  font-size:11px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  flex:none;
+}
+.act-pill.icon-only{padding:0 10px}
+.act-pill.liked{
+  background:var(--primary);
+  color:var(--onPrimary);
+}
+
+.info-card{
+  background:var(--surfaceContainerLow);
+  border-radius:18px;
+  padding:10px 12px;
+}
+.info-card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:11.5px;
+  font-weight:750;
+  color:var(--onSurface);
+}
+.info-card-top span.dim{
+  font-weight:600;
+  color:var(--onSurfaceVariant);
+  font-size:10.5px;
+}
+.chap-row{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11.5px;
+  color:var(--onSurface);
+}
+.chap-time{
+  padding:2px 7px;
+  border-radius:999px;
+  background:var(--secondaryContainer);
+  color:var(--onSecondaryContainer);
+  font-size:10px;
+  font-weight:750;
+  flex:none;
+}
+.chap-label{
+  flex:1;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-weight:600;
+}
+.cmt-row{
+  margin-top:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.cmt-av{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:var(--secondaryContainer);
+  color:var(--onSecondaryContainer);
+  display:grid;
+  place-items:center;
+  font-size:9.5px;
+  font-weight:800;
+  flex:none;
+}
+.cmt-text{
+  font-size:11px;
+  color:var(--onSurfaceVariant);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.more-heading{
+  font-family:var(--font-display);
+  font-size:12.5px;
+  font-weight:800;
+  color:var(--onSurface);
+  margin-top:2px;
+}
+.mini-next{
+  background:var(--surfaceContainerLow);
+  border-radius:18px;
+  padding:5px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.mini-thumb{
+  width:92px;
+  aspect-ratio:16/9;
+  border-radius:13px;
+  flex:none;
+  overflow:hidden;
+}
+.mini-next-txt{flex:1;min-width:0}
+.mini-next-t{
+  font-size:11.5px;
+  font-weight:700;
+  line-height:1.22;
+  color:var(--onSurface);
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.mini-next-s{
+  margin-top:2px;
+  font-size:10px;
+  color:var(--onSurfaceVariant);
+}
+
+/* Floating Player Bar — Android-standard neutral elevation shadow ONLY */
+.playerbar{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:14px;
+  border-radius:30px;
+  background:var(--surfaceVariant);
+  box-shadow:var(--bar-shadow);
+  padding:8px 9px 7px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  z-index:8;
+}
+.pbar-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:4px;
+}
+.pbar-btn{
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  color:var(--onSurface);
+  font-size:11.5px;
+  font-weight:800;
+}
+.pbar-btn.dim{color:var(--onSurfaceVariant)}
+.pbar-play{
+  width:82px;
+  height:42px;
+  border-radius:999px;
+  background:var(--primary);
+  color:var(--onPrimary);
+  display:grid;
+  place-items:center;
+}
+.pbar-prog{
+  margin:0 14px;
+  height:3px;
+  border-radius:999px;
+  background:var(--outlineVariant);
+  overflow:hidden;
+}
+.pbar-prog-fill{
+  width:42%;
+  height:100%;
+  border-radius:999px;
+  background:var(--primary);
+}
+
+/* ── SETTINGS SCREEN ── */
+.set-body{
+  flex:1;
+  padding:8px 14px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  overflow:hidden;
+}
+.set-title{
+  font-family:var(--font-display);
+  font-size:27px;
+  font-weight:850;
+  letter-spacing:-0.04em;
+  line-height:1.06;
+  color:var(--onSurface);
+  padding:0 2px;
+}
+.search-field{
+  height:38px;
+  border-radius:999px;
+  background:var(--surfaceContainerHigh);
+  color:var(--onSurfaceVariant);
+  padding:0 13px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:12.5px;
+  font-weight:500;
+}
+.acct-card{
+  background:var(--primaryContainer);
+  color:var(--onPrimaryContainer);
+  border-radius:22px;
+  padding:11px 13px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+.acct-av{
+  width:38px;
+  height:38px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+.acct-av svg.shape-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  fill:var(--primary);
+}
+.acct-av span{
+  position:relative;
+  z-index:1;
+  font-size:15px;
+  font-weight:850;
+  color:var(--onPrimary);
+}
+.acct-name{font-size:14px;font-weight:800;line-height:1.2}
+.acct-sub{font-size:11px;font-weight:600;margin-top:1px}
+
+.qt-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.qt-btn{
+  height:42px;
+  border-radius:16px;
+  background:var(--surfaceContainerHigh);
+  color:var(--onSurface);
+  padding:0 11px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11.5px;
+  font-weight:750;
+  text-align:left;
+  transition:background-color .15s ease,color .15s ease;
+}
+.qt-btn.on{
+  background:var(--primary);
+  color:var(--onPrimary);
+}
+.qt-btn span{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.cat-group{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.cat-tile{
+  background:var(--surfaceContainerLow);
+  border-radius:6px;
+  padding:9px 11px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.cat-tile:first-child{border-radius:20px 20px 6px 6px}
+.cat-tile:last-child{border-radius:6px 6px 20px 20px}
+.cat-badge{
+  width:34px;
+  height:34px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+.cat-badge svg.shape-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  fill:var(--secondaryContainer);
+}
+.cat-badge .cat-ic{
+  position:relative;
+  z-index:1;
+  color:var(--onSecondaryContainer);
+}
+.cat-txt{flex:1;min-width:0}
+.cat-name{font-size:12.5px;font-weight:750;color:var(--onSurface);line-height:1.2}
+.cat-sum{
+  font-size:10.5px;
+  color:var(--onSurfaceVariant);
+  margin-top:1px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cat-chev{color:var(--onSurfaceVariant);flex:none}
+
+/* ── Crisp flat CSS-gradient thumbnails (hard edges only, zero blur/bokeh) ── */
+.scene-coast{
+  background:
+    radial-gradient(circle at 75% 30%, #FFE09E 0 18px, transparent 18.5px),
+    linear-gradient(166deg, transparent 0 64%, #1A3A4A 64.4% 100%),
+    linear-gradient(196deg, transparent 0 68%, #2C5C70 68.4% 100%),
+    linear-gradient(180deg, #7AB8D4 0 42%, #B5D9E6 42% 58%, #2E6F8E 58% 72%, #1F516B 72% 100%);
+}
+.scene-canyon{
+  background:
+    radial-gradient(circle at 26% 28%, #FFF0C4 0 15px, transparent 15.5px),
+    linear-gradient(168deg, transparent 0 62%, #5D332B 62.4% 100%),
+    linear-gradient(194deg, transparent 0 58%, #8A4A3A 58.4% 100%),
+    linear-gradient(176deg, transparent 0 52%, #B86B4B 52.4% 100%),
+    linear-gradient(180deg, #E39F6B 0 38%, #F2C48D 38% 58%, #D98A54 58% 100%);
+}
+.scene-alpine{
+  background:
+    radial-gradient(circle at 78% 24%, #FFF4CC 0 17px, transparent 17.5px),
+    linear-gradient(164deg, transparent 0 69%, #163038 69.4% 100%),
+    linear-gradient(180deg, transparent 0 65%, #23586B 65.4% 79%, #1B4454 79.4% 100%),
+    linear-gradient(142deg, transparent 0 54%, #2B4C5E 54.4% 100%),
+    linear-gradient(218deg, transparent 0 55%, #3D6B82 55.4% 100%),
+    linear-gradient(150deg, transparent 0 42%, #5A8CA3 42.4% 100%),
+    linear-gradient(180deg, #6EA8C8 0 46%, #A8D4E6 46% 66%, #23586B 66% 100%);
+}
+.scene-harbor{
+  background:
+    radial-gradient(circle at 28% 30%, #FCE6B8 0 10px, transparent 10.5px),
+    linear-gradient(170deg, transparent 0 62%, #1D2A3A 62.4% 100%),
+    linear-gradient(180deg, #2D4566 0 48%, #4F6E91 48% 64%, #1E3854 64% 100%);
+}
+
+/* ── Tables & Build Note ── */
+.tables-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:16px;
+  margin-bottom:16px;
+}
+.table-card{
+  background:var(--page-card-alt);
+  border-radius:20px;
+  padding:16px 18px;
+  min-width:0;
+  max-width:100%;
+}
+.table-card h3{
+  font-family:var(--font-display);
+  font-size:14.5px;
+  font-weight:800;
+  margin-bottom:4px;
+}
+.table-sub{
+  font-size:12px;
+  color:var(--page-ink-2);
+  margin-bottom:12px;
+}
+.tbl-wrap{overflow-x:auto;max-width:100%}
+table.spec{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+table.spec th{
+  text-align:left;
+  font-size:11px;
+  font-weight:750;
+  color:var(--page-ink-2);
+  padding:6px 6px 8px;
+  border-bottom:1px solid var(--page-line);
+  white-space:nowrap;
+}
+table.spec td{
+  padding:6px;
+  border-bottom:1px solid var(--page-line);
+  vertical-align:middle;
+  white-space:nowrap;
+}
+table.spec tr:last-child td{border-bottom:0}
+table.spec td.role-name{
+  font-weight:650;
+  color:var(--page-ink);
+}
+table.spec th.col-on,
+table.spec td.col-on{
+  background:var(--page-card);
+}
+.hex-cell{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+}
+.sw{
+  width:13px;
+  height:13px;
+  border-radius:4px;
+  border:1px solid var(--page-line);
+  flex:none;
+}
+.cr-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:2px 7px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:750;
+}
+.cr-badge.pass{background:var(--pass-bg);color:var(--pass-ink)}
+.cr-badge.fail{background:var(--fail-bg);color:var(--fail-ink)}
+
+.build-note{
+  background:var(--page-card-alt);
+  border-radius:20px;
+  padding:15px 18px;
+  font-size:13.5px;
+  color:var(--page-ink-2);
+  line-height:1.55;
+}
+.build-note strong{
+  color:var(--page-ink);
+  font-weight:750;
+}
+
+@media (max-width: 960px){
+  .tables-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 640px){
+  .wrap{padding:20px 16px 56px;max-width:100%}
+  .intro{padding:18px;border-radius:20px;margin-bottom:28px}
+  .theme-sec{padding:20px 16px 22px;border-radius:24px;margin-bottom:24px}
+  .phones-scroll{margin:0 -16px 20px;padding:4px 16px 10px;max-width:calc(100% + 32px)}
+  .phones-row{justify-content:flex-start}
+  .table-card{padding:14px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top-bar">
+    <h1>Android-native themes for Skipii</h1>
+    <div class="page-switch" role="group" aria-label="Page appearance">
+      <button type="button" data-page-btn="light" aria-pressed="true">Light page</button>
+      <button type="button" data-page-btn="dark" aria-pressed="false">Dark page</button>
+    </div>
+  </header>
+
+  <section class="intro" aria-label="Introduction">
+    <p><strong>&ldquo;Android-native&rdquo;</strong> means Skipii looks and feels like a built-in Pixel app: solid, calm Material 3 Expressive tones, Pixel&rsquo;s own rounded lettering, and zero glass, blur, grain, or glow. Cards and bars stand apart by gentle steps in lightness alone.</p>
+    <p>Each theme below changes four things: the seed colour it starts from, the Material colour style that decides how colourful the background and cards get, the highlight colours on buttons and tabs, and one optional Material shape for letter avatars and Settings icons. Try Light, Dark, and pure-black AMOLED on each one to see how it holds up.</p>
+  </section>
+
+  <main id="themes-root"></main>
+</div>
+
+<script>
+const SHAPES = {
+  Sunny: {
+    path: "M24 2.5 C27.2 2.5, 28.4 5.9, 31.3 7.0 C34.3 8.1, 37.5 6.0, 39.8 8.3 C42.1 10.6, 40.0 13.8, 41.1 16.8 C42.2 19.7, 45.5 20.8, 45.5 24.0 C45.5 27.2, 42.2 28.4, 41.1 31.3 C40.0 34.3, 42.1 37.5, 39.8 39.8 C37.5 42.1, 34.3 40.0, 31.3 41.1 C28.4 42.2, 27.2 45.5, 24.0 45.5 C20.8 45.5, 19.7 42.2, 16.8 41.1 C13.8 40.0, 10.6 42.1, 8.3 39.8 C6.0 37.5, 8.1 34.3, 7.0 31.3 C5.9 28.4, 2.5 27.2, 2.5 24.0 C2.5 20.8, 5.9 19.7, 7.0 16.8 C8.1 13.8, 6.0 10.6, 8.3 8.3 C10.6 6.0, 13.8 8.1, 16.8 7.0 C19.7 5.9, 20.8 2.5, 24 2.5 Z",
+    viewBox: "0 0 48 48"
+  },
+  Arch: {
+    path: "M4 22 C4 10.95 12.95 2 24 2 C35.05 2 44 10.95 44 22 L44 37 C44 41.42 40.42 45 36 45 L12 45 C7.58 45 4 41.42 4 37 Z",
+    viewBox: "0 0 48 48"
+  },
+  Clover: {
+    path: "M24 7.6 C27.2 2.4 35.6 2.6 40.5 7.5 C45.4 12.4 45.6 20.8 40.4 24 C45.6 27.2 45.4 35.6 40.5 40.5 C35.6 45.4 27.2 45.6 24 40.4 C20.8 45.6 12.4 45.4 7.5 40.5 C2.6 35.6 2.4 27.2 7.6 24 C2.4 20.8 2.6 12.4 7.5 7.5 C12.4 2.6 20.8 2.4 24 7.6 Z",
+    viewBox: "0 0 48 48"
+  }
+};
+
+// Generated verbatim with @material/material-color-utilities v0.3.0
+// AMOLED uses Skipii's exact Theme.kt formula:
+// surface=#000000; surfaceContainerLow/Container/High/Highest lerped toward black by 0.55/0.45/0.35/0.25; surfaceVariant by 0.25
+const THEMES = [
+  {
+    id: "daybreak",
+    name: "Daybreak",
+    seed: "#A8365F",
+    style: "Expressive",
+    shape: "Sunny",
+    pitch: "Pixel\u2019s playful multi-colour look: soft morning-tinted cards paired with clear sky-blue buttons and warm peach icon badges. It feels bright and unmistakably Android 16 without ever washing out your videos.",
+    buildNote: "Colour-only work is a small job because Skipii already stores themes as plain light and dark colour lists, and AMOLED derives automatically. Adding the Sunny shape for letter avatars and Settings badges is also small \u2014 Skipii already draws a Cookie shape for picture-less avatars, so Sunny plugs right into the same place.",
+    modes: {
+      light: {
+        primary: "#146490", onPrimary: "#FFFFFF",
+        primaryContainer: "#CAE6FF", onPrimaryContainer: "#004B70",
+        secondaryContainer: "#FFDBCA", onSecondaryContainer: "#653D27",
+        tertiaryContainer: "#DBEAA2", onTertiaryContainer: "#404C15",
+        surface: "#FFF8F7", surfaceContainerLow: "#FFF0EF",
+        surfaceContainer: "#FFE9E8", surfaceContainerHigh: "#FAE3E2",
+        surfaceContainerHighest: "#F4DDDD", surfaceVariant: "#FCDBDA",
+        onSurface: "#251818", onSurfaceVariant: "#584141",
+        outlineVariant: "#DFBFBF"
+      },
+      dark: {
+        primary: "#8DCDFF", onPrimary: "#00344E",
+        primaryContainer: "#004B70", onPrimaryContainer: "#CAE6FF",
+        secondaryContainer: "#653D27", onSecondaryContainer: "#FFDBCA",
+        tertiaryContainer: "#404C15", onTertiaryContainer: "#DBEAA2",
+        surface: "#1C1010", surfaceContainerLow: "#251818",
+        surfaceContainer: "#291C1C", surfaceContainerHigh: "#342727",
+        surfaceContainerHighest: "#3F3131", surfaceVariant: "#584141",
+        onSurface: "#F4DDDD", onSurfaceVariant: "#DFBFBF",
+        outlineVariant: "#584141"
+      },
+      amoled: {
+        primary: "#8DCDFF", onPrimary: "#00344E",
+        primaryContainer: "#004B70", onPrimaryContainer: "#CAE6FF",
+        secondaryContainer: "#653D27", onSecondaryContainer: "#FFDBCA",
+        tertiaryContainer: "#404C15", onTertiaryContainer: "#DBEAA2",
+        surface: "#000000", surfaceContainerLow: "#110B0B",
+        surfaceContainer: "#170F0F", surfaceContainerHigh: "#221919",
+        surfaceContainerHighest: "#2F2525", surfaceVariant: "#423131",
+        onSurface: "#F4DDDD", onSurfaceVariant: "#DFBFBF",
+        outlineVariant: "#584141"
+      }
+    }
+  },
+  {
+    id: "linen",
+    name: "Linen",
+    seed: "#8F6A47",
+    style: "Neutral",
+    shape: "Arch",
+    pitch: "A quiet, warm screening-room palette: cream linen in daylight, dark roasted charcoal at night, and soft oat badges throughout. Every video thumbnail carries the colour while Skipii\u2019s controls stay calm and easy on your eyes.",
+    buildNote: "Adding Linen\u2019s light and dark colour tables is a small job, and AMOLED is calculated for free from the dark tones. The rounded Arch badge for picture-less avatars and Settings icons is likewise small, reusing the same shape slot Skipii already has for its Cookie avatars.",
+    modes: {
+      light: {
+        primary: "#6E5B4A", onPrimary: "#FFFFFF",
+        primaryContainer: "#F9DEC8", onPrimaryContainer: "#554333",
+        secondaryContainer: "#F2DFD1", onSecondaryContainer: "#51443A",
+        tertiaryContainer: "#FFDCBF", onTertiaryContainer: "#59422D",
+        surface: "#FFF8F5", surfaceContainerLow: "#FAF2EE",
+        surfaceContainer: "#F4ECE9", surfaceContainerHigh: "#EEE7E3",
+        surfaceContainerHighest: "#E8E1DD", surfaceVariant: "#E8E1DD",
+        onSurface: "#1E1B19", onSurfaceVariant: "#4A4643",
+        outlineVariant: "#CCC5C2"
+      },
+      dark: {
+        primary: "#DBC2AD", onPrimary: "#3D2D1F",
+        primaryContainer: "#554333", onPrimaryContainer: "#F9DEC8",
+        secondaryContainer: "#51443A", onSecondaryContainer: "#F2DFD1",
+        tertiaryContainer: "#59422D", onTertiaryContainer: "#FFDCBF",
+        surface: "#151311", surfaceContainerLow: "#1E1B19",
+        surfaceContainer: "#221F1D", surfaceContainerHigh: "#2C2927",
+        surfaceContainerHighest: "#373432", surfaceVariant: "#4A4643",
+        onSurface: "#E8E1DD", onSurfaceVariant: "#CCC5C2",
+        outlineVariant: "#4A4643"
+      },
+      amoled: {
+        primary: "#DBC2AD", onPrimary: "#3D2D1F",
+        primaryContainer: "#554333", onPrimaryContainer: "#F9DEC8",
+        secondaryContainer: "#51443A", onSecondaryContainer: "#F2DFD1",
+        tertiaryContainer: "#59422D", onTertiaryContainer: "#FFDCBF",
+        surface: "#000000", surfaceContainerLow: "#0D0C0B",
+        surfaceContainer: "#131110", surfaceContainerHigh: "#1D1B19",
+        surfaceContainerHighest: "#292726", surfaceVariant: "#383532",
+        onSurface: "#E8E1DD", onSurfaceVariant: "#CCC5C2",
+        outlineVariant: "#4A4643"
+      }
+    }
+  },
+  {
+    id: "lemongrass",
+    name: "Lemongrass",
+    seed: "#737A00",
+    style: "Rainbow",
+    shape: "Clover",
+    pitch: "Crisp, completely untinted neutral backgrounds paired with a lively Pixel chartreuse highlight on the active tab, Play pill, and toggles. You get true-to-life thumbnail colours on a clean backdrop with a sharp burst of personality.",
+    buildNote: "Because Skipii\u2019s themes are hand-written light and dark colour lists today, adding Lemongrass\u2019s palette is a small job with AMOLED handled automatically. Using the four-leaf Clover shape for picture-less avatars and Settings icons is also small, following the Cookie avatar shape Skipii already draws.",
+    modes: {
+      light: {
+        primary: "#5D6300", onPrimary: "#FFFFFF",
+        primaryContainer: "#E2EA74", onPrimaryContainer: "#464A00",
+        secondaryContainer: "#E4E5C0", onSecondaryContainer: "#47492E",
+        tertiaryContainer: "#BEECDB", onTertiaryContainer: "#234E42",
+        surface: "#F9F9F9", surfaceContainerLow: "#F3F3F3",
+        surfaceContainer: "#EEEEEE", surfaceContainerHigh: "#E8E8E8",
+        surfaceContainerHighest: "#E2E2E2", surfaceVariant: "#E2E2E2",
+        onSurface: "#1B1B1B", onSurfaceVariant: "#474747",
+        outlineVariant: "#C6C6C6"
+      },
+      dark: {
+        primary: "#C6CE5B", onPrimary: "#303300",
+        primaryContainer: "#464A00", onPrimaryContainer: "#E2EA74",
+        secondaryContainer: "#47492E", onSecondaryContainer: "#E4E5C0",
+        tertiaryContainer: "#234E42", onTertiaryContainer: "#BEECDB",
+        surface: "#131313", surfaceContainerLow: "#1B1B1B",
+        surfaceContainer: "#1F1F1F", surfaceContainerHigh: "#2A2A2A",
+        surfaceContainerHighest: "#353535", surfaceVariant: "#474747",
+        onSurface: "#E2E2E2", onSurfaceVariant: "#C6C6C6",
+        outlineVariant: "#474747"
+      },
+      amoled: {
+        primary: "#C6CE5B", onPrimary: "#303300",
+        primaryContainer: "#464A00", onPrimaryContainer: "#E2EA74",
+        secondaryContainer: "#47492E", onSecondaryContainer: "#E4E5C0",
+        tertiaryContainer: "#234E42", onTertiaryContainer: "#BEECDB",
+        surface: "#000000", surfaceContainerLow: "#0C0C0C",
+        surfaceContainer: "#111111", surfaceContainerHigh: "#1B1B1B",
+        surfaceContainerHighest: "#282828", surfaceVariant: "#353535",
+        onSurface: "#E2E2E2", onSurfaceVariant: "#C6C6C6",
+        outlineVariant: "#474747"
+      }
+    }
+  }
+];
+
+const ROLE_ROWS = [
+  "surface",
+  "surfaceContainerLow",
+  "surfaceContainer",
+  "surfaceContainerHigh",
+  "surfaceContainerHighest",
+  "surfaceVariant",
+  "onSurface",
+  "onSurfaceVariant",
+  "primary",
+  "onPrimary",
+  "primaryContainer",
+  "onPrimaryContainer",
+  "secondaryContainer",
+  "onSecondaryContainer",
+  "tertiaryContainer",
+  "onTertiaryContainer"
+];
+
+const CONTRAST_PAIRS = [
+  ["onSurface", "surface"],
+  ["onSurface", "surfaceContainerLow"],
+  ["onSurface", "surfaceContainerHigh"],
+  ["onSurfaceVariant", "surface"],
+  ["onSurfaceVariant", "surfaceContainerLow"],
+  ["onSurfaceVariant", "surfaceVariant"],
+  ["onPrimary", "primary"],
+  ["onPrimaryContainer", "primaryContainer"],
+  ["onSecondaryContainer", "secondaryContainer"],
+  ["primary", "surface"]
+];
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function relLuminance(hex) {
+  const [r, g, b] = hexToRgb(hex).map(v => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function contrastRatio(fg, bg) {
+  const l1 = relLuminance(fg);
+  const l2 = relLuminance(bg);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+function shapeSvg(shapeName, cls = "shape-bg") {
+  const s = SHAPES[shapeName];
+  return `<svg class="${cls}" viewBox="${s.viewBox}" aria-hidden="true"><path d="${s.path}"/></svg>`;
+}
+
+const ICONS = {
+  play: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.69L9.54 5.98A.998.998 0 0 0 8 6.82z"/></svg>`,
+  pause: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2v10c0 1.1.9 2 2 2zm6-12v10c0 1.1.9 2 2 2s2-.9 2-2V7c0-1.1-.9-2-2-2s-2 .9-2 2z"/></svg>`,
+  home: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z"/></svg>`,
+  subs: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6h16v2H4V6zm2-4h12v2H6V2zm14 8H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm-9.5 8.5v-5l4.5 2.5-4.5 2.5z"/></svg>`,
+  shorts: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.77 10.32l-1.2-.5L18 9.06a3.74 3.74 0 0 0-3.5-6.62l-8 4.22a3.74 3.74 0 0 0 .27 6.72l1.2.5L6.5 14.6a3.74 3.74 0 0 0 3.5 6.62l8-4.22a3.74 3.74 0 0 0-.23-6.68zM10 14.65v-5.3L14.5 12 10 14.65z"/></svg>`,
+  search: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>`,
+  library: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>`,
+  more: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>`,
+  like: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66a4.8 4.8 0 0 0-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84C7 18.95 8.05 20 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg>`,
+  dislike: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 4h-2c-.55 0-1 .45-1 1v9c0 .55.45 1 1 1h2V4zM2.17 11.12c-.11.25-.17.52-.17.8V13c0 1.1.9 2 2 2h5.5l-.92 4.65c-.05.22-.02.46.08.66.23.45.52.86.88 1.22L10 22l6.41-6.41c.38-.38.59-.89.59-1.42V6.34C17 5.05 15.95 4 14.66 4h-8.1c-.71 0-1.36.37-1.72.97l-2.67 6.15z"/></svg>`,
+  share: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 21 5a3 3 0 1 0-5.91.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.92z"/></svg>`,
+  playlist: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 10H3v2h11v-2zm0-4H3v2h11V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM3 16h7v-2H3v2z"/></svg>`,
+  headphones: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>`,
+  skip: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`,
+  speed: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zM10.59 15.41a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/></svg>`,
+  palette: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>`,
+  playCircle: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>`,
+  download: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+  captions: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>`,
+  chevron: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7a.996.996 0 0 0-1.41.01z"/></svg>`,
+  signal: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 22h20V2L2 22z"/></svg>`,
+  wifi: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 0 0-6 0zm-4-4l2 2a7.07 7.07 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>`,
+  battery: `<svg width="14" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 5v16c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h2V2h4v2h2c.55 0 1 .45 1 1z"/></svg>`
+};
+
+function statusBarHtml(overVideo = false) {
+  return `
+    <div class="sb${overVideo ? " over-video" : ""}">
+      <span class="num">9:41</span>
+      <span class="sb-cam" aria-hidden="true"></span>
+      <span class="sb-icons">${ICONS.wifi}${ICONS.signal}${ICONS.battery}</span>
+    </div>`;
+}
+
+function buildHomePhone(theme) {
+  return `
+    <div class="phone-col">
+      <div class="phone-cap">Home</div>
+      <div class="phone-frame">
+        <div class="screen">
+          ${statusBarHtml(false)}
+          <div class="home-head">
+            <div class="brand-mark">${ICONS.play}</div>
+            <span class="home-wordmark">Skipii</span>
+            <div class="profile-av" aria-label="Derek">D</div>
+          </div>
+          <div class="filter-row" role="tablist" aria-label="Categories">
+            <button type="button" class="filter-word active">All</button>
+            <button type="button" class="filter-word">Music</button>
+            <button type="button" class="filter-word">Science</button>
+            <button type="button" class="filter-word">Cooking</button>
+            <button type="button" class="filter-word">Travel</button>
+          </div>
+          <div class="feed-list">
+            <article class="vcard">
+              <div class="thumb scene-coast"><span class="thumb-dur num">14:28</span></div>
+              <div class="vcard-meta">
+                <div class="ch-av shaped">${shapeSvg(theme.shape)}<span>H</span></div>
+                <div class="vcard-text">
+                  <div class="vcard-title">How Coastal Lighthouses Bend Light Over Twenty Miles</div>
+                  <div class="vcard-sub">Harbor Craft &middot; 1.2M views &middot; 3 days ago</div>
+                </div>
+                <span class="more-btn">${ICONS.more}</span>
+              </div>
+            </article>
+            <article class="vcard">
+              <div class="thumb scene-canyon"><span class="thumb-dur num">22:05</span></div>
+              <div class="vcard-meta">
+                <div class="ch-av circle">N</div>
+                <div class="vcard-text">
+                  <div class="vcard-title">Crossing the High Desert by Rail in Late Autumn</div>
+                  <div class="vcard-sub">Northbound &middot; 384K views &middot; 1 week ago</div>
+                </div>
+                <span class="more-btn">${ICONS.more}</span>
+              </div>
+            </article>
+          </div>
+          <nav class="tabbar" aria-label="Main tabs">
+            <div class="tab-item active">${ICONS.home}<span>Home</span></div>
+            <div class="tab-item" aria-label="Subscriptions">${ICONS.subs}</div>
+            <div class="tab-item" aria-label="Shorts">${ICONS.shorts}</div>
+            <div class="tab-item" aria-label="Search">${ICONS.search}</div>
+            <div class="tab-item" aria-label="Library">${ICONS.library}</div>
+          </nav>
+          <div class="gesture-pill" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildPlayerPhone(theme) {
+  return `
+    <div class="phone-col">
+      <div class="phone-cap">Open player</div>
+      <div class="phone-frame">
+        <div class="screen">
+          ${statusBarHtml(true)}
+          <div class="video-stage scene-alpine">
+            <div class="video-prog-track"><div class="video-prog-fill"></div></div>
+          </div>
+          <div class="player-body">
+            <div>
+              <div class="player-title">High-Pass Weather: Why Mountain Lakes Turn Clear After Rain</div>
+              <div class="player-stats">412K views &middot; 2 days ago &middot; <strong>&hellip;more</strong></div>
+            </div>
+            <div class="ch-row">
+              <div class="ch-av shaped">${shapeSvg(theme.shape)}<span>F</span></div>
+              <div class="ch-info">
+                <div class="ch-name">Field Notes</div>
+                <div class="ch-subs">840K subscribers</div>
+              </div>
+              <span class="sub-btn">Subscribe</span>
+            </div>
+            <div class="action-row">
+              <span class="act-pill liked">${ICONS.like}<span class="num">18K</span></span>
+              <span class="act-pill icon-only" aria-label="Dislike">${ICONS.dislike}</span>
+              <span class="act-pill">${ICONS.share}<span>Share</span></span>
+              <span class="act-pill">${ICONS.playlist}<span>Playlist</span></span>
+            </div>
+            <div class="info-card">
+              <div class="info-card-top">
+                <span>Chapters</span>
+                <span class="dim num">3 of 8</span>
+              </div>
+              <div class="chap-row">
+                <span class="chap-time num">04:18</span>
+                <span class="chap-label">Cold currents and lake clarity</span>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-card-top">
+                <span>Comments</span>
+                <span class="dim num">1.4K</span>
+              </div>
+              <div class="cmt-row">
+                <span class="cmt-av">M</span>
+                <span class="cmt-text">The ridge time-lapse at 6:12 is unreal.</span>
+              </div>
+            </div>
+            <div class="more-heading">More videos</div>
+            <div class="mini-next">
+              <div class="mini-thumb scene-harbor"></div>
+              <div class="mini-next-txt">
+                <div class="mini-next-t">Night Ferries of the Northern Coast</div>
+                <div class="mini-next-s">Sea Route &middot; 218K views</div>
+              </div>
+            </div>
+          </div>
+          <div class="playerbar" aria-label="Player controls">
+            <div class="pbar-row">
+              <span class="pbar-btn dim" aria-label="Audio only">${ICONS.headphones}</span>
+              <span class="pbar-btn num" aria-label="Back 10 seconds">&minus;10</span>
+              <span class="pbar-play" aria-label="Pause">${ICONS.pause}</span>
+              <span class="pbar-btn num" aria-label="Forward 10 seconds">+10</span>
+              <span class="pbar-btn dim" aria-label="More controls">${ICONS.more}</span>
+            </div>
+            <div class="pbar-prog"><div class="pbar-prog-fill"></div></div>
+          </div>
+          <div class="gesture-pill" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildSettingsPhone(theme) {
+  const badge = (icon) => `<div class="cat-badge">${shapeSvg(theme.shape)}<span class="cat-ic">${icon}</span></div>`;
+  return `
+    <div class="phone-col">
+      <div class="phone-cap">Settings</div>
+      <div class="phone-frame">
+        <div class="screen">
+          ${statusBarHtml(false)}
+          <div class="set-body">
+            <div class="set-title">Settings</div>
+            <div class="search-field">${ICONS.search}<span>Search settings</span></div>
+            <div class="acct-card">
+              <div class="acct-av">${shapeSvg(theme.shape)}<span>D</span></div>
+              <div>
+                <div class="acct-name">Derek</div>
+                <div class="acct-sub">Signed in &middot; Subscriptions synced</div>
+              </div>
+            </div>
+            <div class="qt-grid">
+              <button type="button" class="qt-btn" data-qt>${ICONS.headphones}<span>Audio only</span></button>
+              <button type="button" class="qt-btn on" data-qt>${ICONS.skip}<span>SponsorBlock</span></button>
+              <button type="button" class="qt-btn" data-qt>${ICONS.shorts}<span>Shorts</span></button>
+              <button type="button" class="qt-btn on" data-qt>${ICONS.speed}<span>Keep speed</span></button>
+            </div>
+            <div class="cat-group">
+              <div class="cat-tile">
+                ${badge(ICONS.playCircle)}
+                <div class="cat-txt">
+                  <div class="cat-name">Playback</div>
+                  <div class="cat-sum">1.25&times; speed &middot; 1080p on Wi-Fi</div>
+                </div>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+              <div class="cat-tile">
+                ${badge(ICONS.palette)}
+                <div class="cat-txt">
+                  <div class="cat-name">Appearance</div>
+                  <div class="cat-sum" data-appearance-sum>${theme.name} &middot; Light</div>
+                </div>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+              <div class="cat-tile">
+                ${badge(ICONS.skip)}
+                <div class="cat-txt">
+                  <div class="cat-name">SponsorBlock</div>
+                  <div class="cat-sum">Skip sponsors, intros and reminders</div>
+                </div>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+              <div class="cat-tile">
+                ${badge(ICONS.download)}
+                <div class="cat-txt">
+                  <div class="cat-name">Downloads</div>
+                  <div class="cat-sum">Wi-Fi only &middot; 1.4 GB saved</div>
+                </div>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+              <div class="cat-tile">
+                ${badge(ICONS.captions)}
+                <div class="cat-txt">
+                  <div class="cat-name">Captions &amp; dubbing</div>
+                  <div class="cat-sum">English &middot; Original audio</div>
+                </div>
+                <span class="cat-chev">${ICONS.chevron}</span>
+              </div>
+            </div>
+          </div>
+          <div class="gesture-pill" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildRoleTable(theme) {
+  const rows = ROLE_ROWS.map(role => {
+    const l = theme.modes.light[role];
+    const d = theme.modes.dark[role];
+    const a = theme.modes.amoled[role];
+    return `
+      <tr>
+        <td class="role-name">${role}</td>
+        <td data-col="light"><span class="hex-cell num"><span class="sw" style="background:${l}"></span>${l}</span></td>
+        <td data-col="dark"><span class="hex-cell num"><span class="sw" style="background:${d}"></span>${d}</span></td>
+        <td data-col="amoled"><span class="hex-cell num"><span class="sw" style="background:${a}"></span>${a}</span></td>
+      </tr>`;
+  }).join("");
+
+  return `
+    <div class="table-card">
+      <h3>Colour roles</h3>
+      <p class="table-sub">Generated with Material Color Utilities (${theme.style} style from ${theme.seed}).</p>
+      <div class="tbl-wrap">
+        <table class="spec">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th data-col="light">Light</th>
+              <th data-col="dark">Dark</th>
+              <th data-col="amoled">AMOLED</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function buildContrastTable(theme) {
+  let minVal = Infinity;
+  let minLabel = "";
+  const rows = CONTRAST_PAIRS.map(([fg, bg]) => {
+    const cells = ["light", "dark", "amoled"].map(m => {
+      const cr = contrastRatio(theme.modes[m][fg], theme.modes[m][bg]);
+      if (cr < minVal) {
+        minVal = cr;
+        minLabel = `${fg} on ${bg} (${m === "amoled" ? "AMOLED" : m})`;
+      }
+      const pass = cr >= 4.5;
+      return `<td data-col="${m}"><span class="cr-badge num ${pass ? "pass" : "fail"}">${cr.toFixed(2)}:1</span></td>`;
+    }).join("");
+    return `<tr><td class="role-name">${fg} on ${bg}</td>${cells}</tr>`;
+  }).join("");
+
+  return `
+    <div class="table-card">
+      <h3>Text contrast check</h3>
+      <p class="table-sub num">Every pair must reach 4.50:1. Lowest here: <strong>${minVal.toFixed(2)}:1</strong> (${minLabel}).</p>
+      <div class="tbl-wrap">
+        <table class="spec">
+          <thead>
+            <tr>
+              <th>Text / background pair</th>
+              <th data-col="light">Light</th>
+              <th data-col="dark">Dark</th>
+              <th data-col="amoled">AMOLED</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function applyThemeMode(sec, theme, mode) {
+  sec.dataset.mode = mode;
+  const pal = theme.modes[mode];
+  sec.querySelectorAll(".screen").forEach(sc => {
+    for (const [k, v] of Object.entries(pal)) {
+      sc.style.setProperty("--" + k, v);
+    }
+  });
+  sec.querySelectorAll(".mode-switch button").forEach(btn => {
+    btn.setAttribute("aria-pressed", btn.dataset.modeBtn === mode ? "true" : "false");
+  });
+  sec.querySelectorAll("[data-col]").forEach(cell => {
+    cell.classList.toggle("col-on", cell.dataset.col === mode);
+  });
+  const modeWord = mode === "amoled" ? "AMOLED" : (mode === "dark" ? "Dark" : "Light");
+  const sum = sec.querySelector("[data-appearance-sum]");
+  if (sum) sum.textContent = `${theme.name} \u00B7 ${modeWord}`;
+}
+
+function renderAll() {
+  const root = document.getElementById("themes-root");
+  root.innerHTML = THEMES.map(theme => {
+    const badgeColor = theme.modes.light.secondaryContainer;
+    const iconColor = theme.modes.light.onSecondaryContainer;
+    return `
+      <section class="theme-sec" id="theme-${theme.id}" data-mode="light">
+        <div class="theme-head">
+          <div class="theme-title-col">
+            <div class="theme-title-row">
+              <span class="theme-badge-shape" style="position:relative">
+                <svg viewBox="${SHAPES[theme.shape].viewBox}" width="34" height="34" style="fill:${badgeColor}" aria-hidden="true"><path d="${SHAPES[theme.shape].path}"/></svg>
+                <span style="position:absolute;font-size:13px;font-weight:850;color:${iconColor}">${theme.name[0]}</span>
+              </span>
+              <h2>${theme.name}</h2>
+            </div>
+            <p class="theme-pitch">${theme.pitch}</p>
+            <div class="meta-chips">
+              <span class="meta-chip"><span class="meta-swatch" style="background:${theme.seed}"></span><span class="lbl">Seed</span> <span class="num">${theme.seed}</span></span>
+              <span class="meta-chip"><span class="lbl">Style</span> ${theme.style}</span>
+              <span class="meta-chip"><span class="lbl">Shape</span> ${theme.shape}</span>
+            </div>
+          </div>
+          <div class="mode-switch" role="group" aria-label="${theme.name} mode">
+            <button type="button" data-mode-btn="light" aria-pressed="true">Light</button>
+            <button type="button" data-mode-btn="dark" aria-pressed="false">Dark</button>
+            <button type="button" data-mode-btn="amoled" aria-pressed="false">AMOLED</button>
+          </div>
+        </div>
+
+        <div class="phones-scroll">
+          <div class="phones-row">
+            ${buildHomePhone(theme)}
+            ${buildPlayerPhone(theme)}
+            ${buildSettingsPhone(theme)}
+          </div>
+        </div>
+
+        <div class="tables-grid">
+          ${buildRoleTable(theme)}
+          ${buildContrastTable(theme)}
+        </div>
+
+        <div class="build-note">
+          <strong>What it takes to build:</strong> ${theme.buildNote}
+        </div>
+      </section>`;
+  }).join("");
+
+  const params = new URLSearchParams(window.location.search);
+  const initMode = ["light", "dark", "amoled"].includes(params.get("mode")) ? params.get("mode") : "light";
+
+  THEMES.forEach(theme => {
+    const sec = document.getElementById("theme-" + theme.id);
+    applyThemeMode(sec, theme, initMode);
+
+    sec.querySelectorAll(".mode-switch button").forEach(btn => {
+      btn.addEventListener("click", () => applyThemeMode(sec, theme, btn.dataset.modeBtn));
+    });
+    sec.querySelectorAll(".filter-word").forEach(btn => {
+      btn.addEventListener("click", () => {
+        sec.querySelectorAll(".filter-word").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+    sec.querySelectorAll("[data-qt]").forEach(btn => {
+      btn.addEventListener("click", () => btn.classList.toggle("on"));
+    });
+  });
+}
+
+function setPageMode(mode) {
+  document.documentElement.dataset.pageMode = mode;
+  document.querySelectorAll("[data-page-btn]").forEach(btn => {
+    btn.setAttribute("aria-pressed", btn.dataset.pageBtn === mode ? "true" : "false");
+  });
+}
+
+const urlPage = new URLSearchParams(window.location.search).get("page");
+const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+setPageMode(urlPage === "dark" || urlPage === "light" ? urlPage : (prefersDark ? "dark" : "light"));
+document.querySelectorAll("[data-page-btn]").forEach(btn => {
+  btn.addEventListener("click", () => setPageMode(btn.dataset.pageBtn));
+});
+
+renderAll();
+</script>
+</body>
+</html>

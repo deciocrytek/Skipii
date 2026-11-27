@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skipii Themes IV · Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght,ROND@6..144,400..1000,0..100&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<style>
+:root{
+  --font:'Google Sans Flex','Google Sans',Roboto,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --bg:#F1F0EE; --panel:#FBFAF9; --panel-2:#E7E5E2; --ink:#1B1A19; --ink-2:#5F5C58; --ink-3:#7C7873;
+  --good:#1E6B3C; --good-bg:#D9F0E0;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#8F8B86;
+  --good:#9FE0B4; --good-bg:#16301F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#8F8B86;
+  --good:#9FE0B4; --good-bg:#16301F; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:40px 16px 64px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:6px 0 12px;font-weight:900;font-variation-settings:'ROND' 100;text-wrap:balance}
+h2{font-size:24px;line-height:1.15;margin:0 0 10px;font-weight:850;font-variation-settings:'ROND' 100}
+h3{font-size:16px;margin:0 0 6px;font-weight:800}
+p{margin:0 0 10px}
+.lede{max-width:68ch;color:var(--ink-2)}
+.idea{background:var(--panel);border-radius:28px;padding:26px;margin:28px 0}
+.idea .big{font-size:20px;line-height:1.4;font-weight:700;max-width:56ch;margin-bottom:18px;text-wrap:pretty}
+.dials{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px}
+.dial{background:var(--bg);border-radius:18px;padding:14px 16px}
+.dial b{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:4px}
+.dial span{color:var(--ink-2);font-size:14px}
+.dial .ms{font-size:20px;color:var(--ink-2)}
+.fixed{margin-top:14px;color:var(--ink-2);font-size:14px}
+.allmodes{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 18px}
+.allmodes span{font-weight:700;font-size:14px;color:var(--ink-2)}
+.seg{display:inline-flex;background:var(--panel-2);border-radius:999px;padding:4px;gap:2px}
+.seg button{font:inherit;font-weight:650;font-size:14px;border:0;background:transparent;color:var(--ink-2);padding:7px 15px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.theme{background:var(--panel);border-radius:28px;padding:26px 0 22px;margin-bottom:26px}
+.thead{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between;padding:0 26px}
+.thead>div{min-width:0;max-width:72ch}
+.tname{font-size:34px;font-weight:900;line-height:1;margin:0 0 10px;font-variation-settings:'ROND' 100;display:flex;align-items:center;gap:12px}
+.swatch{width:30px;height:30px;border-radius:50%;flex:none}
+.pitch{color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chips span{font-size:12.5px;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--panel-2);color:var(--ink-2)}
+.strip{display:flex;gap:22px;overflow-x:auto;padding:22px 26px 12px}
+.shot{margin:0;display:grid;gap:8px;flex:none}
+.shot figcaption{font-size:13px;color:var(--ink-3);font-weight:600;padding-left:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;padding:6px 26px 0;align-items:start}
+.facts>*{min-width:0}
+.box{background:var(--bg);border-radius:20px;padding:16px 18px}
+.box ul{margin:0;padding-left:18px}
+.box li{margin-bottom:6px}
+.shapes{display:flex;gap:18px;align-items:center;margin:4px 0 10px}
+.shapes figure{margin:0;display:grid;justify-items:center;gap:4px;font-size:12px;color:var(--ink-3);font-weight:600}
+.shapes .sh{width:52px;height:52px;background:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-weight:600;color:var(--ink-3);font-size:12px;padding:5px 8px;white-space:nowrap}
+td{padding:6px 8px;vertical-align:top;border-top:1px solid color-mix(in srgb,var(--ink) 8%,transparent)}
+td:first-child{font-weight:700;white-space:nowrap}
+details{background:var(--bg);border-radius:20px;padding:4px 18px}
+summary{cursor:pointer;font-weight:700;padding:12px 0}
+.ctab{overflow-x:auto;padding-bottom:12px}
+.hex{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.hex i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.ratio{font-family:var(--mono);font-size:12.5px}
+.pass{color:var(--good);font-weight:700}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 450,'opsz' 24;user-select:none}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 450,'opsz' 24}
+
+/* ---------- the phone: Skipii as it is today; only the colour roles and the signature shape change ---------- */
+.phone{width:320px;height:680px;border-radius:38px;padding:8px;background:#0c0c0c;flex:none}
+.scr{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--surface);color:var(--onSurface);font-family:var(--font);font-size:13px;line-height:1.35}
+.sb{height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:12px;font-weight:600}
+.sb .ms{font-size:14px;vertical-align:-2px}
+.sb.vid{background:#000;color:#fff}
+.hdr{display:flex;align-items:center;gap:9px;padding:6px 14px 4px}
+.mark{width:30px;height:22px;border-radius:7px;background:var(--primary);display:grid;place-items:center;color:var(--onPrimary)}
+.mark .ms{font-size:17px}
+.word{font-weight:900;font-size:22px;letter-spacing:-.02em;font-variation-settings:'ROND' 100;flex:1}
+.me{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#9db7c9,#476478);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.words{display:flex;gap:16px;padding:6px 16px 10px;font-size:13.5px;color:var(--onSurfaceVariant);white-space:nowrap;overflow:hidden}
+.words b{position:relative;color:var(--primary);font-weight:800}
+.words b::after{content:"";position:absolute;left:20%;right:20%;bottom:-6px;height:4px;border-radius:4px;background:var(--primary)}
+.card{margin:0 6px 10px;background:var(--surfaceContainerLow);border-radius:26px;padding:5px}
+.th{position:relative;aspect-ratio:16/9;border-radius:21px;overflow:hidden}
+.th svg,.video svg{display:block;width:100%;height:100%}
+.dur{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px}
+.resume{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.35)}
+.resume i{display:block;height:100%;background:var(--primaryOnVideo)}
+.meta{display:grid;grid-template-columns:30px 1fr 18px;gap:10px;padding:9px 6px 6px}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px}
+.av.pic{color:#fff}
+.av.sig{background:var(--tertiaryContainer);color:var(--onTertiaryContainer);border-radius:0;-webkit-mask:var(--sigMask) center/100% 100% no-repeat;mask:var(--sigMask) center/100% 100% no-repeat}
+.tt{font-weight:650;font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sub{color:var(--onSurfaceVariant);font-size:12px;margin-top:2px}
+.meta .ms{font-size:18px;color:var(--onSurfaceVariant)}
+.vig{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--surface) 76%,transparent) 70%);pointer-events:none}
+.nav{position:absolute;left:12px;right:12px;bottom:14px;height:54px;border-radius:27px;background:var(--surfaceVariant);display:flex;align-items:center;padding:0 5px;gap:2px;box-shadow:0 3px 10px -4px rgba(0,0,0,.35)}
+.tab{flex:1;height:44px;border-radius:22px;display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.tab .ms{font-size:22px}
+.tab.sel{flex:2.6;background:var(--primary);color:var(--onPrimary);display:flex;justify-content:center;gap:6px;font-weight:800;font-size:13px}
+.video{aspect-ratio:16/9;position:relative}
+.video .edge{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.32)}
+.video .edge i{display:block;width:38%;height:100%;background:var(--primaryOnVideo)}
+.det{padding:12px 14px 0}
+.ptitle{font-weight:800;font-size:16.5px;line-height:1.22;letter-spacing:-.01em;font-variation-settings:'ROND' 100;margin-bottom:4px}
+.pmeta{color:var(--onSurfaceVariant);font-size:12px}
+.pmeta b{color:var(--onSurface);font-weight:700}
+.chan{display:flex;align-items:center;gap:10px;margin:12px 0 10px}
+.chan .av{width:34px;height:34px}
+.chan .n{flex:1;min-width:0}
+.chan .n b{display:block;font-size:13.5px}
+.chan .n span{color:var(--onSurfaceVariant);font-size:11.5px}
+.subbtn{height:34px;padding:0 14px;border-radius:999px;background:var(--primary);color:var(--onPrimary);display:flex;align-items:center;font-weight:800;font-size:13px}
+.acts{display:flex;gap:6px;overflow:hidden;margin-bottom:10px}
+.pill{height:34px;padding:0 12px;border-radius:999px;background:var(--surfaceContainerHigh);display:flex;align-items:center;gap:5px;font-weight:700;font-size:12.5px;white-space:nowrap;flex:none}
+.pill .ms{font-size:18px}
+.pill.on{background:var(--primary);color:var(--onPrimary)}
+.desc{background:var(--surfaceContainerLow);border-radius:22px;padding:11px 13px;margin-bottom:8px;font-size:12.5px}
+.desc .h{display:flex;justify-content:space-between;font-weight:800;margin-bottom:4px}
+.desc .h span{color:var(--onSurfaceVariant);font-weight:600}
+.desc p{margin:0;color:var(--onSurfaceVariant)}
+.cm{display:flex;gap:8px;align-items:flex-start}
+.cm .av{width:22px;height:22px;font-size:10px;flex:none}
+.bar{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;width:276px;height:72px;border-radius:30px;background:var(--surfaceVariant);box-shadow:0 3px 10px -4px rgba(0,0,0,.35)}
+.bar .row{position:absolute;left:6px;right:6px;top:7px;height:50px;display:flex;align-items:center;justify-content:space-between}
+.key{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.key .ms{font-size:25px}
+.play{width:92px;height:46px;border-radius:999px;background:var(--primary);color:var(--onPrimary);display:grid;place-items:center}
+.play .ms{font-size:30px}
+.hair{position:absolute;left:32px;right:32px;bottom:8px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 25%,transparent)}
+.hair i{display:block;width:38%;height:100%;border-radius:2px;background:var(--primary)}
+.stitle{font-weight:900;font-size:32px;letter-spacing:-.02em;font-variation-settings:'ROND' 100;padding:14px 18px 10px}
+.search{margin:0 14px 12px;height:42px;border-radius:999px;background:var(--surfaceContainerHigh);display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--onSurfaceVariant)}
+.search .ms{font-size:20px}
+.acct{margin:0 14px 10px;background:var(--primaryContainer);color:var(--onPrimaryContainer);border-radius:26px;padding:12px;display:flex;align-items:center;gap:11px}
+.acct .av{width:40px;height:40px;font-size:16px}
+.acct b{display:block;font-size:15px}
+.acct span{font-size:12px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 14px 14px}
+.q{height:70px;border-radius:22px;background:var(--surfaceContainerHigh);display:flex;flex-direction:column;justify-content:space-between;padding:10px 9px;font-size:10.5px;font-weight:700;line-height:1.15}
+.q .ms{font-size:20px}
+.q.on{background:var(--primary);color:var(--onPrimary)}
+.glabel{font-size:12px;font-weight:700;color:var(--onSurfaceVariant);margin:0 20px 6px}
+.grp{margin:0 14px;display:grid;gap:3px}
+.tile{background:var(--surfaceContainerLow);border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:11px}
+.grp .tile:first-child{border-top-left-radius:21px;border-top-right-radius:21px}
+.grp .tile:last-child{border-bottom-left-radius:21px;border-bottom-right-radius:21px}
+.ic{width:36px;height:36px;display:grid;place-items:center;flex:none;position:relative;color:var(--onSecondaryContainer)}
+.ic::before{content:"";position:absolute;inset:0;background:var(--secondaryContainer);-webkit-mask:var(--sigMask) center/100% 100% no-repeat;mask:var(--sigMask) center/100% 100% no-repeat}
+.ic .ms{font-size:19px;position:relative}
+.tile .n{flex:1;min-width:0}
+.tile b{display:block;font-size:13.5px}
+.tile span{color:var(--onSurfaceVariant);font-size:11.5px}
+.tile>.ms{color:var(--onSurfaceVariant);font-size:18px}
+</style>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Skipii · themes, round 4 · Claude</div>
+  <h1>Three themes that feel like Android</h1>
+  <p class="lede">You asked for no glassy textures and to keep it Android. So this round has no glass, no glow, no blur, no textures and no special fonts. Every theme is built the way your Pixel builds its own.</p>
+
+  <section class="idea" aria-labelledby="idea-h">
+    <h2 id="idea-h">How these are made</h2>
+    <p class="big">When you pick a wallpaper colour on a Pixel, Android grows a whole set of matching colours from that one colour, in a style you choose. These themes are made exactly that way, with Google’s own colour tool. So they sit next to your Pixel’s apps like they belong there.</p>
+    <div class="dials">
+      <div class="dial"><b><span class="ms">colors</span>One starting colour</b><span>Android works out every shade from it: buttons, cards, the tab bar, light and dark. All of them are matched and readable.</span></div>
+      <div class="dial"><b><span class="ms">tune</span>A Pixel style</b><span>Your Pixel offers the same styles under Wallpaper &amp; style. <strong>Tonal spot</strong> is calm, with colour mostly on buttons. <strong>Vibrant</strong> is richer, and the colour reaches the cards and page. <strong>Monochrome</strong> has no colour at all.</span></div>
+      <div class="dial"><b><span class="ms">interests</span>One Android shape</b><span>Each theme has a signature shape from Android 16’s own shape set. It appears on small badges: the Settings icons and avatars with no picture. Skipii already uses the cookie shape for these.</span></div>
+    </div>
+    <p class="fixed"><b>The same in every theme:</b> Skipii’s layout, its rounded font, its corners, the video, the black strip over the video, and SponsorBlock’s colours. No outlines and no tap ripples. Only the tab bar and the player bar float, on the plain shadow Android gives anything that floats.</p>
+  </section>
+
+  <div class="allmodes"><span>Show every theme in</span><div class="seg" id="allseg" role="group" aria-label="Mode for all themes"><button aria-pressed="false" data-m="light">Light</button><button aria-pressed="true" data-m="dark">Dark</button><button aria-pressed="false" data-m="amoled">AMOLED</button></div></div>
+  <div id="themes"></div>
+</div>
+
+<script>
+const I = (n, f) => `<span class="ms${f ? ' f' : ''}" aria-hidden="true">${n}</span>`;
+/* Crisp flat thumbnails: hard edges only, no blur. */
+const svg = b => `<svg viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${b}</svg>`;
+const SCENES = {
+  dusk: svg('<defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D4F8A"/><stop offset=".7" stop-color="#E88D67"/><stop offset="1" stop-color="#F6C48A"/></linearGradient></defs><rect width="160" height="90" fill="url(#gd)"/><circle cx="108" cy="52" r="11" fill="#FFD27A"/><path d="M0 66 L52 44 L98 70 L160 50 L160 90 L0 90Z" fill="#2B3458"/><path d="M0 80 L40 64 L90 84 L130 68 L160 78 L160 90 L0 90Z" fill="#1D2540"/>'),
+  sea: svg('<rect width="160" height="44" fill="#8FD0EE"/><circle cx="40" cy="22" r="8" fill="#FFF3C4"/><rect y="44" width="160" height="46" fill="#2A86A8"/><rect y="62" width="160" height="28" fill="#0D4D6E"/><path d="M98 44 L106 20 L106 44Z" fill="#FFFFFF"/><path d="M108 44 L108 24 L118 44Z" fill="#E9F2F5"/><path d="M94 45 L122 45 L117 50 L99 50Z" fill="#1B2B38"/>'),
+  forest: svg('<rect width="160" height="90" fill="#A6D3B0"/><circle cx="80" cy="20" r="9" fill="#FEF6D8"/><path d="M0 58 Q40 40 80 54 T160 48 V90 H0Z" fill="#5F9A6F"/><path d="M0 72 Q50 58 100 70 T160 66 V90 H0Z" fill="#2F5A3C"/><path d="M22 74 L30 50 L38 74Z M120 70 L127 48 L134 70Z M136 72 L142 54 L148 72Z" fill="#1F3B2A"/>'),
+  city: svg('<rect width="160" height="90" fill="#1B2547"/><circle cx="126" cy="20" r="8" fill="#F2EED8"/><circle cx="130" cy="17" r="7" fill="#1B2547"/><path d="M6 90V48h18v42zM28 90V34h16v56zM48 90V56h14v34zM66 90V28h20v62zM90 90V46h14v44zM108 90V38h18v52zM130 90V54h24v36z" fill="#0E1530"/><path d="M32 40h3v3h-3zM38 48h3v3h-3zM70 34h3v3h-3zM78 42h3v3h-3zM70 52h3v3h-3zM112 44h3v3h-3zM118 54h3v3h-3zM94 52h3v3h-3z" fill="#FFC861"/>'),
+  desert: svg('<rect width="160" height="90" fill="#F6B26B"/><rect width="160" height="34" fill="#F4D7A1"/><circle cx="44" cy="36" r="12" fill="#FFF1D0"/><path d="M0 60 Q50 40 100 58 T160 52 V90 H0Z" fill="#D97B3F"/><path d="M0 78 Q60 62 120 76 T160 74 V90 H0Z" fill="#A9502A"/>'),
+  ramen: svg('<rect width="160" height="90" fill="#3B2A20"/><circle cx="80" cy="45" r="34" fill="#EFE6D6"/><circle cx="80" cy="45" r="28" fill="#C98A4B"/><path d="M58 40 Q80 30 102 40 M56 48 Q80 38 104 48 M60 56 Q80 46 100 56" stroke="#F3D58A" stroke-width="3" fill="none"/><ellipse cx="94" cy="36" rx="9" ry="7" fill="#FFFFFF"/><circle cx="94" cy="36" r="4" fill="#F4A933"/><rect x="62" y="50" width="16" height="10" rx="2" fill="#3E7D3C"/>')};
+const PIC = {f:'linear-gradient(135deg,#e9a25c,#a5532e)', k:'linear-gradient(135deg,#7bb38b,#2c6b4f)', o:'linear-gradient(135deg,#7f8ce0,#3b2f8f)', w:'linear-gradient(135deg,#5fb6d6,#1e5f86)', c:'linear-gradient(135deg,#8a96c4,#2c3566)'};
+
+/* Signature shapes: Skipii's own LobedShape (UiKit.kt): r = 1 − depth + depth·cos(lobes·t), plus a turn. */
+function lobed(lobes, depth, turn = 0){
+  let d = '';
+  for (let i = 0; i <= 180; i++) { const t = i / 180 * 2 * Math.PI, r = 1 - depth + depth * Math.cos(lobes * (t + turn));
+    d += (i ? 'L' : 'M') + (50 + 50 * r * Math.cos(t)).toFixed(2) + ' ' + (50 + 50 * r * Math.sin(t)).toFixed(2); }
+  return d + 'Z';
+}
+const mask = d => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='${d}'/></svg>`)}")`;
+const SHAPES = {
+  clover:{name:'Clover', d:lobed(4,.17,Math.PI/4), code:'LobedShape(lobes = 4, depth = 0.17), turned 45°'},
+  sunny:{name:'Sunny', d:lobed(8,.075), code:'LobedShape(lobes = 8, depth = 0.075)'},
+  squircle:{name:'Soft square', d:lobed(4,.06,Math.PI/4), code:'LobedShape(lobes = 4, depth = 0.06), turned 45°'},
+  cookie:{name:'Cookie (today)', d:lobed(9,.075), code:''}};
+
+const PAL = {"fern":{"seed":"#4E8A3E","style":"tonal","light":{"primary":"#416835","onPrimary":"#FFFFFF","primaryContainer":"#C1EFAF","onPrimaryContainer":"#294F1F","secondary":"#54634D","secondaryContainer":"#D7E8CC","onSecondaryContainer":"#3D4B37","tertiary":"#386668","tertiaryContainer":"#BCEBEE","onTertiaryContainer":"#1E4E50","background":"#F8FBF0","surface":"#F8FBF0","onSurface":"#191D17","surfaceVariant":"#DFE4D7","onSurfaceVariant":"#43483F","surfaceContainerLowest":"#FFFFFF","surfaceContainerLow":"#F2F5EB","surfaceContainer":"#ECEFE5","surfaceContainerHigh":"#E6E9DF","surfaceContainerHighest":"#E1E4DA","outline":"#73796E","outlineVariant":"#C3C8BC"},"dark":{"primary":"#A6D395","onPrimary":"#12380A","primaryContainer":"#294F1F","onPrimaryContainer":"#C1EFAF","secondary":"#BBCBB1","secondaryContainer":"#3D4B37","onSecondaryContainer":"#D7E8CC","tertiary":"#A0CFD1","tertiaryContainer":"#1E4E50","onTertiaryContainer":"#BCEBEE","background":"#11140F","surface":"#11140F","onSurface":"#E1E4DA","surfaceVariant":"#43483F","onSurfaceVariant":"#C3C8BC","surfaceContainerLowest":"#0C0F0A","surfaceContainerLow":"#191D17","surfaceContainer":"#1D211B","surfaceContainerHigh":"#272B25","surfaceContainerHighest":"#32362F","outline":"#8D9387","outlineVariant":"#43483F"}},"sunbeam":{"seed":"#F2B200","style":"vibrant","light":{"primary":"#7B5900","onPrimary":"#FFFFFF","primaryContainer":"#FFDEA4","onPrimaryContainer":"#5D4200","secondary":"#6C5D2E","secondaryContainer":"#F6E1A6","onSecondaryContainer":"#534619","tertiary":"#685F1E","tertiaryContainer":"#F0E495","onTertiaryContainer":"#4F4706","background":"#FFF8F2","surface":"#FFF8F2","onSurface":"#221B0D","surfaceVariant":"#F2E0C5","onSurfaceVariant":"#504531","surfaceContainerLowest":"#FFFFFF","surfaceContainerLow":"#FFF2E0","surfaceContainer":"#FBECD5","surfaceContainerHigh":"#F5E6D0","surfaceContainerHighest":"#F0E0CA","outline":"#83755F","outlineVariant":"#D5C4AA"},"dark":{"primary":"#FEBB00","onPrimary":"#412D00","primaryContainer":"#5D4200","onPrimaryContainer":"#FFDEA4","secondary":"#D9C58D","secondaryContainer":"#534619","onSecondaryContainer":"#F6E1A6","tertiary":"#D4C87B","tertiaryContainer":"#4F4706","onTertiaryContainer":"#F0E495","background":"#191206","surface":"#191206","onSurface":"#F0E0CA","surfaceVariant":"#504531","onSurfaceVariant":"#D5C4AA","surfaceContainerLowest":"#140D03","surfaceContainerLow":"#221B0D","surfaceContainer":"#261F11","surfaceContainerHigh":"#31291A","surfaceContainerHighest":"#3C3424","outline":"#9D8F77","outlineVariant":"#504531"}},"graphite":{"seed":"#5F6368","style":"mono","light":{"primary":"#000000","onPrimary":"#E2E2E2","primaryContainer":"#3B3B3B","onPrimaryContainer":"#FFFFFF","secondary":"#5E5E5E","secondaryContainer":"#D4D4D4","onSecondaryContainer":"#1B1B1B","tertiary":"#3B3B3B","tertiaryContainer":"#747474","onTertiaryContainer":"#FFFFFF","background":"#F9F9F9","surface":"#F9F9F9","onSurface":"#1B1B1B","surfaceVariant":"#E2E2E2","onSurfaceVariant":"#474747","surfaceContainerLowest":"#FFFFFF","surfaceContainerLow":"#F3F3F3","surfaceContainer":"#EEEEEE","surfaceContainerHigh":"#E8E8E8","surfaceContainerHighest":"#E2E2E2","outline":"#777777","outlineVariant":"#C6C6C6"},"dark":{"primary":"#FFFFFF","onPrimary":"#1B1B1B","primaryContainer":"#D4D4D4","onPrimaryContainer":"#000000","secondary":"#C6C6C6","secondaryContainer":"#474747","onSecondaryContainer":"#E2E2E2","tertiary":"#E2E2E2","tertiaryContainer":"#919191","onTertiaryContainer":"#000000","background":"#131313","surface":"#131313","onSurface":"#E2E2E2","surfaceVariant":"#474747","onSurfaceVariant":"#C6C6C6","surfaceContainerLowest":"#0E0E0E","surfaceContainerLow":"#1B1B1B","surfaceContainer":"#1F1F1F","surfaceContainerHigh":"#2A2A2A","surfaceContainerHighest":"#353535","outline":"#919191","outlineVariant":"#474747"}}};
+const THEMES = [
+{ id:'fern', name:'Fern', style:'Tonal spot', shape:'clover',
+  pitch:'Calm and green, the way a Pixel looks out of the box. The colour stays mostly on the things you press (play, the selected tab, Subscribe), and the pages are a soft green-grey that never fights a thumbnail. It’s the theme you could leave on for a year.',
+  feed:[['forest','16:20',58,'Field Notes','1.2M views · 3 days ago','A week rebuilding an old Victorian glasshouse, start to finish','f'],['sea','9:12',0,'Wide Water','2.1M views · 1 month ago','Sailing through the night with a broken autopilot','w']],
+  scene:'forest', ptitle:'A week rebuilding an old Victorian glasshouse, start to finish', chan:['Field Notes','412K subscribers','f'], chap:'Intro · Clearing out · New glass · The frame · Planting · …', comment:'The moment the first pane went in was so satisfying.' },
+{ id:'sunbeam', name:'Sunbeam', style:'Vibrant', shape:'sunny',
+  pitch:'Warm and bright. Vibrant lets the colour reach further: the page has a hint of honey, the cards are warmer, and at night play glows a strong golden yellow on a dark brown page, with no glow effect, just colour. It’s the most cheerful of the three.',
+  feed:[['desert','18:42',64,'Field Notes','412K views · 2 days ago','Crossing the dunes on foot: three days, no road','f'],['ramen','12:05',0,'Kitchen Lab','1.3M views · 1 week ago','The 20-minute weeknight ramen I keep coming back to','k']],
+  scene:'ramen', ptitle:'The 20-minute weeknight ramen I keep coming back to', chan:['Kitchen Lab','1.3M subscribers','k'], chap:'Broth · Tare · Noodles · Toppings · Putting it together · …', comment:'Made this tonight. The soft egg trick is genius.' },
+{ id:'graphite', name:'Graphite', style:'Monochrome', shape:'squircle',
+  pitch:'No colour at all: black, white and greys, as in your Pixel’s Monochrome style. Play and the selected tab are solid black by day and solid white at night. The videos become the only colour on the screen.',
+  feed:[['city','22:31',40,'Night Shift','690K views · 4 days ago','Walking the whole city after midnight, one long take','c'],['dusk','18:42',0,'Field Notes','412K views · 2 days ago','Driving the coast road at golden hour, no music','f']],
+  scene:'city', ptitle:'Walking the whole city after midnight, one long take', chan:['Night Shift','690K subscribers','c'], chap:'Old town · The bridge · Night market · The last tram · …', comment:'The quiet after the market closes is my favourite part.' }];
+
+const rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const hex = a => '#' + a.map(v => Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase();
+const toBlack = (h,t) => hex(rgb(h).map(v => v*(1-t)));
+const amoled = s => ({...s, background:'#000000', surface:'#000000', surfaceContainerLowest:'#000000', surfaceContainerLow:toBlack(s.surfaceContainerLow,.55), surfaceContainer:toBlack(s.surfaceContainer,.45), surfaceContainerHigh:toBlack(s.surfaceContainerHigh,.35), surfaceContainerHighest:toBlack(s.surfaceContainerHighest,.25), surfaceVariant:toBlack(s.surfaceVariant,.25)});
+const lum = h => { const c = rgb(h).map(v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055,2.4); }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+const ratio = (a,b) => { const x = lum(a), y = lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+const roles = (t,m) => m === 'light' ? PAL[t.id].light : m === 'dark' ? PAL[t.id].dark : amoled(PAL[t.id].dark);
+const PAIRS = [['onSurface','surface','Page text'],['onSurfaceVariant','surface','Small text on the page'],['onSurface','surfaceContainerLow','Card title'],['onSurfaceVariant','surfaceContainerLow','Card channel · views'],['onSurface','surfaceContainerHigh','Pill label'],['onSurfaceVariant','surfaceVariant','Tab bar icons'],['onPrimary','primary','Play, selected tab, “on”'],['onPrimaryContainer','primaryContainer','Account card'],['onSecondaryContainer','secondaryContainer','Settings icons'],['onTertiaryContainer','tertiaryContainer','Avatar letters'],['primary','surface','Chosen filter']];
+
+function vars(t, m){
+  const s = roles(t,m), out = Object.entries(s).map(([k,v]) => `--${k}:${v}`);
+  /* a dark primary (Graphite by day) would vanish as a line on the video: use the light one there */
+  out.push(`--primaryOnVideo:${lum(s.primary) < .2 ? PAL[t.id].dark.primary : s.primary}`);
+  out.push(`--sigMask:${mask(SHAPES[t.shape].d)}`);
+  return out.join(';');
+}
+const status = v => `<div class="sb${v ? ' vid' : ''}"><span>9:41</span><span>${I('signal_cellular_alt')} ${I('wifi')} ${I('battery_full',1)}</span></div>`;
+const av = (name, pic, sig) => sig ? `<div class="av sig">${name[0]}</div>` : `<div class="av pic" style="background:${PIC[pic]}">${name[0]}</div>`;
+function card([scene,dur,resume,ch,stats,title,pic], i){ return `<div class="card"><div class="th">${SCENES[scene]}<span class="dur">${dur}</span>${resume ? `<div class="resume"><i style="width:${resume}%"></i></div>` : ''}</div><div class="meta">${av(ch,pic,i === 1)}<div><div class="tt">${title}</div><div class="sub">${ch} · ${stats}</div></div>${I('more_vert')}</div></div>`; }
+const home = t => `<div class="scr">${status()}<div class="hdr"><div class="mark">${I('fast_forward',1)}</div><div class="word">Skipii</div><div class="me">D</div></div>
+  <div class="words"><b>All</b><span>Music</span><span>Science</span><span>Cooking</span><span>Travel</span></div>${t.feed.map(card).join('')}
+  <div class="vig"></div><div class="nav"><div class="tab sel">${I('home',1)}Home</div><div class="tab">${I('subscriptions')}</div><div class="tab">${I('smart_display')}</div><div class="tab">${I('search')}</div><div class="tab">${I('video_library')}</div></div></div>`;
+const player = t => `<div class="scr">${status(true)}<div class="video">${SCENES[t.scene]}<div class="edge"><i></i></div></div>
+  <div class="det"><div class="ptitle">${t.ptitle}</div><div class="pmeta"><b>412K views</b> · 2 days ago · …more</div>
+  <div class="chan">${av(t.chan[0],t.chan[2])}<div class="n"><b>${t.chan[0]}</b><span>${t.chan[1]}</span></div><div class="subbtn">Subscribe</div></div>
+  <div class="acts"><span class="pill on">${I('thumb_up',1)}18K</span><span class="pill">${I('thumb_down')}</span><span class="pill">${I('share')}Share</span><span class="pill">${I('playlist_add')}Playlist</span></div>
+  <div class="desc"><div class="h">Chapters<span>6</span></div><p>${t.chap}</p></div>
+  <div class="desc"><div class="h">Comments<span>1.4K</span></div><div class="cm">${av('Mira',null,true)}<p>${t.comment}</p></div></div></div>
+  <div class="bar"><div class="row"><div class="key">${I('headphones')}</div><div class="key">${I('replay_10')}</div><div class="play">${I('pause',1)}</div><div class="key">${I('forward_10')}</div><div class="key">${I('more_vert')}</div></div><div class="hair"><i></i></div></div></div>`;
+const settings = () => `<div class="scr">${status()}<div class="stitle">Settings</div><div class="search">${I('search')}Search settings</div>
+  <div class="acct">${av('Derek',null,true)}<div><b>Derek</b><span>Signed in · full sync</span></div></div>
+  <div class="quick"><div class="q">${I('headphones')}Audio only</div><div class="q on">${I('fast_forward',1)}Sponsor­Block</div><div class="q on">${I('smart_display',1)}Shorts</div><div class="q">${I('speed')}Keep speed</div></div>
+  <div class="glabel">Watching</div><div class="grp">
+  <div class="tile"><div class="ic">${I('play_circle')}</div><div class="n"><b>Playback</b><span>Controls in the pill · 10 s steps</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('closed_caption')}</div><div class="n"><b>Captions &amp; Dubbing</b><span>Foreign videos · Original audio</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('fast_forward')}</div><div class="n"><b>SponsorBlock</b><span>Skip sponsors · ask for self-promo</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('palette')}</div><div class="n"><b>Appearance</b><span>Dark · this theme</span></div>${I('chevron_right')}</div></div></div>`;
+const VIEWS = {home, player, settings};
+
+function band(t){
+  const p = PAL[t.id], sh = SHAPES[t.shape];
+  return `<section class="theme" id="${t.id}" aria-labelledby="${t.id}-h">
+  <div class="thead"><div><h2 class="tname" id="${t.id}-h"><span class="swatch" style="background:linear-gradient(135deg,${p.light.primary} 50%,${p.dark.primary} 50%)"></span>${t.name}</h2><p class="pitch">${t.pitch}</p>
+  <div class="chips"><span>Start colour ${p.seed}</span><span>Style: ${t.style}</span><span>Shape: ${sh.name}</span></div></div>
+  <div class="seg" role="group" aria-label="${t.name} mode"><button data-m="light">Light</button><button data-m="dark">Dark</button><button data-m="amoled">AMOLED</button></div></div>
+  <div class="strip"><figure class="shot"><div class="phone" data-v="home"></div><figcaption>Home</figcaption></figure><figure class="shot"><div class="phone" data-v="player"></div><figcaption>Open player</figcaption></figure><figure class="shot"><div class="phone" data-v="settings"></div><figcaption>Settings</figcaption></figure></div>
+  <div class="facts">
+    <div class="box"><h3>Its shape</h3><div class="shapes"><figure><div class="sh" data-shape="${t.shape}"></div>${sh.name}</figure><figure><div class="sh" data-shape="cookie" style="opacity:.45"></div>${SHAPES.cookie.name}</figure></div>
+    <p style="font-size:14px;color:var(--ink-2);margin:0">It appears on the Settings icons, on the account card, and on avatars that have no picture (the second card and the comment). Channel pictures stay round.</p></div>
+    <div class="box"><h3>What it takes to build</h3><ul>
+      <li><b>Colours:</b> a small job, like Lagoon. They come straight out of Google’s colour tool, so they’re the shades your Pixel itself would make from ${p.seed} in the ${t.style} style.</li>
+      <li><b>${sh.name} shape:</b> a small job. It is drawn by the same code that draws today’s cookie, just with different numbers.</li>
+      <li><b>Nothing else:</b> fonts, corners and layout are Skipii’s as they are.</li></ul></div>
+    <details><summary>Colours and readability</summary><div class="ctab" data-c></div></details>
+  </div></section>`;
+}
+function contrast(t){
+  const modes = ['light','dark','amoled'];
+  const rows = PAIRS.map(([a,b,label]) => `<tr><td>${label}</td>${modes.map(m => { const s = roles(t,m), r = ratio(s[a],s[b]); return `<td><span class="ratio ${r >= 4.5 ? 'pass' : ''}">${r.toFixed(1)}:1</span></td>`; }).join('')}</tr>`).join('');
+  const keys = ['primary','onPrimary','primaryContainer','secondaryContainer','tertiaryContainer','surface','surfaceContainerLow','surfaceContainerHigh','surfaceVariant','onSurface','onSurfaceVariant'];
+  const cols = keys.map(k => `<tr><td class="hex">${k}</td>${modes.map(m => { const v = roles(t,m)[k]; return `<td><span class="hex"><i style="background:${v}"></i>${v}</span></td>`; }).join('')}</tr>`).join('');
+  return `<table><thead><tr><th>Text on</th><th>Light</th><th>Dark</th><th>AMOLED</th></tr></thead><tbody>${rows}</tbody></table>
+  <p style="font-size:13px;color:var(--ink-3);margin:8px 0 14px">Every pair is at least 4.5:1, the standard for small text.</p>
+  <table><thead><tr><th>Role</th><th>Light</th><th>Dark</th><th>AMOLED</th></tr></thead><tbody>${cols}</tbody></table>`;
+}
+function render(t, m){
+  const sec = document.getElementById(t.id);
+  sec.querySelectorAll('.phone').forEach(p => { p.innerHTML = VIEWS[p.dataset.v](t); p.firstElementChild.setAttribute('style', vars(t,m)); });
+  sec.querySelectorAll('.thead .seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === m)));
+}
+document.getElementById('themes').innerHTML = THEMES.map(band).join('');
+document.querySelectorAll('.sh[data-shape]').forEach(e => { const m = mask(SHAPES[e.dataset.shape].d) + ' center/100% 100% no-repeat'; e.style.webkitMask = m; e.style.mask = m; });
+THEMES.forEach(t => {
+  const sec = document.getElementById(t.id);
+  sec.querySelector('[data-c]').innerHTML = contrast(t);
+  sec.querySelectorAll('.thead .seg button').forEach(b => b.addEventListener('click', () => render(t, b.dataset.m)));
+  render(t, 'dark');
+});
+document.querySelectorAll('#allseg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#allseg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  THEMES.forEach(t => render(t, b.dataset.m));
+}));
+const q = new URLSearchParams(location.search).get('mode');
+if (q) document.querySelector(`#allseg button[data-m="${q}"]`)?.click();
+</script>
+</body>
+</html>

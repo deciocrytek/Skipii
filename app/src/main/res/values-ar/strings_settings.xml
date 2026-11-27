@@ -107,6 +107,12 @@
     <string name="settings_background_play_off">يتوقف مؤقتًا عند مغادرة Skipii أو انطفاء الشاشة (وضع الصوت فقط يستمر)</string>
     <string name="settings_open_links_title">فتح روابط YouTube</string>
     <string name="settings_open_links_line">دع Skipii يفتح روابط youtube.com وyoutu.be من التطبيقات الأخرى: الفتح تلقائيًا › إضافة روابط</string>
+    <string name="settings_open_links_done">تُفتح روابط YouTube في Skipii</string>
+    <string name="settings_open_links_other">تُفتح الآن في %1$s: خطوتان بالأسفل</string>
+    <string name="settings_open_links_step1_title">1. أوقِف فتحها في %1$s</string>
+    <string name="settings_open_links_step1_line">الفتح تلقائيًا › في المتصفّح، أو أوقِف فتح الروابط المتوافقة</string>
+    <string name="settings_open_links_step2_title">2. دع Skipii يفتحها</string>
+    <string name="settings_open_links_step2_line">الفتح تلقائيًا › إضافة روابط › حدّدها كلها</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">إرسال تقرير</string>
     <string name="report_email_prompt">ماذا حدث؟ (اختياري، بأي لغة)</string>

@@ -102,6 +102,12 @@
     <string name="settings_background_play_off">Skipii を離れるか画面が消えると一時停止します（音声のみは再生を続けます）</string>
     <string name="settings_open_links_title">YouTube のリンクを開く</string>
     <string name="settings_open_links_line">ほかのアプリの youtube.com と youtu.be のリンクを Skipii で開きます: デフォルトで開く › リンクを追加</string>
+    <string name="settings_open_links_done">YouTube のリンクは Skipii で開きます</string>
+    <string name="settings_open_links_other">今は %1$s で開きます: 下の 2 つの手順へ</string>
+    <string name="settings_open_links_step1_title">1. %1$s で開かないようにする</string>
+    <string name="settings_open_links_step1_line">デフォルトで開く › ブラウザ、または対応リンクを開くをオフ</string>
+    <string name="settings_open_links_step2_title">2. Skipii で開けるようにする</string>
+    <string name="settings_open_links_step2_line">デフォルトで開く › リンクを追加 › すべてにチェック</string>
     <!-- The problem report (GitHub #102): the player's button and the note under a video that won't start. -->
     <string name="report_send">レポートを送信</string>
     <string name="report_email_prompt">何が起きましたか？（任意・どの言語でも）</string>

@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -28,6 +30,7 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQu
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.AudioTrackType
 import org.schabi.newpipe.extractor.stream.DeliveryMethod
+import org.schabi.newpipe.extractor.stream.Stream
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
@@ -214,7 +217,8 @@ object YouTube {
     }
 
     private suspend fun liveDetails(id: String, wait: Boolean): VideoDetails = withContext(Dispatchers.IO) {
-        val info = if (wait) BotCheck.retrying(id) { StreamCache.getOrLoad(id) } else BotCheck.withoutWaiting(id) { StreamCache.getOrLoad(id) }
+        val load = { Net.onceMoreAfterStall("links for $id") { StreamCache.getOrLoad(id) } }
+        val info = if (wait) BotCheck.retrying(id, load) else BotCheck.withoutWaiting(id, load)
         val audioTracks = AudioTracks.from(info)
         val picked = StreamSelection.pick(info, id)
         VideoDetails(
@@ -236,7 +240,11 @@ object YouTube {
             likes = info.likeCount,
             subscribers = info.uploaderSubscriberCount,
             related = info.relatedItems.filterIsInstance<StreamInfoItem>().mapNotNull { it.toVideoItem() },
-            playable = picked.isPlayable,
+            // A just-ended live stream plays from YouTube's manifest for it (YouTubeMediaSourceFactory), so it needs one.
+            playable = picked.isPlayable && (
+                info.streamType != StreamType.POST_LIVE_STREAM || info.dashMpdUrl.isNotBlank() ||
+                    (picked.video?.let(PostLiveManifests::cached) != null && picked.audio?.let(PostLiveManifests::cached) != null)
+                ),
             quality = picked.playedHeight?.let { "${it}p" },
             qualities = StreamSelection.heights(info),
             aspect = (if (picked.usesSeparate) picked.video else picked.muxed)
@@ -390,17 +398,24 @@ object StreamCache {
                 // video (or one with only ANDROID's 360p combined stream), so nothing is
                 // cached and the load can be retried.
                 if (!picked.usesSeparate && BotCheck.refusedSince(id, startedAt)) throw StreamsRefused(id, it)
+                // No stream links because the request for them stalled (NewPipe carries on without it): a stall, tried
+                // again (Net.onceMoreAfterStall), never kept for hours as a video with only its 360p combined stream.
+                if (!picked.usesSeparate && Net.lastStallAt >= startedAt) throw java.io.InterruptedIOException("stream links request stalled for $id")
+                if (it.streamType == StreamType.POST_LIVE_STREAM) PostLiveManifests.prepare(it, picked)
                 entries[id] = Entry(it, System.currentTimeMillis())
                 Net.noteMediaHost((picked.video ?: picked.muxed)?.content)
                 AppLog.i(
                     "Skipii",
-                    "links for $id in ${SystemClock.elapsedRealtime() - startedAt} ms: video ${StreamSelection.heights(it).joinToString("/")}p, " +
+                    "links for $id in ${SystemClock.elapsedRealtime() - startedAt} ms${if (it.streamType == StreamType.POST_LIVE_STREAM) " (live stream that just ended)" else ""}: " +
+                        "video ${StreamSelection.heights(it).takeIf { h -> h.isNotEmpty() }?.joinToString("/", postfix = "p") ?: "none usable (${it.videoOnlyStreams.size} offered)"}, " +
                         "${it.audioStreams.size} audio (${AudioTracks.from(it).size.coerceAtLeast(1)} track(s)), ${it.videoStreams.size} combined; " +
                         "picked ${picked.video?.let { v -> "itag ${v.itag} ${v.height}p" } ?: "no video"} + ${picked.audio?.let { a -> "itag ${a.itag}${a.audioTrackId?.let { t -> " [$t]" }.orEmpty()}" } ?: "no audio"}",
                 )
             }
         }
-        val running = inflight.putIfAbsent(id, mine)
+        var running = inflight.putIfAbsent(id, mine)
+        // A load that just failed but isn't cleared away yet: a retry starts a new one rather than rejoin it.
+        if (running != null && running.isDone && inflight.replace(id, running, mine)) running = null
         val task = running ?: mine.also { it.run() }
         try {
             return task.get()
@@ -450,17 +465,30 @@ object BotCheck {
 
     /** [load] for [id], retried while YouTube answers with the bot check. */
     suspend fun retrying(id: String, load: () -> StreamInfo): StreamInfo {
+        var refused: SignInConfirmNotBotException? = null
         try {
             for ((attempt, wait) in RetryDelaysMs.withIndex()) {
                 try {
                     return load()
+                } catch (e: IOException) {
+                    // A retry that couldn't reach YouTube at all (Android cuts an idle app's network soon after it
+                    // leaves the screen) says nothing new: the bot check stands, not "Couldn't reach YouTube" (a
+                    // problem report, 2026-11-25, on working Wi-Fi). Seen first, it's the error as before.
+                    throw refused ?: e
                 } catch (e: SignInConfirmNotBotException) {
+                    refused = e
+                    // The user moved on while that request ran (it can't be interrupted): no note, no more tries.
+                    currentCoroutineContext().ensureActive()
                     AppLog.w("Skipii", "bot check for $id; trying again in ${wait / 1000}s (${attempt + 1}/${RetryDelaysMs.size})")
                     waiting = id
                     delay(wait)
                 }
             }
-            return load().also { AppLog.i("Skipii", "bot check for $id passed on the last try") }
+            return try {
+                load().also { AppLog.i("Skipii", "bot check for $id passed on the last try") }
+            } catch (e: IOException) {
+                throw refused ?: e
+            }
         } catch (e: SignInConfirmNotBotException) {
             return giveUp(id, e)
         } finally {
@@ -506,7 +534,15 @@ object QualityPreference {
     fun init(context: Context) {
         prefs = context.getSharedPreferences("playback", Context.MODE_PRIVATE)
         height = prefs?.getInt(KEY, 0)?.takeIf { it > 0 }
+        // Saved before qualities were named by the short side ("1920p" from an upright video's best): Auto again, once.
+        if (prefs?.getBoolean(KEY_SHORT_SIDE, false) != true) {
+            if (height != null && height !in StandardQualities) set(null)
+            prefs?.edit()?.putBoolean(KEY_SHORT_SIDE, true)?.apply()
+        }
     }
+
+    private const val KEY_SHORT_SIDE = "quality_short_side"
+    private val StandardQualities = setOf(144, 240, 360, 480, 720, 1080, 1440, 2160, 4320)
 
     fun set(value: Int?) {
         height = value
@@ -523,7 +559,33 @@ object StreamSelection {
         val isPlayable get() = (video != null && audio != null) || muxed != null
         /** What will actually play: the separate streams, or the combined fallback. */
         val usesSeparate get() = video != null && audio != null
-        val playedHeight: Int? get() = (if (usesSeparate) video?.height else muxed?.height)?.takeIf { it > 0 }
+        val playedHeight: Int? get() = (if (usesSeparate) video else muxed)?.let(::side)?.takeIf { it > 0 }
+    }
+
+    /**
+     * A stream's quality as YouTube names it: its SHORT side, so an upright 1080×1920 video is "1080p", as its
+     * landscape twin is. Heights named the long side: picking an upright video's best quality saved "1920p" (or
+     * "1126p"), and every landscape video after it played pinned at 1080p with no Auto (two problem reports,
+     * 2026-11-26); Auto also stopped upright videos at 720×1280.
+     */
+    fun side(stream: VideoStream): Int = if (stream.width > 0 && stream.height > 0) minOf(stream.width, stream.height) else stream.height
+
+    /**
+     * A live stream that just ended ("post-live DVR", problem report 2026-11-26) comes with no plain links: every
+     * stream is DASH, its [Stream.getContent] the base of numbered segments [ItagItem.targetDurationSec] long.
+     * The media source builds a manifest for those (`YoutubePostLiveStreamDvrDashManifestCreator`).
+     */
+    fun isPostLive(stream: Stream): Boolean =
+        stream.deliveryMethod == DeliveryMethod.DASH && !stream.isUrl && (stream.itagItem?.targetDurationSec ?: 0) > 0
+
+    /** A stream the player can open: a plain link, or a just-ended live stream's segments ([isPostLive]). */
+    fun isUsable(stream: Stream): Boolean =
+        (stream.isUrl && stream.deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP) || isPostLive(stream)
+
+    /** Video streams worth offering: usable, a known height, and one this phone's decoder can start ([DecoderLimits]). */
+    private fun videoCandidates(info: StreamInfo): List<VideoStream> {
+        val usable = info.videoOnlyStreams.filter { isUsable(it) && it.height > 0 }
+        return usable.filter { DecoderLimits.allows(side(it), it.fps) }.ifEmpty { usable }
     }
 
     fun pick(info: StreamInfo, videoId: String? = null): Picked {
@@ -533,22 +595,20 @@ object StreamSelection {
             MediaFormat.WEBM -> 1
             else -> 2
         }
-        val candidates = info.videoOnlyStreams
-            .filter { it.isUrl && it.deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP && it.height > 0 }
+        val candidates = videoCandidates(info)
         val chosen = QualityPreference.height
-        // A chosen height plays exactly if offered, else the nearest below it. Auto caps at 1080p.
+        // A chosen quality plays exactly if offered, else the nearest below it. Auto caps at 1080p.
         val ceiling = chosen ?: MAX_HEIGHT
-        val video = (candidates.filter { it.height <= ceiling }.ifEmpty { candidates })
+        val video = (candidates.filter { side(it) <= ceiling }.ifEmpty { candidates })
             .sortedWith(
-                compareBy<VideoStream> { if (it.height <= ceiling) ceiling - it.height else it.height }
+                compareBy<VideoStream> { if (side(it) <= ceiling) ceiling - side(it) else side(it) }
                     .thenBy { formatRank(it.format) },
             )
             .firstOrNull()
         // For multi-audio videos, resolve the preferred track (Original by default, so single-track and
         // normal English videos are completely unaffected). Fallback to ANY audio track so a video never
         // drops down to the 360p combined stream (the blurry-video bug, 2026-10-04).
-        val usableAudio = info.audioStreams
-            .filter { it.isUrl && it.deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP }
+        val usableAudio = info.audioStreams.filter { isUsable(it) }
         val tracks = AudioTracks.from(info)
         val wantedTrackId = if (tracks.size > 1) {
             AudioTrackPreference.resolveTrackId(tracks, overrideId = videoId?.let(AudioTrackPreference::overrideFor))
@@ -577,16 +637,83 @@ object StreamSelection {
      * can sustain immediately and climbs, like YouTube.
      */
     fun autoLadder(info: StreamInfo): List<VideoStream> {
-        val usable = info.videoOnlyStreams.filter { it.isUrl && it.deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP && it.height in 1..MAX_HEIGHT && it.itagItem != null }
+        val usable = videoCandidates(info).filter { side(it) <= MAX_HEIGHT && it.itagItem != null }
         val family = usable.filter { it.codec?.startsWith("avc") == true }.ifEmpty { usable.filter { it.format == MediaFormat.WEBM } }
-        return family.groupBy { it.height }
+        return family.groupBy { side(it) }
             .map { (_, sameHeight) -> sameHeight.maxBy { it.fps * 100_000L + it.bitrate } }
             .sortedBy { it.height }
     }
 
-    fun heights(info: StreamInfo): List<Int> = info.videoOnlyStreams
-        .filter { it.isUrl && it.deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP && it.height > 0 }
-        .map { it.height }
+    fun heights(info: StreamInfo): List<Int> = videoCandidates(info)
+        .map { side(it) }
         .distinct()
         .sortedDescending()
+}
+
+/**
+ * Video formats this phone's decoder wouldn't start (problem report 2026-11-26: a Redmi's hardware H.264 decoder
+ * failed on every 1080p 60 fps stream while 720p 60 played; Android still called 1080p60 supported). The service
+ * notes each failure ([noteFailed]) and rebuilds the video one step down, at the same spot, and Auto and the quality
+ * list leave the format out from then on. Kept for this run of the app only: a decoder that was merely busy (another
+ * app, Shorts' players) shouldn't cost the phone its HD for good.
+ */
+object DecoderLimits {
+    private data class Failed(val height: Int, val fps: Int)
+    private val failed = java.util.concurrent.CopyOnWriteArrayList<Failed>()
+
+    /**
+     * Whether a stream may play: not one that failed, nor anything bigger. Sizes are short sides ([StreamSelection.side]):
+     * a landscape 1080p60 failing mustn't rule out an upright 720×1280.
+     */
+    fun allows(height: Int, fps: Int): Boolean = failed.none { f -> height > f.height || (height == f.height && fps >= f.fps) }
+
+    /** A decoder wouldn't start for [height] at [fps]; false if that format was already left out (nothing new to try). */
+    fun noteFailed(height: Int, fps: Int): Boolean {
+        if (height <= 0 || !allows(height, fps)) return false
+        failed += Failed(height, fps.coerceAtLeast(1))
+        return true
+    }
+
+    internal fun resetForTest() = failed.clear()
+
+    /** For the problem report: what's being left out. */
+    fun summary(): String? = failed.takeIf { it.isNotEmpty() }?.joinToString { "${it.height}p${it.fps}" }
+}
+
+/**
+ * Manifests for a live stream that just ended ([StreamSelection.isPostLive]), built with NewPipe's creator from the
+ * extractor's own per-stream links. YouTube's ready-made manifest for it ([StreamInfo.getDashMpdUrl]) plays too, but
+ * its links were refused after ~40 segments every time (probed 2026-11-26: 403 from segment 42 on, while the
+ * per-stream link served all 400 asked for), so the video stalled every 20 s for fresh links. The creator asks
+ * YouTube how many segments there are (one request per stream), so it runs here, on the extraction's thread, for
+ * every stream the media source may use; the media source only reads what's ready ([cached]).
+ */
+object PostLiveManifests {
+    private val pool = Executors.newFixedThreadPool(4)
+
+    fun prepare(info: StreamInfo, picked: StreamSelection.Picked) {
+        val durationSec = info.duration.takeIf { it > 0 } ?: return
+        val streams = (StreamSelection.autoLadder(info) + listOfNotNull(picked.video, picked.audio))
+            .filter { StreamSelection.isPostLive(it) && it.itagItem != null }
+            .distinctBy { it.content }
+        val startedAt = SystemClock.elapsedRealtime()
+        val failures = streams.map { stream ->
+            pool.submit<Throwable?> { runCatching { create(stream, durationSec) }.onFailure { e -> AppLog.w("Skipii", "post-live manifest for itag ${stream.itagItem?.id}", e) }.exceptionOrNull() }
+        }.mapNotNull { it.get() }
+        AppLog.i("Skipii", "post-live manifests for ${info.id}: ${streams.size - failures.size} of ${streams.size} in ${SystemClock.elapsedRealtime() - startedAt} ms")
+        // A connection that stalled meanwhile: the load is tried again rather than kept without its manifests.
+        failures.firstOrNull { Net.isStall(it) }?.let { throw java.io.InterruptedIOException("post-live manifests stalled for ${info.id}").apply { initCause(it) } }
+    }
+
+    private fun create(stream: Stream, durationSec: Long): String {
+        val itag = stream.itagItem!!
+        return org.schabi.newpipe.extractor.services.youtube.dashmanifestcreators.YoutubePostLiveStreamDvrDashManifestCreator
+            .fromPostLiveStreamDvrStreamingUrl(stream.content, itag, itag.targetDurationSec, durationSec)
+    }
+
+    /** The manifest [prepare] made for [stream], or null (never a network request: callers may be on the main thread). */
+    fun cached(stream: Stream): String? {
+        val cache = org.schabi.newpipe.extractor.services.youtube.dashmanifestcreators.YoutubePostLiveStreamDvrDashManifestCreator.getCache()
+        return if (cache.containsKey(stream.content)) cache.get(stream.content)?.second else null
+    }
 }

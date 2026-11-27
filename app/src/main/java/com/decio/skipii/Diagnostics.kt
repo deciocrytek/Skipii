@@ -178,7 +178,13 @@ object AppLog {
  */
 @OptIn(UnstableApi::class)
 internal class PlaybackDiagnostics(private val player: ExoPlayer) : AnalyticsListener {
-    private class OpenLoad(val startedAt: Long, val what: String)
+    private companion object {
+        /** Longer than any real request: the read timeout is 30 s without a byte, and loads are a few MB. */
+        const val StaleLoadMs = 5 * 60_000L
+    }
+
+    /** [itemId]: the video the request is for. */
+    private class OpenLoad(val startedAt: Long, val what: String, val itemId: String?)
     private val open = HashMap<Long, OpenLoad>()
     private var bytesLoaded = 0L
     private var lastEstimateKbps = 0L
@@ -196,6 +202,7 @@ internal class PlaybackDiagnostics(private val player: ExoPlayer) : AnalyticsLis
             val now = SystemClock.elapsedRealtime()
             val forMs = now - stallStartedAt
             val ahead = (player.bufferedPosition - player.currentPosition).coerceAtLeast(0)
+            dropStale()
             val oldest = open.values.minByOrNull { it.startedAt }
             AppLog.w(
                 "Skipii",
@@ -212,6 +219,7 @@ internal class PlaybackDiagnostics(private val player: ExoPlayer) : AnalyticsLis
 
     override fun onMediaItemTransition(eventTime: AnalyticsListener.EventTime, mediaItem: androidx.media3.common.MediaItem?, reason: Int) {
         itemId = mediaItem?.mediaId
+        dropStale()
         loadErrors = 0
         lastLoadError = null
     }
@@ -246,7 +254,20 @@ internal class PlaybackDiagnostics(private val player: ExoPlayer) : AnalyticsLis
     }
 
     override fun onLoadStarted(eventTime: AnalyticsListener.EventTime, info: LoadEventInfo, data: MediaLoadData) {
-        open[info.loadTaskId] = OpenLoad(SystemClock.elapsedRealtime(), what(info, data))
+        val forId = if (eventTime.timeline.isEmpty || eventTime.windowIndex !in 0 until eventTime.timeline.windowCount) null
+        else eventTime.timeline.getWindow(eventTime.windowIndex, androidx.media3.common.Timeline.Window()).mediaItem.mediaId
+        open[info.loadTaskId] = OpenLoad(SystemClock.elapsedRealtime(), what(info, data), forId)
+    }
+
+    /**
+     * A source that's replaced (another video, a quality switch) stops its requests without the player hearing of
+     * it, so their entries stayed: "13 request(s) open (oldest 857 s …)" in problem reports, every one from a video
+     * played minutes before. Only the current video's requests count, and none older than [StaleLoadMs].
+     */
+    private fun dropStale() {
+        val now = SystemClock.elapsedRealtime()
+        val current = player.currentMediaItem?.mediaId
+        open.values.removeAll { (it.itemId != null && it.itemId != current) || now - it.startedAt > StaleLoadMs }
     }
 
     override fun onLoadCompleted(eventTime: AnalyticsListener.EventTime, info: LoadEventInfo, data: MediaLoadData) {
@@ -310,6 +331,8 @@ internal class PlaybackDiagnostics(private val player: ExoPlayer) : AnalyticsLis
 
     override fun onPlayerError(eventTime: AnalyticsListener.EventTime, error: PlaybackException) {
         main.removeCallbacks(stallWatch)
+        // An error ends every request of that source; a rebuilt one starts its own.
+        open.clear()
         AppLog.w("Skipii", "player: error ${error.errorCodeName} for ${player.currentMediaItem?.mediaId} at ${player.currentPosition / 1000}s", error)
     }
 
@@ -367,12 +390,13 @@ object ProblemReport {
         appendLine("- Playing ${player.isPlaying}, loading ${player.isBuffering}, details ${if (player.details != null) "in" else if (player.loading) "loading" else "none"}")
         if (c != null) {
             val state = when (c.playbackState) { Player.STATE_IDLE -> "idle"; Player.STATE_BUFFERING -> "loading"; Player.STATE_READY -> "ready"; else -> "ended" }
-            appendLine("- Engine: $state, playWhenReady ${c.playWhenReady}, speed ${c.playbackParameters.speed}×, ${c.mediaItemCount} item(s), error ${c.playerError?.errorCodeName ?: "none"}")
+            appendLine("- Engine: $state on `${c.currentMediaItem?.mediaId ?: "nothing"}`, playWhenReady ${c.playWhenReady}, speed ${c.playbackParameters.speed}×, ${c.mediaItemCount} item(s), error ${c.playerError?.errorCodeName ?: "none"}")
         } else appendLine("- Engine: not connected")
         player.playingFormat?.let { appendLine("- Decoding: $it") }
         player.error?.let { appendLine("- Error shown: ${it.replace('\n', ' ')}${if (player.botCheck) " (bot check)" else ""}") }
         player.stuckForMs.takeIf { it > 0 }?.let { appendLine("- Loading for ${it / 1000} s") }
-        if (StreamRecovery.recovering != null) appendLine("- Fetching fresh links for `${StreamRecovery.recovering}`")
+        if (StreamRecovery.recovering != null) appendLine("- Recovering `${StreamRecovery.recovering}` (fresh links or a smaller format)")
+        DecoderLimits.summary()?.let { appendLine("- Left out (decoder wouldn't start): $it") }
         BotCheck.waiting?.let { appendLine("- Waiting out a bot check for `$it`") }
         val d = player.details
         if (d != null) {

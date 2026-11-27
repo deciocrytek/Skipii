@@ -26,6 +26,7 @@ import androidx.media3.session.SessionToken
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
@@ -91,9 +92,11 @@ class PlayerState(private val scope: CoroutineScope) {
 
     init {
         scope.launch {
-            snapshotFlow { Triple(current?.id, isBuffering || (loading && details == null), error == null) }
+            snapshotFlow { Triple(current?.id, (isBuffering || (loading && details == null)) && BotCheck.waiting != current?.id, error == null) }
                 .collectLatest { (id, waiting, noError) ->
                     stuck = false
+                    // Waiting out a bot check has its own note under the spinner (and ends in its own panel): offering a
+                    // problem report meanwhile read as "it's hung" (two reports sent mid-wait, 2026-11-25).
                     if (id == null || !waiting || !noError) { waitingSince = 0L; return@collectLatest }
                     waitingSince = android.os.SystemClock.elapsedRealtime()
                     delay(StuckAfterMs)
@@ -228,7 +231,21 @@ class PlayerState(private val scope: CoroutineScope) {
     private fun show(item: VideoItem, startPlayback: Boolean) {
         openedAt = android.os.SystemClock.elapsedRealtime()
         AppLog.i("SkipiiTime", "open ${item.id}")
-        if (startPlayback) Net.prewarmMediaConnection()
+        if (startPlayback) {
+            Net.prewarmMediaConnection()
+            // The video that was playing stops now, not once this one's links are in: it played on under the new
+            // video's spinner — and under its error when the links never came (bot check: two minutes in a
+            // problem report, 2026-11-26), its own errors landing on the new video. Stopping also frees the
+            // connection for this load. Its queue stays; startPlayback swaps the current slot.
+            controller?.takeIf { it.currentMediaItem != null && it.currentMediaItem?.mediaId != item.id }?.let { player ->
+                player.pause()
+                player.stop()
+                // The shared surface keeps the stopped video's last frame: hidden (this video's thumbnail shows) until
+                // this one draws its own.
+                videoStale = true
+            }
+        }
+        retryOnNetwork = false
         upNextCancelledFor = null
         UpNextHold.setHold(false)
         current = item
@@ -702,10 +719,40 @@ class PlayerState(private val scope: CoroutineScope) {
     private fun fail(t: Throwable) {
         error = YouTube.friendlyError(t)
         botCheck = t is org.schabi.newpipe.extractor.exceptions.SignInConfirmNotBotException
+        retryOnNetwork = botCheck || generateSequence(t) { it.cause.takeIf { c -> c !== it } }.any { it is java.io.IOException }
+    }
+
+    /**
+     * The error on screen may go away with another connection: no connection, a stalled request, YouTube's bot check
+     * (whose advice is airplane mode on and off). The next network to come up ([Net.networkUps]) tries the video again
+     * by itself, so nobody has to find Try again after turning airplane mode off.
+     */
+    private var retryOnNetwork = false
+
+    init {
+        scope.launch {
+            Net.networkUps.drop(1).collectLatest {
+                // A network that just came up often can't look names up for a moment yet.
+                delay(NetworkSettleMs)
+                retryAfterNetwork()
+            }
+        }
+    }
+
+    /** A network came up while off screen or on Shorts: the retry waits for the screen (it would start playing). */
+    private var networkCameBack = false
+
+    private fun retryAfterNetwork() {
+        val item = current ?: return
+        if (error == null || !retryOnNetwork) return
+        if (wantBackground || wantAside) { networkCameBack = true; return }
+        networkCameBack = false
+        AppLog.i(TAG, "network back: trying ${item.id} again")
+        retry(expand = false)
     }
 
     /** Fresh links too: the cached ones may be exactly what YouTube refused. */
-    fun retry() = current?.let { item -> StreamCache.invalidate(item.id); current = null; open(item) }
+    fun retry(expand: Boolean = true) = current?.let { item -> StreamCache.invalidate(item.id); current = null; open(item, expand = expand) }
 
     /**
      * The video in YouTube's own app (or the browser), from where it stopped: the way out when
@@ -728,6 +775,8 @@ class PlayerState(private val scope: CoroutineScope) {
 
     fun togglePlay() {
         val player = controller ?: return
+        // Play under a video that hasn't loaded would resume the previous one: try this one again if it failed.
+        if (engineOnOther(player)) { if (error != null) retry(expand = false); return }
         if (player.isPlaying) player.pause() else {
             val atEnd = player.playbackState == Player.STATE_ENDED ||
                 (upNextCancelledFor == current?.id && durationMs > 0L && positionMs >= durationMs - 600L)
@@ -751,6 +800,7 @@ class PlayerState(private val scope: CoroutineScope) {
 
     fun seekTo(ms: Long) {
         val player = controller ?: return
+        if (engineOnOther(player)) return
         val max = player.duration.takeIf { it > 0 } ?: Long.MAX_VALUE
         val to = ms.coerceIn(0L, max)
         // A restored, not-yet-prepared item isn't known to be seekable, so Media3 drops a plain
@@ -845,6 +895,7 @@ class PlayerState(private val scope: CoroutineScope) {
     fun setBackground(background: Boolean) {
         wantBackground = background
         applyVideoTrack()
+        if (!background && networkCameBack) retryAfterNetwork()
     }
 
     /**
@@ -862,6 +913,7 @@ class PlayerState(private val scope: CoroutineScope) {
     fun setVideoAside(aside: Boolean) {
         wantAside = aside
         applyVideoTrack()
+        if (!aside && networkCameBack) retryAfterNetwork()
     }
 
     private var wantAside = false
@@ -950,11 +1002,31 @@ class PlayerState(private val scope: CoroutineScope) {
         show(items.first(), startPlayback = false)
     }
 
+    /**
+     * The player still holds the previous video (stopped) while this one's links load or after they failed
+     * ([show]): its position, play state and Play button aren't this video's.
+     */
+    private fun engineOnOther(player: Player): Boolean {
+        val id = current?.id ?: return false
+        val onId = player.currentMediaItem?.mediaId ?: return false
+        return onId != id
+    }
+
     internal fun syncFromPlayer() {
         val player = controller ?: return
+        if (engineOnOther(player)) {
+            isPlaying = false
+            isBuffering = false
+            positionMs = 0L
+            bufferedMs = 0L
+            durationMs = (current?.durationSec ?: 0L) * 1000L
+            return
+        }
         isPlaying = player.isPlaying
         // While the service refetches refused links the player sits idle; show the spinner.
-        isBuffering = player.playbackState == Player.STATE_BUFFERING || StreamRecovery.recovering == current?.id
+        // (current?.id null with nothing recovering is null == null: "loading" with nothing open, which also held
+        // the Shorts bank back for good — it waits while the main video loads.)
+        isBuffering = player.playbackState == Player.STATE_BUFFERING || (current != null && StreamRecovery.recovering == current?.id)
         positionMs = player.currentPosition.coerceAtLeast(0L)
         bufferedMs = player.bufferedPosition.coerceAtLeast(0L)
         durationMs = player.duration.takeIf { it > 0 } ?: ((current?.durationSec ?: 0L) * 1000L)
@@ -974,7 +1046,7 @@ class PlayerState(private val scope: CoroutineScope) {
         override fun onVideoSizeChanged(videoSize: VideoSize) = takeVideoSize(videoSize)
 
         override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
-            controller?.videoSize?.height?.takeIf { it > 0 }?.let(::describeFormat)
+            controller?.videoSize?.takeIf { it.height > 0 }?.let { describeFormat(it.height, it.width) }
         }
 
         override fun onRenderedFirstFrame() {
@@ -985,10 +1057,16 @@ class PlayerState(private val scope: CoroutineScope) {
 
         override fun onPlayerError(e: PlaybackException) {
             val status = (e.cause as? androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException)?.responseCode
-            AppLog.w(TAG, "playback error ${e.errorCodeName}${status?.let { " (HTTP $it)" } ?: ""} for ${current?.id}", e)
-            // A refused or expired stream URL: the service is fetching fresh links (StreamRecoverer).
-            if (e.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && StreamRecovery.recovering == current?.id) return
+            val failedId = controller?.currentMediaItem?.mediaId
+            AppLog.w(TAG, "playback error ${e.errorCodeName}${status?.let { " (HTTP $it)" } ?: ""} for $failedId", e)
+            // Another video's error (the one being replaced, still in the player while this one's links load): not this one's.
+            if (current == null || (failedId != null && failedId != current?.id)) return
+            // The service is on it: fresh links for a refused or expired stream URL (StreamRecoverer), or a step down
+            // from a format the decoder wouldn't start (DecoderStepDown). Its outcome comes through StreamRecovery.
+            if (current != null && StreamRecovery.recovering == current?.id) return
             botCheck = false
+            retryOnNetwork = e.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
+                e.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
             error = when (e.errorCode) {
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> str(R.string.player_error_connection)
@@ -1003,13 +1081,15 @@ class PlayerState(private val scope: CoroutineScope) {
         videoAspect = videoSize.width * videoSize.pixelWidthHeightRatio / videoSize.height
         aspectFromFrames = true
         // Auto switches resolution mid-play; the label follows the real frames.
-        describeFormat(videoSize.height)
+        describeFormat(videoSize.height, videoSize.width)
     }
 
     /** Fills the quality label and the "Playing …" line from the frames actually decoded. */
-    private fun describeFormat(height: Int) {
-        if (decodedHeight != height) AppLog.i("SkipiiTime", "now ${height}p at +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
-        decodedHeight = height
+    private fun describeFormat(height: Int, width: Int = 0) {
+        // Named by the short side, as the quality list names them (StreamSelection.side): an upright 1080×1920 is 1080p.
+        val side = if (width > 0) minOf(width, height) else height
+        if (decodedHeight != side) AppLog.i("SkipiiTime", "now ${side}p at +${android.os.SystemClock.elapsedRealtime() - openedAt}ms")
+        decodedHeight = side
         val formats = controller?.currentTracks?.groups.orEmpty()
             .filter { it.type == androidx.media3.common.C.TRACK_TYPE_VIDEO }
             .flatMap { g -> (0 until g.length).map { g.getTrackFormat(it) } }
@@ -1068,6 +1148,9 @@ enum class PlayerSheet { Quality, Speed, Audio, Comments, Queue, Captions, Trans
 
 /** Comments and the transcript open as a panel inside the player (PlayerScreen), not a sheet. */
 val PlayerSheet?.isPanel: Boolean get() = this == PlayerSheet.Comments || this == PlayerSheet.Transcript
+
+/** A network that just came up gets this long before a failed video is tried again on it. */
+private const val NetworkSettleMs = 1_500L
 
 /** The spinner this long on the open video: the player offers a problem report ([PlayerState.stuck]). */
 internal const val StuckAfterMs = 20_000L

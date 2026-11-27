@@ -1,0 +1,1983 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skipii — Fullscreen Gesture Zone Cutoff Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --font-ui: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+    --font-code: var(--font-mono, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
+    --r: var(--radius, 12px);
+    --fg: var(--foreground, #f2eff7);
+    --fg-muted: var(--muted-foreground, #9e96ad);
+    --surf: var(--card, #1c1924);
+    --surf-2: var(--secondary, #272332);
+    --line: var(--border, rgba(255, 255, 255, 0.12));
+    --prim: var(--primary, #c4b0ff);
+    --on-prim: var(--primary-foreground, #221349);
+    --acc: var(--accent, #6f52d9);
+    --acc-surf: var(--accent-surface, rgba(196, 176, 255, 0.14));
+    --warn: var(--warning, #f5b942);
+    --warn-surf: var(--warning-surface, rgba(245, 185, 66, 0.15));
+    --ok: var(--success, #38c172);
+    --code-bg: var(--code-background, rgba(128, 128, 128, 0.12));
+
+    /* Video-stage authentic Skipii Morph Stack colors (always over dark video) */
+    --sun: #FFE3A3;
+    --sun-lo: #FFC458;
+    --on-sun: #4A3300;
+    --vol: #D0BCFF;
+    --vol-hi: #EAE0FF;
+    --on-vol: #381E72;
+    --exit-c: #5CE1A6;
+    --pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --emph: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  html, body {
+    font-family: var(--font-ui);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.4;
+  }
+
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; background: none; border: 0; }
+
+  .root {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* ── Top proportion bar ─────────────────────────────────────────── */
+  .summary-box {
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .summary-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .zone-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .zpill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    background: var(--surf-2);
+    border: 1px solid var(--line);
+  }
+  .zpill .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .zpill.bright .dot { background: #F6BE4F; }
+  .zpill.exit .dot { background: var(--exit-c); }
+  .zpill.vol .dot { background: #B89BFF; }
+  .zpill .sub { color: var(--fg-muted); font-weight: 500; }
+
+  .delta-tag {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--code-bg);
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .delta-tag.better {
+    background: rgba(56, 193, 114, 0.14);
+    color: var(--ok);
+  }
+  .delta-tag.same {
+    background: var(--warn-surf);
+    color: var(--warn);
+  }
+
+  .ratio-track {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    background: var(--surf-2);
+  }
+  .ratio-seg {
+    height: 100%;
+    transition: width 140ms var(--emph);
+  }
+  .ratio-seg.l { background: linear-gradient(90deg, #E5A93B, #F8CD6A); }
+  .ratio-seg.m { background: linear-gradient(90deg, #27B97B, #4FDCA0); }
+  .ratio-seg.r { background: linear-gradient(90deg, #A98BFF, #8968E8); }
+  .ratio-seg.off { opacity: 0.25; }
+
+  /* Current-35% ghost ticks on ratio track */
+  .ghost-tick {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1.5px;
+    background: var(--fg);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  /* ── Interactive Landscape Phone Stage ──────────────────────────── */
+  .stage-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stage-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+
+  .stage-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+
+  .seg-ctrl {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 9px;
+    background: var(--surf-2);
+    border: 1px solid var(--line);
+    gap: 2px;
+  }
+  .seg-ctrl button {
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    transition: background 150ms, color 150ms;
+  }
+  .seg-ctrl button.on {
+    background: var(--surf);
+    color: var(--fg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+  }
+
+  .phone-outer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .phone-bezel {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 20 / 9;
+    max-width: 712px;
+    background: #0d0d10;
+    border-radius: 30px;
+    padding: 9px;
+    box-shadow:
+      0 0 0 1.5px rgba(255, 255, 255, 0.14) inset,
+      0 14px 36px -16px rgba(0, 0, 0, 0.55);
+    transition: max-width 220ms var(--emph), aspect-ratio 220ms var(--emph);
+  }
+  .phone-bezel.aspect-16-9 { aspect-ratio: 16 / 9; max-width: 600px; }
+  .phone-bezel.aspect-narrow { aspect-ratio: 4 / 3; max-width: 440px; }
+
+  /* Pixel camera punch hole (left in landscape) */
+  .camera-dot {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #060608;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #000;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    cursor: ns-resize;
+  }
+
+  /* Video layer that shrinks on pull-down-to-exit */
+  .video-layer {
+    position: absolute;
+    inset: 0;
+    transform-origin: center center;
+    will-change: transform;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .video-layer.animating {
+    transition: transform 320ms var(--pop), border-radius 240ms ease, opacity 240ms ease;
+  }
+
+  .video-scene {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Simulated window brightness filter */
+  .brightness-veil {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 60ms linear;
+  }
+
+  /* Subtle top/bottom video chrome */
+  .video-hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 18px 10px 28px;
+    transition: opacity 200ms ease;
+  }
+  .video-title {
+    font-size: 11.5px;
+    font-weight: 650;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .video-scrub {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 650;
+    color: rgba(255, 255, 255, 0.65);
+    font-variant-numeric: tabular-nums;
+  }
+  .scrub-line {
+    flex: 1;
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.22);
+    overflow: hidden;
+  }
+  .scrub-fill {
+    width: 38%;
+    height: 100%;
+    background: #ff4e45;
+    border-radius: 99px;
+  }
+
+  /* ── Zone overlays ──────────────────────────────────────────────── */
+  .zones-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    z-index: 10;
+  }
+  .zones-overlay.dim { opacity: 0; }
+  .zones-overlay.flash { opacity: 0.92; }
+
+  .zone-band {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background 140ms ease;
+  }
+  .zone-band.left {
+    left: 0;
+    background: linear-gradient(90deg, rgba(255, 196, 88, 0.22), rgba(255, 196, 88, 0.10));
+  }
+  .zone-band.mid {
+    background: rgba(92, 225, 166, 0.08);
+  }
+  .zone-band.right {
+    right: 0;
+    background: linear-gradient(270deg, rgba(208, 188, 255, 0.24), rgba(208, 188, 255, 0.11));
+  }
+  .zone-band.active.left { background: rgba(255, 196, 88, 0.32); }
+  .zone-band.active.mid { background: rgba(92, 225, 166, 0.18); }
+  .zone-band.active.right { background: rgba(208, 188, 255, 0.34); }
+  .zone-band.disabled { background: rgba(92, 225, 166, 0.06); }
+
+  .zone-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 10px;
+    background: rgba(12, 12, 16, 0.52);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    max-width: calc(100% - 10px);
+    overflow: hidden;
+  }
+  .zone-label .zl-title {
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .zone-label .zl-sub {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.72);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .zone-band.left .zl-title { color: #FFE3A3; }
+  .zone-band.mid .zl-title { color: #8AF0C0; }
+  .zone-band.right .zl-title { color: #E2D4FF; }
+
+  @media (max-width: 460px) {
+    .camera-dot { display: none; }
+    .zone-label { padding: 2px 5px; border-radius: 7px; }
+    .zone-label .zl-title { font-size: 9.5px; }
+    .zone-label .zl-sub { font-size: 8.5px; }
+    .cut-handle .pill { width: 14px; height: 34px; }
+    .old-cut-tag { font-size: 8px; }
+  }
+
+  /* Old 35% reference ghost line */
+  .old-cut-line {
+    position: absolute;
+    top: 26px;
+    bottom: 26px;
+    width: 0;
+    border-left: 1px dashed rgba(255, 255, 255, 0.28);
+    pointer-events: none;
+    z-index: 9;
+  }
+  .old-cut-tag {
+    position: absolute;
+    top: 4px;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(0, 0, 0, 0.55);
+    padding: 1px 5px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* 28dp EdgeGuard stripes */
+  .edge-guard {
+    position: absolute;
+    left: 0; right: 0;
+    height: 6.8%;
+    pointer-events: none;
+    z-index: 11;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.06) 0 4px,
+      transparent 4px 9px
+    );
+    transition: background 180ms;
+  }
+  .edge-guard.top { top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.10); }
+  .edge-guard.bot { bottom: 0; border-top: 1px solid rgba(255, 255, 255, 0.10); }
+  .edge-guard.hit { background: rgba(255, 110, 110, 0.25); }
+
+  /* ── Draggable Cutoff Handles on Screen ─────────────────────────── */
+  .cut-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    margin-left: -14px;
+    z-index: 25;
+    cursor: ew-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+  }
+  .cut-handle .rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.75);
+    transition: width 120ms, background 120ms;
+  }
+  .cut-handle.left .rail { background: #FFD67A; }
+  .cut-handle.right .rail { background: #D0BCFF; }
+
+  .cut-handle .pill {
+    position: relative;
+    z-index: 2;
+    width: 18px;
+    height: 46px;
+    border-radius: 999px;
+    background: rgba(18, 16, 24, 0.92);
+    border: 2px solid #fff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: transform 160ms var(--pop), border-color 120ms;
+  }
+  .cut-handle.left .pill { border-color: #FFD67A; }
+  .cut-handle.right .pill { border-color: #D0BCFF; }
+  .cut-handle .pill i {
+    display: block;
+    width: 6px;
+    height: 1.5px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .cut-handle:hover .pill,
+  .cut-handle.dragging .pill {
+    transform: scale(1.12);
+  }
+  .cut-handle.dragging .rail { width: 3px; }
+
+  .cut-handle .tip {
+    position: absolute;
+    top: 14px;
+    padding: 3px 7px;
+    border-radius: 7px;
+    background: rgba(14, 13, 18, 0.92);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 120ms, transform 120ms;
+  }
+  .cut-handle:hover .tip,
+  .cut-handle.dragging .tip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .cut-handle.hidden-ui { opacity: 0.16; }
+  .cut-handle.hidden-ui:hover,
+  .cut-handle.hidden-ui.dragging { opacity: 1; }
+
+  /* ── Morph Stack Canvas Overlay (authentic Skipii #88) ──────────── */
+  .morph-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* ── Swipe-up "More videos" drawer preview ──────────────────────── */
+  .drawer-sheet {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    height: 46%;
+    background: rgba(20, 18, 26, 0.94);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 0;
+    padding: 8px 14px 10px;
+    z-index: 22;
+    transform: translateY(104%);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .drawer-sheet.settling { transition: transform 280ms var(--emph); }
+  .drawer-handle {
+    width: 34px;
+    height: 3.5px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.32);
+    margin: 0 auto;
+  }
+  .drawer-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    flex: 1;
+  }
+  .drawer-card {
+    border-radius: 9px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: flex-end;
+    padding: 6px;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  /* ── Pull-down Exit indicator & Exited Toast ────────────────────── */
+  .exit-badge {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.92);
+    z-index: 26;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(14, 22, 18, 0.88);
+    border: 1px solid rgba(92, 225, 166, 0.48);
+    color: #9BF5CA;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms, transform 150ms var(--pop);
+    white-space: nowrap;
+  }
+  .exit-badge.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  .exited-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 35;
+    background: rgba(10, 10, 14, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+  .exited-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .exited-overlay .big {
+    font-size: 15px;
+    font-weight: 750;
+    color: #9BF5CA;
+  }
+  .exited-overlay .small {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .exited-overlay button {
+    margin-top: 4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  /* Touch origin dot (great for blind-test feedback) */
+  .touch-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    margin-top: -7px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.45);
+    z-index: 28;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+  .touch-dot.show { opacity: 1; transition: opacity 60ms ease; }
+  .touch-dot.bright { background: #FFC458; }
+  .touch-dot.exit { background: #4FDCA0; }
+  .touch-dot.vol { background: #C4AEFF; }
+  .touch-dot.guard { background: #FF6B6B; }
+
+  /* Gesture telemetry strip under phone */
+  .telemetry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--surf);
+    border: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .telemetry .msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 550;
+  }
+  .telemetry .badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: var(--surf-2);
+    color: var(--fg);
+  }
+  .telemetry .badge.bright { background: rgba(246, 190, 79, 0.18); color: #F6BE4F; }
+  .telemetry .badge.exit { background: rgba(79, 220, 160, 0.18); color: #4FDCA0; }
+  .telemetry .badge.vol { background: rgba(184, 155, 255, 0.20); color: #C5AEFF; }
+  .telemetry .badge.guard { background: rgba(255, 107, 107, 0.18); color: #FF7B7B; }
+  .telemetry .conflict-note {
+    font-size: 11.5px;
+    color: var(--fg-muted);
+  }
+
+  /* ── Controls Card ──────────────────────────────────────────────── */
+  .controls-box {
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .presets-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 650;
+    background: var(--surf-2);
+    color: var(--fg-muted);
+    border: 1px solid transparent;
+    transition: background 140ms, color 140ms, border-color 140ms, transform 120ms var(--pop);
+  }
+  .chip:hover { color: var(--fg); }
+  .chip:active { transform: scale(0.95); }
+  .chip.on {
+    background: var(--prim);
+    color: var(--on-prim);
+  }
+
+  .slider-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .slider-grid.split {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 520px) {
+    .slider-grid.split { grid-template-columns: 1fr; }
+  }
+
+  .slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .slider-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .slider-head label { font-weight: 650; }
+  .slider-head .val {
+    font-family: var(--font-code);
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--line);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--prim);
+    border: 2px solid var(--surf);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+    transition: transform 140ms var(--pop);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.12); }
+
+  .toggles-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mini-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .chk-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--surf-2);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg-muted);
+  }
+  .chk-btn.on {
+    color: var(--fg);
+    border-color: var(--prim);
+    background: var(--acc-surf);
+  }
+  .chk-btn .sw-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--fg-muted);
+    opacity: 0.5;
+  }
+  .chk-btn.on .sw-dot {
+    background: var(--prim);
+    opacity: 1;
+  }
+
+  .code-copy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-pill {
+    font-family: var(--font-code);
+    font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    background: var(--code-bg);
+    color: var(--fg);
+  }
+  .copy-btn {
+    padding: 5px 11px;
+    border-radius: 8px;
+    background: var(--prim);
+    color: var(--on-prim);
+    font-size: 12px;
+    font-weight: 700;
+    transition: transform 120ms var(--pop), opacity 140ms;
+  }
+  .copy-btn:active { transform: scale(0.95); }
+
+  /* ── Optional Settings › Playback Preview Card ──────────────────── */
+  .settings-preview {
+    background: var(--surf);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sp-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .sp-head h3 {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--fg-muted);
+    letter-spacing: 0.02em;
+  }
+  .sp-sub {
+    font-size: 11.5px;
+    color: var(--fg-muted);
+  }
+
+  /* Material 3 Expressive Joined group preview */
+  .m3-joined {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .m3-row {
+    background: var(--surf-2);
+    border: 1px solid var(--line);
+    padding: 11px 14px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .m3-row:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
+  .m3-row:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+  .m3-row.col { flex-direction: column; align-items: stretch; gap: 10px; }
+
+  .m3-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .m3-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: var(--acc-surf);
+    color: var(--prim);
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+  .m3-txt { min-width: 0; }
+  .m3-txt b { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.25; }
+  .m3-txt span { display: block; font-size: 11.5px; color: var(--fg-muted); line-height: 1.3; }
+
+  .m3-sw {
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--surf);
+    border: 1.5px solid var(--line);
+    position: relative;
+    flex: none;
+    transition: background 180ms, border-color 180ms;
+  }
+  .m3-sw::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--fg-muted);
+    transition: left 200ms var(--pop), width 200ms, height 200ms, top 200ms, background 180ms;
+  }
+  .m3-sw.on {
+    background: var(--prim);
+    border-color: var(--prim);
+  }
+  .m3-sw.on::after {
+    left: 21px;
+    top: 2px;
+    width: 19px;
+    height: 19px;
+    background: var(--on-prim);
+  }
+
+  .m3-mini-screen {
+    position: relative;
+    height: 44px;
+    border-radius: 11px;
+    background: #111017;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    cursor: ew-resize;
+    touch-action: none;
+    user-select: none;
+  }
+  .m3-mini-z {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: width 120ms var(--emph), opacity 140ms;
+  }
+  .m3-mini-z.l { background: rgba(255, 196, 88, 0.24); color: #FFE3A3; border-right: 1.5px solid #FFD67A; }
+  .m3-mini-z.m { background: rgba(92, 225, 166, 0.12); color: #8AF0C0; flex: 1; }
+  .m3-mini-z.r { background: rgba(208, 188, 255, 0.24); color: #E2D4FF; border-left: 1.5px solid #D0BCFF; }
+  .m3-mini-z.off { opacity: 0.25; border-color: transparent; }
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- 1. Live Zone Breakdown -->
+  <div class="summary-box">
+    <div class="summary-top">
+      <div class="zone-pills">
+        <span class="zpill bright"><i class="dot"></i>Brightness <strong id="pLeft">20%</strong> <span class="sub" id="dpLeft">183 dp</span></span>
+        <span class="zpill exit"><i class="dot"></i>Exit / Drawer <strong id="pMid">60%</strong> <span class="sub" id="dpMid">549 dp</span></span>
+        <span class="zpill vol"><i class="dot"></i>Volume <strong id="pRight">20%</strong> <span class="sub" id="dpRight">183 dp</span></span>
+      </div>
+      <span class="delta-tag better" id="deltaTag">+30% middle vs current (30%)</span>
+    </div>
+    <div class="ratio-track" id="ratioTrack" title="Current 35% cutoffs shown as faint vertical ticks">
+      <div class="ratio-seg l" id="rSegL" style="width:20%"></div>
+      <div class="ratio-seg m" id="rSegM" style="width:60%"></div>
+      <div class="ratio-seg r" id="rSegR" style="width:20%"></div>
+      <div class="ghost-tick" style="left:35%" title="Current brightness cutoff (35%)"></div>
+      <div class="ghost-tick" style="left:65%" title="Current volume cutoff (65%)"></div>
+    </div>
+  </div>
+
+  <!-- 2. Interactive Landscape Fullscreen Stage -->
+  <div class="stage-wrap">
+    <div class="stage-header">
+      <span class="stage-hint">Drag handles to resize &middot; Swipe video vertically to test</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <div class="seg-ctrl" id="overlayCtrl" aria-label="Zone overlay visibility">
+          <button data-mode="always" class="on">Zones on</button>
+          <button data-mode="touch">On touch</button>
+          <button data-mode="blind">Blind test</button>
+        </div>
+        <div class="seg-ctrl" id="aspectCtrl" aria-label="Screen aspect ratio">
+          <button data-aspect="pixel" class="on">Pixel 20:9</button>
+          <button data-aspect="16-9">16:9</button>
+          <button data-aspect="narrow">Split</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone-outer">
+      <div class="phone-bezel" id="phoneBezel">
+        <div class="camera-dot"></div>
+        <div class="screen" id="screen">
+          <!-- Video Frame -->
+          <div class="video-layer" id="videoLayer">
+            <svg class="video-scene" viewBox="0 0 915 412" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#14182B"/>
+                  <stop offset="52%" stop-color="#293152"/>
+                  <stop offset="82%" stop-color="#6B4F6D"/>
+                  <stop offset="100%" stop-color="#C27D5A"/>
+                </linearGradient>
+                <radialGradient id="glow" cx="68%" cy="68%" r="42%">
+                  <stop offset="0%" stop-color="#FFD08A" stop-opacity="0.58"/>
+                  <stop offset="55%" stop-color="#E88B5A" stop-opacity="0.16"/>
+                  <stop offset="100%" stop-color="#14182B" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22253A"/>
+                  <stop offset="100%" stop-color="#0B0C14"/>
+                </linearGradient>
+              </defs>
+              <rect width="915" height="412" fill="url(#sky)"/>
+              <rect width="915" height="412" fill="url(#glow)"/>
+              <!-- Distant mountains -->
+              <path d="M0 285 L125 215 L240 258 L385 180 L515 242 L655 168 L790 232 L915 196 L915 310 L0 310 Z" fill="#1D2036" opacity="0.88"/>
+              <!-- Mid ridge -->
+              <path d="M0 305 L160 250 L295 288 L465 228 L610 278 L775 236 L915 274 L915 330 L0 330 Z" fill="#141626"/>
+              <!-- Water reflection -->
+              <rect y="310" width="915" height="102" fill="url(#lake)"/>
+              <ellipse cx="620" cy="336" rx="140" ry="9" fill="#FFBE76" opacity="0.22"/>
+              <ellipse cx="620" cy="358" rx="90" ry="5" fill="#FFBE76" opacity="0.14"/>
+              <!-- Subtle stars -->
+              <g fill="#fff" opacity="0.5">
+                <circle cx="132" cy="64" r="1.3"/><circle cx="248" cy="46" r="1"/>
+                <circle cx="390" cy="82" r="1.4"/><circle cx="520" cy="54" r="1"/>
+                <circle cx="712" cy="70" r="1.2"/><circle cx="818" cy="48" r="1.4"/>
+              </g>
+              <!-- Center play silhouette hint -->
+              <circle cx="457" cy="198" r="24" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.16)" stroke-width="1.2"/>
+              <path d="M452 189 L467 198 L452 207 Z" fill="rgba(255,255,255,0.45)"/>
+            </svg>
+            <div class="brightness-veil" id="brightVeil"></div>
+            <div class="video-hud" id="videoHud">
+              <div class="video-title" style="justify-content:flex-end">
+                <span style="opacity:0.78" id="hudDim">915 &times; 412 dp</span>
+              </div>
+              <div class="video-scrub">
+                <span>04:18</span>
+                <div class="scrub-line"><div class="scrub-fill"></div></div>
+                <span>11:24</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 28dp System Edge Guard -->
+          <div class="edge-guard top" id="guardTop"></div>
+          <div class="edge-guard bot" id="guardBot"></div>
+
+          <!-- Current 35% ghost reference lines -->
+          <div class="old-cut-line" id="oldL" style="left:35%"><span class="old-cut-tag">now 35%</span></div>
+          <div class="old-cut-line" id="oldR" style="left:65%"><span class="old-cut-tag">now 35%</span></div>
+
+          <!-- Zone Bands -->
+          <div class="zones-overlay" id="zonesOverlay">
+            <div class="zone-band left" id="bandL">
+              <div class="zone-label">
+                <span class="zl-title" id="zlTitleL">Brightness</span>
+                <span class="zl-sub" id="zlSubL">20% &middot; 183 dp</span>
+              </div>
+            </div>
+            <div class="zone-band mid" id="bandM">
+              <div class="zone-label">
+                <span class="zl-title">Pull down to exit</span>
+                <span class="zl-sub" id="zlSubM">60% &middot; &uarr; drawer &middot; &darr; exit</span>
+              </div>
+            </div>
+            <div class="zone-band right" id="bandR">
+              <div class="zone-label">
+                <span class="zl-title" id="zlTitleR">Volume</span>
+                <span class="zl-sub" id="zlSubR">20% &middot; 183 dp</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Draggable Handles -->
+          <div class="cut-handle left" id="handleL" style="left:20%" role="slider" aria-label="Left brightness cutoff" tabindex="0">
+            <div class="rail"></div>
+            <div class="pill"><i></i><i></i><i></i></div>
+            <div class="tip" id="tipL">20%</div>
+          </div>
+          <div class="cut-handle right" id="handleR" style="left:80%" role="slider" aria-label="Right volume cutoff" tabindex="0">
+            <div class="rail"></div>
+            <div class="pill"><i></i><i></i><i></i></div>
+            <div class="tip" id="tipR">20%</div>
+          </div>
+
+          <!-- Morph Stack Canvas (Brightness & Volume) -->
+          <canvas class="morph-canvas" id="morphCanvas"></canvas>
+
+          <!-- Pull-down exit pill -->
+          <div class="exit-badge" id="exitBadge">
+            <span id="exitBadgeTxt">&darr; Pull down to exit fullscreen</span>
+          </div>
+
+          <!-- Swipe-up Drawer -->
+          <div class="drawer-sheet" id="drawerSheet">
+            <div class="drawer-handle"></div>
+            <div class="drawer-row">
+              <div class="drawer-card">More videos</div>
+              <div class="drawer-card">Next up</div>
+              <div class="drawer-card">Chapters</div>
+              <div class="drawer-card">Queue</div>
+            </div>
+          </div>
+
+          <!-- Touch origin marker -->
+          <div class="touch-dot" id="touchDot"></div>
+
+          <!-- Exited fullscreen state -->
+          <div class="exited-overlay" id="exitedOverlay">
+            <div class="big">&check; Exited fullscreen cleanly</div>
+            <div class="small" id="exitedSub">Swipe started at x = 31% (inside middle zone)</div>
+            <button id="reenterBtn">Back to fullscreen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Gesture Telemetry -->
+    <div class="telemetry">
+      <div class="msg">
+        <span class="badge" id="telBadge">Ready</span>
+        <span id="telText">Swipe vertically on the video to test Brightness, Exit fullscreen, Drawer, or Volume.</span>
+      </div>
+      <span class="conflict-note" id="telCompare">Currently in Skipii: 35% / 30% / 35%</span>
+    </div>
+  </div>
+
+  <!-- 3. Tuning Controls & Presets -->
+  <div class="controls-box">
+    <div class="presets-row">
+      <div class="chips" id="presetChips">
+        <button class="chip" data-pct="35">Current (35%)</button>
+        <button class="chip" data-pct="25">25%</button>
+        <button class="chip on" data-pct="20">20% &middot; Balanced</button>
+        <button class="chip" data-pct="16">16% &middot; Edge</button>
+        <button class="chip" data-pct="12">12% &middot; Slim</button>
+      </div>
+      <button class="chk-btn on" id="mirrorBtn" title="Keep left and right cutoffs equal">
+        <span class="sw-dot"></span><span id="mirrorLabel">Mirrored L/R</span>
+      </button>
+    </div>
+
+    <div class="slider-grid" id="sliderGrid">
+      <div class="slider-row" id="rowSliderL">
+        <div class="slider-head">
+          <label for="sliderL" id="labelSliderL">Side gesture cutoff (each side)</label>
+          <span class="val" id="valSliderL">20% &rarr; 60% middle</span>
+        </div>
+        <input type="range" id="sliderL" min="8" max="42" step="1" value="20">
+      </div>
+      <div class="slider-row" id="rowSliderR" style="display:none">
+        <div class="slider-head">
+          <label for="sliderR">Right volume cutoff</label>
+          <span class="val" id="valSliderR">20%</span>
+        </div>
+        <input type="range" id="sliderR" min="8" max="42" step="1" value="20">
+      </div>
+    </div>
+
+    <div class="toggles-row">
+      <div class="mini-toggles">
+        <button class="chk-btn on" id="togBright"><span class="sw-dot"></span>Brightness swipe</button>
+        <button class="chk-btn on" id="togVol"><span class="sw-dot"></span>Volume swipe</button>
+        <button class="chk-btn on" id="togOldRef"><span class="sw-dot"></span>Show 35% ref</button>
+      </div>
+      <div class="code-copy">
+        <code class="code-pill" id="codePill">SideShare = 0.20f</code>
+        <button class="copy-btn" id="copyBtn">Copy choice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Preview of how this setting could live in Settings > Playback -->
+  <div class="settings-preview">
+    <div class="sp-head">
+      <h3>If exposed in Settings &rsaquo; Playback (synced live)</h3>
+      <span class="sp-sub">Material 3 Expressive &middot; Joined card group</span>
+    </div>
+    <div class="m3-joined">
+      <div class="m3-row">
+        <div class="m3-left">
+          <div class="m3-ico" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1zM4.22 5.64a1 1 0 0 1 1.42 0l1.41 1.41a1 1 0 0 1-1.41 1.42L4.22 7.05a1 1 0 0 1 0-1.41zm12.73 12.73a1 1 0 0 1 1.41 0l1.42 1.41a1 1 0 1 1-1.42 1.42l-1.41-1.42a1 1 0 0 1 0-1.41zM2 12a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1zm16 0a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1zM5.64 19.78a1 1 0 0 1 0-1.41l1.41-1.42a1 1 0 0 1 1.42 1.42l-1.42 1.41a1 1 0 0 1-1.41 0zm12.73-12.73a1 1 0 0 1 0-1.41l1.41-1.42a1 1 0 0 1 1.42 1.42l-1.42 1.41a1 1 0 0 1-1.41 0z"/></svg>
+          </div>
+          <div class="m3-txt">
+            <b>Swipe to adjust brightness</b>
+            <span>In fullscreen, swipe up or down on the left edge.</span>
+          </div>
+        </div>
+        <button class="m3-sw on" id="m3SwBright" aria-label="Toggle brightness swipe"></button>
+      </div>
+      <div class="m3-row">
+        <div class="m3-left">
+          <div class="m3-ico" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </div>
+          <div class="m3-txt">
+            <b>Swipe to adjust volume</b>
+            <span>In fullscreen, swipe up or down on the right edge.</span>
+          </div>
+        </div>
+        <button class="m3-sw on" id="m3SwVol" aria-label="Toggle volume swipe"></button>
+      </div>
+      <div class="m3-row col">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div class="m3-txt">
+            <b>Side gesture area</b>
+            <span id="m3AreaDesc">20% on each side &middot; 60% middle for exit &amp; drawer</span>
+          </div>
+          <span style="font-size:12px;font-weight:750;color:var(--prim);font-variant-numeric:tabular-nums" id="m3AreaPct">20%</span>
+        </div>
+        <div class="m3-mini-screen" id="m3MiniScreen" title="Drag left or right to resize side gesture area">
+          <div class="m3-mini-z l" id="m3MiniL" style="width:20%">20%</div>
+          <div class="m3-mini-z m" id="m3MiniM">Exit / Drawer &middot; 60%</div>
+          <div class="m3-mini-z r" id="m3MiniR" style="width:20%">20%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  // ── State ────────────────────────────────────────────────────────
+  const ASPECTS = {
+    pixel:  { wDp: 915, hDp: 412, cls: '' },
+    '16-9': { wDp: 732, hDp: 412, cls: 'aspect-16-9' },
+    narrow: { wDp: 460, hDp: 345, cls: 'aspect-narrow' },
+  };
+
+  const state = {
+    leftPct: 20,      // 8..42
+    rightPct: 20,     // 8..42
+    mirrored: true,
+    brightnessOn: true,
+    volumeOn: true,
+    showOldRef: true,
+    overlayMode: 'always', // 'always' | 'touch' | 'blind'
+    aspect: 'pixel',
+    brightness: 0.72,
+    brightAuto: false,
+    volume: 0.60,
+  };
+
+  // ── DOM ──────────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const screen = $('screen');
+  const phoneBezel = $('phoneBezel');
+  const videoLayer = $('videoLayer');
+  const brightVeil = $('brightVeil');
+  const zonesOverlay = $('zonesOverlay');
+  const bandL = $('bandL'), bandM = $('bandM'), bandR = $('bandR');
+  const handleL = $('handleL'), handleR = $('handleR');
+  const tipL = $('tipL'), tipR = $('tipR');
+  const oldL = $('oldL'), oldR = $('oldR');
+  const guardTop = $('guardTop'), guardBot = $('guardBot');
+  const exitBadge = $('exitBadge'), exitBadgeTxt = $('exitBadgeTxt');
+  const drawerSheet = $('drawerSheet');
+  const exitedOverlay = $('exitedOverlay'), exitedSub = $('exitedSub');
+  const touchDot = $('touchDot');
+  const morphCanvas = $('morphCanvas');
+  const ctx = morphCanvas.getContext('2d');
+
+  const sliderL = $('sliderL'), sliderR = $('sliderR');
+  const rowSliderR = $('rowSliderR'), sliderGrid = $('sliderGrid');
+  const labelSliderL = $('labelSliderL'), valSliderL = $('valSliderL'), valSliderR = $('valSliderR');
+  const mirrorBtn = $('mirrorBtn'), mirrorLabel = $('mirrorLabel');
+  const togBright = $('togBright'), togVol = $('togVol'), togOldRef = $('togOldRef');
+  const m3SwBright = $('m3SwBright'), m3SwVol = $('m3SwVol');
+
+  function effLeft() { return state.brightnessOn ? state.leftPct : 0; }
+  function effRight() { return state.volumeOn ? state.rightPct : 0; }
+
+  // ── Render UI from state ─────────────────────────────────────────
+  function render() {
+    const a = ASPECTS[state.aspect];
+    const eL = effLeft();
+    const eR = effRight();
+    const mid = Math.max(0, 100 - eL - eR);
+
+    const dpL = Math.round((eL / 100) * a.wDp);
+    const dpM = Math.round((mid / 100) * a.wDp);
+    const dpR = Math.round((eR / 100) * a.wDp);
+
+    // Top summary
+    $('pLeft').textContent = state.brightnessOn ? `${eL}%` : 'Off';
+    $('dpLeft').textContent = state.brightnessOn ? `${dpL} dp` : '';
+    $('pMid').textContent = `${mid}%`;
+    $('dpMid').textContent = `${dpM} dp`;
+    $('pRight').textContent = state.volumeOn ? `${eR}%` : 'Off';
+    $('dpRight').textContent = state.volumeOn ? `${dpR} dp` : '';
+
+    const diff = mid - 30;
+    const dTag = $('deltaTag');
+    if (diff === 0) {
+      dTag.textContent = 'Current (30% middle)';
+      dTag.className = 'delta-tag same';
+    } else if (diff > 0) {
+      dTag.textContent = `+${diff}% exit zone vs now`;
+      dTag.className = 'delta-tag better';
+    } else {
+      dTag.textContent = `${diff}% exit zone vs now`;
+      dTag.className = 'delta-tag same';
+    }
+
+    $('rSegL').style.width = `${eL}%`;
+    $('rSegM').style.width = `${mid}%`;
+    $('rSegR').style.width = `${eR}%`;
+
+    // Phone aspect
+    phoneBezel.className = 'phone-bezel' + (a.cls ? ' ' + a.cls : '');
+    $('hudDim').textContent = `${a.wDp} \u00d7 ${a.hDp} dp`;
+
+    // Zone bands
+    bandL.style.width = `${eL}%`;
+    bandL.style.display = state.brightnessOn ? 'flex' : 'none';
+    bandM.style.left = `${eL}%`;
+    bandM.style.width = `${mid}%`;
+    bandR.style.width = `${eR}%`;
+    bandR.style.display = state.volumeOn ? 'flex' : 'none';
+
+    $('zlTitleL').textContent = eL < 14 ? 'Bright' : 'Brightness';
+    $('zlSubL').textContent = eL < 16 ? `${eL}%` : `${eL}% \u00b7 ${dpL} dp`;
+    $('zlSubM').textContent = `${mid}% \u00b7 \u2191 drawer \u00b7 \u2193 exit`;
+    $('zlTitleR').textContent = eR < 14 ? 'Vol' : 'Volume';
+    $('zlSubR').textContent = eR < 16 ? `${eR}%` : `${eR}% \u00b7 ${dpR} dp`;
+
+    // Handles
+    handleL.style.left = `${state.leftPct}%`;
+    handleR.style.left = `${100 - state.rightPct}%`;
+    handleL.style.display = state.brightnessOn ? 'flex' : 'none';
+    handleR.style.display = state.volumeOn ? 'flex' : 'none';
+    tipL.textContent = `${state.leftPct}% (${Math.round(state.leftPct / 100 * a.wDp)} dp)`;
+    tipR.textContent = `${state.rightPct}% (${Math.round(state.rightPct / 100 * a.wDp)} dp)`;
+
+    const hideHandles = state.overlayMode === 'blind';
+    handleL.classList.toggle('hidden-ui', hideHandles);
+    handleR.classList.toggle('hidden-ui', hideHandles);
+    zonesOverlay.classList.toggle('dim', state.overlayMode !== 'always');
+
+    oldL.style.display = (state.showOldRef && state.overlayMode === 'always' && state.brightnessOn) ? 'block' : 'none';
+    oldR.style.display = (state.showOldRef && state.overlayMode === 'always' && state.volumeOn) ? 'block' : 'none';
+
+    // Sliders (paint filled track for clear visibility in dark & light themes)
+    sliderL.value = state.leftPct;
+    sliderR.value = state.rightPct;
+    const fillSlider = (el, val) => {
+      const pct = ((val - 8) / (42 - 8)) * 100;
+      el.style.background = `linear-gradient(90deg, var(--prim) 0%, var(--prim) ${pct}%, var(--line) ${pct}%, var(--line) 100%)`;
+    };
+    fillSlider(sliderL, state.leftPct);
+    fillSlider(sliderR, state.rightPct);
+    if (state.mirrored) {
+      sliderGrid.classList.remove('split');
+      rowSliderR.style.display = 'none';
+      labelSliderL.textContent = 'Side gesture cutoff (each side)';
+      valSliderL.textContent = `${state.leftPct}% each \u2192 ${mid}% middle`;
+      mirrorLabel.textContent = 'Mirrored L/R';
+    } else {
+      sliderGrid.classList.add('split');
+      rowSliderR.style.display = 'flex';
+      labelSliderL.textContent = 'Left brightness cutoff';
+      valSliderL.textContent = `${state.leftPct}% (${Math.round(state.leftPct / 100 * a.wDp)} dp)`;
+      valSliderR.textContent = `${state.rightPct}% (${Math.round(state.rightPct / 100 * a.wDp)} dp)`;
+      mirrorLabel.textContent = 'Independent L/R';
+    }
+    mirrorBtn.classList.toggle('on', state.mirrored);
+
+    // Preset chips
+    document.querySelectorAll('#presetChips .chip').forEach(btn => {
+      const p = Number(btn.dataset.pct);
+      btn.classList.toggle('on', state.mirrored && state.leftPct === p && state.rightPct === p);
+    });
+
+    // Toggles
+    togBright.classList.toggle('on', state.brightnessOn);
+    togVol.classList.toggle('on', state.volumeOn);
+    togOldRef.classList.toggle('on', state.showOldRef);
+    m3SwBright.classList.toggle('on', state.brightnessOn);
+    m3SwVol.classList.toggle('on', state.volumeOn);
+
+    // Code pill
+    if (state.mirrored) {
+      $('codePill').textContent = `SideShare = ${(state.leftPct / 100).toFixed(2)}f`;
+    } else {
+      $('codePill').textContent = `L=${(state.leftPct / 100).toFixed(2)}f / R=${(state.rightPct / 100).toFixed(2)}f`;
+    }
+
+    // Settings › Playback mini preview
+    $('m3MiniL').style.width = `${eL}%`;
+    $('m3MiniL').textContent = eL >= 11 ? `${eL}%` : '';
+    $('m3MiniL').classList.toggle('off', !state.brightnessOn);
+    $('m3MiniR').style.width = `${eR}%`;
+    $('m3MiniR').textContent = eR >= 11 ? `${eR}%` : '';
+    $('m3MiniR').classList.toggle('off', !state.volumeOn);
+    $('m3MiniM').textContent = mid >= 28 ? `Exit / Drawer \u00b7 ${mid}%` : `${mid}%`;
+    $('m3AreaPct').textContent = state.mirrored ? `${state.leftPct}%` : `${state.leftPct}% / ${state.rightPct}%`;
+    $('m3AreaDesc').textContent = state.mirrored
+      ? `${state.leftPct}% on each side \u00b7 ${mid}% middle for exit & drawer`
+      : `Left ${eL}% \u00b7 Middle ${mid}% \u00b7 Right ${eR}%`;
+
+    // Brightness veil on simulated video
+    const bVal = state.brightAuto ? 0.72 : state.brightness;
+    brightVeil.style.opacity = ((1 - bVal) * 0.65).toFixed(3);
+  }
+
+  // ── Handle Dragging (horizontal cutoff resize) ───────────────────
+  function wireHandle(el, side) {
+    const startDrag = (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      el.classList.add('dragging');
+      if (state.overlayMode !== 'always') zonesOverlay.classList.add('flash');
+      el.setPointerCapture(ev.pointerId);
+
+      const move = (e) => {
+        const rect = screen.getBoundingClientRect();
+        const xNorm = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        let pct = side === 'left' ? Math.round(xNorm * 100) : Math.round((1 - xNorm) * 100);
+        pct = Math.max(8, Math.min(42, pct));
+        if (state.mirrored) {
+          state.leftPct = pct;
+          state.rightPct = pct;
+        } else if (side === 'left') {
+          state.leftPct = Math.min(pct, 92 - state.rightPct);
+        } else {
+          state.rightPct = Math.min(pct, 92 - state.leftPct);
+        }
+        render();
+      };
+
+      const end = () => {
+        el.classList.remove('dragging');
+        zonesOverlay.classList.remove('flash');
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', end);
+        el.removeEventListener('pointercancel', end);
+      };
+
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    };
+
+    el.addEventListener('pointerdown', startDrag);
+    el.addEventListener('keydown', (e) => {
+      const step = (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0) * (side === 'left' ? 1 : -1);
+      if (!step) return;
+      e.preventDefault();
+      const next = Math.max(8, Math.min(42, (side === 'left' ? state.leftPct : state.rightPct) + step));
+      if (state.mirrored) { state.leftPct = next; state.rightPct = next; }
+      else if (side === 'left') state.leftPct = next;
+      else state.rightPct = next;
+      render();
+    });
+  }
+  wireHandle(handleL, 'left');
+  wireHandle(handleR, 'right');
+
+  // ── Authentic Skipii Morph Stack Canvas Renderer ─────────────────
+  let stackKind = null; // 'brightness' | 'volume' | null
+  let stackAlpha = 0;
+  let stackHideTimer = null;
+  let stackOver = 0;
+
+  function resizeCanvas() {
+    const r = screen.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    morphCanvas.width = Math.max(1, Math.round(r.width * dpr));
+    morphCanvas.height = Math.max(1, Math.round(r.height * dpr));
+  }
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function rubberBand(over) { return Math.sign(over) * (1 - Math.exp(-Math.abs(over) * 3.2)) * 0.28; }
+
+  const SUN_SLOTS = [
+    '#FFC458','#FFC964','#FFCE72','#FFD480','#FFDA8E',
+    '#FFE09C','#FFE5AA','#FFEBB8','#FFF0C6','#FFF5D4'
+  ];
+
+  function drawRoundRect(c, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    c.beginPath();
+    c.moveTo(x + rr, y);
+    c.arcTo(x + w, y, x + w, y + h, rr);
+    c.arcTo(x + w, y + h, x, y + h, rr);
+    c.arcTo(x, y + h, x, y, rr);
+    c.arcTo(x, y, x + w, y, rr);
+    c.closePath();
+  }
+
+  function drawCookie(c, cx, cy, radius, bumps, depth, rotRad) {
+    const steps = 120;
+    c.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const rad = radius * (1 - depth + depth * Math.cos(bumps * a));
+      const px = cx + rad * Math.cos(a + rotRad);
+      const py = cy + rad * Math.sin(a + rotRad);
+      if (i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+    }
+    c.closePath();
+  }
+
+  function drawMorphStack() {
+    const w = morphCanvas.width, h = morphCanvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (!stackKind || stackAlpha <= 0.01) return;
+
+    const scale = h / 412; // matches Pixel 412dp landscape height
+    const isVol = stackKind === 'volume';
+    const isNarrow = state.aspect === 'narrow';
+    const laneShare = isNarrow ? (isVol ? 0.76 : 0.24) : (isVol ? 0.66 : 0.34);
+    const ox = w * laneShare;
+    const oy = h * 0.5;
+
+    const auto = !isVol && state.brightAuto;
+    const level = auto ? 0 : (isVol ? state.volume : state.brightness);
+    const pct = Math.round(level * 100);
+    const isZero = pct <= 0 && !auto;
+    const slots = 10;
+    const fill = level * slots;
+    const rb = rubberBand(stackOver);
+    const up = Math.max(0, rb);
+    const down = Math.min(0, rb);
+    const pitch = 15.8 * (1 + up * 1.15 + down * 0.75);
+    const base = -96 + 9 * 15.8 + 8;
+    const crestBottom = fill > 0 ? base - (fill - 0.5) * pitch - 13 - up * 14 : base - 11 - down * 18;
+    const crestMid = crestBottom - 10;
+
+    ctx.save();
+    ctx.globalAlpha = stackAlpha;
+
+    // 10 Morphing Slots
+    for (let i = 0; i < slots; i++) {
+      const e = easeOutCubic(Math.max(0, Math.min(1, fill - i)));
+      const eNext = i < slots - 1 ? easeOutCubic(Math.max(0, Math.min(1, fill - i - 1))) : 0;
+      const crest = fill > 0 ? e * (1 - eNext) : 0;
+      const sw = (7 + (28 - 7) * e + (36 - 28) * crest) * scale;
+      const sh = (7 + (10 - 7) * e + (12 - 10) * crest) * scale;
+      const yDp = base - i * pitch - down * 22;
+      const cy = oy + yDp * scale;
+
+      const behind = e < 0.05 ? Math.max(0, Math.min(1, (Math.abs(yDp - crestMid) - 8) / 10)) : 1;
+      const dotA = 0.38 * (1 - e) * behind;
+      const outA = e + dotA * (1 - e);
+      if (outA <= 0.005) continue;
+
+      ctx.save();
+      ctx.globalAlpha = stackAlpha * outA;
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 5 * scale;
+      ctx.shadowOffsetY = 2 * scale;
+      ctx.fillStyle = e > 0.06
+        ? (isVol ? (crest > 0.65 ? '#EAE0FF' : '#D0BCFF') : SUN_SLOTS[i])
+        : 'rgba(255,255,255,0.85)';
+      drawRoundRect(ctx, ox - sw / 2, cy - sh / 2, sw, sh, sh / 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Percentage / Auto label above crest
+    ctx.save();
+    ctx.font = `900 ${Math.round((auto ? 15.5 : 18) * scale)}px ${getComputedStyle(document.body).fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = auto ? '#FFF4D2' : '#FFFFFF';
+    ctx.shadowColor = 'rgba(0,0,0,0.75)';
+    ctx.shadowBlur = 6 * scale;
+    ctx.shadowOffsetY = 2 * scale;
+    ctx.fillText(auto ? 'Auto' : `${pct}%`, ox, oy + crestBottom * scale);
+    ctx.restore();
+
+    // Badge underneath
+    const r = 22 * scale;
+    const bcy = oy + (base + 22 - up * 7 - down * 10 + 22) * scale;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.48)';
+    ctx.shadowBlur = 10 * scale;
+    ctx.shadowOffsetY = 3 * scale;
+    if (isVol) {
+      const corner = (22 - 10 * level) * scale;
+      ctx.fillStyle = isZero ? '#3B383E' : '#D0BCFF';
+      drawRoundRect(ctx, ox - r, bcy - r, r * 2, r * 2, corner);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = isZero ? '#E6E1E5' : '#381E72';
+      // Minimal speaker glyph
+      const s = scale;
+      ctx.beginPath();
+      ctx.moveTo(ox - 7 * s, bcy - 3 * s);
+      ctx.lineTo(ox - 3 * s, bcy - 3 * s);
+      ctx.lineTo(ox + 2 * s, bcy - 7 * s);
+      ctx.lineTo(ox + 2 * s, bcy + 7 * s);
+      ctx.lineTo(ox - 3 * s, bcy + 3 * s);
+      ctx.lineTo(ox - 7 * s, bcy + 3 * s);
+      ctx.closePath();
+      ctx.fill();
+      if (!isZero) {
+        ctx.strokeStyle = '#381E72';
+        ctx.lineWidth = 1.9 * s;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(ox + 3.5 * s, bcy, 4.5 * s, -0.75, 0.75);
+        ctx.stroke();
+        if (level > 0.5) {
+          ctx.beginPath();
+          ctx.arc(ox + 3.5 * s, bcy, 8 * s, -0.75, 0.75);
+          ctx.stroke();
+        }
+      }
+    } else {
+      const k = 0.88 + 0.16 * level;
+      ctx.fillStyle = isZero ? '#3B352C' : '#FFE3A3';
+      drawCookie(ctx, ox, bcy, r * k, 9, 0.075, level * Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = isZero ? '#F5E6C8' : '#4A3300';
+      if (auto) {
+        ctx.font = `900 ${Math.round(13 * scale)}px ${getComputedStyle(document.body).fontFamily}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('A', ox, bcy + 1 * scale);
+      } else {
+        ctx.beginPath();
+        ctx.arc(ox, bcy, 6.2 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+    ctx.restore();
+  }
+
+  let rafId = null;
+  function animateStack(targetAlpha) {
+    if (rafId) cancelAnimationFrame(rafId);
+    const step = () => {
+      stackAlpha += (targetAlpha - stackAlpha) * 0.24;
+      if (Math.abs(targetAlpha - stackAlpha) < 0.015) {
+        stackAlpha = targetAlpha;
+        if (targetAlpha === 0) stackKind = null;
+        drawMorphStack();
+        rafId = null;
+        return;
+      }
+      drawMorphStack();
+      rafId = requestAnimationFrame(step);
+    };
+    rafId = requestAnimationFrame(step);
+  }
+
+  // ── Live Vertical Swipe Testing on the Video Screen ──────────────
+  let activeGesture = null;
+
+  function setTelemetry(kindClass, badgeText, text, xPct) {
+    const b = $('telBadge');
+    b.className = 'badge' + (kindClass ? ' ' + kindClass : '');
+    b.textContent = badgeText;
+    $('telText').textContent = text;
+    if (typeof xPct === 'number') {
+      // Compare with current 35% behavior
+      const oldZone = xPct < 35 ? 'Brightness' : (xPct > 65 ? 'Volume' : 'Exit / Drawer');
+      $('telCompare').textContent = `At x = ${xPct}%, current 35% cutoff would trigger: ${oldZone}`;
+    }
+  }
+
+  function showTouchMarker(xPx, yPx, cls) {
+    touchDot.style.left = `${xPx}px`;
+    touchDot.style.top = `${yPx}px`;
+    touchDot.className = `touch-dot show ${cls}`;
+    clearTimeout(touchDot._t);
+    touchDot._t = setTimeout(() => touchDot.classList.remove('show'), 1400);
+  }
+
+  screen.addEventListener('pointerdown', (ev) => {
+    if (ev.target.closest('.cut-handle') || ev.target.closest('.exited-overlay')) return;
+    ev.preventDefault();
+    resizeCanvas();
+
+    const rect = screen.getBoundingClientRect();
+    const xPx = ev.clientX - rect.left;
+    const yPx = ev.clientY - rect.top;
+    const xNorm = xPx / rect.width;
+    const yNorm = yPx / rect.height;
+    const xPct = Math.round(xNorm * 100);
+
+    // 28dp EdgeGuard (~6.8% of 412dp height)
+    if (yNorm < 0.068 || yNorm > 0.932) {
+      const g = yNorm < 0.5 ? guardTop : guardBot;
+      g.classList.add('hit');
+      setTimeout(() => g.classList.remove('hit'), 380);
+      showTouchMarker(xPx, yPx, 'guard');
+      setTelemetry('guard', 'Edge guard', `Ignored (${yNorm < 0.5 ? 'top' : 'bottom'} 28 dp reserved for Android system swipe).`, xPct);
+      return;
+    }
+
+    const eL = effLeft() / 100;
+    const eR = effRight() / 100;
+    let zone = 'mid';
+    if (xNorm < eL) zone = 'bright';
+    else if (xNorm > 1 - eR) zone = 'vol';
+
+    showTouchMarker(xPx, yPx, zone === 'bright' ? 'bright' : zone === 'vol' ? 'vol' : 'exit');
+    if (state.overlayMode === 'touch') zonesOverlay.classList.add('flash');
+
+    bandL.classList.toggle('active', zone === 'bright');
+    bandM.classList.toggle('active', zone === 'mid');
+    bandR.classList.toggle('active', zone === 'vol');
+
+    screen.setPointerCapture(ev.pointerId);
+    activeGesture = {
+      id: ev.pointerId,
+      zone,
+      xPct,
+      startY: ev.clientY,
+      lastY: ev.clientY,
+      startTime: performance.now(),
+      lockedDir: null, // for middle: 'exit' | 'drawer'
+      startLevel: zone === 'bright' ? state.brightness : state.volume,
+      raw: zone === 'bright' ? state.brightness : state.volume,
+    };
+
+    if (zone === 'bright' || zone === 'vol') {
+      clearTimeout(stackHideTimer);
+      stackKind = zone === 'bright' ? 'brightness' : 'volume';
+      stackOver = 0;
+      animateStack(1);
+    }
+  });
+
+  screen.addEventListener('pointermove', (ev) => {
+    if (!activeGesture || ev.pointerId !== activeGesture.id) return;
+    const rect = screen.getBoundingClientRect();
+    const dy = ev.clientY - activeGesture.startY;
+    const range = Math.max(rect.height * 0.44, 95);
+
+    if (activeGesture.zone === 'bright' || activeGesture.zone === 'vol') {
+      const delta = -dy / range;
+      const raw = Math.max(-0.26, Math.min(1.26, activeGesture.startLevel + delta));
+      activeGesture.raw = raw;
+      stackOver = raw < 0 ? raw : raw > 1 ? raw - 1 : 0;
+
+      if (activeGesture.zone === 'bright') {
+        if (raw <= -0.14) state.brightAuto = true;
+        else if (raw >= -0.06) state.brightAuto = false;
+        state.brightness = Math.max(0, Math.min(1, raw));
+        brightVeil.style.opacity = ((1 - (state.brightAuto ? 0.72 : state.brightness)) * 0.65).toFixed(3);
+        const lbl = state.brightAuto ? 'Auto' : `${Math.round(state.brightness * 100)}%`;
+        setTelemetry('bright', `Brightness ${lbl}`, `Swipe started at x = ${activeGesture.xPct}% (left < ${effLeft()}%).`, activeGesture.xPct);
+      } else {
+        state.volume = Math.max(0, Math.min(1, raw));
+        setTelemetry('vol', `Volume ${Math.round(state.volume * 100)}%`, `Swipe started at x = ${activeGesture.xPct}% (right > ${100 - effRight()}%).`, activeGesture.xPct);
+      }
+      drawMorphStack();
+      return;
+    }
+
+    // Middle zone: first vertical movement picks Exit (down) or Drawer (up)
+    if (!activeGesture.lockedDir && Math.abs(dy) > 6) {
+      activeGesture.lockedDir = dy > 0 ? 'exit' : 'drawer';
+    }
+
+    if (activeGesture.lockedDir === 'exit') {
+      const pulled = Math.max(0, dy);
+      const shrinkRange = rect.height * 0.34;
+      const k = 1 - 0.12 * (1 - Math.exp(-pulled / shrinkRange));
+      videoLayer.classList.remove('animating');
+      videoLayer.style.transform = `scale(${k.toFixed(4)})`;
+      videoLayer.style.borderRadius = `${Math.min(20, pulled * 0.16).toFixed(1)}px`;
+
+      const ready = pulled > rect.height * 0.18;
+      exitBadge.classList.add('show');
+      exitBadgeTxt.textContent = ready ? '\u2193 Release to exit fullscreen' : '\u2193 Pull down to exit fullscreen';
+      setTelemetry('exit', ready ? 'Will exit' : 'Pulling down', `Middle zone swipe at x = ${activeGesture.xPct}% (${effLeft()}%\u2013${100 - effRight()}%).`, activeGesture.xPct);
+    } else if (activeGesture.lockedDir === 'drawer') {
+      const up = Math.max(0, -dy);
+      const maxH = rect.height * 0.46;
+      const p = Math.min(1, up / maxH);
+      drawerSheet.classList.remove('settling');
+      drawerSheet.style.transform = `translateY(${((1 - p) * 104).toFixed(1)}%)`;
+      setTelemetry('exit', 'More videos drawer', `Middle zone swipe UP at x = ${activeGesture.xPct}% opens related videos.`, activeGesture.xPct);
+    }
+  });
+
+  function finishGesture(ev) {
+    if (!activeGesture || ev.pointerId !== activeGesture.id) return;
+    const g = activeGesture;
+    activeGesture = null;
+
+    bandL.classList.remove('active');
+    bandM.classList.remove('active');
+    bandR.classList.remove('active');
+    zonesOverlay.classList.remove('flash');
+
+    const rect = screen.getBoundingClientRect();
+    const dy = ev.clientY - g.startY;
+    const dt = Math.max(16, performance.now() - g.startTime);
+    const velY = (dy / dt) * 1000;
+
+    if (g.zone === 'bright' || g.zone === 'vol') {
+      stackOver = 0;
+      drawMorphStack();
+      stackHideTimer = setTimeout(() => animateStack(0), 650);
+    } else if (g.lockedDir === 'exit') {
+      exitBadge.classList.remove('show');
+      const shouldExit = dy > rect.height * 0.18 || velY > 650;
+      videoLayer.classList.add('animating');
+      if (shouldExit) {
+        videoLayer.style.transform = 'scale(0.86)';
+        videoLayer.style.opacity = '0.35';
+        exitedSub.textContent = `Swipe started at x = ${g.xPct}% (inside ${effLeft()}%\u2013${100 - effRight()}% middle zone)`;
+        exitedOverlay.classList.add('show');
+        setTelemetry('exit', 'Exited fullscreen', `Clean exit from x = ${g.xPct}%!`, g.xPct);
+      } else {
+        videoLayer.style.transform = 'scale(1)';
+        videoLayer.style.borderRadius = '0px';
+      }
+    } else if (g.lockedDir === 'drawer') {
+      drawerSheet.classList.add('settling');
+      drawerSheet.style.transform = 'translateY(104%)';
+    } else {
+      // Plain tap in zone
+      const label = g.zone === 'bright' ? 'Brightness zone' : g.zone === 'vol' ? 'Volume zone' : 'Exit / Drawer zone';
+      const cls = g.zone === 'bright' ? 'bright' : g.zone === 'vol' ? 'vol' : 'exit';
+      setTelemetry(cls, `${label}`, `Tap at x = ${g.xPct}% \u2014 drag up or down to test the gesture.`, g.xPct);
+    }
+  }
+
+  screen.addEventListener('pointerup', finishGesture);
+  screen.addEventListener('pointercancel', finishGesture);
+
+  $('reenterBtn').addEventListener('click', () => {
+    exitedOverlay.classList.remove('show');
+    videoLayer.classList.add('animating');
+    videoLayer.style.transform = 'scale(1)';
+    videoLayer.style.borderRadius = '0px';
+    videoLayer.style.opacity = '1';
+  });
+
+  // ── Controls Wiring ──────────────────────────────────────────────
+  $('presetChips').addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    const p = Number(btn.dataset.pct);
+    state.mirrored = true;
+    state.leftPct = p;
+    state.rightPct = p;
+    render();
+  });
+
+  sliderL.addEventListener('input', () => {
+    const v = Number(sliderL.value);
+    if (state.mirrored) { state.leftPct = v; state.rightPct = v; }
+    else state.leftPct = Math.min(v, 92 - state.rightPct);
+    render();
+  });
+
+  sliderR.addEventListener('input', () => {
+    const v = Number(sliderR.value);
+    state.rightPct = Math.min(v, 92 - state.leftPct);
+    render();
+  });
+
+  mirrorBtn.addEventListener('click', () => {
+    state.mirrored = !state.mirrored;
+    if (state.mirrored) state.rightPct = state.leftPct;
+    render();
+  });
+
+  function toggleBright() { state.brightnessOn = !state.brightnessOn; render(); }
+  function toggleVol() { state.volumeOn = !state.volumeOn; render(); }
+  togBright.addEventListener('click', toggleBright);
+  m3SwBright.addEventListener('click', toggleBright);
+  togVol.addEventListener('click', toggleVol);
+  m3SwVol.addEventListener('click', toggleVol);
+  togOldRef.addEventListener('click', () => { state.showOldRef = !state.showOldRef; render(); });
+
+  $('overlayCtrl').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    state.overlayMode = b.dataset.mode;
+    $('overlayCtrl').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    render();
+  });
+
+  $('aspectCtrl').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    state.aspect = b.dataset.aspect;
+    $('aspectCtrl').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    render();
+    setTimeout(resizeCanvas, 240);
+  });
+
+  $('copyBtn').addEventListener('click', () => {
+    const eL = effLeft(), eR = effRight(), mid = 100 - eL - eR;
+    const text = state.mirrored
+      ? `SideShare = ${(state.leftPct / 100).toFixed(2)}f (Brightness ${eL}% | Exit/Drawer ${mid}% | Volume ${eR}%)`
+      : `Left brightness = ${eL}% | Exit/Drawer = ${mid}% | Right volume = ${eR}%`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    const btn = $('copyBtn');
+    const prev = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = prev; }, 1300);
+  });
+
+  window.addEventListener('resize', resizeCanvas);
+
+  // Interactive drag on the Settings › Playback mini preview bar too
+  const m3MiniScreen = $('m3MiniScreen');
+  m3MiniScreen.addEventListener('pointerdown', (ev) => {
+    ev.preventDefault();
+    m3MiniScreen.setPointerCapture(ev.pointerId);
+    const apply = (e) => {
+      const r = m3MiniScreen.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      const isLeftHalf = x <= 0.5;
+      const pct = Math.max(8, Math.min(42, Math.round((isLeftHalf ? x : 1 - x) * 100)));
+      if (state.mirrored) { state.leftPct = pct; state.rightPct = pct; }
+      else if (isLeftHalf) state.leftPct = Math.min(pct, 92 - state.rightPct);
+      else state.rightPct = Math.min(pct, 92 - state.leftPct);
+      render();
+    };
+    apply(ev);
+    const up = () => {
+      m3MiniScreen.removeEventListener('pointermove', apply);
+      m3MiniScreen.removeEventListener('pointerup', up);
+      m3MiniScreen.removeEventListener('pointercancel', up);
+    };
+    m3MiniScreen.addEventListener('pointermove', apply);
+    m3MiniScreen.addEventListener('pointerup', up);
+    m3MiniScreen.addEventListener('pointercancel', up);
+  });
+
+  render();
+  resizeCanvas();
+})();
+</script>
+</body>
+</html>

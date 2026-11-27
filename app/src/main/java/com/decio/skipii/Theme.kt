@@ -512,8 +512,49 @@ private fun youTubeScheme(dark: Boolean): ColorScheme = if (!dark) lightColorSch
     outline = Color(0xFF717171), outlineVariant = Color(0xFF303030),
 )
 
-/** Every pickable theme: YouTube first, then Ledgii's in Ledgii's order. */
-val SKIPII_THEMES = listOf(ThemeChoice("YouTube", SEED_YOUTUBE)) + THEME_CHOICES
+/**
+ * Lagoon (Derek picked it from the 2026-11-26 theme round, `docs/design/themes-claude.html`): Skipii's own,
+ * clear tropical water. Deep teal on a page with a breath of the same hue by day, a bright aqua on near-black
+ * blue-green by night. Written out like YouTube's; every text pair is at least 4.5:1 (AMOLED included).
+ */
+const val SEED_LAGOON = "#00677A"
+
+private fun lagoonScheme(dark: Boolean): ColorScheme = if (!dark) lightColorScheme(
+    primary = Color(0xFF00677A), onPrimary = Color.White,
+    primaryContainer = Color(0xFFC6EEF5), onPrimaryContainer = Color(0xFF002A33),
+    secondary = Color(0xFF4A6268), onSecondary = Color.White,
+    secondaryContainer = Color(0xFFD6ECEF), onSecondaryContainer = Color(0xFF132B30),
+    tertiary = Color(0xFF2E6A5C), onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFD6ECEF), onTertiaryContainer = Color(0xFF132B30),
+    background = Color(0xFFF4FAFB), onBackground = Color(0xFF0E1D21),
+    surface = Color(0xFFF4FAFB), onSurface = Color(0xFF0E1D21),
+    surfaceVariant = Color(0xFFD3E5E9), onSurfaceVariant = Color(0xFF3D5960),
+    surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFECF5F7),
+    surfaceContainer = Color(0xFFE6F1F3), surfaceContainerHigh = Color(0xFFDDEBEE),
+    surfaceContainerHighest = Color(0xFFD3E5E9),
+    outline = Color(0xFF6E8A90), outlineVariant = Color(0xFFC3D6DA),
+    error = Color(0xFFB3261E), onError = Color.White,
+    errorContainer = Color(0xFFFFDAD5), onErrorContainer = Color(0xFF410E0B),
+) else darkColorScheme(
+    primary = Color(0xFF5ED3E8), onPrimary = Color(0xFF00363F),
+    primaryContainer = Color(0xFF004E5C), onPrimaryContainer = Color(0xFFB8EEF7),
+    secondary = Color(0xFFB1CBD1), onSecondary = Color(0xFF1C3439),
+    secondaryContainer = Color(0xFF21373C), onSecondaryContainer = Color(0xFFCDE7EC),
+    tertiary = Color(0xFF8DD5C2), onTertiary = Color(0xFF00382D),
+    tertiaryContainer = Color(0xFF21373C), onTertiaryContainer = Color(0xFFCDE7EC),
+    background = Color(0xFF081316), onBackground = Color(0xFFE3F1F4),
+    surface = Color(0xFF081316), onSurface = Color(0xFFE3F1F4),
+    surfaceVariant = Color(0xFF22393E), onSurfaceVariant = Color(0xFFA9C3C9),
+    surfaceContainerLowest = Color(0xFF040C0E), surfaceContainerLow = Color(0xFF0E1B1F),
+    surfaceContainer = Color(0xFF132327), surfaceContainerHigh = Color(0xFF1B2E33),
+    surfaceContainerHighest = Color(0xFF253B40),
+    outline = Color(0xFF6F8B91), outlineVariant = Color(0xFF2A3E43),
+    error = Color(0xFFFFB4AB), onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A), onErrorContainer = Color(0xFFFFDAD6),
+)
+
+/** Every pickable theme: Skipii's own (YouTube, Lagoon) first, then Ledgii's in Ledgii's order. */
+val SKIPII_THEMES = listOf(ThemeChoice("YouTube", SEED_YOUTUBE), ThemeChoice("Lagoon", SEED_LAGOON, isNew = true)) + THEME_CHOICES
 
 /** The scheme for a choice, also used to paint the theme picker's swatches. */
 fun schemeFor(context: Context, seedHex: String?, dark: Boolean): ColorScheme =
@@ -521,6 +562,8 @@ fun schemeFor(context: Context, seedHex: String?, dark: Boolean): ColorScheme =
         if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else if (seedHex.equals(SEED_YOUTUBE, ignoreCase = true)) {
         youTubeScheme(dark)
+    } else if (seedHex.equals(SEED_LAGOON, ignoreCase = true)) {
+        lagoonScheme(dark)
     } else {
         val seedValue = seedHex ?: SEED_CREAM_ROSE
         completeLedgiiScheme(seedValue, seedScheme(seedValue, dark))

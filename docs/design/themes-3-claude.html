@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skipii Themes III · Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght,ROND@6..144,400..1000,0..100&family=Inter+Tight:wght@400..800&family=Fraunces:opsz,wght,SOFT@9..144,500..700,100&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block">
+<style>
+:root{
+  --font:'Google Sans Flex','Google Sans',Roboto,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --bg:#F1F0EE; --panel:#FBFAF9; --panel-2:#E7E5E2; --ink:#1B1A19; --ink-2:#5F5C58; --ink-3:#7C7873;
+  --good:#1E6B3C; --good-bg:#D9F0E0;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#8F8B86;
+  --good:#9FE0B4; --good-bg:#16301F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --panel:#1B1B1B; --panel-2:#272727; --ink:#F0EFED; --ink-2:#B3B0AB; --ink-3:#8F8B86;
+  --good:#9FE0B4; --good-bg:#16301F; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:40px 16px 64px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:6px 0 12px;font-weight:900;font-variation-settings:'ROND' 100;text-wrap:balance}
+h2{font-size:24px;line-height:1.15;margin:0 0 10px;font-weight:850;font-variation-settings:'ROND' 100}
+h3{font-size:16px;margin:0 0 6px;font-weight:800}
+p{margin:0 0 10px}
+.lede{max-width:68ch;color:var(--ink-2)}
+.idea{background:var(--panel);border-radius:28px;padding:26px;margin:28px 0}
+.idea .big{font-size:21px;line-height:1.35;font-weight:700;max-width:52ch;margin-bottom:18px;text-wrap:pretty}
+.dials{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px}
+.dial{background:var(--bg);border-radius:18px;padding:14px 16px}
+.dial b{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:4px}
+.dial span{color:var(--ink-2);font-size:14px}
+.dial .ms{font-size:20px;color:var(--ink-2)}
+.fixed{margin-top:14px;color:var(--ink-2);font-size:14px}
+.allmodes{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 18px}
+.allmodes span{font-weight:700;font-size:14px;color:var(--ink-2)}
+.seg{display:inline-flex;background:var(--panel-2);border-radius:999px;padding:4px;gap:2px}
+.seg button{font:inherit;font-weight:650;font-size:14px;border:0;background:transparent;color:var(--ink-2);padding:7px 15px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.theme{background:var(--panel);border-radius:28px;padding:26px 0 22px;margin-bottom:26px}
+.thead{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between;padding:0 26px}
+.thead>div{min-width:0;max-width:72ch}
+.tname{font-size:34px;font-weight:900;line-height:1;margin:0 0 10px;font-variation-settings:'ROND' 100;display:flex;align-items:center;gap:12px}
+.swatch{width:30px;height:30px;border-radius:50%;flex:none}
+.pitch{color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chips span{font-size:12.5px;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--panel-2);color:var(--ink-2)}
+.strip{display:flex;gap:22px;overflow-x:auto;padding:22px 26px 12px}
+.shot{margin:0;display:grid;gap:8px;flex:none}
+.shot figcaption{font-size:13px;color:var(--ink-3);font-weight:600;padding-left:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;padding:6px 26px 0;align-items:start}
+.facts>*{min-width:0}
+.box{background:var(--bg);border-radius:20px;padding:16px 18px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-weight:600;color:var(--ink-3);font-size:12px;padding:5px 8px;white-space:nowrap}
+td{padding:6px 8px;vertical-align:top;border-top:1px solid color-mix(in srgb,var(--ink) 8%,transparent)}
+td:first-child{font-weight:700;white-space:nowrap}
+.effort{display:inline-block;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;background:var(--panel-2);color:var(--ink-2);white-space:nowrap}
+.effort.s{background:var(--good-bg);color:var(--good)}
+ul.build{margin:0;padding-left:18px}
+ul.build li{margin-bottom:6px}
+details{background:var(--bg);border-radius:20px;padding:4px 18px}
+summary{cursor:pointer;font-weight:700;padding:12px 0}
+.ctab{overflow-x:auto;padding-bottom:12px}
+.hex{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.hex i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.ratio{font-family:var(--mono);font-size:12.5px}
+.pass{color:var(--good);font-weight:700}
+.once{background:var(--panel);border-radius:28px;padding:26px}
+.once ol{margin:8px 0 0;padding-left:20px}
+.once li{margin-bottom:8px}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 450,'opsz' 24;user-select:none}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 450,'opsz' 24}
+
+/* ---------- the phone: every colour comes from the theme's roles, every shape/type/depth from its dials ---------- */
+.phone{width:320px;height:680px;border-radius:38px;padding:8px;background:#0c0c0c;flex:none;box-shadow:0 18px 40px -18px rgba(0,0,0,.45)}
+.scr{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--pageGrad),var(--surface);color:var(--onSurface);font-family:var(--fBody);font-size:13px;line-height:1.35;transition:background .3s}
+.sb{height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:12px;font-weight:600;font-family:var(--font)}
+.sb .ms{font-size:14px;vertical-align:-2px}
+.sb.vid{background:#000;color:#fff}
+.hdr{display:flex;align-items:center;gap:9px;padding:6px 14px 4px}
+.mark{width:30px;height:22px;border-radius:var(--rMark);background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 78%,#fff),var(--primary));display:grid;place-items:center;color:var(--onPrimary)}
+.mark .ms{font-size:17px}
+.word{font-family:var(--fHead);font-weight:var(--headW);font-size:22px;letter-spacing:var(--headTrack);font-variation-settings:var(--headVar);flex:1}
+.me{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#9db7c9,#476478);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.tabs-words{display:flex;gap:16px;padding:6px 16px 10px;font-size:13.5px;color:var(--onSurfaceVariant);font-family:var(--fLabel);white-space:nowrap;overflow:hidden}
+.tabs-words b{position:relative;color:var(--primaryInk);font-weight:800}
+.tabs-words b::after{content:"";position:absolute;left:20%;right:20%;bottom:-6px;height:4px;border-radius:var(--rBar);background:var(--primaryInk)}
+.card{margin:0 6px 10px;background:var(--surfaceContainerLow);border-radius:var(--rCard);padding:5px;box-shadow:var(--cardShadow)}
+.th{position:relative;aspect-ratio:16/9;border-radius:var(--rThumb);background:var(--scene);overflow:hidden}
+.dur{position:absolute;right:7px;bottom:7px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border-radius:var(--rBadge);font-family:var(--font)}
+.resume{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.35)}
+.resume i{display:block;height:100%;background:var(--resumeInk)}
+.meta{display:grid;grid-template-columns:30px 1fr 18px;gap:10px;padding:9px 6px 6px}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;font-family:var(--font)}
+.tt{font-weight:var(--titleW);font-family:var(--fTitle);font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:var(--titleTrack)}
+.sub{color:var(--onSurfaceVariant);font-size:12px;margin-top:2px;font-family:var(--fLabel)}
+.meta .ms{font-size:18px;color:var(--onSurfaceVariant)}
+.vig{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--surface) 76%,transparent) 70%);pointer-events:none}
+.nav{position:absolute;left:12px;right:12px;bottom:14px;height:54px;border-radius:var(--rNav);background:var(--surfaceVariant);display:flex;align-items:center;padding:0 5px;gap:2px;box-shadow:var(--navShadow)}
+.tab{flex:1;height:44px;border-radius:var(--rTab);display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.tab .ms{font-size:22px}
+.tab.sel{flex:2.6;background:var(--primary);color:var(--onPrimary);display:flex;justify-content:center;gap:6px;font-weight:800;font-size:var(--tabSize);font-family:var(--fLabel);text-transform:var(--tabCase);letter-spacing:var(--tabTrack);box-shadow:var(--glowTab)}
+/* player */
+.video{aspect-ratio:16/9;background:var(--scene);position:relative}
+.video .edge{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.32)}
+.video .edge i{display:block;width:38%;height:100%;background:var(--primaryBright)}
+.det{padding:12px 14px 0}
+.ptitle{font-family:var(--fHead);font-weight:var(--pTitleW);font-size:var(--pTitleSize);line-height:1.22;letter-spacing:var(--headTrack);font-variation-settings:var(--headVar);margin-bottom:4px}
+.pmeta{color:var(--onSurfaceVariant);font-size:12px;font-family:var(--fLabel)}
+.pmeta b{color:var(--onSurface);font-weight:700}
+.chan{display:flex;align-items:center;gap:10px;margin:12px 0 10px}
+.chan .av{width:34px;height:34px}
+.chan .n{flex:1;min-width:0}
+.chan .n b{display:block;font-size:13.5px;font-family:var(--fTitle);font-weight:var(--titleW)}
+.chan .n span{color:var(--onSurfaceVariant);font-size:11.5px}
+.subbtn{height:34px;padding:0 14px;border-radius:var(--rPill);background:var(--primary);color:var(--onPrimary);display:flex;align-items:center;font-weight:800;font-size:13px;font-family:var(--fLabel)}
+.acts{display:flex;gap:6px;overflow:hidden;margin-bottom:10px}
+.pill{height:34px;padding:0 12px;border-radius:var(--rPill);background:var(--surfaceContainerHigh);display:flex;align-items:center;gap:5px;font-weight:700;font-size:12.5px;white-space:nowrap;flex:none;font-family:var(--fLabel)}
+.pill .ms{font-size:18px}
+.pill.on{background:var(--primary);color:var(--onPrimary)}
+.desc{background:var(--surfaceContainerLow);border-radius:var(--rInner);padding:11px 13px;margin-bottom:8px;box-shadow:var(--cardShadow);font-size:12.5px}
+.desc .h{display:flex;justify-content:space-between;font-weight:800;margin-bottom:4px;font-family:var(--fTitle)}
+.desc .h span{color:var(--onSurfaceVariant);font-weight:600}
+.desc p{margin:0;color:var(--onSurfaceVariant)}
+.cm{display:flex;gap:8px;align-items:flex-start}
+.cm .av{width:22px;height:22px;font-size:10px;flex:none}
+.bar{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;width:276px;height:72px;border-radius:var(--rBarPlayer);background:var(--surfaceVariant);box-shadow:var(--navShadow)}
+.bar .row{position:absolute;left:6px;right:6px;top:7px;height:50px;display:flex;align-items:center;justify-content:space-between}
+.key{width:42px;height:42px;border-radius:var(--rKey);display:grid;place-items:center;color:var(--onSurfaceVariant)}
+.key .ms{font-size:25px}
+.play{width:92px;height:46px;border-radius:var(--rPlay);background:var(--primary);color:var(--onPrimary);display:grid;place-items:center;box-shadow:var(--glowPlay)}
+.play .ms{font-size:30px}
+.hair{position:absolute;left:32px;right:32px;bottom:8px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--onSurfaceVariant) 25%,transparent)}
+.hair i{display:block;width:38%;height:100%;border-radius:2px;background:var(--primaryInk)}
+/* settings */
+.stitle{font-family:var(--fHead);font-weight:var(--headW);font-size:32px;letter-spacing:var(--headTrack);font-variation-settings:var(--headVar);padding:14px 18px 10px}
+.search{margin:0 14px 12px;height:42px;border-radius:var(--rPill);background:var(--surfaceContainerHigh);display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--onSurfaceVariant);font-family:var(--fLabel)}
+.search .ms{font-size:20px}
+.acct{margin:0 14px 10px;background:var(--primaryContainer);color:var(--onPrimaryContainer);border-radius:var(--rCard);padding:12px;display:flex;align-items:center;gap:11px;box-shadow:var(--cardShadow)}
+.acct .me{width:38px;height:38px;font-size:15px}
+.acct b{display:block;font-size:15px;font-family:var(--fTitle)}
+.acct span{font-size:12px;opacity:.85}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 14px 14px}
+.q{height:70px;border-radius:var(--rInner);background:var(--surfaceContainerHigh);display:flex;flex-direction:column;justify-content:space-between;padding:9px 8px;font-size:10.5px;font-weight:700;line-height:1.15;font-family:var(--fLabel)}
+.q .ms{font-size:20px}
+.q.on{background:var(--primary);color:var(--onPrimary)}
+.grp{margin:0 14px;display:grid;gap:3px}
+.glabel{font-size:12px;font-weight:700;color:var(--onSurfaceVariant);margin:0 20px 6px;font-family:var(--fLabel);text-transform:var(--tabCase);letter-spacing:var(--labelTrack)}
+.tile{background:var(--surfaceContainerLow);border-radius:var(--rJoin);padding:10px 12px;display:flex;align-items:center;gap:11px;box-shadow:var(--cardShadow)}
+.grp .tile:first-child{border-top-left-radius:var(--rCard);border-top-right-radius:var(--rCard)}
+.grp .tile:last-child{border-bottom-left-radius:var(--rCard);border-bottom-right-radius:var(--rCard)}
+.ic{width:34px;height:34px;border-radius:var(--rIcon);background:var(--secondaryContainer);color:var(--onSecondaryContainer);display:grid;place-items:center;flex:none}
+.ic .ms{font-size:19px}
+.tile .n{flex:1;min-width:0}
+.tile b{display:block;font-size:13.5px;font-family:var(--fTitle);font-weight:var(--titleW)}
+.tile span{color:var(--onSurfaceVariant);font-size:11.5px}
+.tile>.ms{color:var(--onSurfaceVariant);font-size:18px}
+@media (prefers-reduced-motion: reduce){.scr{transition:none}}
+</style>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Skipii · themes, round 3 · Claude</div>
+  <h1>Three frames for the videos</h1>
+  <p class="lede">You said the last round went too far. This round has no textures at all. Glow is held back to the one or two things you’re about to press, and it stays still. Before the themes, here is what I think a Skipii theme should be.</p>
+
+  <section class="idea" aria-labelledby="idea-h">
+    <h2 id="idea-h">The idea</h2>
+    <p class="big">The videos are the colour. Skipii is the frame around them. A good theme changes the frame’s character (its shape, its type, how it sits) and keeps it quiet enough that every thumbnail still looks like the brightest thing on the screen.</p>
+    <div class="dials">
+      <div class="dial"><b><span class="ms">palette</span>Colour</b><span>A page tone and one accent. The accent appears only where you act: play, the selected tab, chosen filters, what’s switched on, progress.</span></div>
+      <div class="dial"><b><span class="ms">rounded_corner</span>Shape</b><span>How round the corners are, from crisp to soft. It is one set of five sizes for each theme, and the whole app follows it.</span></div>
+      <div class="dial"><b><span class="ms">match_case</span>Type</b><span>The font for headings and titles only. Small text and numbers stay in the plain app font so they’re always easy to read.</span></div>
+      <div class="dial"><b><span class="ms">layers</span>Depth</b><span>Either flat, where surfaces are told apart by tone, or lifted, where cards sit on soft shadows. Never outlines.</span></div>
+      <div class="dial"><b><span class="ms">wb_incandescent</span>Glow</b><span>Off, or a soft still halo on at most two things: the play button and the selected tab. It never pulses and never touches the video.</span></div>
+    </div>
+    <p class="fixed"><b>The same in every theme:</b> the layout, the video itself, the black strip over the video, SponsorBlock’s colours, the Shorts glass, and the rules (no outlines, no tap ripples, text always readable).</p>
+  </section>
+
+  <div class="allmodes"><span>Show every theme in</span><div class="seg" id="allseg" role="group" aria-label="Mode for all themes"><button aria-pressed="false" data-m="light">Light</button><button aria-pressed="true" data-m="dark">Dark</button><button aria-pressed="false" data-m="amoled">AMOLED</button></div></div>
+
+  <div id="themes"></div>
+
+  <section class="once" aria-labelledby="once-h">
+    <h2 id="once-h">What building any of these needs, once</h2>
+    <p class="lede">Today a theme in Skipii can only change colours. Lagoon was quick to build for that reason. To let a theme change shape, type and depth, the app needs three switches built in once. After that, each new theme is a short list of numbers, as quick as Lagoon was.</p>
+    <ol>
+      <li><b>Corner sizes become part of the theme.</b> About 85 places in the app write their corner size directly. They would read one of five sizes from the theme instead. This is a careful job of medium size. Existing themes keep exactly today’s sizes, so they don’t change.</li>
+      <li><b>The heading font becomes part of the theme.</b> Headings name the rounded font directly today. They would ask the theme instead, and the new fonts ship inside the app, adding about 0.3 MB each.</li>
+      <li><b>Shadows and glow become part of the theme</b> for cards, the tab bar, the play button and the selected tab. It’s the same kind of shadow the brightness and volume stack already draws, and a still glow costs nothing while you watch.</li>
+    </ol>
+    <p class="lede" style="margin-top:10px">Then any of the three themes is a small job. Streetlight could ship first, because it keeps today’s shapes and font and only needs the glow.</p>
+  </section>
+</div>
+
+<script>
+const I = (n, f) => `<span class="ms${f ? ' f' : ''}" aria-hidden="true">${n}</span>`;
+const SCENES = {
+  dusk:'radial-gradient(circle at 70% 58%,#ffd27a 0 7%,transparent 7.5%),linear-gradient(160deg,transparent 56%,#1d2540 56.4%),linear-gradient(205deg,transparent 62%,#2b3458 62.4%),linear-gradient(180deg,#3d4f8a,#e88d67 70%,#f6c48a)',
+  kitchen:'radial-gradient(ellipse at 32% 46%,#f4a259 0 16%,transparent 38%),radial-gradient(circle at 74% 68%,#efe0b4 0 11%,transparent 28%),radial-gradient(circle at 74% 68%,#c9b37c 0 16%,transparent 17%),linear-gradient(135deg,#3b2a20,#8c5a3c)',
+  sea:'radial-gradient(circle at 26% 30%,#fff3c4 0 6%,transparent 6.5%),linear-gradient(180deg,#8fd0ee 0 46%,#2a86a8 46.5%,#0d4d6e 80%,#0a3550)',
+  neon:'radial-gradient(circle at 70% 40%,#ff4fa3 0 9%,transparent 30%),radial-gradient(circle at 25% 65%,#3fd0ff 0 8%,transparent 32%),linear-gradient(160deg,#1b0d3a,#3a1260 60%,#120826)',
+  forest:'linear-gradient(170deg,transparent 60%,#1f3b2a 60.5%),linear-gradient(190deg,transparent 52%,#2f5a3c 52.5%),radial-gradient(circle at 50% 20%,#fef6d8 0 9%,transparent 30%),linear-gradient(#a6d3b0,#5f9a6f)',
+  space:'radial-gradient(circle at 30% 60%,#d9e2ff 0 10%,#7685d6 11%,transparent 23%),radial-gradient(circle at 78% 24%,#fff 0 .9%,transparent 1.4%),radial-gradient(circle at 60% 80%,#fff 0 .7%,transparent 1.2%),linear-gradient(#0b0f2a,#231a52)'};
+const AV = {f:'linear-gradient(135deg,#e9a25c,#a5532e)', k:'linear-gradient(135deg,#7bb38b,#2c6b4f)', o:'linear-gradient(135deg,#7f8ce0,#3b2f8f)', w:'linear-gradient(135deg,#5fb6d6,#1e5f86)', n:'linear-gradient(135deg,#ff6fb7,#6a2bd9)'};
+
+/* Each theme: colour roles for light + dark (AMOLED is worked out from dark exactly as the app does),
+   and its dials (shape, type, depth, glow) per mode. */
+const THEMES = [
+{ id:'studio', name:'Studio', dot:'linear-gradient(135deg,#1B1C18 50%,#D4F84A 50%)',
+  pitch:'An editing suite. Neutral graphite with one hit of lime, crisp corners, tight condensed type, and nothing floating: every surface sits flat and is told apart by tone alone. It’s the most tool-like of the three, and it makes thumbnails look brighter because nothing competes with them. In light mode it flips: a graphite play button with a lime symbol on it.',
+  chips:['Shape: crisp','Type: Inter Tight','Depth: flat','Glow: none','Lime + graphite'],
+  feed:[['neon','22:31',40,'N','n','I restored a 1987 arcade cabinet and it still eats quarters','Night Shift · 690K views · 4 days ago'],['space','41:10',0,'O','o','What the new telescope actually saw','Orbit Weekly · 860K views · 5 days ago'],['sea','9:12',0,'W','w','Sailing through the night with a broken autopilot','Wide Water · 2.1M views · 1 month ago']],
+  chap:'Launch · Unfolding the mirror · First light · Deep field · …', comment:'The deep field part gave me actual chills.', scene:'space', ptitle:'What the new telescope actually saw', chan:['O','o','Orbit Weekly','860K subscribers'],
+  light:{primary:'#1B1C18',onPrimary:'#D9FF4A',primaryContainer:'#E8F8B0',onPrimaryContainer:'#232C00',secondaryContainer:'#E3E3DE',onSecondaryContainer:'#1B1C18',surface:'#EFEFEB',onSurface:'#1B1C18',onSurfaceVariant:'#53554D',surfaceContainerLow:'#FFFFFF',surfaceContainer:'#E8E8E4',surfaceContainerHigh:'#E2E2DD',surfaceContainerHighest:'#DADAD4',surfaceVariant:'#FFFFFF'},
+  dark:{primary:'#D4F84A',onPrimary:'#1A2000',primaryContainer:'#3A4A00',onPrimaryContainer:'#E4FF9A',secondaryContainer:'#2A2B27',onSecondaryContainer:'#E4E4DE',surface:'#111210',onSurface:'#ECEDE8',onSurfaceVariant:'#A9AAA2',surfaceContainerLow:'#1B1C19',surfaceContainer:'#20211E',surfaceContainerHigh:'#292A26',surfaceContainerHighest:'#32332E',surfaceVariant:'#262723'},
+  dials:{ rCard:'14px', rThumb:'9px', rInner:'12px', rPill:'10px', rNav:'18px', rTab:'13px', rBarPlayer:'20px', rKey:'12px', rPlay:'13px', rMark:'6px', rBar:'1px', rBadge:'4px', rJoin:'4px', rIcon:'9px',
+    fHead:"'Inter Tight',system-ui,sans-serif", headW:'800', headTrack:'-0.025em', headVar:'normal', fTitle:"'Inter Tight',system-ui,sans-serif", titleW:'650', titleTrack:'-0.005em',
+    fLabel:"'Inter Tight',system-ui,sans-serif", fBody:"'Google Sans Flex',Roboto,sans-serif", tabCase:'uppercase', tabTrack:'0.06em', tabSize:'11.5px', labelTrack:'0.08em', pTitleW:'750', pTitleSize:'17px',
+    pageGrad:{light:'none',dark:'none',amoled:'none'}, cardShadow:{light:'none',dark:'none',amoled:'none'}, navShadow:{light:'none',dark:'none',amoled:'none'},
+    glowPlay:{light:'none',dark:'none',amoled:'none'}, glowTab:{light:'none',dark:'none',amoled:'none'},
+    primaryInk:{light:'#1B1C18'}, resumeInk:{light:'#D9FF4A'}, primaryBright:{light:'#D9FF4A'} },
+  numbers:[
+    ['Colour','Graphite page and cards with no tint at all, and lime (#D4F84A) as the one accent. In light mode, graphite is the accent and lime is what sits on it.'],
+    ['Shape','Crisp. Cards 14, thumbnails 9, buttons and pills 10, tab bar 18, play 13. Joined settings rows meet at 4.'],
+    ['Type','Inter Tight for headings, titles and labels: tight, upright, a little technical. The tab label and section labels are small capitals.'],
+    ['Depth','Flat. No shadows anywhere, even under the tab bar. Tone does all the work.'],
+    ['Glow','None. The lime is bright enough on its own.']],
+  build:[['Colours','s','small'],['Crisp corners','','needs the one-time corner switch'],['Inter Tight font','','needs the one-time font switch'],['Small-capital tab labels','s','small'],['No shadows','s','small: the bar’s shadow turns off for this theme']],
+},
+{ id:'streetlight', name:'Streetlight', dot:'linear-gradient(135deg,#0A1120 50%,#FFB547 50%)',
+  pitch:'Driving at night. Deep navy pages with a faint sky at the top, and warm sodium-orange light on the one thing you’re about to press: play and the selected tab give off a soft, steady glow. The shapes and font are Skipii’s own as they are today, so this is the closest to what you already know. It is made for the dark, and the light version is a cool morning with the same amber.',
+  chips:['Shape: today’s','Type: today’s rounded','Depth: tone','Glow: play + selected tab','Amber + navy'],
+  feed:[['dusk','18:42',64,'F','f','Driving the coast road at golden hour, no music, just the engine','Field Notes · 412K views · 2 days ago'],['neon','22:31',0,'N','n','I restored a 1987 arcade cabinet and it still eats quarters','Night Shift · 690K views · 4 days ago'],['space','41:10',0,'O','o','What the new telescope actually saw','Orbit Weekly · 860K views · 5 days ago']],
+  chap:'Intro · The road north · Fuel stop · Golden hour · …', comment:'The sound of the engine with no music is weirdly calming.', scene:'dusk', ptitle:'Driving the coast road at golden hour, no music, just the engine', chan:['F','f','Field Notes','412K subscribers'],
+  light:{primary:'#8A4D00',onPrimary:'#FFFFFF',primaryContainer:'#FFDDB0',onPrimaryContainer:'#2C1600',secondaryContainer:'#DCE4F3',onSecondaryContainer:'#142033',surface:'#F4F6FB',onSurface:'#0F1829',onSurfaceVariant:'#4A5872',surfaceContainerLow:'#EBEFF7',surfaceContainer:'#E5EAF4',surfaceContainerHigh:'#DDE4F0',surfaceContainerHighest:'#D4DCEA',surfaceVariant:'#DAE1EE'},
+  dark:{primary:'#FFB547',onPrimary:'#2E1800',primaryContainer:'#5A3A00',onPrimaryContainer:'#FFDDAE',secondaryContainer:'#1E2A40',onSecondaryContainer:'#D6E2F8',surface:'#0A1120',onSurface:'#E6ECF7',onSurfaceVariant:'#9DABC4',surfaceContainerLow:'#111A2C',surfaceContainer:'#152036',surfaceContainerHigh:'#1C2940',surfaceContainerHighest:'#243250',surfaceVariant:'#1C2942'},
+  dials:{ rCard:'26px', rThumb:'21px', rInner:'22px', rPill:'999px', rNav:'27px', rTab:'22px', rBarPlayer:'30px', rKey:'50%', rPlay:'999px', rMark:'7px', rBar:'4px', rBadge:'6px', rJoin:'7px', rIcon:'12px',
+    fHead:"'Google Sans Flex',sans-serif", headW:'900', headTrack:'-0.02em', headVar:"'ROND' 100", fTitle:"'Google Sans Flex',sans-serif", titleW:'650', titleTrack:'0',
+    fLabel:"'Google Sans Flex',sans-serif", fBody:"'Google Sans Flex',sans-serif", tabCase:'none', tabTrack:'0', tabSize:'13px', labelTrack:'0', pTitleW:'800', pTitleSize:'16.5px',
+    pageGrad:{light:'linear-gradient(180deg,#E3EAF7 0,rgba(244,246,251,0) 300px)',dark:'linear-gradient(180deg,#16254A 0,rgba(10,17,32,0) 320px)',amoled:'none'},
+    cardShadow:{light:'none',dark:'none',amoled:'none'},
+    navShadow:{light:'0 8px 22px -10px rgba(15,24,41,.35)',dark:'0 8px 22px -8px rgba(0,0,0,.6)',amoled:'none'},
+    glowPlay:{light:'0 5px 14px -2px rgba(199,122,18,.38)',dark:'0 0 18px 1px rgba(255,181,71,.42)',amoled:'0 0 18px 1px rgba(255,181,71,.5)'},
+    glowTab:{light:'0 4px 10px -2px rgba(199,122,18,.28)',dark:'0 0 14px 0 rgba(255,181,71,.32)',amoled:'0 0 14px 0 rgba(255,181,71,.4)'},
+    primaryInk:{}, resumeInk:{light:'#FFB547'}, primaryBright:{light:'#FFB547'} },
+  numbers:[
+    ['Colour','Navy pages and cards tinted blue, and amber (#FFB547 at night, #8A4D00 by day) as the accent.'],
+    ['Shape','Today’s: cards 26, round pills, round tab bar. Nothing to rebuild.'],
+    ['Type','Today’s rounded heavy font.'],
+    ['Depth','Tone. A smooth sky gradient fades out down the top 320 dp of each page (none in AMOLED, which stays pure black). The tab bar and player bar keep a soft drop shadow.'],
+    ['Glow','Play: a 18 dp amber halo, 42% at night, 50% in AMOLED. By day it becomes an amber-tinted shadow under the button (38%). Selected tab: 14 dp, 32% / 40% / 28%. Nothing else glows, and nothing moves.']],
+  build:[['Colours','s','small'],['Sky gradient at the top of pages','s','small: the top fade uses the sky colour'],['Glow on play + selected tab','s','small, once the shadow switch exists'],['Shapes and font','s','nothing: they’re today’s']],
+},
+{ id:'sunday', name:'Sunday', dot:'linear-gradient(135deg,#FBF5EF 50%,#BC3F28 50%)',
+  pitch:'A slow morning with the paper. Warm cream pages, white cards resting on soft shadows, everything rounded right off, and page titles in a soft serif. The coral accent is friendly rather than loud. In the dark it turns cocoa brown: tone replaces the shadows, and the play button keeps a faint coral warmth.',
+  chips:['Shape: extra round','Type: soft serif titles','Depth: lifted (light)','Glow: play only','Coral + cream'],
+  feed:[['kitchen','12:05',58,'K','f','The 20-minute weeknight ramen I keep coming back to','Kitchen Lab · 1.3M views · 1 week ago'],['forest','16:20',0,'F','k','A week rebuilding an old Victorian glasshouse, start to finish','Field Notes · 412K views · 2 days ago'],['sea','9:12',0,'W','w','Sailing through the night with a broken autopilot','Wide Water · 2.1M views · 1 month ago']],
+  chap:'Broth · Tare · Noodles · Toppings · Putting it together · …', comment:'Made this tonight. The soft egg trick is genius.', scene:'kitchen', ptitle:'The 20-minute weeknight ramen I keep coming back to', chan:['K','f','Kitchen Lab','1.3M subscribers'],
+  light:{primary:'#BC3F28',onPrimary:'#FFFFFF',primaryContainer:'#FFDAD0',onPrimaryContainer:'#3D0B03',secondaryContainer:'#F5E1D6',onSecondaryContainer:'#33211A',surface:'#FBF5EF',onSurface:'#2A1E19',onSurfaceVariant:'#6B5850',surfaceContainerLow:'#FFFFFF',surfaceContainer:'#F6EDE6',surfaceContainerHigh:'#F2E5DB',surfaceContainerHighest:'#EBDBCF',surfaceVariant:'#FFFFFF'},
+  dark:{primary:'#FF9B82',onPrimary:'#4D1205',primaryContainer:'#6E2516',onPrimaryContainer:'#FFDAD0',secondaryContainer:'#3A2B25',onSecondaryContainer:'#F2DED5',surface:'#16100E',onSurface:'#F2E6E0',onSurfaceVariant:'#C2ADA4',surfaceContainerLow:'#211916',surfaceContainer:'#271E1A',surfaceContainerHigh:'#312621',surfaceContainerHighest:'#3B2F29',surfaceVariant:'#2E2420'},
+  dials:{ rCard:'32px', rThumb:'27px', rInner:'26px', rPill:'999px', rNav:'999px', rTab:'999px', rBarPlayer:'36px', rKey:'50%', rPlay:'999px', rMark:'9px', rBar:'4px', rBadge:'999px', rJoin:'10px', rIcon:'50%',
+    fHead:"'Fraunces',Georgia,serif", headW:'620', headTrack:'-0.01em', headVar:"'SOFT' 100,'opsz' 48", fTitle:"'Google Sans Flex',sans-serif", titleW:'680', titleTrack:'0',
+    fLabel:"'Google Sans Flex',sans-serif", fBody:"'Google Sans Flex',sans-serif", tabCase:'none', tabTrack:'0', tabSize:'13px', labelTrack:'0', pTitleW:'600', pTitleSize:'19px',
+    pageGrad:{light:'none',dark:'none',amoled:'none'},
+    cardShadow:{light:'0 6px 18px -8px rgba(110,55,25,.28)',dark:'none',amoled:'none'},
+    navShadow:{light:'0 10px 26px -10px rgba(110,55,25,.38)',dark:'0 8px 22px -8px rgba(0,0,0,.6)',amoled:'none'},
+    glowPlay:{light:'0 6px 14px -3px rgba(188,63,40,.36)',dark:'0 0 16px 0 rgba(255,155,130,.3)',amoled:'0 0 16px 0 rgba(255,155,130,.38)'},
+    glowTab:{light:'none',dark:'none',amoled:'none'},
+    primaryInk:{}, resumeInk:{light:'#FF7A5C'}, primaryBright:{light:'#FF7A5C'} },
+  numbers:[
+    ['Colour','Cream pages, white cards, and coral (#BC3F28 by day, #FF9B82 at night) as the accent. Cocoa browns in the dark.'],
+    ['Shape','Extra round. Cards 32, thumbnails 27, everything else fully round, including the play button, the tab bar and the settings icons.'],
+    ['Type','Page titles and the open video’s title in Fraunces, a soft-cornered serif. Card titles and everything small stay in the rounded sans.'],
+    ['Depth','Lifted in light mode: cards 6 dp with a warm brown shadow, the bars 10 dp. In dark and AMOLED, tone only (shadows don’t show on dark).'],
+    ['Glow','The play button only. By day it’s a coral-tinted shadow (36%). At night it’s a 16 dp coral halo, 30%, or 38% in AMOLED.']],
+  build:[['Colours','s','small'],['Rounder corners','','needs the one-time corner switch'],['Fraunces for titles','','needs the one-time font switch'],['Card shadows in light mode','s','small, once the shadow switch exists'],['Glow on play','s','small']],
+}];
+
+/* ---- colour maths: AMOLED exactly as Theme.kt's ColorScheme.amoled() ---- */
+const rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const hex = a => '#' + a.map(v => Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase();
+const toBlack = (h,t) => hex(rgb(h).map(v => v*(1-t)));
+const amoled = s => ({...s, surface:'#000000', surfaceContainerLow:toBlack(s.surfaceContainerLow,.55), surfaceContainer:toBlack(s.surfaceContainer,.45), surfaceContainerHigh:toBlack(s.surfaceContainerHigh,.35), surfaceContainerHighest:toBlack(s.surfaceContainerHighest,.25), surfaceVariant:toBlack(s.surfaceVariant,.25)});
+const lum = h => { const c = rgb(h).map(v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055,2.4); }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+const ratio = (a,b) => { const x = lum(a), y = lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+const roles = (t,m) => m === 'light' ? t.light : m === 'dark' ? t.dark : amoled(t.dark);
+const PAIRS = [['onSurface','surface','Page text'],['onSurfaceVariant','surface','Page small text'],['onSurface','surfaceContainerLow','Card title'],['onSurfaceVariant','surfaceContainerLow','Card channel · views'],['onSurface','surfaceContainerHigh','Pill label'],['onSurfaceVariant','surfaceVariant','Tab bar icons'],['onPrimary','primary','Play, selected tab, “on”'],['onPrimaryContainer','primaryContainer','Account card'],['onSecondaryContainer','secondaryContainer','Settings icons'],['primary','surface','Chosen filter, links']];
+
+function vars(t, m){
+  const s = roles(t,m), d = t.dials, out = {};
+  for (const [k,v] of Object.entries(s)) out['--'+k] = v;
+  for (const [k,v] of Object.entries(d)) {
+    if (typeof v === 'string') out['--'+k] = v;
+    else if (k === 'primaryInk' || k === 'resumeInk' || k === 'primaryBright') out['--'+k] = (m === 'light' && v.light) ? v.light : s.primary;
+    else out['--'+k] = v[m];
+  }
+  return Object.entries(out).map(([k,v]) => `${k}:${v}`).join(';');
+}
+function status(onVideo){ return `<div class="sb${onVideo ? ' vid' : ''}"><span>9:41</span><span>${I('signal_cellular_alt')} ${I('wifi')} ${I('battery_full',1)}</span></div>`; }
+function card([scene,dur,resume,av,avc,title,sub]){ return `<div class="card"><div class="th" style="--scene:${SCENES[scene]}"><span class="dur">${dur}</span>${resume ? `<div class="resume"><i style="width:${resume}%"></i></div>` : ''}</div><div class="meta"><div class="av" style="background:${AV[avc]}">${av}</div><div><div class="tt">${title}</div><div class="sub">${sub}</div></div>${I('more_vert')}</div></div>`; }
+function home(t){ return `<div class="scr">${status()}<div class="hdr"><div class="mark">${I('fast_forward',1)}</div><div class="word">Skipii</div><div class="me">D</div></div>
+  <div class="tabs-words"><b>All</b><span>Music</span><span>Science</span><span>Cooking</span><span>Travel</span></div>
+  ${t.feed.map(card).join('')}
+  <div class="vig"></div><div class="nav"><div class="tab sel">${I('home',1)}Home</div><div class="tab">${I('subscriptions')}</div><div class="tab">${I('smart_display')}</div><div class="tab">${I('search')}</div><div class="tab">${I('video_library')}</div></div></div>`; }
+function player(t){ const [a,c,n,subs] = t.chan; return `<div class="scr">${status(true)}<div class="video" style="--scene:${SCENES[t.scene]}"><div class="edge"><i></i></div></div>
+  <div class="det"><div class="ptitle">${t.ptitle}</div><div class="pmeta"><b>412K views</b> · 2 days ago · …more</div>
+  <div class="chan"><div class="av" style="background:${AV[c]}">${a}</div><div class="n"><b>${n}</b><span>${subs}</span></div><div class="subbtn">Subscribe</div></div>
+  <div class="acts"><span class="pill on">${I('thumb_up',1)}18K</span><span class="pill">${I('thumb_down')}</span><span class="pill">${I('share')}Share</span><span class="pill">${I('playlist_add')}Playlist</span></div>
+  <div class="desc"><div class="h">Chapters<span>6</span></div><p>${t.chap}</p></div>
+  <div class="desc"><div class="h">Comments<span>1.4K</span></div><div class="cm"><div class="av" style="background:${AV.w}">W</div><p>${t.comment}</p></div></div></div>
+  <div class="bar"><div class="row"><div class="key">${I('headphones')}</div><div class="key">${I('replay_10')}</div><div class="play">${I('pause',1)}</div><div class="key">${I('forward_10')}</div><div class="key">${I('more_vert')}</div></div><div class="hair"><i></i></div></div></div>`; }
+function settings(){ return `<div class="scr">${status()}<div class="stitle">Settings</div>
+  <div class="search">${I('search')}Search settings</div>
+  <div class="acct"><div class="me">D</div><div><b>Derek</b><span>Signed in · full sync</span></div></div>
+  <div class="quick"><div class="q">${I('headphones')}Audio only</div><div class="q on">${I('fast_forward',1)}Sponsor­Block</div><div class="q on">${I('smart_display',1)}Shorts</div><div class="q">${I('speed')}Keep speed</div></div>
+  <div class="glabel">Watching</div>
+  <div class="grp"><div class="tile"><div class="ic">${I('play_circle')}</div><div class="n"><b>Playback</b><span>Controls in the pill · 10 s steps</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('closed_caption')}</div><div class="n"><b>Captions & Dubbing</b><span>Foreign videos · Original audio</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('fast_forward')}</div><div class="n"><b>SponsorBlock</b><span>Skip sponsors · ask for self-promo</span></div>${I('chevron_right')}</div>
+  <div class="tile"><div class="ic">${I('palette')}</div><div class="n"><b>Appearance</b><span>Dark · this theme</span></div>${I('chevron_right')}</div></div></div>`; }
+
+function band(t){
+  const sw = t.build.map(([w,e,n]) => `<li><b>${w}</b>: <span class="effort${e ? ' '+e : ''}">${n}</span></li>`).join('');
+  return `<section class="theme" id="${t.id}" aria-labelledby="${t.id}-h">
+  <div class="thead"><div><h2 class="tname" id="${t.id}-h"><span class="swatch" style="background:${t.dot}"></span>${t.name}</h2><p class="pitch">${t.pitch}</p><div class="chips">${t.chips.map(c => `<span>${c}</span>`).join('')}</div></div>
+  <div class="seg" role="group" aria-label="${t.name} mode"><button data-m="light">Light</button><button data-m="dark">Dark</button><button data-m="amoled">AMOLED</button></div></div>
+  <div class="strip"><figure class="shot"><div class="phone" data-v="home"></div><figcaption>Home</figcaption></figure><figure class="shot"><div class="phone" data-v="player"></div><figcaption>Open player</figcaption></figure><figure class="shot"><div class="phone" data-v="settings"></div><figcaption>Settings</figcaption></figure></div>
+  <div class="facts">
+    <div class="box"><h3>What it changes</h3><table><tbody>${t.numbers.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>
+    <div class="box"><h3>What it takes to build</h3><ul class="build">${sw}</ul></div>
+    <details><summary>Colours and readability</summary><div class="ctab" data-c></div></details>
+  </div></section>`;
+}
+function contrast(t){
+  const modes = ['light','dark','amoled'];
+  const rows = PAIRS.map(([a,b,label]) => `<tr><td>${label}</td>${modes.map(m => { const s = roles(t,m), r = ratio(s[a],s[b]); return `<td><span class="ratio ${r >= 4.5 ? 'pass' : ''}">${r.toFixed(1)}:1</span></td>`; }).join('')}</tr>`).join('');
+  const keys = ['primary','onPrimary','primaryContainer','surface','surfaceContainerLow','surfaceContainerHigh','surfaceVariant','onSurface','onSurfaceVariant'];
+  const cols = keys.map(k => `<tr><td class="hex">${k}</td>${modes.map(m => { const v = roles(t,m)[k]; return `<td><span class="hex"><i style="background:${v}"></i>${v.toUpperCase()}</span></td>`; }).join('')}</tr>`).join('');
+  return `<table><thead><tr><th>Text on</th><th>Light</th><th>Dark</th><th>AMOLED</th></tr></thead><tbody>${rows}</tbody></table>
+  <p style="font-size:13px;color:var(--ink-3);margin:8px 0 14px">Every pair is at least 4.5:1, the standard for small text.</p>
+  <table><thead><tr><th>Role</th><th>Light</th><th>Dark</th><th>AMOLED</th></tr></thead><tbody>${cols}</tbody></table>`;
+}
+const VIEWS = {home, player, settings};
+function render(t, m){
+  const sec = document.getElementById(t.id);
+  sec.querySelectorAll('.phone').forEach(p => { p.innerHTML = VIEWS[p.dataset.v](t); p.firstElementChild.setAttribute('style', vars(t,m)); });
+  sec.querySelectorAll('.thead .seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === m)));
+}
+const root = document.getElementById('themes');
+root.innerHTML = THEMES.map(band).join('');
+THEMES.forEach(t => {
+  const sec = document.getElementById(t.id);
+  sec.querySelector('[data-c]').innerHTML = contrast(t);
+  sec.querySelectorAll('.thead .seg button').forEach(b => b.addEventListener('click', () => render(t, b.dataset.m)));
+  render(t, 'dark');
+});
+document.querySelectorAll('#allseg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#allseg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  THEMES.forEach(t => render(t, b.dataset.m));
+}));
+const q = new URLSearchParams(location.search).get('mode');
+if (q) document.querySelector(`#allseg button[data-m="${q}"]`)?.click();
+</script>
+</body>
+</html>

@@ -20,6 +20,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,6 +61,10 @@ import androidx.core.view.WindowInsetsControllerCompat
  *    whichever way it's turned (the two-pane player, Rail 3). Turning it isn't fullscreen there:
  *    as in split screen, the button / swipe up / Back toggle it, and it carries on across a turn
  *    and from the cover screen to the open one.
+ *  - Leaving landscape fullscreen (swipe down, the button, Back) holds the player upright for
+ *    [ExitRotationHoldMs] whatever the phone does: the phone is still sideways at that moment, and
+ *    it used to turn straight back into fullscreen before it could be turned upright (Derek,
+ *    2026-11-26). Going fullscreen again on purpose (button / swipe up) ends the hold.
  */
 @Stable
 class OrientationController(private val activity: ComponentActivity) {
@@ -79,6 +86,11 @@ class OrientationController(private val activity: ComponentActivity) {
     private var squareScreen by mutableStateOf(activity.onSquareScreen())
     /** Fullscreen in portrait, for a vertical video or a square screen; dropped once the window turns landscape. */
     private var portraitFullscreen by mutableStateOf(false)
+    /** Until this uptime the open player stays portrait (left landscape fullscreen just now). */
+    private var holdUntil = 0L
+    private val holdHandler = Handler(Looper.getMainLooper())
+    private val holdEnded = Runnable { apply() }
+    private val holding get() = SystemClock.uptimeMillis() < holdUntil
 
     private val listener = object : OrientationEventListener(activity) {
         override fun onOrientationChanged(degrees: Int) {
@@ -108,6 +120,7 @@ class OrientationController(private val activity: ComponentActivity) {
 
     /** [vertical]: the video is taller than wide, so fullscreen stays portrait (as on a square screen). */
     fun enterFullscreen(vertical: Boolean) {
+        endHold()
         when {
             free -> paneFullscreen = true
             vertical || squareScreen -> portraitFullscreen = true
@@ -122,7 +135,12 @@ class OrientationController(private val activity: ComponentActivity) {
         when {
             free -> paneFullscreen = false
             portraitFullscreen -> portraitFullscreen = false
-            else -> forced = Forced.Portrait
+            else -> {
+                forced = Forced.Portrait
+                holdUntil = SystemClock.uptimeMillis() + ExitRotationHoldMs
+                holdHandler.removeCallbacks(holdEnded)
+                holdHandler.postDelayed(holdEnded, ExitRotationHoldMs)
+            }
         }
         // The system bars come back BEFORE the turn is asked for (GitHub #94). Android freezes the
         // screen while it turns and waits for the portrait frame; bars shown only once that frame was
@@ -142,10 +160,16 @@ class OrientationController(private val activity: ComponentActivity) {
         activity.requestedOrientation = when {
             free -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             !playerOpen -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            holding -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             forced == Forced.Landscape -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             forced == Forced.Portrait -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             else -> ActivityInfo.SCREEN_ORIENTATION_USER
         }
+    }
+
+    private fun endHold() {
+        holdUntil = 0L
+        holdHandler.removeCallbacks(holdEnded)
     }
 
     @Composable
@@ -159,6 +183,7 @@ class OrientationController(private val activity: ComponentActivity) {
             activity.addOnMultiWindowModeChangedListener(windowListener)
             onDispose {
                 listener.disable()
+                endHold()
                 activity.removeOnMultiWindowModeChangedListener(windowListener)
             }
         }
@@ -186,6 +211,9 @@ class OrientationController(private val activity: ComponentActivity) {
         LaunchedEffect(playerOpen, forced, multiWindow, largeScreen) { setPlayerOpen(playerOpen) }
     }
 }
+
+/** How long leaving landscape fullscreen keeps the player upright, so the phone can be turned without it coming back. */
+const val ExitRotationHoldMs = 5_000L
 
 @Composable
 fun rememberOrientationController(activity: ComponentActivity) = remember(activity) { OrientationController(activity) }

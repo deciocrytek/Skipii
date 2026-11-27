@@ -64,14 +64,26 @@ class SkipiiApplication : Application(), ImageLoaderFactory {
         getSystemService(android.net.ConnectivityManager::class.java)?.registerDefaultNetworkCallback(
             object : android.net.ConnectivityManager.NetworkCallback() {
                 private var last: android.net.Network? = null
+                /** Lost with nothing in its place yet: the next network to come up is a change even if it's the same one. */
+                private var down = false
+
                 override fun onAvailable(network: android.net.Network) {
-                    if (last != null && last != network) StreamCache.invalidateAll()
-                    if (last != network) AppLog.i("Skipii", "network: ${if (last == null) "connected" else "switched"}")
+                    // Any network that wasn't there before, the first one too (the app may have started offline).
+                    val changed = last != network || down
+                    if (last != null && changed) StreamCache.invalidateAll()
+                    if (last != network || down) AppLog.i("Skipii", "network: ${if (last == null) "connected" else if (last == network) "back" else "switched"}")
+                    // Connections on the old network are dead; a load stuck on one starts over now.
+                    if (changed) Net.networkChanged(up = true, first = last == null)
                     last = network
+                    down = false
                 }
 
                 override fun onLost(network: android.net.Network) {
-                    if (network == last) AppLog.i("Skipii", "network: lost")
+                    if (network == last) {
+                        AppLog.i("Skipii", "network: lost")
+                        down = true
+                        Net.networkChanged(up = false)
+                    }
                 }
             },
         )
